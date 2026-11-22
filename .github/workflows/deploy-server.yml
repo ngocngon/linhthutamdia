@@ -1,0 +1,89 @@
+name: Triển khai máy chủ online (Cloudflare)
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "server/**"
+      - ".github/workflows/deploy-server.yml"
+
+concurrency:
+  group: deploy-server
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Kiểm tra đã có secret Cloudflare
+        run: |
+          if [ -z "$CLOUDFLARE_API_TOKEN" ] || [ -z "$CLOUDFLARE_ACCOUNT_ID" ]; then
+            echo "::error::Thiếu secret CLOUDFLARE_API_TOKEN hoặc CLOUDFLARE_ACCOUNT_ID (Settings > Secrets and variables > Actions). Xem server/README.md"
+            exit 1
+          fi
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: server/package-lock.json
+
+      - name: Cài thư viện
+        working-directory: server
+        run: npm ci
+
+      - name: Chạy kiểm thử
+        working-directory: server
+        run: npm test
+
+      - name: Tạo cơ sở dữ liệu D1 nếu chưa có, ghi database_id vào wrangler.toml (chỉ trong lần chạy này)
+        working-directory: server
+        run: |
+          find_id() { npx wrangler d1 list --json | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{const l=JSON.parse(s);const d=l.find(x=>x.name==="linhthu");console.log(d?(d.uuid||d.id||""):"")})'; }
+          ID="$(find_id)"
+          if [ -z "$ID" ]; then
+            npx wrangler d1 create linhthu
+            ID="$(find_id)"
+          fi
+          if [ -z "$ID" ]; then echo "::error::Không lấy được database_id của D1 'linhthu'"; exit 1; fi
+          sed -i "s/^database_id = .*/database_id = \"$ID\"/" wrangler.toml
+          echo "D1 linhthu: $ID"
+
+      - name: Áp dụng migration D1
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: server
+          command: d1 migrations apply linhthu --remote
+
+      - name: Triển khai Worker
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: server
+          command: deploy
+
+      # Tuỳ chọn: nếu đã thêm ADMIN_TOKEN / SESSION_SECRET vào GitHub secrets thì đẩy sang Worker. Không có thì bỏ qua.
+      - name: Đẩy ADMIN_TOKEN và SESSION_SECRET (nếu có trong GitHub secrets)
+        working-directory: server
+        env:
+          ADMIN_TOKEN: ${{ secrets.ADMIN_TOKEN }}
+          SESSION_SECRET: ${{ secrets.SESSION_SECRET }}
+        run: |
+          for NAME in ADMIN_TOKEN SESSION_SECRET; do
+            VAL="${!NAME}"
+            if [ -n "$VAL" ]; then
+              printf '%s' "$VAL" | npx wrangler secret put "$NAME"
+            else
+              echo "Bỏ qua $NAME (chưa có trong GitHub secrets); đặt bằng 'wrangler secret put' hoặc trên bảng điều khiển Cloudflare."
+            fi
+          done

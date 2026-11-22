@@ -1,0 +1,21 @@
+{
+  "name": "linhthu-server",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Máy chủ online cho Linh Thú Tam Địa (Cloudflare Workers + Durable Objects + D1)",
+  "scripts": {
+    "dev": "wrangler dev --local --port 8787",
+    "test": "vitest run",
+    "migrate:local": "wrangler d1 migrations apply linhthu --local",
+    "migrate:remote": "wrangler d1 migrations apply linhthu --remote",
+    "deploy": "wrangler deploy",
+    "smoke": "node scripts/smoke.mjs"
+  },
+  "devDependencies": {
+    "@cloudflare/vitest-plugin": "^1.9.0",
+    "vitest": "^4.1.12",
+    "wrangler": "^4.166.0",
+    "ws": "^8.23.0"
+  }
+}

@@ -465,6 +465,8 @@ function applyActs(g,side,acts){let ok=true;for(const a of (Array.isArray(acts)?
   const r=a.t==="p"?E.queuePlay(g,side,a.u,a.l|0):a.t==="m"?E.queueMove(g,side,a.u,a.l|0):a.t==="a"?E.queueAct(g,side,a.u):false;if(!r)ok=false;}return ok;}
 function onlineEnd(){if(!G||G.phase!=="play")return;
   if(OL.sub){if(!OL.locked){OL.sub=false;document.body.classList.remove("olwait");try{OL.mr.presence({sub:0,acts:[]});}catch(e){}SFX.play("tap");render();}return;}
+  /* gpu22: chưa diễn xong pha đầu lượt mới (chưa chốt mã trạng thái lượt này) thì chưa cho nộp lượt — tránh bị ghi đè sub:0 gây lệch đồng bộ */
+  if(OL.myH&&OL.myH.t!==G.turn*2){SFX.play("tap");return;}
   sel=look=moveSel=null;OL.sub=true;OL.acts=myActs();OL.sn=G.snap.p?1:0;OL.waitAt=Date.now();document.body.classList.add("olwait");
   try{OL.mr.presence({t:G.turn,sub:1,acts:OL.acts,snap:G.snap.p?1:0,lock:0});}catch(e){}
   SFX.play("place");render();clearTimeout(OL.waitT);OL.waitT=setTimeout(()=>{if(OL.sub&&!OL.resolving&&G&&G.online&&G.phase==="play"&&!OL.goneAt){OL.note="Đối thủ không ra bài quá 3 phút.";E.finish(G,"retreatA");showEnd();}},180000);
