@@ -1405,26 +1405,19 @@ function loadImg12(u,tries,dec){tries=tries==null?3:tries;return new Promise(res
 document.addEventListener("error",e=>{const t=e.target;if(!t||t.tagName!=="IMG")return;const s=t.getAttribute("src")||"";if(!s||s.startsWith("data:")||s.startsWith("blob:"))return;
   const o=t.dataset.o||s;t.dataset.o=o;const n=+(t.dataset.rt||0);if(n>=3){IMGRT.bad.add(o.replace(/[?&]rt=[^&]*$/,""));return;}t.dataset.rt=n+1;
   setTimeout(()=>{if(t.isConnected)t.src=IMGRT.ok[o]||bust12(o,n+1);},400*(n+1));},true);
-/* sprite thẻ: tải có thử lại; ảnh cắt xong được giải mã và giữ tham chiếu */
-function sheet12(su){let o=SP.w[su];if(o&&o.im)return Promise.resolve(o.im);if(o&&o.p)return o.p;o=o||(SP.w[su]={q:new Set(),im:null});
-  return o.p=loadImg12(su,3,true).then(im=>{if(!im){delete SP.w[su];return null;}o.im=im;const g=IMGRT.ok[su];if(g)SP.w[g]=o;for(const id of o.q)spCut(id,im);o.q.clear();return im;});}
 /* gpu22: mỗi thẻ có file riêng: img/ct/<id>.webp (thumbnail 256) và img/c/<id>.webp (đầy đủ 512). Khoá "id" = thumbnail, "id@f" = bản đầy đủ.
-   Không còn cắt canvas + toBlob; file thiếu/lỗi -> rơi về đường sprite cũ (nếu còn img/s). */
+   gpu23: bỏ đường dự phòng cắt sprite tờ img/s (thư mục này không còn trong www/, mọi id trong IMGS.c đều có img/c + img/ct). */
 const CV12="gpu22";
 function cardUrl12(id,f){return new URL("img/"+(f?"c":"ct")+"/"+id+".webp?v="+CV12,document.baseURI||location.href).href;}
 function spKey12(k){const f=k.slice(-2)==="@f";return {f:f,id:f?k.slice(0,-2):k};}
-spCut=function(k,im){if(SP.c[k]||SP.k[k])return;SP.k[k]=1;const q=spKey12(k),v=IMGS.c[q.id],i=+v.slice(v.indexOf("#")+1),t=im.naturalWidth/2,cv=document.createElement("canvas");cv.width=cv.height=t;cv.getContext("2d").drawImage(im,(i%2)*t,(i>>1)*t,t,t,0,0,t,t);
-  const done=b=>{SP.c[k]=b?URL.createObjectURL(b):cv.toDataURL();delete SP.k[k];spPaint(k);};try{cv.toBlob(done,"image/webp",.9);}catch(e){done(null);}};
-function spSheet12(k,u){const su=u.slice(0,u.indexOf("#")),w=SP.w[su];
-  if(w&&w.im)return spCut(k,w.im);if(w){w.q.add(k);if(!w.p)sheet12(su);return;}SP.w[su]={q:new Set([k]),im:null};sheet12(su);}
-spLoad=function(k){if(SP.c[k]||SP.k[k])return;const q=spKey12(k),u=IMGS.c[q.id];if(!u||u.indexOf("#")<0)return;
+function spLoad(k){if(SP.c[k]||SP.k[k])return;const q=spKey12(k);if(!IMGS.c[q.id])return;
   SP.k[k]=1;const cu=cardUrl12(q.id,q.f);
   loadImg12(cu,1,true).then(im=>{delete SP.k[k];
-    if(im){SP.c[k]=IMGRT.ok[cu]||cu;SPK12[k]="d";SPKEEP.push(im);IMGRT.bad.delete(cu);spPaint(k);}
-    else spSheet12(k,u);});};
-const _spPaint12=spPaint;
-spPaint=function(k){_spPaint12(k);const u=SP.c[k];if(u&&!SPK12[k]){SPK12[k]="p";const im=new Image();im.src=u;SPKEEP.push(im);(im.decode?im.decode():Promise.resolve()).then(()=>SPK12[k]="d",()=>SPK12[k]="d");}};
-function spWait12(ids,ms){ids=ids.filter(k=>IMGS.c[k]&&IMGS.c[k].indexOf("#")>=0);for(const k of ids)if(!SP.c[k])spLoad(k);const t0=performance.now();
+    if(im){SP.c[k]=IMGRT.ok[cu]||cu;SPK12[k]="d";SPKEEP.push(im);IMGRT.bad.delete(cu);spPaint(k);}});}
+/* gắn ảnh đã có vào mọi phần tử [data-sp] đang chờ, rồi giải mã trước và giữ tham chiếu */
+function spPaint(k){const u=SP.c[k];if(!u)return;document.querySelectorAll('[data-sp="'+k+'"]').forEach(e=>{if(e.tagName==="IMG")e.src=u;else e.style.backgroundImage="url('"+u+"')";e.removeAttribute("data-sp");});
+  if(!SPK12[k]){SPK12[k]="p";const im=new Image();im.src=u;SPKEEP.push(im);(im.decode?im.decode():Promise.resolve()).then(()=>SPK12[k]="d",()=>SPK12[k]="d");}}
+function spWait12(ids,ms){ids=ids.filter(k=>IMGS.c[k]);for(const k of ids)if(!SP.c[k])spLoad(k);const t0=performance.now();
   return new Promise(r=>{const chk=()=>{if(ids.every(k=>SP.c[k]&&SPK12[k]==="d")||performance.now()-t0>ms)return r();setTimeout(chk,25);};chk();});}
 function artReady12(evs){if(reduced)return Promise.resolve();const ids=[];for(const e of evs)if(e.k==="flip"){const c=anyC(e.uid);if(c)ids.push(c.id);}return ids.length?spWait12(ids,400):Promise.resolve();}
 /* vào trận: tải + giải mã trước sprite cả hai bộ bài và thẻ phụ */
@@ -1434,7 +1427,7 @@ function warmMatch12(){try{const ids=new Set();for(const sd of ["p","a"]){for(co
 const _dealIn12=dealIn;dealIn=function(){warmMatch12();return _dealIn12.apply(this,arguments);};
 /* màn hình tải */
 function runPool12(jobs,n,each){let i=0;return new Promise(res=>{let act=0;if(!jobs.length)return res();const nx=()=>{if(i>=jobs.length){if(!act)res();return;}const j=jobs[i++];act++;Promise.resolve().then(j).catch(()=>{}).then(()=>{act--;each&&each();nx();});};for(let k=0;k<n;k++)nx();});}
-function deckIds12(ids){const s=new Set();for(const k of ids)for(const id of [k,...(LINKS[k]||[])]){const u=IMGS.c[id];if(u&&u.indexOf("#")>=0)s.add(id);}return [...s];}
+function deckIds12(ids){const s=new Set();for(const k of ids)for(const id of [k,...(LINKS[k]||[])])if(IMGS.c[id])s.add(id);return [...s];}
 function boot12(){const L=$("ldr12");if(!L)return;const crit=new Set();
   for(const v of Object.values(IMGS.u||{}))crit.add(v);for(const v of Object.values(IMGS.v||{}))crit.add(v);
   for(const k of ["lat_the","tang_suc","giam_suc","hien_dia","song_xung","khung_lua","khung_nuoc","khung_set","khung_moc"])if(IMGS.v16&&IMGS.v16[k])crit.add(IMGS.v16[k]);
@@ -1448,7 +1441,7 @@ function refresh12(){try{if(IMGRT.fixed){IMGRT.fixed=0;if(typeof applyArena==="f
 function fin12(){const L=$("ldr12");if(!L||L.classList.contains("off"))return;L.classList.add("off");setTimeout(()=>L.remove(),450);refresh12();setTimeout(bg12,1200);}
 /* tải nền tuần tự: sprite sưu tập, chiến địa, sàn đấu (tờ v16 riêng thẻ chỉ tải thông minh theo bộ bài trận đấu) */
 function bg12(){const q=[],seen=new Set();
-  for(const k in IMGS.c){const u=IMGS.c[k];if(u.indexOf("#")<0||SP.c[k])continue;const cu=cardUrl12(k,0);if(!seen.has(cu)){seen.add(cu);q.push(cu);}}
+  for(const k in IMGS.c){if(SP.c[k])continue;const cu=cardUrl12(k,0);if(!seen.has(cu)){seen.add(cu);q.push(cu);}}
   for(const k in IMGS.l){const u=IMGS.l[k];if(typeof u==="string"&&!seen.has(u)){seen.add(u);q.push(u);}}for(const k in IMGS.a){const x=IMGS.a[k]||{};for(const u of [x.b,x.t])if(u&&!seen.has(u)){seen.add(u);q.push(u);}}
   bgRun20(q);}
 /* gpu20: tải nền từng ảnh một, chỉ lúc máy rảnh; tạm dừng khi đang trong trận hoặc tab ẩn để không giật hình */
@@ -1457,8 +1450,8 @@ function bgIdle20(fn){if(window.requestIdleCallback)requestIdleCallback(fn,{time
 function bgRun20(q){let i=0;const nx=()=>{if(i>=q.length){refresh12();return;}if(bgBusy20()){setTimeout(()=>bgIdle20(nx),1500);return;}
   const u=q[i++];loadImg12(u,3,false).then(()=>setTimeout(()=>bgIdle20(nx),60));};setTimeout(()=>bgIdle20(nx),2500);}
 function reCard12(u){const m=u.match(/\/(ct?)\/([^/?]+)\.webp/),k=m[2]+(m[1]==="c"?"@f":"");delete SP.k[k];spLoad(k);return Promise.resolve();}
-function reimg12(){const L=[...IMGRT.bad];IMGRT.bad.clear();for(const k in SP.w)if(!SP.w[k].im)delete SP.w[k];
-  return runPool12(L.map(u=>()=>(/\/s\//.test(u)?sheet12(u):/\/ct?\/[^/]+\.webp/.test(u)?reCard12(u):loadImg12(u,3,true))),4).then(()=>{document.querySelectorAll("img[data-rt]").forEach(i=>{const o=i.dataset.o;i.dataset.rt="0";i.src=IMGRT.ok[o]||bust12(o,9);});IMGRT.fixed=1;refresh12();});}
+function reimg12(){const L=[...IMGRT.bad];IMGRT.bad.clear();
+  return runPool12(L.map(u=>()=>(/\/ct?\/[^/]+\.webp/.test(u)?reCard12(u):loadImg12(u,3,true))),4).then(()=>{document.querySelectorAll("img[data-rt]").forEach(i=>{const o=i.dataset.o;i.dataset.rt="0";i.src=IMGRT.ok[o]||bust12(o,9);});IMGRT.fixed=1;refresh12();});}
 {const _os=openSet;openSet=function(){_os.apply(this,arguments);if(typeof renderSetSpd==="function")renderSetSpd();if(typeof syncSetUi==="function")syncSetUi();if($("setBgm"))$("setBgm").checked=!!store.battleBgm;const b=$("setReimg");if(b)b.textContent="Tải lại hình"+(IMGRT.bad.size?` (${IMGRT.bad.size} ảnh lỗi)`:"");};}
 document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("#setReimg");if(!b)return;b.disabled=true;b.textContent="Đang tải lại…";reimg12().then(()=>{b.disabled=false;b.textContent="Tải lại hình"+(IMGRT.bad.size?` (${IMGRT.bad.size} ảnh lỗi)`:" ✓");});});
 /* ---- hào quang: khung ảnh xử lý tĩnh 1 lần (tăng alpha/tương phản) + viền màu đặc + quầng ---- */
