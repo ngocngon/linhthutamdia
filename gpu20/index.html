@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<base href="../">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>Linh Thú Tam Địa — BẢN THỬ gpu20</title>
+<link rel="icon" href="data:,">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;800&family=Barlow+Condensed:ital,wght@1,700;1,900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="gpu20/css/01-arena-cards.css?v=gpu20">
+<link rel="stylesheet" href="gpu20/css/02-board-vfx.css?v=gpu20">
+<link rel="stylesheet" href="gpu20/css/03-lobby-meta.css?v=gpu20">
+<link rel="stylesheet" href="gpu20/css/04-vfx-gpu.css?v=gpu20">
+</head>
+<body>
+<div id="ldr12" role="status" aria-live="polite"><div class="lb12"><b>LINH THÚ TAM ĐỊA</b><div class="bar12"><i id="ldrBar"></i></div><span id="ldrTxt">Đang tải hình… 0%</span><button type="button" id="ldrSkip" hidden>Vào luôn</button></div></div>
+<div id="scene" aria-hidden="true"><svg viewBox="0 0 400 860" preserveAspectRatio="xMidYMid slice"><defs>
+<linearGradient id="sg0" x2="0" y2="1"><stop offset="0" stop-color="#0a0a3a"/><stop offset=".3" stop-color="#101a66"/><stop offset=".62" stop-color="#070b30"/><stop offset="1" stop-color="#12063a"/></linearGradient>
+<radialGradient id="sg1" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#9fd0ff"/><stop offset=".55" stop-color="#2b5fd6"/><stop offset="1" stop-color="#0b1a5a"/></radialGradient>
+<radialGradient id="sg2" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#8a7bff" stop-opacity=".75"/><stop offset="1" stop-color="#8a7bff" stop-opacity="0"/></radialGradient>
+<filter id="sgl" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+<rect width="400" height="860" fill="url(#sg0)"/>
+<g fill="#fff"><circle cx="30" cy="20" r="1"/><circle cx="92" cy="54" r=".8"/><circle cx="150" cy="16" r="1.1"/><circle cx="258" cy="30" r=".9"/><circle cx="330" cy="12" r="1"/><circle cx="372" cy="64" r=".8"/><circle cx="60" cy="96" r=".7"/><circle cx="300" cy="92" r=".8"/></g>
+<ellipse cx="200" cy="60" rx="190" ry="90" fill="url(#sg2)"/>
+<circle cx="200" cy="128" r="62" fill="url(#sg1)" opacity=".9"/><ellipse cx="200" cy="128" rx="96" ry="12" fill="none" stroke="#9fd0ff" stroke-width="1.5" opacity=".5"/>
+<g fill="#070a2c"><path d="M0 190V132h14v-22h10v22h16v-40h12v40h20v-18h14v18h18v60Z"/><path d="M400 190V126h-16v-26h-10v26h-14v-44h-12v44h-22v-14h-14v14h-16v64Z"/><path d="M104 190v-34h10v-16h8v16h22v34ZM296 190v-30h-12v-20h-8v20h-20v30Z"/></g>
+<g fill="#ffb347" opacity=".9"><rect x="18" y="140" width="4" height="3"/><rect x="44" y="110" width="4" height="3"/><rect x="44" y="124" width="4" height="3"/><rect x="72" y="146" width="4" height="3"/><rect x="364" y="112" width="4" height="3"/><rect x="336" y="128" width="4" height="3"/><rect x="312" y="150" width="4" height="3"/><rect x="118" y="162" width="4" height="3"/><rect x="278" y="166" width="4" height="3"/></g>
+<path d="M0 186H400V860H0Z" fill="#060a2a"/>
+<path d="M-10 186H410" stroke="#27c8ff" stroke-width="2" filter="url(#sgl)" opacity=".8"/>
+<g stroke="#2a3a9a" stroke-width="1" opacity=".55"><path d="M200 186L-140 860M200 186L20 860M200 186L140 860M200 186L260 860M200 186L380 860M200 186L540 860"/><path d="M0 230H400M0 290H400M0 370H400M0 470H400M0 600H400M0 760H400"/></g>
+<g filter="url(#sgl)"><path d="M6 250h34M360 250h34M6 620h34M360 620h34" stroke="#ff9a3c" stroke-width="4" stroke-linecap="round"/><path d="M0 700L60 680M400 700L340 680" stroke="#27c8ff" stroke-width="3" stroke-linecap="round"/></g>
+<g fill="none" stroke-linejoin="round" stroke-linecap="round" filter="url(#sgl)"><path class="bolt" d="M200 4l-14 22l10 4l-18 26l8 3l-12 18" stroke="#b9a4ff" stroke-width="1.8"/><path class="bolt b2" d="M150 30l16 10l-8 8l20 12" stroke="#7fd8ff" stroke-width="1.5"/><path class="bolt b3" d="M252 26l-18 12l9 8l-22 14" stroke="#e0b0ff" stroke-width="1.5"/><path class="bolt b2" d="M112 8l10 18l-8 5l14 20" stroke="#7fd8ff" stroke-width="1.2"/><path class="bolt" d="M292 6l-9 20l8 4l-13 22" stroke="#b9a4ff" stroke-width="1.2"/></g>
+<ellipse cx="200" cy="850" rx="230" ry="70" fill="#27c8ff" opacity=".16"/>
+</svg></div>
+<div id="amb" aria-hidden="true"></div>
+<div id="flash" aria-hidden="true"></div>
+<div id="zoom" role="dialog" aria-label="Xem thẻ"></div>
+<canvas id="fx" aria-hidden="true"></canvas><svg width="0" height="0" style="position:absolute" aria-hidden="true"><filter id="zz"><feTurbulence type="fractalNoise" baseFrequency="0.08 0.5" numOctaves="1" seed="3"/><feDisplacementMap in="SourceGraphic" scale="9"/></filter></svg>
+<div id="app">
+  <header class="top">
+    <button class="who me" id="btnProfile" type="button" aria-label="Ảnh đại diện của bạn. Trong trận: gửi cảm xúc"><div class="hexav" id="avMe"></div><div class="ban"><b id="meName">BẠN</b><small id="meSub"></small></div></button>
+    <button class="cube" id="btnSnap" type="button" aria-label="Cược nhân đôi"><span class="cv" id="stakeV">1</span><span class="ch">cược ×2</span></button>
+    <div class="who foe"><div class="hexav" id="avFoe"></div><div class="ban"><b id="foeName">MÁY</b><small id="oppSub"></small></div></div>
+  </header>
+  <div class="sub">
+    <div class="tools"><button class="tb" id="btnLobby" type="button">Sảnh</button><button class="tb" id="btnPiles" type="button">Mộ</button><button class="tb tbi" id="btnFx" type="button" aria-label="Bật hoặc tắt hiệu ứng" title="Hiệu ứng"><svg viewBox="0 0 24 24" width="17" height="17" fill="currentColor" aria-hidden="true"><path d="M12 2l2.2 6.6L21 11l-6.8 2.4L12 20l-2.2-6.6L3 11l6.8-2.4z"/><circle cx="19" cy="4.5" r="1.6"/><circle cx="5" cy="19" r="1.3"/></svg></button></div>
+    <div class="final" id="finalV"></div>
+    <div class="tools r"><button class="tb" id="btnMute" type="button">Tiếng</button><button class="tb" id="btnHelp" type="button">Luật</button></div>
+  </div>
+  <main class="board" id="board"></main>
+  <div class="info" aria-live="polite"><div class="itx" id="infoText"></div><div class="iact" id="infoAct"></div></div>
+  <div class="hand" id="hand"></div>
+  <div class="tbar idle" id="tbar"><i id="tfill"></i></div>
+  <footer class="bar">
+    <button class="bn left" id="btnRetreat" type="button">RÚT LUI</button>
+    <div class="orb" id="orb" aria-label="Năng lượng">1</div>
+    <button class="bn right" id="btnEnd" type="button"><span id="endMain">KẾT THÚC LƯỢT</span><small id="endSub">Lượt 1/6</small></button>
+  </footer>
+</div>
+
+<div class="olnet" id="olNet" role="status" hidden></div>
+<div class="mm" id="mm" role="dialog" aria-label="Ghép trận"><div class="mmh"><h2>Ghép trận</h2><p id="mmSt">Đang ghép trận…</p></div>
+  <div class="mmc me"><span class="hexav" id="mmAvMe"></span><div><b id="mmNmMe"></b><small id="mmRkMe"></small></div></div>
+  <div class="mmvs" aria-hidden="true"><span>VS</span></div>
+  <div class="mmc foe" id="mmFoe"><span class="hexav" id="mmAvFoe"></span><div><b id="mmNmFoe"></b><small id="mmRkFoe"></small></div></div>
+  <p class="mmbig" id="mmBig">Đang tìm đối thủ…</p>
+  <button class="btn ghost" type="button" id="mmCancel">Huỷ</button></div>
+<div id="emoMenu" role="menu" aria-label="Cảm xúc"></div>
+<div id="enPop" role="dialog" aria-label="Năng lượng"><h4>Năng lượng</h4><div class="enb" id="enN">0</div><p>Đặt thẻ sẽ tiêu năng lượng. Mỗi lượt có thể đặt nhiều thẻ.</p><p>Mỗi lượt được thêm 1 năng lượng tối đa. Năng lượng không dùng sẽ mất.</p><button class="btn ghost" type="button" id="enUndo">Hoàn tác tất cả hành động</button></div>
+<div class="ov" id="ovSet"><div class="panel"><h2 style="text-align:center">Cài đặt</h2><div class="body">
+  <label class="srow"><span>Âm lượng hiệu ứng</span><input type="range" id="setVol" min="0" max="100" step="5"><b id="setVolV">100%</b></label>
+  <label class="srow"><span>Âm lượng nhạc nền</span><input type="range" id="setBgmVol" min="0" max="100" step="5"><b id="setBgmVolV">55%</b></label>
+  <label class="srow"><span>Nhạc nền trận đấu</span><input type="checkbox" id="setBgm"></label>
+  <label class="srow"><span>Tắt toàn bộ tiếng</span><input type="checkbox" id="setMute"></label>
+  <label class="srow"><span>Hiệu ứng hình ảnh</span><input type="checkbox" id="setFx"></label>
+  <label class="srow"><span>Đồ hoạ GPU (mượt hơn)</span><input type="checkbox" id="setGpu"></label>
+  <label class="srow"><span>Tốc độ hoạt ảnh</span><select id="setSpd"><option value="cham">Chậm</option><option value="vua">Vừa</option><option value="nhanh">Nhanh</option></select></label>
+  <label class="srow"><span>Rung khi chạm, lật thẻ</span><input type="checkbox" id="setVib"></label>
+  <label class="srow"><span>Nghiêng thẻ theo con quay của máy</span><input type="checkbox" id="setGyro"></label>
+  <button class="btn ghost" type="button" id="setArena" style="width:100%;margin-top:10px">Đổi sàn đấu</button>
+  <button class="btn ghost" type="button" id="setReimg" style="width:100%;margin-top:8px">Tải lại hình</button>
+</div><div class="foot"><button class="btn end" type="button" data-close>Xong</button></div></div></div>
+<div class="ov" id="ovHelp"><div class="panel">
+  <h2>Linh Thú Tam Địa</h2>
+  <div class="lead">Đấu bài ba chiến địa đất, sáu lượt. Bản thử: mở sẵn cả 150 thẻ và 30 chiến địa đất.</div>
+  <div class="body">
+    <p><b>Mục tiêu.</b> Sau lượt 6, ai có tổng sức mạnh cao hơn ở một chiến địa thì giữ chiến địa đó. Giữ 2 trong 3 chiến địa là thắng. Số chiến địa bằng nhau thì so tổng sức mạnh toàn bàn.</p>
+    <p><b>Lượt chơi.</b> Quả cầu xanh là năng lượng: lượt 1 có 1, lượt 6 có 6. Mỗi lượt rút 1 thẻ. Chạm một thẻ trên tay, rồi chạm chiến địa đất để đặt. Chạm thẻ vừa đặt để lấy lại. Mỗi bên có tối đa 4 thẻ ở một chiến địa.</p>
+    <p><b>Trên thẻ bài.</b> Số trong vòng tròn xanh là năng lượng. Số trong lục giác cam là sức mạnh, chuyển xanh thẻ khi được cộng và đỏ khi bị trừ. Màu viền là màu hệ.</p>
+    <p><b>Lật bài.</b> Hai bên đặt bài úp cùng lúc rồi lật lần lượt, bên đang dẫn lật trước. Thao tác của bạn chạy đúng thứ tự bạn bấm.</p>
+    <p><b>Dạng kỹ năng.</b> <b>Lật</b> chạy một lần khi thẻ được lật. <b>Duy Trì</b> có hiệu lực suốt ván. <b>Kích Hoạt</b> do bạn bấm, một lần mỗi ván, từ lượt sau lượt đặt. <b>Cuối Lượt</b> chạy mỗi lượt. <b>Phản Ứng</b> chạy khi thẻ bị vứt bỏ, bị tiêu huỷ hoặc di chuyển. <b>Bị Động</b> luôn có hiệu lực.</p>
+    <p><b>Kích Hoạt và dời thẻ.</b> Chạm một thẻ của bạn trên bàn. Nếu thẻ đó kích hoạt hoặc dời được, nút sẽ hiện bên phải dòng thông tin. Thẻ có chữ KH ở đáy là thẻ còn kích hoạt được.</p>
+    <p><b>Mộ bài.</b> Thẻ bị vứt bỏ và thẻ bị tiêu huỷ nằm trong mộ của chủ nó. Hệ Hồi Sinh gọi chúng trở lại bàn, kể cả thẻ của đối thủ.</p>
+    <p><b>Đồng hồ.</b> Mỗi lượt có 90 giây (có cộng bù giây khi bạn đang ra bài sát giờ). Hết giờ thì lượt tự kết thúc với những thẻ đã đặt và bị tính là bỏ lượt. Bỏ 3 lượt liên tiếp thì bị xử thua. Đồng hồ dừng khi bạn mở bảng Luật, Bài hoặc Mộ.</p>
+    <h3>Cơ chế của thẻ</h3>
+    <p><b>Lật.</b> Chạy một lần ngay khi thẻ được lật. Thẻ có tia điện xanh là đang chạy kỹ năng Lật.</p>
+    <p><b>Duy Trì.</b> Có hiệu lực suốt thời gian thẻ nằm ngửa trên bàn và mất ngay khi thẻ rời bàn hoặc bị xoá kỹ năng. Thẻ Duy Trì có viền sáng nhấp nháy.</p>
+    <p><b>Kích Hoạt.</b> Thẻ có nhãn KH. Từ lượt sau khi đặt, chạm thẻ rồi bấm Kích Hoạt; kỹ năng chạy trong pha lật của lượt đó, mỗi thẻ một lần mỗi ván.</p>
+    <p><b>Cuối Lượt, Đầu Lượt.</b> Tự chạy sau khi mọi thẻ đã lật, hoặc ngay đầu lượt mới.</p>
+    <p><b>Khi bị tiêu huỷ, khi bị vứt bỏ, khi di chuyển.</b> Chạy đúng lúc sự việc đó xảy ra với chính thẻ này. Thẻ bị tiêu huỷ rời bàn vào Mộ; thẻ bị vứt bỏ rời tay.</p>
+    <p><b>Trừ sức mạnh và cộng sức mạnh.</b> Số xanh bay lên là được cộng, số hồng là bị trừ. Phần cộng trừ này ở lại với thẻ cả khi nó dời đi hoặc về tay.</p>
+    <p><b>Cường Hoá.</b> Một thẻ được Cường Hoá mỗi khi sức mạnh của nó được cộng thêm, dù đang ở trên bàn, trên tay hay trong bộ bài. Phần cộng từ kỹ năng Duy Trì không tính.</p>
+    <p><b>Nhiệm Vụ.</b> Tự kiểm tra ở cuối mỗi lượt; khi đủ điều kiện, phần thưởng chạy một lần.</p>
+    <p><b>Mất kỹ năng.</b> Thẻ có dấu ✕ không còn kỹ năng nào, chỉ còn sức mạnh.</p>
+    <p><b>Đổi phe, trả về tay, hợp thể.</b> Đổi phe: thẻ sang nằm bên đối thủ ở cùng chiến địa. Trả về tay: thẻ rời bàn, đặt lại được và kỹ năng Lật sẽ chạy lại. Hợp thể: thẻ biến mất, sức mạnh của nó cộng vào thẻ kia.</p>
+    <p><b>Năng lượng của thẻ.</b> Số ở góc trái có thể đổi theo kỹ năng; số xanh là đang rẻ hơn, số đỏ là đang đắt hơn.</p>
+    <p><b>Thứ tự.</b> Bên đang dẫn lật trước. Trong một bên, thẻ lật theo đúng thứ tự bạn đã đặt, nên thứ tự đặt quyết định “thẻ đặt gần nhất” và “thẻ kế tiếp”.</p>
+    <p><b>Chiến địa.</b> Hiệu ứng “Lộ diện” chạy một lần khi chiến địa mở ra; các hiệu ứng còn lại có tác dụng liên tục và sáng lên mỗi khi chúng tác động.</p>
+    <p><b>Cược.</b> Khối lục giác ở giữa là mức cược, bắt đầu từ 1 ngọc và tự nhân đôi khi ván đi hết lượt 6. Chạm vào khối để nhân đôi từ lượt sau. Dòng “Chung cuộc” là số ngọc nếu ván đi hết lượt 6. Máy cũng có thể cược. Rút lui sớm thì chỉ mất mức cược hiện tại.</p>
+  </div>
+  <div class="foot"><button class="btn end" type="button" data-close>Vào bàn</button></div>
+</div></div>
+
+<div class="ov" id="ovDeck"><div class="panel tall">
+  <div class="dhead"><h2 id="deckTitle">Thẻ bài</h2><button type="button" class="colx" data-close aria-label="Đóng">✕</button><input id="deckName" type="text" maxlength="16" autocomplete="off" placeholder="Đặt tên bộ bài" aria-label="Tên bộ bài"><button type="button" class="dbk" id="btnBack" aria-label="Đổi mặt lưng thẻ" aria-expanded="false"><span class="dbk-s" id="dbkS"></span><small>Mặt lưng</small></button><div class="count" id="deckCount"></div><button class="ib alt" id="btnDelDeck" type="button">Xoá</button></div>
+  <div class="bkrow" id="bkRow" hidden></div>
+  <div class="dkrow" id="deckRow"></div>
+  <div class="tray" id="deckTray"></div>
+  <div class="dktools" id="deckTools">
+    <button class="ib dktb hi" id="btnRecOpen" type="button">✨ Đề xuất</button>
+    <button class="ib dktb" id="btnAutoFill" type="button">⚡ Bù đủ 12 thẻ</button>
+    <button class="ib alt dktb" id="btnCopyDraft" type="button">📋 Sao chép mã</button>
+    <button class="ib alt dktb" id="btnPasteDraft" type="button">📥 Dán mã</button>
+  </div>
+  <div class="recstrip" id="recInline" hidden></div>
+  <div class="frow"><input id="deckSearch" type="search" placeholder="Tìm theo tên" autocomplete="off" aria-label="Tìm thẻ bài"><div class="fsum" id="fSum"></div></div>
+  <div id="railStash" hidden><button class="fbtn" id="btnFilt" type="button" aria-label="Bộ lọc"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M3 5h18l-7 8v6l-4 2v-8z"/></svg><span>Lọc</span><i id="filtN"></i></button><button class="sortb" id="btnSort" type="button" aria-label="Sắp xếp thẻ"></button></div>
+  <div class="cstat" id="colStat"></div>
+  <div class="clbar" id="clBar"></div>
+  <div class="cwrap"><nav class="rail l" id="railL" aria-label="Lọc theo năng lượng"><div class="costs" id="deckCosts"></div></nav><div class="body"><div class="cgrid" id="deckList"></div></div><nav class="rail r" id="railR" aria-label="Lọc và sắp xếp"></nav></div>
+  <div class="detail" id="deckDetail"></div>
+  <div class="foot">
+    <button class="btn ghost" type="button" data-close>Đóng</button>
+    <button class="btn ghost" type="button" id="btnRandom">Xếp theo hệ</button>
+    <button class="btn end" type="button" id="btnSaveDeck">Lưu bộ bài</button>
+  </div>
+</div></div>
+
+<div id="lobby" class="on">
+  <div class="lb-top lb3t">
+    <button type="button" class="lbic" id="lbMute" aria-label="Cài đặt"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1"/></svg></button>
+    <button class="lb-av" id="lbProfile" type="button" aria-label="Hồ sơ"><div class="hexav" id="lbAv"></div><span class="lbn"><b id="lbName">BẠN</b><small id="lbLvl"></small></span></button>
+    <div class="lb-chip gold"><i class="ico i-gold"></i><span id="lbGold">0</span></div>
+    <button type="button" class="lbic" id="lbHelp" aria-label="Luật chơi"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.3a2.6 2.6 0 015 .9c0 1.8-2.5 2.2-2.5 3.8M12 17.2v.3"/></svg></button>
+  </div>
+  <div class="lb-row2">
+    <button type="button" class="lbpass" id="lbPass" aria-label="Thẻ tháng"><span class="lbpt">THẺ THÁNG</span><span class="lbpb"><i id="lbPassBar"></i></span><span class="lbpl" id="lbPassLv">1</span><i class="nb" id="lbPassN"></i></button>
+    <button type="button" class="lbmis" id="lbMisBtn"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="3"/><path d="M8 9l2 2 4-4M8 15.5h8"/></svg><span>Nhiệm vụ</span><i class="nb" id="lbMisN"></i></button>
+  </div>
+  <div class="lb-res" id="lbRes" hidden></div>
+  <div class="lb-stage2"><div class="bnr" id="lbBnr" role="region" aria-label="Thông báo"></div><div class="bdots" id="lbDots"></div></div>
+  <div hidden><span id="lbGems"></span><button type="button" id="lbCol"></button><button type="button" id="lbArena"><b id="lbArenaN"></b></button><button type="button" id="lbShow"></button></div>
+  <div class="lb-play">
+    <button class="lb-deck" id="lbDeck" type="button" aria-label="Chọn bộ bài"><span class="dki" id="lbDeckIc"></span><b id="lbDeckName"></b></button>
+    <button id="lbPlay" type="button">Chơi</button>
+    <div class="lb-gem" id="lbStake"></div>
+  </div>
+  <nav class="lb-nav"><button type="button" data-nav="shop"><svg viewBox="0 0 24 24"><path d="M3 9l2-5h14l2 5M4 9v11h16V9M3 9h18M9 20v-6h6v6"/></svg>Cửa hàng</button><button type="button" data-nav="col"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="11" height="15" rx="1.5" transform="rotate(-8 8 13)"/><rect x="10" y="4" width="11" height="15" rx="1.5" transform="rotate(8 15 11)"/></svg>Sưu tập</button><button type="button" data-nav="home" class="on"><svg viewBox="0 0 24 24"><path d="M13 2L5 13h6l-1 9 9-12h-6z"/></svg>Chính</button><button type="button" data-nav="modes"><svg viewBox="0 0 24 24"><path d="M12 2l9 5v10l-9 5-9-5V7z"/><path d="M12 8v8M8 12h8"/></svg>Chế độ</button><button type="button" data-nav="rank"><svg viewBox="0 0 24 24"><path d="M4 18h16l1-10-5 4-4-7-4 7-5-4z"/><path d="M5 21h14"/></svg>Xếp hạng</button></nav>
+</div>
+
+<div class="ov" id="ovDecks"><div class="panel tall dpk">
+  <div class="dpk-h"><h2>Bộ bài</h2><span class="dpk-n" id="dkCnt"></span><button class="ib dktb hi" id="btnRecDecks" type="button">✨ Đề xuất</button><button class="ib alt dktb" id="btnPasteOpen" type="button">📥 Dán mã</button><button type="button" class="dpkx" data-close aria-label="Đóng">✕</button></div>
+  <div class="body"><div class="dkgrid" id="dkGrid"></div></div>
+  <div class="dpk-sel"><div class="dpk-sh"><span class="dpk-bk" id="dkSelBk"></span><b id="dkSelName"></b><button class="ib alt dktb" id="btnCopySel" type="button">📋 Mã</button><button class="ib alt" id="btnEditSel" type="button">✎ Sửa bộ</button></div><div class="tray" id="dkSelTray"></div></div>
+  <div class="foot"><button class="btn ghost" type="button" data-close>Huỷ</button><button class="btn end" type="button" id="btnEquip">Trang bị</button></div>
+</div></div>
+
+<div class="ov" id="ovRec"><div class="panel tall recp">
+  <div class="shp-h"><h2>✨ Đề xuất thẻ &amp; bộ bài</h2><button type="button" class="dpkx" data-close aria-label="Đóng">✕</button></div>
+  <div class="shp-tabs three" id="recTabs" role="tablist">
+    <button type="button" data-rt="card" class="on" role="tab">Thẻ phối hợp</button>
+    <button type="button" data-rt="arch" role="tab">Theo chiến thuật</button>
+    <button type="button" data-rt="he" role="tab">Theo hệ / bậc</button>
+  </div>
+  <div class="body" id="recBody"></div>
+  <div class="foot"><button class="btn ghost" type="button" data-close>Đóng</button></div>
+</div></div>
+
+<div class="ov" id="ovCode"><div class="panel codep">
+  <div class="shp-h"><h2 id="codeTitle">Mã bộ bài</h2><button type="button" class="dpkx" data-close aria-label="Đóng">✕</button></div>
+  <div class="body">
+    <div class="csec" id="codeOutWrap">
+      <div class="clbl">Mã bộ bài hiện tại (sao chép để chia sẻ hoặc lưu trữ):</div>
+      <div class="crow"><input id="outDeckCode" type="text" readonly aria-label="Mã bộ bài hiện tại"><button class="btn end" id="btnDoCopyCode" type="button">📋 Sao chép</button></div>
+    </div>
+    <div class="csec">
+      <div class="clbl">Dán mã bộ bài để nạp nhanh:</div>
+      <textarea id="inDeckCode" rows="3" placeholder="Dán mã LTTD1-... vào đây" aria-label="Ô dán mã bộ bài"></textarea>
+      <div class="crow" style="margin-top:6px"><button class="btn ghost" id="btnReadClip" type="button">📥 Dán từ khay nhớ</button><button class="btn ghost" id="btnClearCode" type="button">Xoá ô</button></div>
+    </div>
+    <div class="cprev" id="codePreview"></div>
+  </div>
+  <div class="foot">
+    <button class="btn ghost" type="button" data-close>Đóng</button>
+    <button class="btn ghost" id="btnCodeNewDeck" type="button" disabled>Tạo bộ mới</button>
+    <button class="btn end" id="btnCodeApply" type="button" disabled>Áp dụng bộ này</button>
+  </div>
+</div></div>
+
+<div class="ov" id="ovFilt"><div class="panel fpanel">
+  <h2 style="text-align:center">Bộ lọc</h2>
+  <div class="body">
+    <div class="fsec">Trạng thái và kỹ năng</div><div class="chips wrap" id="chipsDang"></div>
+    <div class="fsec">Hệ</div><div class="chips wrap" id="chipsHe"></div>
+  </div>
+  <div class="foot"><button class="btn ghost" type="button" id="btnFiltClr">Xoá lọc</button><button class="btn end" type="button" id="btnFiltOk">Xem <b id="filtCnt">0</b> thẻ</button></div>
+</div></div>
+<div class="ov sheet" id="ovPick"><div class="pk" id="pkBody" role="dialog" aria-label="Thẻ bài"></div></div>
+<div class="ov" id="ovSort"><div class="sortp">
+  <div class="sorth"><span>Sắp xếp thẻ</span><button id="sortDir" type="button" aria-label="Đổi chiều sắp xếp">↓</button></div>
+  <div id="sortList"></div>
+  <button class="btn end" type="button" data-close>Đóng</button>
+</div></div>
+
+<div class="ov" id="ovModes"><div class="panel tall mhub">
+  <div class="shp-h"><h2>Chế độ chơi</h2><button type="button" class="dpkx" data-close aria-label="Đóng">✕</button></div>
+  <div class="body" style="padding-top:8px">
+    <button class="mode" type="button" id="modePlay" style="--mc:#8a5cff"><div class="mh">Đấu thường</div><div class="mb">Đấu với máy, 6 lượt, cược ngọc. Thắng nhận ngọc theo mức cược.</div></button>
+    <button class="mode" type="button" id="modeJr" style="--mc:#ffb02e"><div class="mh">Hành Trình Tam Địa</div><div class="mb">Tuyển 12 thẻ, đi bản đồ rẽ nhánh qua 3 màn, nhặt bảo vật, hạ 3 trùm. Có Thiên Kiếp 0–10 và Thử thách ngày.</div></button>
+    <button class="mode" type="button" id="modeWk" style="--mc:#3fd0ff"><div class="mh">Chiến Địa Biến Động</div><div class="mb">Luật đặc biệt đổi mỗi tuần. Đấu bằng bộ bài của bạn, đạt mốc thắng để nhận thưởng tuần.</div></button>
+    <button class="mode" type="button" id="modeDraft" style="--mc:#ffb02e;display:none"><div class="mh">Tuyển chọn</div><div class="mb">Bốc 12 thẻ ngẫu nhiên, đấu 21 trận. Mỗi trận thắng nâng cấp 1 thẻ (chỉ số hoặc kỹ năng, tối đa 4 lần mỗi thẻ). Máy mạnh dần.</div></button>
+    <button class="mode" type="button" id="modeConq" style="--mc:#1fbf7a"><div class="mh">Chinh phục</div><div class="mb">Chuỗi trận giữ máu qua nhiều ván. 4 tầng độ khó: Dễ, Thường, Khó, Ác mộng.</div></button>
+    <button class="mode" type="button" id="modeOnline" style="--mc:#2a8cff"><div class="mh">Đấu online</div><div class="mb">Ghép trận với người chơi khác đang mở game. Hai bên ra bài cùng lúc, kết quả tính trên cả hai máy. Cần đăng nhập và được chia sẻ trang game.</div></button>
+  </div>
+  <div class="foot"><button class="btn ghost" type="button" data-close>Đóng</button></div>
+</div></div>
+
+<div class="ov" id="ovRun"><div class="panel tall mhub">
+  <div class="shp-h"><h2 id="runTitle"></h2><button type="button" class="dpkx" data-close aria-label="Đóng">✕</button></div>
+  <div class="body" id="runBody" style="padding-top:6px"></div>
+  <div class="foot" id="runFoot"></div>
+</div></div>
+
+<div class="ov" id="ovCard"><div class="panel tall cview">
+  <div class="resbar" id="cardRes" style="padding-top:12px"></div>
+  <div class="cvhead"><span id="cardHead">Thẻ nhân vật</span></div>
+  <div class="body" style="padding:0;flex:1"><div id="cardBody"></div></div>
+  <div class="cvbot"><button type="button" class="cvnav" data-cn="-1" aria-label="Thẻ trước"><b>‹</b></button><div class="cvq" id="cardQ"></div><button type="button" class="cvnav" data-cn="1" aria-label="Thẻ sau"><b>›</b></button></div>
+  <div class="cvact"><button type="button" class="cvb" id="cardFav" aria-label="Yêu thích">★</button><button type="button" class="cvb" id="cardRen" aria-label="Đổi tên">✎</button><button class="btn end" type="button" id="btnUp"></button></div>
+  <button type="button" class="cvx" data-close aria-label="Đóng">✕</button>
+</div></div>
+
+<div class="ov" id="ovShop"><div class="panel tall shop">
+  <div class="shp-h"><h2>Cửa hàng</h2><button type="button" class="dpkx" data-close aria-label="Đóng">✕</button></div>
+  <div class="resbar" id="shopRes"></div>
+  <div class="shp-tabs two" id="shopTabs" role="tablist"><button type="button" data-st="deal" role="tab">Ưu đãi</button><button type="button" data-st="card" role="tab">Thẻ bài</button></div>
+  <div class="shp-sub" id="shopSub" role="navigation" aria-label="Mục cửa hàng"></div>
+  <div class="body" id="shopBody"></div>
+</div></div>
+
+<div class="ov" id="ovRank"><div class="panel tall rkp">
+  <div class="shp-h"><h2>Bảng xếp hạng</h2><button type="button" class="dpkx" data-close aria-label="Đóng">✕</button></div>
+  <div class="rkm" id="rankModes" role="tablist" aria-label="Chế độ"></div>
+  <div class="rkper" id="rankPer"></div>
+  <div class="body" id="rankBody"></div>
+</div></div>
+
+<div class="ov sheet" id="ovPay"><div class="pk paym" id="payBody" role="dialog" aria-label="Xác nhận nạp"></div></div>
+<div class="ov sheet" id="ovAcc"><div class="pk accm" id="accBody" role="dialog" aria-label="Tài khoản"></div></div>
+<div class="ov opov" id="ovOpen"><div class="opw" id="openBody" role="dialog" aria-label="Mở gói"></div></div>
+<div class="ov" id="ovPool"><div class="panel tall pool"><div class="shp-h"><h2 id="poolTitle">Thẻ có thể nhận</h2><button type="button" class="dpkx" data-close aria-label="Đóng">✕</button></div><div class="poolbar"><span id="poolCnt"></span><div class="poolsort" id="poolSort"></div></div><div class="body"><div class="poolg" id="poolGrid"></div></div></div></div>
+<div class="ov sheet" id="ovPZ"><div class="pk" id="pzBody" role="dialog" aria-label="Thẻ bài"></div></div>
+<div class="ov" id="ovMis"><div class="panel misp"><div class="shp-h"><h2>Nhiệm vụ</h2><button type="button" class="dpkx" data-close aria-label="Đóng">✕</button></div><div class="body"><div id="misTop"></div><div class="shh"><span class="sht"><b>Hằng ngày</b><small>làm mới lúc 0 giờ, mỗi nhiệm vụ +150 XP thẻ tháng</small></span></div><div id="lbMis" class="misl"></div><div id="misWk"></div><div class="lb-stat" id="lbStat"></div></div></div></div>
+<div class="ov" id="ovPass"><div class="panel tall psp">
+  <div class="psh"><div class="pst"><small id="psMon"></small><b id="psName"></b></div><button type="button" class="dpkx" data-close aria-label="Đóng">✕</button></div>
+  <div class="psx"><span class="pslv" id="psLvB">1</span><span class="psbar"><i id="psFill"></i><em id="psXpT"></em></span><span id="psCd"></span></div>
+  <div class="psbody"><div class="psl" id="psLeft"></div><div class="psr" id="psList"></div></div>
+</div></div>
+<div class="ov" id="ovGacha"><div class="panel"><div class="gres" id="gachaBody"></div><div class="foot"><button class="btn end" type="button" data-close>Nhận</button></div></div></div>
+
+<div class="ov" id="ovArena"><div class="panel tall">
+  <h2>Chọn sàn đấu</h2>
+  <div class="body" id="arenaBody" style="padding-top:8px"></div>
+  <div class="foot"><button class="btn ghost" type="button" data-close>Đóng</button><button class="btn end" type="button" id="btnArenaUse">Dùng sàn này</button></div>
+</div></div>
+
+<div class="ov" id="ovProfile"><div class="panel tall">
+  <h2>Hồ sơ của bạn</h2>
+  <div class="acc" id="accBox"></div>
+  <div class="frow"><label for="inName">Tên hiển thị</label><input id="inName" type="text" maxlength="12" autocomplete="off"></div>
+  <div class="upl"><label class="btn ghost" style="display:grid;place-items:center">Tải ảnh lên<input id="avFile" type="file" accept="image/*" hidden></label><button class="btn ghost" type="button" id="avClear">Bỏ ảnh tải lên</button></div>
+  <div class="lead">Hoặc chọn một ảnh đại diện bạn đang có.</div>
+  <div class="body"><div class="avgrid" id="avGrid"></div></div>
+  <div class="foot"><button class="btn ghost" type="button" id="btnGift">+99.999 tài nguyên thử</button><button class="btn end" type="button" data-close>Xong</button></div>
+</div></div>
+
+<div class="ov" id="ovPiles"><div class="panel">
+  <h2>Mộ bài</h2>
+  <div class="lead">Thẻ đã vứt bỏ và đã tiêu huỷ của hai bên. Thẻ mới nhất nằm cuối danh sách.</div>
+  <div class="body" id="pilesBody"></div>
+  <div class="foot"><button class="btn end" type="button" data-close>Đóng</button></div>
+</div></div>
+
+<div class="ov" id="ovEnd"><div class="panel">
+  <div class="res" id="resTitle"></div>
+  <div class="body">
+    <p id="resSub" style="text-align:center"></p>
+    <div class="resrows" id="resRows"></div>
+    <div class="gem" id="resGem"></div>
+  </div>
+  <div class="foot">
+    <button class="btn ghost" type="button" data-close>Xem bàn</button>
+    <button class="btn ghost" type="button" id="btnEndLobby">Sảnh</button>
+    <button class="btn end" type="button" id="btnAgain">Ván mới</button>
+  </div>
+</div></div>
+
+
+<script src="gpu20/js/01-engine.js?v=gpu20"></script>
+<script src="gpu20/js/02-vector-art.js?v=gpu20"></script>
+<script src="gpu20/js/03-data-store.js?v=gpu20"></script>
+<script src="gpu20/js/04-audio.js?v=gpu20"></script>
+<script src="gpu20/js/05-vfx-core.js?v=gpu20"></script>
+<script src="gpu20/js/06-ui-match.js?v=gpu20"></script>
+<script src="gpu20/js/07-meta-modes.js?v=gpu20"></script>
+<script src="gpu20/js/08-vfx-webgl.js?v=gpu20"></script>
+<script src="gpu20/js/09-card-choreo.js?v=gpu20"></script>
+</body>
+</html>
