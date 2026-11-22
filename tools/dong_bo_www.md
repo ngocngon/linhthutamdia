@@ -1,20 +1,26 @@
-# Cập nhật www/ từ bản dựng mới
+# Cách làm việc với www/
 
-www/ là bản chép của thư mục `dist/` (index.html + img/...) trên máy Mac: `~/Documents/LinhThuTamDia/dist/`.
+Từ bản gpu22, **kho GitHub này là bản gốc duy nhất** của game. Sửa thẳng trong `www/`, không chép đè từ thư mục `dist/` trên máy Mac nữa (chép đè sẽ xoá mất mọi thay đổi từ gpu20 trở đi).
 
-1. Dựng lại dist như thường lệ (build.js) trên máy Mac.
-2. Trong kho này, xoá nội dung cũ của www/ rồi chép mới:
-   ```
-   rm -rf www && cp -R ~/Documents/LinhThuTamDia/dist www
-   python3 tools/tach_anh_the.py --force --don   # từ sprite img/s tách www/img/c (512) + www/img/ct (256), rồi xoá www/img/s
-   ```
-   Game (gpu22 trở lên) đọc thẻ từ www/img/ct và www/img/c; sprite gốc chỉ còn lưu ở tools/nguon_sprite/s (không đóng gói vào APK).
-   Nhớ chép lại www/sw.js, www/css/00-fonts.css và www/fonts/ nếu dist không chứa chúng.
-3. Kiểm nhanh: mở `www/index.html` bằng trình duyệt, game vào được sảnh.
-4. Commit và đẩy lên main:
-   ```
-   git add -A && git commit -m "Đồng bộ www từ dist" && git push origin main
-   ```
-5. Workflow "Dựng APK Android" tự chạy (có thể mở tay ở tab Actions). Khi xanh, APK mới nằm ở Releases, bản "ban-thu-moi-nhat".
+## Quy trình
 
-Ghi chú: CI tự chạy `tools/android/patch_www.py` (thêm app-shim.js, chuẩn hoá meta viewport) nên không cần vá tay. Không cần sửa mã game. Khi chạy ngoài artifact, game tự dùng localStorage và phòng chơi giả (mock), nên không có `app-shim.js`.
+1. Sửa mã trong `www/` (HTML/CSS/JS thuần, không có bước dựng).
+2. Khi phát hành bản mới, đổi nhãn phiên bản `?v=gpuNN` trong `www/index.html` (mọi dòng css/js và dòng đăng ký `sw.js`). Service worker dùng nhãn này để tách bộ nhớ đệm, nên không đổi nhãn thì máy người chơi có thể trộn tệp cũ với tệp mới.
+3. Chạy kiểm thử:
+   ```
+   node tests/engine-sim.mjs                                  # luật, ~2 phút
+   cd tests && npm i && CHROME_PATH=/usr/bin/google-chrome node ui-smoke.mjs   # giao diện
+   ```
+   GitHub Actions ("Kiểm thử") cũng tự chạy hai bài này ở mọi nhánh.
+4. Bản thử: đưa lên nhánh `gh-pages` trong thư mục con `/gpuNN/` (index.html có `<base href="../">`, css/js chép vào thư mục con; ảnh, font, âm thanh dùng chung ở gốc). Trang chính chỉ cập nhật khi chủ game đồng ý.
+5. Phát hành: gộp vào `main` → workflow "Dựng APK Android" tự dựng APK và đăng ở Releases (bản "ban-thu-moi-nhat").
+
+## Tài nguyên
+
+- Ảnh thẻ: `www/img/ct/<id>.webp` (256 px) và `www/img/c/<id>.webp` (512 px). Tách lại từ sprite gốc bằng `python3 tools/tach_anh_the.py --force` (sprite gốc ở `tools/nguon_sprite/s`, không đóng gói vào APK).
+- Âm thanh: `www/sfx/sfx.mp3` + `sfx.json` (ElevenLabs). Trang nghe thử: `www/sfx/nghe-thu.html`.
+- Nền thẻ: `www/js/11-nen-the.js`, `www/css/07-nen-the.css` (CSS sinh từ `tools/dung_css_nen_the.py`).
+- Bảng test VFX chỉ tải khi mở: `www/js/dev-vfx-lab.js`, `www/css/dev-vfx-lab.css`.
+- Máy chủ online: thư mục `server/` (xem `server/README.md`).
+
+Ghi chú: CI Android tự chạy `tools/android/patch_www.py` (thêm app-shim.js, chuẩn hoá meta viewport).

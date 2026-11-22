@@ -1,5 +1,5 @@
 /* Service worker Linh Thú Tam Địa.
-   - Phiên bản lấy từ ?v= của chính URL sw.js (index.html đăng ký "sw.js?v=gpu22") -> mỗi bản phát hành có cache riêng, bản cũ bị xoá khi kích hoạt.
+   - Phiên bản lấy từ ?v= của chính URL sw.js (index.html đăng ký "sw.js?v=gpuNN") -> mỗi bản phát hành có cache riêng, bản cũ bị xoá khi kích hoạt.
    - Trang (index.html / điều hướng): ưu tiên mạng, rớt mạng thì dùng bản đã lưu.
    - Ảnh, phông, css, js, âm thanh: ưu tiên cache (cache-first).
    - Mọi URL đều tương đối so với vị trí sw.js nên chạy được trong thư mục con (ví dụ /linhthutamdia/gpu22/ có <base href="../">). */
