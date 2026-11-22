@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Quản trị · Linh Thú Tam Địa</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:#10142a;color:#e9ecff;padding:16px}
+main{max-width:860px;margin:0 auto}
+h1{font-size:20px;margin:0 0 12px}
+h2{font-size:16px;margin:0 0 10px;color:#ffd65a}
+.card{background:#1a2040;border:1px solid #2c3568;border-radius:12px;padding:14px;margin-bottom:14px}
+label{display:block;font-size:13px;color:#9fa8dc;margin:8px 0 3px}
+input{width:100%;padding:9px 10px;border-radius:8px;border:1px solid #3a447f;background:#0d1130;color:#fff;font-size:15px}
+button{padding:8px 14px;border-radius:8px;border:0;background:#ffb02e;color:#2a1a00;font-weight:700;font-size:14px;cursor:pointer}
+button.g{background:#2c3568;color:#e9ecff}
+button.r{background:#a83a3a;color:#fff}
+button:disabled{opacity:.5}
+.row{display:flex;gap:10px;flex-wrap:wrap}.row>div{flex:1 1 180px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{text-align:left;padding:7px 6px;border-bottom:1px solid #2c3568;vertical-align:middle}
+th{color:#9fa8dc;font-weight:600;font-size:12px}
+.off{opacity:.55}
+.msg{margin-top:10px;font-size:14px;min-height:20px}.ok{color:#7be28f}.bad{color:#ff8a8a}
+.sc{overflow-x:auto}
+.act{display:flex;gap:6px;flex-wrap:wrap}
+</style>
+</head>
+<body>
+<main>
+<h1>Quản trị tài khoản · Linh Thú Tam Địa</h1>
+<div class="card">
+  <h2>Mã quản trị</h2>
+  <div class="row">
+    <div><label for="srv">Địa chỉ máy chủ (để trống nếu mở trang này từ chính máy chủ)</label><input id="srv" placeholder="https://linhthu-server.xxx.workers.dev" autocomplete="off"></div>
+    <div><label for="tok">ADMIN_TOKEN</label><input id="tok" type="password" autocomplete="off"></div>
+  </div>
+  <p><button id="load">Tải danh sách</button></p>
+  <div class="msg" id="m0"></div>
+</div>
+<div class="card">
+  <h2>Tạo tài khoản</h2>
+  <div class="row">
+    <div><label for="nu">Tên đăng nhập</label><input id="nu" maxlength="24" autocomplete="off" placeholder="3–24 ký tự: chữ, số, _ . -"></div>
+    <div><label for="nd">Tên hiển thị</label><input id="nd" maxlength="24" autocomplete="off"></div>
+    <div><label for="np">Mật khẩu</label><input id="np" type="text" autocomplete="off" placeholder="ít nhất 6 ký tự"></div>
+  </div>
+  <p><button id="create">Tạo tài khoản</button></p>
+  <div class="msg" id="m1"></div>
+</div>
+<div class="card">
+  <h2>Danh sách tài khoản</h2>
+  <div class="sc"><table><thead><tr><th>#</th><th>Tên đăng nhập</th><th>Hiển thị</th><th>Hạng</th><th>Ván</th><th>Đăng nhập cuối</th><th></th></tr></thead><tbody id="rows"></tbody></table></div>
+  <div class="msg" id="m2"></div>
+</div>
+</main>
+<script>
+(function(){
+  const $=id=>document.getElementById(id);
+  $("srv").value=localStorage.getItem("ltd.admin.srv")||"";
+  $("tok").value=sessionStorage.getItem("ltd.admin.tok")||"";
+  const say=(id,t,ok)=>{const e=$(id);e.textContent=t;e.className="msg "+(ok?"ok":"bad");};
+  const base=()=>$("srv").value.trim().replace(/\/+$/,"");
+  async function api(method,path,body){
+    localStorage.setItem("ltd.admin.srv",$("srv").value.trim());
+    sessionStorage.setItem("ltd.admin.tok",$("tok").value);
+    const r=await fetch(base()+path,{method,headers:{"content-type":"application/json","x-admin-token":$("tok").value},body:body?JSON.stringify(body):undefined});
+    let j={};try{j=await r.json();}catch(e){}
+    if(!r.ok)throw new Error(j.message||j.error||("HTTP "+r.status));
+    return j;
+  }
+  const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+  const when=t=>t?new Date(t).toLocaleString("vi-VN"):"chưa";
+  async function load(){
+    try{
+      const j=await api("GET","/api/admin/users");
+      $("rows").innerHTML=j.users.map(u=>`<tr class="${u.disabled?"off":""}"><td>${u.id}</td><td>${esc(u.username)}</td><td>${esc(u.display)}</td><td>${u.rating==null?"–":u.rating}</td><td>${u.games||0}</td><td>${when(u.last_login)}</td><td class="act"><button class="g" data-a="pw" data-id="${u.id}">Đổi mật khẩu</button><button class="${u.disabled?"g":"r"}" data-a="${u.disabled?"on":"off"}" data-id="${u.id}">${u.disabled?"Mở khoá":"Khoá"}</button></td></tr>`).join("")||`<tr><td colspan="7">Chưa có tài khoản.</td></tr>`;
+      say("m0","Đã tải "+j.users.length+" tài khoản.",true);
+    }catch(e){say("m0","Lỗi: "+e.message,false);}
+  }
+  $("load").onclick=load;
+  $("create").onclick=async()=>{
+    try{
+      const j=await api("POST","/api/admin/users",{username:$("nu").value.trim(),display:$("nd").value.trim(),password:$("np").value});
+      say("m1","Đã tạo tài khoản "+j.username+" (số "+j.id+"). Gửi tên và mật khẩu cho người chơi.",true);
+      $("nu").value=$("nd").value=$("np").value="";load();
+    }catch(e){say("m1","Lỗi: "+e.message,false);}
+  };
+  $("rows").onclick=async ev=>{
+    const b=ev.target.closest("button[data-a]");if(!b)return;const id=b.dataset.id,a=b.dataset.a;
+    try{
+      if(a==="pw"){const p=prompt("Mật khẩu mới (ít nhất 6 ký tự):");if(!p)return;await api("PATCH","/api/admin/users/"+id,{password:p});say("m2","Đã đổi mật khẩu, các máy đang đăng nhập bị đăng xuất.",true);}
+      else{await api("PATCH","/api/admin/users/"+id,{disabled:a==="off"});say("m2",a==="off"?"Đã khoá tài khoản.":"Đã mở khoá tài khoản.",true);}
+      load();
+    }catch(e){say("m2","Lỗi: "+e.message,false);}
+  };
+})();
+</script>
+</body>
+</html>
