@@ -197,7 +197,7 @@ function endBanner(r){FXBIG=true;try{endBanner0(r);}finally{FXBIG=false;}}functi
 let CHIPN=0;
 /* bản sao nhẹ: chỉ ảnh thẻ + viền màu, rẻ hơn nhiều so với nhân bản cả lá bài */
 function lite(uid){let c=null;try{c=cardOf(uid);}catch(e){}if(!c)return null;const d=C[c.id];let pw=d.p,cs=d.c;try{const f=E.find(G,uid);pw=f?E.power(G,f.inst,f.li):E.basePow(c)+c.bonus;cs=E.cost(G,c);}catch(e){}
-  return `<span class="lc" style="--hc:${HC[d.h]}">${art(c.id)}<b class="lcc">${cs}</b><b class="lcp">${pw}</b><i class="lcn">${esc(d.n)}</i></span>`;}
+  return `<span class="lc" style="--hc:${HC[d.h]}">${nbL(c.id)}${art(c.id)}<b class="lcc">${cs}</b><b class="lcp">${pw}</b><i class="lcn">${esc(d.n)}</i></span>`;}
 function chip(fr,to,html,cb,delay){if(reduced||!fr||!to||!html||CHIPN>=5){if(cb)cb();return;}CHIPN++;
   const g=ghost(fr,html,"fxchip"),dx=to.x-fr.x,dy=to.y-fr.y,lift=-Math.min(60,Math.hypot(dx,dy)*.35);
   const a=g.animate([{transform:"translate(0,0) scale(1)",opacity:1},{transform:`translate(${dx*.5}px,${dy*.5+lift}px) scale(.62) rotate(${dx>0?8:-8}deg)`,opacity:1,offset:.55},{transform:`translate(${dx}px,${dy}px) scale(.34)`,opacity:.9}],{duration:420,delay:delay||0,easing:"cubic-bezier(.45,.05,.55,1)",fill:"both"});
@@ -546,7 +546,7 @@ function openEnergy(){const p=$("enPop");if(p.classList.contains("on")){p.classL
 function undoAll(){if(!G||!playing()||OL.sub)return;for(let i=G.q.p.length-1;i>=0;i--){const a=G.q.p[i];E.unqueue(G,"p",a.uid,a.t);}sel=look=moveSel=null;$("enPop").classList.remove("on");SFX.play("tap");render();}
 /* ---- chia bài đầu trận ---- */
 /* ===== Đầu Ván: diễn lại các thẻ được thêm vào bộ bài / tay ===== */
-function miniC(id){const d=C[id];return `<span class="gc" style="--hc:${HC[d.h]};display:block">${art(id)}<span class="cst">${d.c}</span><span class="pwh">${d.p}</span><span class="n">${logo(id)}</span></span>`;}
+function miniC(id){const d=C[id];return `<span class="gc" style="--hc:${HC[d.h]};display:block">${nbL(id)}${art(id)}<span class="cst">${d.c}</span><span class="pwh">${d.p}</span><span class="n">${logo(id)}</span></span>`;}
 async function startShow(){try{if(reduced||!G||!G.startFx||G.online)return;const L=G.startFx.filter(x=>x.s==="p");if(!L.length)return;await sleep(80);for(const x of L)await startOne(x);}catch(err){}}
 function startOne(e){return new Promise(res=>{const d=C[e.id];if(!d){res();return;}const W=innerWidth,H=innerHeight,col=HC[d.h]||"#ffd65a";
   const wrap=document.createElement("div");wrap.className="stfx";document.body.appendChild(wrap);wrap.animate([{opacity:0},{opacity:1}],{duration:220,fill:"both"});
@@ -695,7 +695,7 @@ function pre7(evs){const X={cm:[],bp:[],bpU:new Set(),din:{p:[],a:[]},hnew:{p:[]
   return !!(any||X.stolen.length||X.cm.length||X.bp.length||X.din.p.length||X.din.a.length||X.hnew.p.length||X.hnew.a.length);}
 /* ---- vị trí ---- */
 function anyC(uid){let c=null;try{c=cardOf(uid);}catch(e){}if(c||!G)return c;for(const s of E.SIDES){c=(G.deck[s]||[]).find(x=>x.uid===uid);if(c)return c;}return null;}
-function liteId(id,cs,pw){if(!id||!C[id])return `<span class="lc lcb"><i></i></span>`;const d=C[id];return `<span class="lc" style="--hc:${HC[d.h]}">${art(id)}<b class="lcc">${cs!=null?cs:d.c}</b><b class="lcp">${pw!=null?pw:d.p}</b><i class="lcn">${esc(d.n)}</i></span>`;}
+function liteId(id,cs,pw){if(!id||!C[id])return `<span class="lc lcb"><i></i></span>`;const d=C[id];return `<span class="lc" style="--hc:${HC[d.h]}">${nbL(id)}${art(id)}<b class="lcc">${cs!=null?cs:d.c}</b><b class="lcp">${pw!=null?pw:d.p}</b><i class="lcn">${esc(d.n)}</i></span>`;}
 const BACK7=()=>liteId(null);
 function hpt(uid){const el=document.querySelector(`#hand [data-hc="${uid}"]`);if(!el)return null;const r=el.getBoundingClientRect();if(!r.width)return null;return {x:r.left+r.width/2,y:r.top+r.height/2,w:r.width,h:r.height};}
 function zpt(id){const el=$(id);if(!el)return null;const r=el.getBoundingClientRect();if(!r.width&&!r.height)return null;return {x:r.left+r.width/2,y:r.top+r.height/2,w:44,h:62};}
@@ -1315,7 +1315,7 @@ async function endReveal(g,dp){dp=dp||(()=>{});for(let r=0;r<4;r++){const L=E.hi
   for(const h of L){const R0=rects0(),P0=powers();if(g.evs)g.evs.length=0;if(g.msgs)g.msgs.length=0;if(!E.revealHidden(g,h.uid))continue;const evs=(g.evs||[]).slice();if(g.msgs&&g.msgs.length)g.msg=fmt(g.msgs);dp();render();playFx(evs,R0,P0);await sleep(reduced?250:900);}}}
 function backBg(){const k=(store.decks&&store.decks[store.cur]&&dBack(store.decks[store.cur]))||store.back;return (BACKS[k]||BACKS.b0)[1];}
 function flipBtn(){return `<button type="button" class="flb" data-flip="1" aria-label="Lật xem mặt sau thẻ"><i></i></button>`;}
-function fanSides(LK,ai){const n=LK.length;if(n<2)return "";const one=(id,dir,side)=>{const d=C[id];return `<button type="button" class="fanc ${side}" data-fan="${dir}" aria-label="Xem ${esc(d.n)}"><span class="gc" style="--hc:${HC[d.h]};display:block">${art(id)}<span class="cst">${d.c}</span><span class="pwh">${d.p}</span><span class="n">${logo(id)}</span></span></button>`;};
+function fanSides(LK,ai){const n=LK.length;if(n<2)return "";const one=(id,dir,side)=>{const d=C[id];return `<button type="button" class="fanc ${side}" data-fan="${dir}" aria-label="Xem ${esc(d.n)}"><span class="gc" style="--hc:${HC[d.h]};display:block">${nbL(id)}${art(id)}<span class="cst">${d.c}</span><span class="pwh">${d.p}</span><span class="n">${logo(id)}</span></span></button>`;};
   return n===2?one(LK[(ai+1)%n],1,"r"):one(LK[(ai-1+n)%n],-1,"l")+one(LK[(ai+1)%n],1,"r");}
 document.addEventListener("click",ev=>{const b=ev.target.closest("[data-flip]");if(!b)return;ev.stopPropagation();ev.preventDefault();const c=b.parentElement;if(!c||c.classList.contains("flipping"))return;try{SFX.play("tap");}catch(e){}
   c.classList.add("flipping");setTimeout(()=>{c.classList.toggle("flipped");b.setAttribute("aria-pressed",String(c.classList.contains("flipped")));},190);setTimeout(()=>c.classList.remove("flipping"),400);},true);
@@ -1387,7 +1387,7 @@ function mcHTML(inst,li,staged){
   if(inst.sil)tags.push(`<i class="x">✕</i>`);
   const pc=pw>d.p?"up":pw<d.p?"down":"";
   const bmk=typeof markBadges==="function"?markBadges(inst,live?"board":"staged"):"";
-  return (cls.includes(" ong")?aura(inst):"")+`<button type="button" class="${cls}" style="--hc:${HC[d.h]}${inst.own==="p"?qSt(inst.id):""}" data-mc="${inst.uid}" aria-label="${d.n}, sức mạnh ${pw}">${art(inst.id)}${cls.includes(" ong")?khIn11(inst):""}<span class="mn">${logo(d.id)}</span>${inst.own==="p"?spk(d.id):""}<span class="pwh ${pc}">${pw}</span>${pw!==d.p?`<span class="dl ${pc}">${pw>d.p?"+":"−"}${Math.abs(pw-d.p)}</span>`:""}${bmk}${tags.length?`<span class="tg">${tags.join("")}</span>`:""}${inst.ug&&inst.own==="p"?`<span class="ugb">⬆${inst.ug}</span>`:inst.ug?`<span class="ugb">⬆${inst.ug}</span>`:""}</button>`;
+  return (cls.includes(" ong")?aura(inst):"")+`<button type="button" class="${cls}" style="--hc:${HC[d.h]}${inst.own==="p"?qSt(inst.id):""}" data-mc="${inst.uid}" aria-label="${d.n}, sức mạnh ${pw}">${inst.own==="p"?nbL(inst.id):""}${art(inst.id)}${cls.includes(" ong")?khIn11(inst):""}<span class="mn">${logo(d.id)}</span>${inst.own==="p"?spk(d.id):""}<span class="pwh ${pc}">${pw}</span>${pw!==d.p?`<span class="dl ${pc}">${pw>d.p?"+":"−"}${Math.abs(pw-d.p)}</span>`:""}${bmk}${tags.length?`<span class="tg">${tags.join("")}</span>`:""}${inst.ug&&inst.own==="p"?`<span class="ugb">⬆${inst.ug}</span>`:inst.ug?`<span class="ugb">⬆${inst.ug}</span>`:""}</button>`;
 }
 /* ===== v12: tải ảnh có thử lại + màn hình tải; giải mã trước sprite; chiêu thức nổi bật hơn; hào quang đặc ===== */
 const IMGRT={ok:{},bad:new Set(),keep:[]},SPK12={},SPKEEP=[];
