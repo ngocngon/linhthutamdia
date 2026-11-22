@@ -1033,7 +1033,7 @@ function syncDeckToolsUI(){
   strip.innerHTML=`<div class="rs-hd"><span>✨ Đề xuất cho bộ đang xếp (${draft.size}/12):</span><small>Chạm thẻ để thêm nhanh</small></div><div class="rs-row">${recs.map(r=>{const d=C[r.id];return `<button type="button" class="rs-it" data-radd="${r.id}" style="--hc:${HC[d.h]}"><span class="rs-c">${d.c}</span><span class="rs-p">${d.p}</span>${art(r.id)}<b>${esc(d.n)}</b><i>${esc(r.reason)}</i></button>`;}).join("")}</div>`;
   if(typeof spWatch==="function")spWatch(strip);
 }
-{const _rdOrig=renderDeck;renderDeck=function(){_rdOrig.apply(this,arguments);try{syncDeckToolsUI();}catch(e){}};}
+/* (renderDeck ở 06 tự gọi syncDeckToolsUI) */
 
 let recTab="card";
 const REC_PRESETS_CACHE={};

@@ -474,7 +474,8 @@ function onlineEnd(){if(!G||G.phase!=="play")return;
 function checkResolve(){if(!OL.mr||!OL.sub||OL.resolving||!G||G.phase!=="play")return;const o=oppOf(OL.mr.peers());if(!o)return;const op=o.presence;
   if(!OL.locked&&op.t===G.turn&&op.sub){OL.locked=true;try{OL.mr.presence({lock:G.turn});}catch(e){}render();}
   if(OL.locked&&op.lock===G.turn&&op.sub)onlineResolve(op);}
-async function onlineResolve(op){OL.resolving=true;clearTimeout(OL.waitT);const host=OL.role==="host";
+async function onlineResolve(op){FFTURN.start();try{return await onlineResolveRun(op);}finally{FFTURN.stop();}}
+async function onlineResolveRun(op){OL.resolving=true;clearTimeout(OL.waitT);const host=OL.role==="host";
   {const mine=OL.acts||[],theirs=Array.isArray(op.acts)?op.acts:[];OL.log=OL.log||[];OL.log.push({ha:host?mine:theirs,ga:host?theirs:mine,hs:host?!!G.snap.p:!!op.snap,gs:host?!!op.snap:!!OL.sn});olSave();}
   let CG;if(host){CG=G;if(!applyActs(CG,"a",op.acts))OL.bad=1;}else{CG=OL.CG;if(!applyActs(CG,"p",op.acts))OL.bad=1;if(!applyActs(CG,"a",OL.acts))OL.bad=1;}
   const hs=host?G.snap.p:!!op.snap,gs=host?!!op.snap:!!(OL.sn);
@@ -566,9 +567,11 @@ function startOne(e){return new Promise(res=>{const d=C[e.id];if(!d){res();retur
   if(n){setTimeout(()=>SFX.play("whoosh"),t0+DU*.62);setTimeout(()=>{FX.sparks(tX,tY,col,18,220);FX.glow(tX,tY,"#ffffff",50);SFX.play("summon");if(tgt&&tgt.animate)tgt.animate([{transform:"scale(1.3)"},{transform:"scale(1)"}],{duration:380});},end);}
   setTimeout(()=>{main.animate([{opacity:1},{opacity:0,transform:"scale(.85)"}],{duration:260,fill:"both"});tx.animate([{opacity:1},{opacity:0}],{duration:260,fill:"both"});},Math.max(900,end-300));
   setTimeout(()=>{const a=wrap.animate([{opacity:1},{opacity:0}],{duration:220,fill:"both"});a.onfinish=()=>wrap.remove();setTimeout(()=>{wrap.remove();res();},240);},end+120);});}
-function dealIn(){try{for(const sd of ["p","a"])for(const k of (G.start&&G.start[sd])||[]){spLoad(k);for(const t of LINKS[k]||[])spLoad(t);}}catch(e){}if(reduced)return;let k=0;document.querySelectorAll("#hand [data-hc]").forEach(el=>CFX.drawIn(el,false,k++));}
+function dealIn(){warmMatch12();try{for(const sd of ["p","a"])for(const k of (G.start&&G.start[sd])||[]){spLoad(k);for(const t of LINKS[k]||[])spLoad(t);}}catch(e){}if(reduced)return;let k=0;document.querySelectorAll("#hand [data-hc]").forEach(el=>CFX.drawIn(el,false,k++));}
 /* ---- cài đặt ---- */
-function openSet(){$("setVol").value=store.vol??100;$("setVolV").textContent=(store.vol??100)+"%";if($("setBgmVol")){$("setBgmVol").value=store.bgmVol??55;$("setBgmVolV").textContent=(store.bgmVol??55)+"%";}if($("setBgm"))$("setBgm").checked=store.bgm!==false;$("setMute").checked=!!store.mute;$("setFx").checked=store.fx!=="off";$("setGpu").checked=!!store.gpu;$("setSpd").value=SPDV[store.spd]?store.spd:"vua";$("setVib").checked=store.vib!==false;$("setGyro").checked=store.gyro!==false;$("ovSet").classList.add("on");}
+function openSet(){$("setVol").value=store.vol??100;$("setVolV").textContent=(store.vol??100)+"%";if($("setBgmVol")){$("setBgmVol").value=store.bgmVol??55;$("setBgmVolV").textContent=(store.bgmVol??55)+"%";}if($("setBgm"))$("setBgm").checked=store.bgm!==false;$("setMute").checked=!!store.mute;$("setFx").checked=store.fx!=="off";$("setGpu").checked=!!store.gpu;$("setSpd").value=SPDV[store.spd]?store.spd:"vua";$("setVib").checked=store.vib!==false;$("setGyro").checked=store.gyro!==false;$("ovSet").classList.add("on");
+  renderSetSpd();syncSetUi();if($("setBgm"))$("setBgm").checked=!!store.battleBgm;const b=$("setReimg");if(b)b.textContent="Tải lại hình"+(IMGRT.bad.size?` (${IMGRT.bad.size} ảnh lỗi)`:"");
+  if(window.FPSMODE)FPSMODE.syncUi();}
 
 /* ===== v6: hiệu ứng nguồn → đích ===== */
 let ME0={p:0,a:0};
@@ -1343,7 +1346,7 @@ function artReady12(evs){if(reduced)return Promise.resolve();const ids=[];for(co
 function warmMatch12(){try{const ids=new Set();for(const sd of ["p","a"]){for(const k of (G.start&&G.start[sd])||[])ids.add(k);for(const z of ["hand","deck"])for(const c of (G[z]&&G[z][sd])||[])ids.add(c.id);}
   for(const k of [...ids])for(const t of LINKS[k]||[])ids.add(t);for(const k of ids){spLoad(k);v16Pre(k);if(SIGV[k])v16Pre(String(SIGV[k].img||"").replace(/^v_/,""));}
   for(const k of ["tieu_diet","loai_bo","rut_bai","tao_the","cuoc_x2","sao_chep","hoi_sinh","di_chuyen","bien_hinh","nang_luong","nhan_doi","khien_chan","hut_keo","thang","thua","no_lua","no_set","no_doc","no_bang","no_sang","no_toi","vet_chem","vet_cao","manh_vo","bui_dap","sao_tang","thieu_dot","dong_bang","set_danh","doc_lan"])v16Pre(k);}catch(e){}}
-const _dealIn12=dealIn;dealIn=function(){warmMatch12();return _dealIn12.apply(this,arguments);};
+/* (warmMatch12 được gọi ở đầu dealIn) */
 /* màn hình tải */
 function runPool12(jobs,n,each){let i=0;return new Promise(res=>{let act=0;if(!jobs.length)return res();const nx=()=>{if(i>=jobs.length){if(!act)res();return;}const j=jobs[i++];act++;Promise.resolve().then(j).catch(()=>{}).then(()=>{act--;each&&each();nx();});};for(let k=0;k<n;k++)nx();});}
 function deckIds12(ids){const s=new Set();for(const k of ids)for(const id of [k,...(LINKS[k]||[])])if(IMGS.c[id])s.add(id);return [...s];}
@@ -1371,7 +1374,7 @@ function bgRun20(q){let i=0;const nx=()=>{if(i>=q.length){refresh12();return;}if
 function reCard12(u){const m=u.match(/\/(ct?)\/([^/?]+)\.webp/),k=m[2]+(m[1]==="c"?"@f":"");delete SP.k[k];spLoad(k);return Promise.resolve();}
 function reimg12(){const L=[...IMGRT.bad];IMGRT.bad.clear();
   return runPool12(L.map(u=>()=>(/\/ct?\/[^/]+\.webp/.test(u)?reCard12(u):loadImg12(u,3,true))),4).then(()=>{document.querySelectorAll("img[data-rt]").forEach(i=>{const o=i.dataset.o;i.dataset.rt="0";i.src=IMGRT.ok[o]||bust12(o,9);});IMGRT.fixed=1;refresh12();});}
-{const _os=openSet;openSet=function(){_os.apply(this,arguments);if(typeof renderSetSpd==="function")renderSetSpd();if(typeof syncSetUi==="function")syncSetUi();if($("setBgm"))$("setBgm").checked=!!store.battleBgm;const b=$("setReimg");if(b)b.textContent="Tải lại hình"+(IMGRT.bad.size?` (${IMGRT.bad.size} ảnh lỗi)`:"");};}
+/* (nút Tải lại hình, tốc độ, nhạc trong trận được đồng bộ ngay trong openSet ở trên) */
 document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("#setReimg");if(!b)return;b.disabled=true;b.textContent="Đang tải lại…";reimg12().then(()=>{b.disabled=false;b.textContent="Tải lại hình"+(IMGRT.bad.size?` (${IMGRT.bad.size} ảnh lỗi)`:" ✓");});});
 /* ---- hào quang: khung ảnh xử lý tĩnh 1 lần (tăng alpha/tương phản) + viền màu đặc + quầng ---- */
 const KHP12={};

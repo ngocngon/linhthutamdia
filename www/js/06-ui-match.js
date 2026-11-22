@@ -3,7 +3,7 @@ function render(){render0();paintZoom();}
 /* vá bàn đấu: so từng ô với lần vẽ trước, chỉ thay ô nào đổi */
 let BC=null;
 function laneKey(ln){const c=ln.children;return {l:c[1].outerHTML,o:[...c[0].children].map(x=>x.className+"|"+x.innerHTML),m:[...c[2].children].map(x=>x.className+"|"+x.innerHTML)};}
-function patchBoard(html){const b=$("board"),t=document.createElement("template");t.innerHTML=html;const nl=[...t.content.children];let keys;
+function patchBoard0(html){const b=$("board"),t=document.createElement("template");t.innerHTML=html;const nl=[...t.content.children];let keys;
   try{keys=nl.map(laneKey);}catch(e){b.innerHTML=html;BC=null;return;}
   if(!BC||BC.length!==nl.length||b.children.length!==nl.length||[...b.children].some(x=>x.children.length!==3)){b.replaceChildren(...nl);BC=keys;return;}
   for(let i=0;i<nl.length;i++){const live=b.children[i],nw=nl[i],k=keys[i],c=BC[i],lc=live.children,nc=[...nw.children];
@@ -14,9 +14,8 @@ function patchBoard(html){const b=$("board"),t=document.createElement("template"
     if(c.l!==k.l)live.children[1].replaceWith(nc[1]);}
   BC=keys;}
 /* patchBoard: thẻ đang lật bị dựng lại thì giữ tiếp hoạt ảnh lật, không chạy lại từ đầu */
-const _pb12=patchBoard;
-patchBoard=function(html){const fl=new Map();try{for(const m of document.querySelectorAll("#board .mc.flip")){const a=m.getAnimations?m.getAnimations().find(x=>/^(flip|flip3|gpuCardFlip)$/.test(x.animationName)&&x.playState==="running"):null;if(a)fl.set(m.dataset.mc,{el:m,t:a.currentTime||0});}}catch(e){}
-  _pb12(html);if(!fl.size)return;for(const [u,o] of fl){const n=document.querySelector(`#board [data-mc="${u}"]`);if(n&&n!==o.el&&!n.classList.contains("flip")){n.style.animationDelay=(-o.t)+"ms";n.classList.add("flip");n.addEventListener("animationend",()=>{n.style.animationDelay="";},{once:true});}}};
+function patchBoard(html){const fl=new Map();try{for(const m of document.querySelectorAll("#board .mc.flip")){const a=m.getAnimations?m.getAnimations().find(x=>/^(flip|flip3|gpuCardFlip)$/.test(x.animationName)&&x.playState==="running"):null;if(a)fl.set(m.dataset.mc,{el:m,t:a.currentTime||0});}}catch(e){}
+  patchBoard0(html);if(!fl.size)return;for(const [u,o] of fl){const n=document.querySelector(`#board [data-mc="${u}"]`);if(n&&n!==o.el&&!n.classList.contains("flip")){n.style.animationDelay=(-o.t)+"ms";n.classList.add("flip");n.addEventListener("animationend",()=>{n.style.animationDelay="";},{once:true});}}};
 function render0(){
   const play=playing();
   $("meName").textContent=(store.name||"Bạn").toUpperCase();
@@ -112,7 +111,50 @@ function render0(){
 }
 
 let ddPlan=false;
-async function endTurnUI(auto){
+/* ==================== gpu21: TỰ TUA NHANH KHI HOẠT ẢNH CỦA MỘT LƯỢT KÉO DÀI QUÁ 15 GIÂY ====================
+   Đếm từ lúc bấm Kết thúc lượt (lật bài, kỹ năng, cuối lượt, đầu lượt mới). Quá 15 giây thì phần còn lại
+   chạy ở tốc độ tua nhanh và hiện nhãn "⏩ Tua nhanh"; hết lượt trả về tốc độ người chơi đã chọn. */
+(function () {
+  "use strict";
+  const FF_AFTER = 15000, FF_SPD = 0.45;
+  const FF = { iv: 0, t0: 0, on: false };
+  let chip = null;
+  function showChip(on) {
+    if (on) {
+      if (!chip) { chip = document.createElement("div"); chip.id = "ffChip"; chip.setAttribute("aria-live", "polite"); chip.textContent = "⏩ Tua nhanh"; }
+      if (!chip.isConnected) document.body.appendChild(chip);
+      chip.classList.add("on");
+    } else if (chip) chip.classList.remove("on");
+  }
+  function engage() {
+    if (FF.on) return;
+    const old = SPD;
+    if (old <= FF_SPD) return;
+    FF.on = true;
+    SPD = FF_SPD;
+    /* các hoạt ảnh đang chạy dở cũng tăng tốc theo (chỉ hoạt ảnh có hồi kết, không đụng hào quang lặp vô hạn) */
+    try {
+      for (const a of document.getAnimations()) {
+        const t = a.effect && a.effect.getTiming && a.effect.getTiming();
+        if (t && isFinite(t.iterations) && a.playState === "running") a.playbackRate = a.playbackRate * (old / FF_SPD);
+      }
+    } catch (e) {}
+    showChip(true);
+  }
+  function start() {
+    FF.t0 = performance.now(); FF.on = false; clearInterval(FF.iv);
+    FF.iv = setInterval(() => { if (!document.hidden && performance.now() - FF.t0 > FF_AFTER) engage(); }, 200);
+  }
+  function stop() {
+    clearInterval(FF.iv); FF.iv = 0;
+    if (FF.on) { FF.on = false; try { SPD = SPDV[store.spd] || 1; } catch (e) { SPD = 1; } }
+    showChip(false);
+  }
+  window.FFTURN = { start, stop, get on() { return FF.on; } }; /* endTurnUI (06) và onlineResolve (05) bọc phần diễn của lượt bằng start/stop */
+})();
+
+async function endTurnUI(auto){FFTURN.start();try{return await endTurnRun(auto);}finally{FFTURN.stop();}}
+async function endTurnRun(auto){
   if(!playing())return;
   if(G.online){onlineEnd();return;}
   sel=look=moveSel=null;
@@ -269,6 +311,7 @@ function renderDeck(keepScroll){
   const f=F.foc&&C[F.foc];
   $("deckDetail").innerHTML="";$("deckDetail").style.display="none";
   $("btnSaveDeck").disabled=draft.size!==12;
+  try{syncDeckToolsUI();}catch(e){} /* thanh công cụ bộ bài (07) */
 }
 function toggleDraft(k){if(draft.has(k))draft.delete(k);else if(draft.size<12&&OWN.has(k))draft.add(k);}
 function lhash(t){let h=2166136261;for(let i=0;i<t.length;i++)h=Math.imul(h^t.charCodeAt(i),16777619)>>>0;return h;}

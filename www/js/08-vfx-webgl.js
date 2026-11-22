@@ -2842,50 +2842,6 @@
   }, 2000);
 })();
 
-/* ==================== gpu21: TỰ TUA NHANH KHI HOẠT ẢNH CỦA MỘT LƯỢT KÉO DÀI QUÁ 15 GIÂY ====================
-   Đếm từ lúc bấm Kết thúc lượt (lật bài, kỹ năng, cuối lượt, đầu lượt mới). Quá 15 giây thì phần còn lại
-   chạy ở tốc độ tua nhanh và hiện nhãn "⏩ Tua nhanh"; hết lượt trả về tốc độ người chơi đã chọn. */
-(function () {
-  "use strict";
-  const FF_AFTER = 15000, FF_SPD = 0.45;
-  const FF = { iv: 0, t0: 0, on: false };
-  let chip = null;
-  function showChip(on) {
-    if (on) {
-      if (!chip) { chip = document.createElement("div"); chip.id = "ffChip"; chip.setAttribute("aria-live", "polite"); chip.textContent = "⏩ Tua nhanh"; }
-      if (!chip.isConnected) document.body.appendChild(chip);
-      chip.classList.add("on");
-    } else if (chip) chip.classList.remove("on");
-  }
-  function engage() {
-    if (FF.on) return;
-    const old = SPD;
-    if (old <= FF_SPD) return;
-    FF.on = true;
-    SPD = FF_SPD;
-    /* các hoạt ảnh đang chạy dở cũng tăng tốc theo (chỉ hoạt ảnh có hồi kết, không đụng hào quang lặp vô hạn) */
-    try {
-      for (const a of document.getAnimations()) {
-        const t = a.effect && a.effect.getTiming && a.effect.getTiming();
-        if (t && isFinite(t.iterations) && a.playState === "running") a.playbackRate = a.playbackRate * (old / FF_SPD);
-      }
-    } catch (e) {}
-    showChip(true);
-  }
-  function start() {
-    FF.t0 = performance.now(); FF.on = false; clearInterval(FF.iv);
-    FF.iv = setInterval(() => { if (!document.hidden && performance.now() - FF.t0 > FF_AFTER) engage(); }, 200);
-  }
-  function stop() {
-    clearInterval(FF.iv); FF.iv = 0;
-    if (FF.on) { FF.on = false; try { SPD = SPDV[store.spd] || 1; } catch (e) { SPD = 1; } }
-    showChip(false);
-  }
-  window.FFTURN = { start, stop, get on() { return FF.on; } };
-  try { if (typeof endTurnUI === "function") { const f0 = endTurnUI; endTurnUI = async function () { start(); try { return await f0.apply(this, arguments); } finally { stop(); } }; } } catch (e) {}
-  try { if (typeof onlineResolve === "function") { const f1 = onlineResolve; onlineResolve = async function () { start(); try { return await f1.apply(this, arguments); } finally { stop(); } }; } } catch (e) {}
-})();
-
 /* ==================== gpu22: CHẾ ĐỘ KHUNG HÌNH 60 / 30 / TỰ ĐỘNG ====================
    60: không giới hạn (theo màn hình, thường 60). 30: mọi vòng vẽ JS (hạt GPU, lớp 2D, hoạt cảnh canvas,
    đồng hồ) chạy 30 khung/giây đều đặn, đỡ nóng máy và pin. Tự động: đầu mỗi trận đo thật; máy không giữ
@@ -2957,7 +2913,8 @@
     get mode() { return mode; },
     set(m) { if (m !== "60" && m !== "30" && m !== "auto") return; mode = m; try { localStorage.setItem(KEY, m); } catch (e) {} syncUi(); },
     get cap() { return curCap(); },
-    label
+    label,
+    syncUi /* openSet (05) gọi khi mở Cài đặt */
   };
   function syncUi() {
     const seg = document.getElementById("setFpsSeg");
@@ -2974,6 +2931,5 @@
       try { SFX.play("tap"); } catch (er) {}
     });
   }
-  try { if (typeof openSet === "function") { const o0 = openSet; openSet = function () { const r = o0.apply(this, arguments); syncUi(); return r; }; } } catch (e) {}
   syncUi();
 })();
