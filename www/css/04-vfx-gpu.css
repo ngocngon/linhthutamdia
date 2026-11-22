@@ -923,19 +923,6 @@ body:has(#lobby:not(.on)) #toastX.on {
   font-size: 12px !important;
   white-space: nowrap;
 }
-.tb-vfx-lab {
-  background: linear-gradient(135deg, rgba(63, 224, 255, 0.28), rgba(138, 92, 255, 0.36)) !important;
-  border-color: rgba(127, 224, 255, 0.72) !important;
-  color: #e9fbff !important;
-  font-weight: 800 !important;
-  box-shadow: 0 0 12px rgba(63, 224, 255, 0.32);
-}
-.tb-vfx-lab.active {
-  background: linear-gradient(135deg, #22c5ff, #8a5cff) !important;
-  color: #ffffff !important;
-  box-shadow: 0 0 18px rgba(63, 224, 255, 0.85);
-}
-
 /* ===== HỆ THỐNG ĐẠO CỤ TRANH VẼ ĐÔNG SƠN & DÂY KÉO MESH-RIBBON 60FPS (MODULE 09 v2 AAA) ===== */
 .choreo-layer,
 .choreo-canvas {
