@@ -81,8 +81,8 @@
   /* ---- mua ---- */
   function buy(id) {
     const b = BY[id], s = st(); if (!b || owned(id)) return false;
-    if (store[b.c] < b.p) { toast("Không đủ " + (b.c === "gold" ? "vàng" : "token")); return false; }
-    store[b.c] -= b.p; s.own[id] = 1; save(); try { SFX.play("win"); } catch (e) { } return true;
+    if (store[b.c] < b.p) { try { SFX.play("ui_error", 0.6); } catch (e) { } toast("Không đủ " + (b.c === "gold" ? "vàng" : "token")); return false; }
+    store[b.c] -= b.p; s.own[id] = 1; save(); try { SFX.play("ui_buy", 0.9); } catch (e) { } return true;
   }
   const priceHTML = b => `<span class="nbpr">${icn(b.c)}${b.p}</span>`;
   const lockSVG = `<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3 5V4a3 3 0 016 0v1h.6c.4 0 .8.3.8.8v4.4c0 .5-.4.8-.8.8H2.4c-.4 0-.8-.3-.8-.8V5.8c0-.5.4-.8.8-.8zm1.4 0h3.2V4a1.6 1.6 0 00-3.2 0z" fill="#ffd65a"/></svg>`;
@@ -141,7 +141,7 @@
     const r = ev.currentTarget, t = ev.target.closest("button"); if (!t || !r.contains(t)) return;
     const d = t.dataset, k = UI.k;
     if (d.nbm !== undefined) {
-      ev.stopPropagation(); try { SFX.play("tap"); } catch (e) { } UI.mode = d.nbm; applyMode(r);
+      ev.stopPropagation(); try { SFX.play("ui_tab"); } catch (e) { } UI.mode = d.nbm; applyMode(r);
       r.querySelectorAll("[data-nbm]").forEach(b => { const on = b.dataset.nbm === UI.mode; b.classList.toggle("on", on); b.setAttribute("aria-selected", on); });
       if (UI.mode === "nen") { const s = r.querySelector(".nbsw.sel"); if (s && s.scrollIntoView) { const sp = r.querySelector(".nbstrip"); sp.scrollLeft = Math.max(0, s.offsetLeft - sp.offsetLeft - 40); } }
       else swap(bigOf(r), k, eqOf(k)); // rời tab Nền: thẻ về nền đang dùng

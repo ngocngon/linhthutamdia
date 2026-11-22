@@ -251,7 +251,7 @@ function showEnd(){
   render();
   const fw=r.kind==="end"?endFinale():0;
   const eb=reduced?0:1300;if(eb)setTimeout(()=>{try{endBanner(r);}catch(e){}},fw);
-  setTimeout(()=>{if(r.winner==="p"){FX.rain("#ffd65a");SFX.play("win");}else if(r.winner==="a")SFX.play("lose");$("ovEnd").classList.add("on");},fw+eb);
+  setTimeout(()=>{if(r.winner==="p"){FX.rain("#ffd65a");SFX.play("win");}else if(r.winner==="a")SFX.play("lose");else SFX.play("draw_game",.85);$("ovEnd").classList.add("on");},fw+eb);
 }
 function newGame(){
   BC=null;TN0=0;LOCID=[];seenRev.clear();prevPow.clear();seenLoc.clear();seenStg.clear();prevLd=[];PWV={};sel=look=moveSel=null;armRetreat=0;
@@ -527,7 +527,7 @@ function renderPiles(){
   const grp=(cls,ic,title,arr)=>`<section class="mb-grp ${cls}"><h3><i>${ic}</i>${title}<b>${arr.length}</b></h3>`+(arr.length?`<div class="mb-grid">${arr.map((c,i)=>({c,n:i+1})).reverse().map(({c,n})=>`<button type="button" class="mb-c" data-zk="${c.id}" aria-label="${esc(C[c.id].n)}, thứ ${n}">${miniCard(c.id,false).replace(/^<button[^>]*>|<\/button>$/g,"")}<em>${n}</em></button>`).join("")}</div>`:`<div class="mb-none">Chưa có thẻ nào</div>`)+`</section>`;
   $("pilesBody").innerHTML=grp("disc","↯","Vứt bỏ",G.disc[pilesSide])+grp("dead","✕","Tiêu huỷ",G.dead[pilesSide]);
 }
-$("pilesTabs").addEventListener("click",ev=>{const b=ev.target.closest("[data-ps]");if(!b)return;pilesSide=b.dataset.ps;SFX.play("tap");renderPiles();$("pilesBody").scrollTop=0;});
+$("pilesTabs").addEventListener("click",ev=>{const b=ev.target.closest("[data-ps]");if(!b)return;pilesSide=b.dataset.ps;SFX.play("ui_tab");renderPiles();$("pilesBody").scrollTop=0;});
 $("pilesBody").addEventListener("click",ev=>{const b=ev.target.closest("[data-zk]");if(b){SFX.play("tap");openPZ(b.dataset.zk);}});
 
 /* ---- đặt bài & rút lại siêu nhạy kiểu Marvel Snap ---- */

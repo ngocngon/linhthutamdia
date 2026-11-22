@@ -1697,7 +1697,7 @@
                   ], { duration: 420 });
                   const nm = id && C[id] ? C[id].n : "";
                   pushOppNotif((s.k === "steal" ? "CƯỚP KỸ NĂNG" : "SAO CHÉP KỸ NĂNG") + (nm ? `: ${nm}` : ""), col);
-                  SFX.play(s.k === "steal" ? "dark" : "e_hon");
+                  if (s.k === "steal") SFX.play("steal", 0.9); else SFX.play("e_hon");
                 }
               });
             }

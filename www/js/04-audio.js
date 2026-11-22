@@ -325,7 +325,7 @@ const SFX = (() => {
       .catch(() => { loadState = 3; });
   }
 
-  function playSample(n) {
+  function playSample(n, vol) {
     const b = bufs[n];
     if (!b || !ac) return false;
     const now = ac.currentTime;
@@ -336,7 +336,7 @@ const SFX = (() => {
     const g = ac.createGain();
     src.buffer = b;
     src.playbackRate.value = 1 + (Math.random() * 2 - 1) * 0.04;
-    g.gain.value = sfxGainVal(0.9 * (1 + (Math.random() * 2 - 1) * 0.1));
+    g.gain.value = sfxGainVal(0.9 * (vol == null ? 1 : vol) * (1 + (Math.random() * 2 - 1) * 0.1));
     src.connect(g);
     g.connect(outNode());
     voices++;
@@ -358,7 +358,7 @@ const SFX = (() => {
         if (typeof BGM !== "undefined") BGM.wake();
       } catch (e) {}
     },
-    play(n) {
+    play(n, vol) { /* vol: hệ số âm lượng riêng cho mẫu này (mặc định 1) */
       if (store.vib !== false && VIB[n] && navigator.vibrate) {
         try { navigator.vibrate(VIB[n]); } catch (e) {}
       }
@@ -366,7 +366,7 @@ const SFX = (() => {
       try {
         if (!ctx()) return;
         if (loadState === 0) loadSamples();
-        if (playSample(n)) return;
+        if (playSample(n, vol)) return;
         if (S[n]) S[n]();
       } catch (e) {}
     }
