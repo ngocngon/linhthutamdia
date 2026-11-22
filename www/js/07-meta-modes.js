@@ -78,7 +78,7 @@ function ownDeck(h){const target=[2,3,3,2,1,1],out=[],sh=a=>a.slice().sort(()=>M
   for(const k of sh(own)){if(out.length>=12)break;if(!out.includes(k))out.push(k);}return out;}
 function randNew(){const un=E.COLLECT.filter(k=>!OWN.has(k));if(!un.length)return null;const W={KD:60,C1:60,TB:60,S1:50,S2:25,S3:15,S4:7,S5:3,MP:2};let tot=0;for(const k of un)tot+=W[C[k].h]||1;let r=Math.random()*tot;for(const k of un){r-=W[C[k].h]||1;if(r<=0)return k;}return un[0];}
 const PRICE={KD:60,C1:60,TB:60,S1:100,S2:200,S3:400,S4:800,S5:1200,MP:1500};
-function cardGC(k,extra,full){const d=C[k];return `<span class="gc${extra||""}" style="--hc:${HC[d.h]};display:block">${art(k,full)}<span class="cst">${d.c}</span><span class="pwh">${d.p}</span><span class="n">${logo(d.id)}</span>${spk(d.id)}</span>`;}
+function cardGC(k,extra,full){const d=C[k];return `<span class="gc${extra||""}" style="--hc:${HC[d.h]};display:block">${nbL(k)}${art(k,full)}<span class="cst">${d.c}</span><span class="pwh">${d.p}</span><span class="n">${logo(d.id)}</span>${spk(d.id)}</span>`;}
 function showGain(title,html,c){$("gachaBody").innerHTML=`<h3>${title}</h3>${html}`;$("gachaBody").style.setProperty("--c",c||"#7fd0ff");$("ovGacha").classList.add("on");SFX.play("win");}
 function gainCard(k,title){grant(k);save();showGain(title||"Thẻ mới!",`<div style="width:130px">${cardGC(k,"",1)}</div><div>${kwfx(skillText(C[k]))}</div>`,HC[C[k].h]);}
 function gainRes(k,n,title){store[k]+=n;save();showGain(title||"Phần thưởng",`<div class="big" style="--c:${RES[k][1]}">${RES[k][0]}+${n}</div><div>${RES[k][2]}</div>`,RES[k][1]);}
@@ -146,6 +146,7 @@ const SVI={star:'<svg viewBox="0 0 24 24"><path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6
  pin:'<svg viewBox="0 0 24 24"><path d="M14.5 2.5l7 7-2.2.6-4 4 .5 4.4-1.7 1.7-4-4-4.6 4.6-1.4-1.4 4.6-4.6-4-4 1.7-1.7 4.4.5 4-4z"/></svg>'};
 function svi(k){return k.startsWith("i:")?icn(k.slice(2)):`<i class="svi" aria-hidden="true">${SVI[k]}</i>`;}
 const SSEC={deal:[["hot","Nổi bật","star"],["day","Hằng ngày","sun"],["deco","Trang trí","brush"],["up","Nâng cấp","i:up"],["gold","Vàng","i:gold"]],card:[["daily","Thẻ ngày","card"],["series","Gói Bậc","pack"],["tok","Token","i:tok"]]};
+SSEC.nen=NEN.sections();
 const SHELP={hot:"Gói nhân vật đổi mỗi ngày. Bộ bài dựng sẵn đổi mỗi tuần và tự giảm giá theo số thẻ bạn đã có.",day:"3 ưu đãi đổi mới mỗi ngày, mỗi món mua được 1 lần. Mua đủ 10 lần ưu đãi hằng ngày để nhận thêm 600 token.",deco:"3 món trang trí bạn chưa có, giảm 25%, đổi mới mỗi 8 giờ. Bên dưới là toàn bộ mặt lưng và sàn đấu.",up:"Nhận miễn phí 25 điểm nâng cấp mỗi 8 giờ, hoặc đổi vàng lấy điểm nâng cấp.",upk:"Nâng ngay 1 bậc chất lượng cho thẻ bạn đang có, rẻ hơn khoảng 30% so với nâng thường. Đổi mới mỗi ngày.",gold:"Nạp vàng và các gói ưu đãi. Lần đầu mua mỗi mốc vàng được nhân đôi.",daily:"6 thẻ xoay tua mỗi ngày. Ghim 1 thẻ để giữ nó lại sang các ngày sau cho đến khi mua.",series:"Mỗi gói cho 1 thẻ ngẫu nhiên của nhóm đó mà bạn chưa có, không bao giờ trùng. Bấm Xem thẻ để xem các thẻ có thể nhận.",tok:"Nhận miễn phí 20 token mỗi ngày. Đổi vàng lấy token, gói càng lớn càng được thêm."};
 function secHead(id,t,end,sub){return `<div class="shh"><span class="sht"><b>${t}</b>${sub?`<small>${sub}</small>`:""}</span>${end?cdHTML(end):""}<button type="button" class="hq" data-help="${id}" aria-label="Giải thích">?</button></div>`;}
 function sigCard(){const r=srng("sig"+today()),pool=E.COLLECT.filter(k=>["S4","S5","MP"].includes(C[k].h)),un=pool.filter(k=>!OWN.has(k));return spick(un.length?un:pool,1,r)[0];}
@@ -168,7 +169,7 @@ function upCards(){const r=srng("uk"+today()),own=[...OWN].filter(k=>lvl(k)<6);r
 function decoDeals(){const r=srng("dc8"+slot8()),it=[...Object.keys(BACKS).filter(b=>!store.backs.includes(b)).map(b=>["bk",b]),...Object.keys(ARENAS).filter(a=>!store.arenas.includes(a)).map(a=>["ar",a])];return spick(it,3,r);}
 function decoPrice(t,v){return t==="bk"?["tok",225]:["gold",Math.round(ARENAS[v][4]*.75/10)*10];}
 const TOKP=[[200,500],[500,1200],[1200,2700],[3000,6500]],UPP=[[500,400],[1500,1100]];
-function miniCard(k,ok){return `<button type="button" class="dkc${ok?" ok":""}" data-zk="${k}" aria-label="${esc(C[k].n)}"><span class="gc mini${qCls(k)}" style="--hc:${HC[C[k].h]}${qSt(k)}">${art(k)}<span class="cst">${C[k].c}</span><span class="pwh">${C[k].p}</span></span>${ok?`<i class="tick">✓</i>`:""}</button>`;}
+function miniCard(k,ok){return `<button type="button" class="dkc${ok?" ok":""}" data-zk="${k}" aria-label="${esc(C[k].n)}"><span class="gc mini${qCls(k)}" style="--hc:${HC[C[k].h]}${qSt(k)}">${nbL(k)}${art(k)}<span class="cst">${C[k].c}</span><span class="pwh">${C[k].p}</span></span>${ok?`<i class="tick">✓</i>`:""}</button>`;}
 let shopTab="deal",shopSub="bk";
 function pz(k,n,owned,used){if(used)return `<span class="pz use">Đang dùng</span>`;if(owned)return `<span class="pz own">Dùng</span>`;return `<span class="pz${store[k]<n?" no":""}">${icn(k)}${n}</span>`;}
 function shopDeal(){const S=SH();let h="";
@@ -211,11 +212,11 @@ function shopCard(){const S=SH();let h="";
   h+=`<section class="ssec" id="ss-tok">`+secHead("tok","Đổi token")+`<div class="shg"><button type="button" class="si gp" data-tf="1" ${ft?"":"disabled"}>${ft?`<span class="x2 free">Miễn phí</span>`:""}${pile(0,"tok")}<span class="amt">${icn("tok")}20</span>${ft?`<span class="pv">Nhận</span>`:`<span class="pz own">Đã nhận</span>`}</button>${TOKP.map(([n,g],i)=>`<button type="button" class="si gp" data-tb="${i}" ${store.gold<g?"disabled":""}>${i?`<span class="bnx">+${Math.round((n/g*2.5-1)*100)}%</span>`:""}${pile(Math.min(5,i+2),"tok")}<span class="amt">${icn("tok")}${n.toLocaleString("vi-VN")}</span>${pz("gold",g)}</button>`).join("")}</div></section>`;
   return h;}
 function renderShop(){
-  if(shopTab!=="deal"&&shopTab!=="card")shopTab="deal";
+  if(shopTab!=="deal"&&shopTab!=="card"&&shopTab!=="nen")shopTab="deal";
   $("shopRes").innerHTML=resHTML(["gold","up","tok","evp","gems"]);
   for(const b of $("shopTabs").children){const on=b.dataset.st===shopTab;b.classList.toggle("on",on);b.setAttribute("aria-selected",on);}
   $("shopSub").innerHTML=SSEC[shopTab].map(([id,n,ic],i)=>`<button type="button" data-go="${id}" class="${i?"":"on"}">${svi(ic)}<span>${n}</span></button>`).join("");
-  const bd=$("shopBody"),y=bd.scrollTop;bd.innerHTML=shopTab==="deal"?shopDeal():shopCard();bd.scrollTop=y;shopSpy();
+  const bd=$("shopBody"),y=bd.scrollTop;bd.innerHTML=shopTab==="deal"?shopDeal():shopTab==="card"?shopCard():NEN.shop();bd.scrollTop=y;shopSpy();
 }
 function secTop(id){const bd=$("shopBody"),el=$("ss-"+id);if(!el)return 0;return el.getBoundingClientRect().top-bd.getBoundingClientRect().top+bd.scrollTop;}
 function shopSpy(){const bd=$("shopBody"),secs=SSEC[shopTab];let cur=secs[0][0];for(const [id] of secs)if(secTop(id)<=bd.scrollTop+60)cur=id;if(bd.scrollTop+bd.clientHeight>=bd.scrollHeight-4)cur=secs[secs.length-1][0];for(const b of $("shopSub").children)b.classList.toggle("on",b.dataset.go===cur);}
@@ -343,11 +344,12 @@ $("poolGrid").addEventListener("click",ev=>{const b=ev.target.closest("[data-zk]
 /* ---- phóng to thẻ ---- */
 let pzK=null,pzAlt=0;
 function openPZ(k,alt){pzK=k;pzAlt=alt||0;const LK=[k,...(LINKS[k]||[])],ai=pzAlt%LK.length,sid=LK[ai],d=C[sid],kw=kwfx;
-  $("pzBody").innerHTML=`<div class="fanw">${fanSides(LK,ai)}<span class="gc${qCls(sid)}" style="--hc:${HC[d.h]};--bk:${backBg()}${qSt(sid)};display:block">${art(sid,1)}<span class="cst">${d.c}</span><span class="pwh">${d.p}</span><span class="n">${logo(sid)}</span>${bacTag(d)}${lkBtn(ai,LK.length)}${flipBtn()}</span></div><div class="pkt">${sid!==k?"Thẻ liên quan của "+esc(C[k].n):esc(HE[d.h]||"")+" · "+esc(DANG[d.t]||"")+(OWN.has(k)?" · đã có":"")}</div><div class="zt">${kw(skillText(d))}</div><button type="button" class="zcl" data-pzx="1" aria-label="Đóng">✕</button>`;
+  $("pzBody").innerHTML=`<div class="fanw">${fanSides(LK,ai)}<span class="gc${qCls(sid)}" style="--hc:${HC[d.h]};--bk:${backBg()}${qSt(sid)};display:block">${nbL(sid)}${art(sid,1)}<span class="cst">${d.c}</span><span class="pwh">${d.p}</span><span class="n">${logo(sid)}</span>${bacTag(d)}${lkBtn(ai,LK.length)}${flipBtn()}</span></div><div class="pkt">${sid!==k?"Thẻ liên quan của "+esc(C[k].n):esc(HE[d.h]||"")+" · "+esc(DANG[d.t]||"")+(OWN.has(k)?" · đã có":"")}</div><div class="zt">${kw(skillText(d))}</div>${NEN.slot(sid)}<button type="button" class="zcl" data-pzx="1" aria-label="Đóng">✕</button>`;
   $("ovPZ").classList.add("on");}
 $("pzBody").addEventListener("click",ev=>{if(ev.target.closest("[data-lk]")){SFX.play("tap");openPZ(pzK,pzAlt+1);return;}const fz=ev.target.closest("[data-fan]");if(fz){SFX.play("tap");const n=1+(LINKS[pzK]||[]).length;openPZ(pzK,(pzAlt+ +fz.dataset.fan+n)%n);return;}if(ev.target.closest("[data-pzx]"))$("ovPZ").classList.remove("on");});
 $("ovPZ").addEventListener("click",ev=>{if(ev.target.id==="ovPZ")$("ovPZ").classList.remove("on");});
 $("shopBody").addEventListener("click",ev=>{const b=ev.target.closest("button");if(!b||b.disabled)return;const ds=b.dataset,S=SH();SFX.play("tap");
+  if(NEN.shopClick(ds))return;
   if(ds.help){toast(SHELP[ds.help]||"",5200);return;}
   if(ds.zk){openPZ(ds.zk);return;}
   if(ds.ss){shopSub=ds.ss;renderShop();return;}
@@ -381,8 +383,8 @@ function renderCard(){const k=cardId,d=C[k],o=OWN.has(k),l=lvl(k),pv=cardPrev,c=
   const LK=[k,...(LINKS[k]||[])],ai=cardAlt%LK.length,sid=LK[ai],sd=C[sid];
   $("cardHead").textContent=sid!==k?`Thẻ liên quan · ${d.n}`:`Thẻ nhân vật${DANG[d.t]?" · "+DANG[d.t]:""}${o?"":" · chưa sở hữu"}`;
   const qc=cu&&c.bc?c.bc:QN[pv][1],cls=pv?` qf q${pv}${cu&&c.bc?" qcc":""}${cu&&c.au?" qau":""}${cu&&c.an?" qan":""}`:"";
-  $("cardBody").innerHTML=`<div class="fanw">${fanSides(LK,ai)}<div class="bigc${cls}" style="--hc:${HC[d.h]};--bk:${backBg()};${cu&&c.bc?"--qc:"+c.bc:""}">${art(sid,1)}<span class="cst">${sd.c}</span><span class="pwh">${sd.p}</span><span class="n">${logo(sid)}</span>${sid===k?spk(k):""}${bacTag(sd)}${lkBtn(ai,LK.length)}${flipBtn()}</div></div>
-  <div class="cinfo cvtx">${kwfx(skillText(sd))}</div>
+  $("cardBody").innerHTML=`<div class="fanw">${fanSides(LK,ai)}<div class="bigc${cls}" style="--hc:${HC[d.h]};--bk:${backBg()};${cu&&c.bc?"--qc:"+c.bc:""}">${nbL(sid)}${art(sid,1)}<span class="cst">${sd.c}</span><span class="pwh">${sd.p}</span><span class="n">${logo(sid)}</span>${sid===k?spk(k):""}${bacTag(sd)}${lkBtn(ai,LK.length)}${flipBtn()}</div></div>
+  <div class="cinfo cvtx">${kwfx(skillText(sd))}</div>${NEN.slot(sid)}
   ${cardRen?`<div class="frow cvren"><input id="cardName" type="text" maxlength="16" value="${esc(d.n)}" autocomplete="off" aria-label="Tên thẻ"><button type="button" class="sortb" data-rn="1">Lưu</button>${store.names[k]?`<button type="button" class="sortb" data-rn="0">Tên gốc</button>`:""}</div>`:""}
   ${o&&l===6?`<div class="cust"><div class="sw">${SWATCH.map(x=>`<button type="button" data-bc="${x}" class="${c.bc===x?"on":""}" style="--c:${x}" aria-label="Màu viền ${x}"></button>`).join("")}<button type="button" data-bc="" class="${!c.bc?"on":""}" style="--c:conic-gradient(#ff4d6d,#ffd65a,#7dff8a,#3fe0ff,#c45cff,#ff4d6d)" aria-label="Viền cầu vồng"></button></div><div class="tg2"><button type="button" class="tgb${c.au?" on":""}" data-tg="au">Hào quang</button><button type="button" class="tgb${c.an?" on":""}" data-tg="an">Thẻ động</button></div></div>`:""}`;
   $("cardQ").style.setProperty("--qc",qc);
@@ -444,7 +446,7 @@ const POOL=E.COLLECT.slice();
 function rnd3(ex){const o=[];while(o.length<3){const k=POOL[Math.floor(Math.random()*POOL.length)];if(!ex.includes(k)&&!o.includes(k))o.push(k);}return o;}
 function cardTile(k,attr,u){const d=C[k],ug=u&&u.n?`<span class="ugb">⬆${u.n}</span>`:"";
   const cs=d.c-((u&&u.c)||0),pw=d.p+((u&&u.p)||0);
-  return `<button type="button" class="gc mdc" style="--hc:${HC[d.h]}" ${attr} aria-label="${esc(d.n)}">${art(k)}<span class="cst${cs<d.c?" up":""}">${cs}</span><span class="pwh${pw>d.p?" up":""}">${pw}</span>${ug}</button>`;}
+  return `<button type="button" class="gc mdc" style="--hc:${HC[d.h]}" ${attr} aria-label="${esc(d.n)}">${nbL(k)}${art(k)}<span class="cst${cs<d.c?" up":""}">${cs}</span><span class="pwh${pw>d.p?" up":""}">${pw}</span>${ug}</button>`;}
 /* ---- trận theo chế độ ---- */
 function startModeGame(mode,pDeck,foeDeck,upP,upA,xo){mmBot(nm=>{startModeGame0(mode,pDeck,foeDeck,upP,upA,xo);$("foeName").textContent=nm;runMatchIntro("LƯỢT 1",mode.lbl||"",true);});}
 function startModeGame0(mode,pDeck,foeDeck,upP,upA,xo){
@@ -888,7 +890,7 @@ let pickAlt=0;
 function openPick(k,alt){if(alt===undefined)pickAlt=0;else pickAlt=alt;F.foc=k;const d0=C[k],LK=[k,...(LINKS[k]||[])],ai=pickAlt%LK.length,sid=LK[ai],d=C[sid],on=draft.has(k),own=OWN.has(k),full=draft.size>=12;
   const btn=on?`<button type="button" class="btn pkrm" data-pk="rm">Bỏ khỏi bộ bài</button>`:!own?`<button type="button" class="btn" disabled>Chưa sở hữu thẻ này</button>`:full?`<button type="button" class="btn" disabled>Bộ bài đã đủ 12 thẻ</button>`:`<button type="button" class="btn end" data-pk="add">Thêm vào bộ bài</button>`;
   const lv=lvl(k),qn=QN[lv]||QN[0],kw=kwfx;
-  $("pkBody").innerHTML=`${lv?`<div class="zq" style="--qc:${qn[1]}">${esc(qn[0])} · Cấp ${lv}</div>`:""}<div class="fanw">${fanSides(LK,ai)}<span class="gc${qCls(sid)}" style="--hc:${HC[d.h]};--bk:${backBg()}${qSt(sid)};display:block">${art(sid,1)}<span class="cst">${d.c}</span><span class="pwh">${d.p}</span><span class="n">${logo(sid)}</span>${bacTag(d)}${lkBtn(ai,LK.length)}${flipBtn()}</span></div>
+  $("pkBody").innerHTML=`${lv?`<div class="zq" style="--qc:${qn[1]}">${esc(qn[0])} · Cấp ${lv}</div>`:""}<div class="fanw">${fanSides(LK,ai)}<span class="gc${qCls(sid)}" style="--hc:${HC[d.h]};--bk:${backBg()}${qSt(sid)};display:block">${nbL(sid)}${art(sid,1)}<span class="cst">${d.c}</span><span class="pwh">${d.p}</span><span class="n">${logo(sid)}</span>${bacTag(d)}${lkBtn(ai,LK.length)}${flipBtn()}</span></div>
   <div class="pkt">${sid!==k?"Thẻ liên quan của "+esc(d0.n):esc(HE[d.h]||"")+" · "+esc(DANG[d.t]||"")}</div><div class="zt">${kw(skillText(d))}</div>
   <div class="pkn">Bộ bài: <b>${draft.size}/12</b>${on?" · <span class=\"ok\">đã có trong bộ</span>":""}</div>
   <div class="pka">${btn}<button type="button" class="btn pkfv${store.fav.includes(k)?" on":""}" data-pk="fav" aria-label="Yêu thích" aria-pressed="${store.fav.includes(k)}">★</button></div><button type="button" class="zcl" data-pk="x" aria-label="Đóng">✕</button>`;

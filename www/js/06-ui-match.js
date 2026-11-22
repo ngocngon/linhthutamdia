@@ -95,7 +95,7 @@ function render0(){
   if(!(drag&&drag.on)){$("hand").dataset.n=G.hand.p.length;$("hand").style.setProperty("--n",Math.max(1,G.hand.p.length));const hh=G.hand.p.length?G.hand.p.map((c,ix,ar)=>{const kk=ix-(ar.length-1)/2;
     const d=C[c.id],cs=E.cost(G,c),pw=handPow(c);
     const no=play&&![0,1,2].some(li=>E.canPlay(G,"p",c,li));
-    return `<button type="button" class="hc${c.uid===sel?" sel":""}${no?" no":""}${c.sil?" sil":""}${qCls(c.id)}" style="--i:${ix};--k:${kk};--a:${Math.abs(kk)};--hc:${HC[d.h]}${qSt(c.id)}" data-hc="${c.uid}" aria-label="${d.n}, năng lượng ${cs}, sức mạnh ${pw}">${art(c.id)}<span class="cst ${cs<d.c?"up":cs>d.c?"down":""}">${cs}</span><span class="pwh ${pw>d.p?"up":pw<d.p?"down":""}">${pw}</span><span class="n">${logo(d.id)}</span>${spk(d.id)}${markBadges(c,"hand")}<i class="fl"></i>${c.ug?`<span class="ugb">⬆${c.ug}</span>`:""}</button>`;
+    return `<button type="button" class="hc${c.uid===sel?" sel":""}${no?" no":""}${c.sil?" sil":""}${qCls(c.id)}" style="--i:${ix};--k:${kk};--a:${Math.abs(kk)};--hc:${HC[d.h]}${qSt(c.id)}" data-hc="${c.uid}" aria-label="${d.n}, năng lượng ${cs}, sức mạnh ${pw}">${nbL(c.id)}${art(c.id)}<span class="cst ${cs<d.c?"up":cs>d.c?"down":""}">${cs}</span><span class="pwh ${pw>d.p?"up":pw<d.p?"down":""}">${pw}</span><span class="n">${logo(d.id)}</span>${spk(d.id)}${markBadges(c,"hand")}<i class="fl"></i>${c.ug?`<span class="ugb">⬆${c.ug}</span>`:""}</button>`;
   }).join(""):`<div class="empty">Hết bài trên tay</div>`;const he=$("hand");if(he._h!==hh||he.children.length===0){he._h=hh;he.innerHTML=hh;}}
   $("orb").textContent=String(G.energy.p);$("btnEnd").classList.toggle("nudge",!!(play&&G.phase==="play"&&!G.hand.p.some(c=>[0,1,2].some(li=>E.canPlay(G,"p",c,li)))));
   const end=$("btnEnd");
@@ -267,7 +267,7 @@ function renderDeck(keepScroll){
   const ids=sortIds(E.COLLECT.filter(deckMatches));$("filtCnt").textContent=ids.length;
   const full=!F.col&&draft.size>=12,fvs=new Set(store.fav);
   $("deckList").innerHTML=ids.map(k=>{const d=C[k],on=draft.has(k);
-    return `<button type="button" class="gc${on?" on":""}${fvs.has(k)?" fav":""}${F.foc===k?" foc":""}${full&&!on?" dim":""}${OWN.has(k)?qCls(k):" lock"}" style="--hc:${HC[d.h]}${qSt(k)}" data-pick="${k}" aria-label="${d.n}, năng lượng ${d.c}, sức mạnh ${d.p}">${art(k)}<span class="cst">${d.c}</span><span class="pwh">${d.p}</span><span class="n">${logo(d.id)}</span>${spk(d.id)}<span class="fv">★</span><span class="ck">✓</span>${OWN.has(k)&&canUp(k)?`<span class="gup" aria-label="Có thể nâng cấp">▲</span>`:""}<span class="gi" style="--qc:${(QN[lvl(k)]||QN[0])[1]}">${OWN.has(k)?`<span class="pips">${[1,2,3,4,5,6].map(i=>`<i class="${i<=lvl(k)?"f":""}"></i>`).join("")}</span>`:"<em>Chưa có</em>"}</span></button>`;}).join("")
+    return `<button type="button" class="gc${on?" on":""}${fvs.has(k)?" fav":""}${F.foc===k?" foc":""}${full&&!on?" dim":""}${OWN.has(k)?qCls(k):" lock"}" style="--hc:${HC[d.h]}${qSt(k)}" data-pick="${k}" aria-label="${d.n}, năng lượng ${d.c}, sức mạnh ${d.p}">${nbL(k)}${art(k)}<span class="cst">${d.c}</span><span class="pwh">${d.p}</span><span class="n">${logo(d.id)}</span>${spk(d.id)}<span class="fv">★</span><span class="ck">✓</span>${OWN.has(k)&&canUp(k)?`<span class="gup" aria-label="Có thể nâng cấp">▲</span>`:""}<span class="gi" style="--qc:${(QN[lvl(k)]||QN[0])[1]}">${OWN.has(k)?`<span class="pips">${[1,2,3,4,5,6].map(i=>`<i class="${i<=lvl(k)?"f":""}"></i>`).join("")}</span>`:"<em>Chưa có</em>"}</span></button>`;}).join("")
     ||`<div class="none" style="grid-column:1/-1">Không có thẻ nào khớp bộ lọc.</div>`;
   body.scrollTop=y;
   const f=F.foc&&C[F.foc];
@@ -587,7 +587,7 @@ function paintZoom(){const z=$("zoom");let id=null;
   if(qd&&playing()&&!OL.sub)act=`<button type="button" class="ib alt" data-zdo="unplay">Rút lại thẻ này</button>`;
   let skTxt=skillText(d);
   if(bi){const qp=questProg(bi);if(qp)skTxt=skTxt.replace(/\(\d+\/\d+\)/,qp[2]?"(Hoàn thành ✓)":`(${qp[0]}/${qp[1]})`);}
-  z.innerHTML=`${lv?`<div class="zq" style="--qc:${qn[1]}">${esc(qn[0])} · Cấp ${lv}</div>`:""}<span class="gc${qCls(id)}" style="--hc:${HC[d.h]}${qSt(id)};display:block">${art(id,1)}<span class="cst${cs<d.c?" up":cs>d.c?" down":""}">${cs}</span><span class="pwh ${pw>d.p?"up":pw<d.p?"down":""}">${pw}</span><span class="n">${logo(id)}</span>${bi?markBadges(bi,zWhere):""}</span>
+  z.innerHTML=`${lv?`<div class="zq" style="--qc:${qn[1]}">${esc(qn[0])} · Cấp ${lv}</div>`:""}<span class="gc${qCls(id)}" style="--hc:${HC[d.h]}${qSt(id)};display:block">${nbL(id)}${art(id,1)}<span class="cst${cs<d.c?" up":cs>d.c?" down":""}">${cs}</span><span class="pwh ${pw>d.p?"up":pw<d.p?"down":""}">${pw}</span><span class="n">${logo(id)}</span>${bi?markBadges(bi,zWhere):""}</span>
   <div class="zt">${kw(skTxt)}${mkNotes}${br}</div>${hc?`<div class="zhint">Kéo thẻ hoặc chạm chiến địa để đặt ngay.</div>`:""}<div class="zact">${act}</div><button type="button" class="zcl" aria-label="Đóng">✕</button>`;z.classList.add("on");}
 $("hand").addEventListener("click",ev=>{
   const hc=ev.target.closest("[data-hc]");if(!hc)return;

@@ -3018,7 +3018,7 @@
     const delta = pwDelta != null ? pwDelta : 3;
     const pw = Math.max(0, d.p + delta);
     const cls = delta > 0 ? "up" : delta < 0 ? "down" : "";
-    return `<button type="button" class="mc q5" style="--hc:${HC[d.h] || "#ffd65a"}">${art(pick)}<span class="mn">${logo(pick)}</span><span class="pwh ${cls}">${pw}</span></button>`;
+    return `<button type="button" class="mc q5" style="--hc:${HC[d.h] || "#ffd65a"}">${nbL(pick)}${art(pick)}<span class="mn">${logo(pick)}</span><span class="pwh ${cls}">${pw}</span></button>`;
   }
 
   function getLaneSlotRect(laneIdx, side, slotIdx) {
@@ -3114,7 +3114,7 @@
           const z = document.createElement("div");
           z.className = "rvz snap-revz";
           z.style.setProperty("--c", col);
-          z.innerHTML = `<div class="rvz-card"><div class="rvz-face rvz-front"><span class="gc q5" style="--hc:${col}">${art(pick)}<span class="cst">${d.c}</span><span class="pwh up">${d.p + 2}</span><span class="n">${logo(pick)}</span></span></div><div class="rvz-face rvz-back" style="background:${bk}"></div></div>`;
+          z.innerHTML = `<div class="rvz-card"><div class="rvz-face rvz-front"><span class="gc q5" style="--hc:${col}">${nbL(pick)}${art(pick)}<span class="cst">${d.c}</span><span class="pwh up">${d.p + 2}</span><span class="n">${logo(pick)}</span></span></div><div class="rvz-face rvz-back" style="background:${bk}"></div></div>`;
           document.body.appendChild(z);
           const zr = z.getBoundingClientRect();
           const zx = window.innerWidth / 2 - zr.width / 2, zy = window.innerHeight * 0.42 - zr.height / 2;

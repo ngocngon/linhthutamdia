@@ -2124,7 +2124,7 @@
     const d = C[k];
     const pw = Math.max(0, d.p + (dPw || 0));
     const cls = dPw > 0 ? "up" : dPw < 0 ? "down" : "";
-    return `<button type="button" class="mc q5" style="--hc:${HC[d.h] || "#ffd65a"}">${art(k)}<span class="mn">${logo(k)}</span><span class="pwh ${cls}">${pw}</span></button>`;
+    return `<button type="button" class="mc q5" style="--hc:${HC[d.h] || "#ffd65a"}">${nbL(k)}${art(k)}<span class="mn">${logo(k)}</span><span class="pwh ${cls}">${pw}</span></button>`;
   }
 
   function ensureBoardReady(cb) {
