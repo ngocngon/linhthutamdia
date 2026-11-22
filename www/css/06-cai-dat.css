@@ -30,3 +30,5 @@
 #ovSet .panel.sx .foot .btn{flex:1;min-height:48px;font-size:16px}
 @media(max-width:380px){.sx-row{padding:6px 10px;font-size:13px}.sx-row.sx-sl .sx-t{min-width:54px}}
 #ovSet .sx-btn.end{background:transparent;border:1px dashed rgba(255,210,90,.6);color:#ffd25a;box-shadow:none;font-size:13px}
+/* gpu22: dòng giải thích chế độ khung hình */
+.sx-note{display:block;font-size:12px;line-height:1.35;color:rgba(200,210,255,.72);padding:0 2px}

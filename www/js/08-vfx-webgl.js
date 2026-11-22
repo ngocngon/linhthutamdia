@@ -26,10 +26,10 @@
       store.gpu = true;
       save();
     }
-    /* chuyển một lần sang mức mặc định mới "Chậm" (anh thấy các mức cũ còn quá nhanh) */
-    if (!localStorage.getItem("ltd_spd_v3")) {
-      localStorage.setItem("ltd_spd_v3", "1");
-      store.spd = "cham";
+    /* gpu22: mặc định "Rất chậm" (anh chọn sau khi thử 5 mức); chuyển một lần cho mọi máy */
+    if (!localStorage.getItem("ltd_spd_v4")) {
+      localStorage.setItem("ltd_spd_v4", "1");
+      store.spd = "ratcham";
       try { save(); } catch (e) {}
     }
     SPD = SPDV[store.spd] || 1.0;
@@ -3775,4 +3775,96 @@
   window.FFTURN = { start, stop, get on() { return FF.on; } };
   try { if (typeof endTurnUI === "function") { const f0 = endTurnUI; endTurnUI = async function () { start(); try { return await f0.apply(this, arguments); } finally { stop(); } }; } } catch (e) {}
   try { if (typeof onlineResolve === "function") { const f1 = onlineResolve; onlineResolve = async function () { start(); try { return await f1.apply(this, arguments); } finally { stop(); } }; } } catch (e) {}
+})();
+
+/* ==================== gpu22: CHẾ ĐỘ KHUNG HÌNH 60 / 30 / TỰ ĐỘNG ====================
+   60: không giới hạn (theo màn hình, thường 60). 30: mọi vòng vẽ JS (hạt GPU, lớp 2D, hoạt cảnh canvas,
+   đồng hồ) chạy 30 khung/giây đều đặn, đỡ nóng máy và pin. Tự động: đầu mỗi trận đo thật; máy không giữ
+   nổi khoảng 45 khung/giây thì tự khoá 30 cho đều (30 đều mắt hơn 40 giật). Hoạt ảnh CSS do GPU tự chạy. */
+(function () {
+  "use strict";
+  const KEY = "ltd_fps";
+  let mode = "auto";
+  try { const v = localStorage.getItem(KEY); if (v === "60" || v === "30" || v === "auto") mode = v; } catch (e) {}
+  const raf0 = window.requestAnimationFrame.bind(window);
+  const caf0 = window.cancelAnimationFrame.bind(window);
+  let cap = mode === "30" ? 30 : 0, autoCap = 0, seq = 0, drv = 0, last = 0, measuring = false;
+  const q = new Map();
+  function curCap() { return measuring ? 0 : (mode === "30" ? 30 : mode === "auto" ? autoCap : 0); }
+  function driver(t) {
+    drv = 0;
+    if (!q.size) return;
+    const c = curCap();
+    if (c && t - last < 1000 / c - 4) { drv = raf0(driver); return; }
+    last = t;
+    const cbs = Array.from(q.values());
+    q.clear();
+    for (const cb of cbs) { try { cb(t); } catch (e) { setTimeout(() => { throw e; }); } }
+  }
+  window.requestAnimationFrame = function (cb) {
+    if (!curCap()) return raf0(cb);
+    const id = --seq;
+    q.set(id, cb);
+    if (!drv) drv = raf0(driver);
+    return id;
+  };
+  window.cancelAnimationFrame = function (id) { if (id < 0) q.delete(id); else caf0(id); };
+
+  /* đo thật đầu mỗi trận (chế độ Tự động) */
+  let lastG = null;
+  function inBattle() {
+    try {
+      if (document.hidden || typeof G === "undefined" || !G || G.phase === "over") return false;
+      const lb = document.getElementById("lobby");
+      return !(lb && lb.classList.contains("on")) && !document.querySelector(".ov.on");
+    } catch (e) { return false; }
+  }
+  function measure() {
+    measuring = true;
+    let n = 0, t0 = 0;
+    const f = (t) => {
+      if (!inBattle()) { measuring = false; return; }
+      if (!t0) t0 = t;
+      n++;
+      if (t - t0 < 2500) { raf0(f); return; }
+      measuring = false;
+      const fps = n * 1000 / (t - t0);
+      autoCap = fps < 45 ? 30 : 0;
+      window.FPS_MEASURED = Math.round(fps);
+    };
+    raf0(f);
+  }
+  setInterval(() => {
+    if (mode !== "auto" || measuring || !inBattle()) return;
+    if (G !== lastG) { lastG = G; setTimeout(() => { if (inBattle()) measure(); }, 3200); }
+  }, 2000);
+
+  function label() {
+    if (mode === "60") return "Luôn ưu tiên mượt nhất máy cho phép.";
+    if (mode === "30") return "Khoá 30 khung/giây: mát máy, đỡ tốn pin.";
+    return autoCap ? "Tự động: máy đang chạy ổn định ở 30 khung/giây." : "Tự động: đang chạy 60 khung/giây, đo lại đầu mỗi trận.";
+  }
+  window.FPSMODE = {
+    get mode() { return mode; },
+    set(m) { if (m !== "60" && m !== "30" && m !== "auto") return; mode = m; try { localStorage.setItem(KEY, m); } catch (e) {} syncUi(); },
+    get cap() { return curCap(); },
+    label
+  };
+  function syncUi() {
+    const seg = document.getElementById("setFpsSeg");
+    if (seg) seg.querySelectorAll(".sx-pill").forEach((b) => { const on = b.dataset.k === mode; b.classList.toggle("on", on); b.setAttribute("aria-checked", on); });
+    const n = document.getElementById("setFpsNote");
+    if (n) n.textContent = label();
+  }
+  const seg = document.getElementById("setFpsSeg");
+  if (seg) {
+    seg.addEventListener("click", (e) => {
+      const b = e.target.closest(".sx-pill");
+      if (!b) return;
+      window.FPSMODE.set(b.dataset.k);
+      try { SFX.play("tap"); } catch (er) {}
+    });
+  }
+  try { if (typeof openSet === "function") { const o0 = openSet; openSet = function () { const r = o0.apply(this, arguments); syncUi(); return r; }; } } catch (e) {}
+  syncUi();
 })();
