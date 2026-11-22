@@ -38,20 +38,6 @@ const BACKS={
  bk_vocuc_3:mkImgBack("Cổ Loa Tinh Đồ","bk_vocuc_3")
 };
 if(typeof TEST_MAX!=="undefined"&&TEST_MAX){for(const bk of Object.keys(BACKS))if(!store.backs.includes(bk))store.backs.push(bk);}
-function mkScene(body){return `url('data:image/svg+xml,${encodeURIComponent("<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 860' preserveAspectRatio='xMidYMid slice'>"+body+"</svg>").replace(/'/g,"%27")}')`;}
-const SCENES={
- ancient:()=>{let c="";for(const x of [20,70,330,380]){c+=`<rect x='${x-14}' y='90' width='28' height='560' fill='url(#col)'/><rect x='${x-20}' y='78' width='40' height='14' fill='#e9cf96'/><rect x='${x-20}' y='648' width='40' height='16' fill='#b8935a'/>`;for(let k=-10;k<=10;k+=5)c+=`<rect x='${x+k-.5}' y='94' width='1' height='552' fill='#6b4a1e' opacity='.45'/>`;}
-   let gl="";for(let i=0;i<9;i++)gl+=`<path d='M${60+i*34} ${700+((i*37)%60)}l8-10 8 10-8 10z' fill='none' stroke='#f0d28a' stroke-opacity='.25'/>`;
-   return mkScene(`<defs><linearGradient id='sky' x1='0' y1='0' x2='0' y2='1'><stop offset='0' stop-color='#ffcf70'/><stop offset='.28' stop-color='#d98a3a'/><stop offset='.6' stop-color='#6a3f1c'/><stop offset='1' stop-color='#22140a'/></linearGradient><linearGradient id='col' x1='0' y1='0' x2='1' y2='0'><stop offset='0' stop-color='#8a6a3a'/><stop offset='.4' stop-color='#f0d9a4'/><stop offset='1' stop-color='#7a5a2c'/></linearGradient><radialGradient id='sun'><stop offset='0' stop-color='#fff6d0'/><stop offset='.5' stop-color='#ffd070'/><stop offset='1' stop-color='#ffd070' stop-opacity='0'/></radialGradient></defs><rect width='400' height='860' fill='url(#sky)'/><circle cx='200' cy='120' r='120' fill='url(#sun)'/><path d='M0 190L80 110l40 44 80-96 80 96 40-44 80 80v60H0z' fill='#7a4f24'/><path d='M110 190l90-110 90 110z' fill='#c9955a'/><path d='M200 80l90 110h-40z' fill='#8a5f2e'/><path d='M0 190h400v670H0z' fill='#2b1a0c' opacity='.72'/><path d='M0 186h400' stroke='#f0d28a' stroke-width='3'/><path d='M0 192h400' stroke='#6b4a1e' stroke-width='6'/>${c}${gl}<path d='M0 800q200-60 400 0v60H0z' fill='#1a0f06'/>`);},
- pixel:()=>{let b="",h=7;const rnd=()=>{h=(h*16807)%2147483647;return h/2147483647;};
-   for(let i=0;i<70;i++)b+=`<rect x='${Math.floor(rnd()*50)*8}' y='${Math.floor(rnd()*40)*8}' width='${rnd()<.2?8:4}' height='${rnd()<.2?8:4}' fill='${["#fff","#7fe0ff","#ffd65a","#ff8af0"][i%4]}' opacity='${.4+rnd()*.6}'/>`;
-   let m="";for(let x=0;x<400;x+=16){const t=Math.round((60+40*Math.sin(x/50)+30*Math.sin(x/23))/8)*8;m+=`<rect x='${x}' y='${330-t}' width='16' height='${t+40}' fill='#2a2f6e'/><rect x='${x}' y='${330-t}' width='16' height='8' fill='#4de3a0'/>`;}
-   let g="";for(let y=370;y<860;y+=32)for(let x=(y/32)%2*32;x<400;x+=64)g+=`<rect x='${x}' y='${y}' width='32' height='32' fill='#141a3c'/>`;
-   return mkScene(`<rect width='400' height='860' fill='#0b0d24'/><rect width='400' height='330' fill='#141046'/>${b}<rect x='296' y='48' width='48' height='48' fill='#ffe27a'/><rect x='304' y='40' width='32' height='8' fill='#ffe27a'/><rect x='304' y='96' width='32' height='8' fill='#ffe27a'/><rect x='312' y='60' width='8' height='8' fill='#d49a1a'/><rect x='328' y='76' width='8' height='8' fill='#d49a1a'/>${m}<rect y='362' width='400' height='8' fill='#4de3a0'/><rect y='370' width='400' height='490' fill='#0d1126'/>${g}`);},
- cartoon:()=>{let f="";for(let i=0;i<14;i++){const x=20+i*29,y=560+((i*53)%240),c=["#ff6b8a","#ffd65a","#fff","#c58cff"][i%4];f+=`<circle cx='${x}' cy='${y}' r='6' fill='${c}' stroke='#2a2140' stroke-width='2'/><circle cx='${x}' cy='${y}' r='2' fill='#2a2140'/>`;}
-   return mkScene(`<defs><linearGradient id='sky' x1='0' y1='0' x2='0' y2='1'><stop offset='0' stop-color='#38b6ff'/><stop offset='1' stop-color='#c8f0ff'/></linearGradient></defs><rect width='400' height='860' fill='url(#sky)'/><g stroke='#2a2140' stroke-width='4' stroke-linejoin='round'><circle cx='320' cy='90' r='44' fill='#ffd65a'/><path d='M320 26v-18M320 172v-18M256 90h-18M402 90h-18M274 44l-12-12M378 148l-12-12M366 44l12-12M262 148l12-12' fill='none' stroke-linecap='round'/><path d='M-20 330q80-150 190-20q60-90 150-10q50-40 100 30v80H-20z' fill='#7ad85a'/><path d='M-20 380q120-90 230-10q90-60 210 10v500H-20z' fill='#4fb84a'/><path d='M60 250v-70l-22 22M60 180l22 22' fill='none' stroke-linecap='round'/><circle cx='60' cy='168' r='30' fill='#2f9a4a'/><circle cx='120' cy='300' r='22' fill='#2f9a4a'/></g><path d='M0 380h400v480H0z' fill='#3a9a3c' opacity='.35'/>${f}`);},
- logo:()=>{let r="";for(let i=0;i<24;i++){const a=i*15*Math.PI/180;r+=`<path d='M${200+Math.cos(a)*150} ${400+Math.sin(a)*150}L${200+Math.cos(a)*(i%2?176:196)} ${400+Math.sin(a)*(i%2?176:196)}' stroke='#7fa8ff' stroke-opacity='.4' stroke-width='2'/>`;}
-   return mkScene(`<defs><radialGradient id='bg' cx='.5' cy='.46' r='.7'><stop offset='0' stop-color='#24388e'/><stop offset='.5' stop-color='#0c1238'/><stop offset='1' stop-color='#04051a'/></radialGradient><linearGradient id='em' x1='0' y1='0' x2='0' y2='1'><stop offset='0' stop-color='#9fd0ff' stop-opacity='.5'/><stop offset='1' stop-color='#8a5cff' stop-opacity='.2'/></linearGradient></defs><rect width='400' height='860' fill='url(#bg)'/><g fill='none' stroke='#7fa8ff' stroke-opacity='.3'><circle cx='200' cy='400' r='140' stroke-width='3'/><circle cx='200' cy='400' r='110' stroke-dasharray='4 8'/><circle cx='200' cy='400' r='230' stroke-opacity='.15'/></g>${r}<path d='M200 290l95 55v110l-95 55-95-55V345z' fill='url(#em)' stroke='#9fd0ff' stroke-opacity='.6' stroke-width='3'/><path d='M200 330l-46 70h34l-10 62 68-84h-36z' fill='#cfe6ff' fill-opacity='.4'/><path d='M0 60h130l20 20h100l20-20h130M0 800h130l20-20h100l20 20h130' fill='none' stroke='#3f8cff' stroke-opacity='.5' stroke-width='2'/>`);}};
 let sceneFor="";
 function arImg(a,small){const x=IMGS.a[a]||{};return (small?x.t:x.b)||"";}
 function applyArena(){const a=store.arena,A=ARENAS[a];document.body.className="ar ar-"+a;const st=document.documentElement.style;st.setProperty("--ac",A[1]);st.setProperty("--ac2",A[2]);
@@ -61,7 +47,6 @@ function applyArena(){const a=store.arena,A=ARENAS[a];document.body.className="a
     h+=`<i class="p-${kind}" style="left:${x}%;top:${kind==="twinkle"?y*.45:kind==="leaf"||kind==="petal"?-8:100+y*.2}%;--dur:${({dust:16,twinkle:2,ember:7,lantern:22,bubble:9,firefly:6,leaf:12,petal:10})[kind]+d*1.3}s;--dl:${dl}s;--sz:${2+d*1.2}px;--dx:${(i%2?1:-1)*(20+d*14)}px"></i>`;}
   $("amb").innerHTML=reduced?"":h;}
 const ARENAS={"thanglong":["Hoàng Thành Thăng Long","#ffb347","#e0402e","dust",0],"halong":["Vịnh Hạ Long","#46e3d3","#ff8ad8","twinkle",0],"dongson":["Đàn Tế Đông Sơn","#e8b45c","#5a86ff","ember",500],"hoian":["Phố Hội Đèn Lồng","#ff6a4a","#ffd65a","lantern",500],"thuycung":["Thuỷ Cung Long Vương","#3fa8ff","#7dffd8","bubble",500],"thiendinh":["Thiên Đình Mây Vàng","#ffe27a","#fff6d0","twinkle",800],"rungtruc":["Rừng Trúc Trăng Đêm","#8dff7a","#d8ffb0","firefly",800],"amphu":["Âm Phủ Huyết Hà","#ff4d3a","#b04dff","ember",800],"mucangchai":["Ruộng Bậc Thang Mùa Vàng","#ffd23a","#7ad36a","leaf",1000],"tet":["Phố Hoa Đào Ngày Tết","#ff7aa8","#ffd65a","petal",1000]};
-const ARF={};
 let foeBack="b1",cardId=null,cardPrev=0;
 if(!BACKS[store.back])store.back="b0";if(!store.arenas.some(k=>ARENAS[k]))store.arenas=[];for(const k of ["thanglong","halong"])if(!store.arenas.includes(k))store.arenas.push(k);store.arenas=store.arenas.filter(k=>ARENAS[k]);if(!ARENAS[store.arena])store.arena="thanglong";
 const lvl=k=>(store.cards[k]&&store.cards[k].l)||0;
@@ -73,9 +58,6 @@ if(store.clc<0)store.clc=Math.floor(colLv()/5);
 function clPending(){return Math.max(0,Math.floor(colLv()/5)-store.clc);}
 function resHTML(ks){return ks.map(k=>`<span class="res1" title="${RES[k][2]}">${icn(k)}${store[k]}</span>`).join("");}
 function grant(k){if(OWN.has(k))return false;OWN.add(k);store.own=[...OWN];return true;}
-function ownDeck(h){const target=[2,3,3,2,1,1],out=[],sh=a=>a.slice().sort(()=>Math.random()-.5),own=[...OWN];
-  for(let b=1;b<=6;b++){const fit=own.filter(k=>Math.min(6,C[k].c)===b),r=sh(fit.filter(k=>C[k].h===h)).concat(sh(fit.filter(k=>C[k].h!==h)));for(let i=0;i<target[b-1]&&i<r.length;i++)out.push(r[i]);}
-  for(const k of sh(own)){if(out.length>=12)break;if(!out.includes(k))out.push(k);}return out;}
 function randNew(){const un=E.COLLECT.filter(k=>!OWN.has(k));if(!un.length)return null;const W={KD:60,C1:60,TB:60,S1:50,S2:25,S3:15,S4:7,S5:3,MP:2};let tot=0;for(const k of un)tot+=W[C[k].h]||1;let r=Math.random()*tot;for(const k of un){r-=W[C[k].h]||1;if(r<=0)return k;}return un[0];}
 const PRICE={KD:60,C1:60,TB:60,S1:100,S2:200,S3:400,S4:800,S5:1200,MP:1500};
 function cardGC(k,extra,full){const d=C[k];return `<span class="gc${extra||""}" style="--hc:${HC[d.h]};display:block">${nbL(k)}${art(k,full)}<span class="cst">${d.c}</span><span class="pwh">${d.p}</span><span class="n">${logo(d.id)}</span>${spk(d.id)}</span>`;}
@@ -89,7 +71,6 @@ function gacha(kind){
     else if(r<.5&&na.length){const a=na[Math.floor(Math.random()*na.length)];store.arenas.push(a);save();showGain("Sàn đấu mới",`<span class="arp" style="--ap:url(${arImg(a,1)}) center 22%/cover;height:180px;width:120px"></span><div>${ARENAS[a][0]}</div>`);}
     else if(r<.75)gainRes("gold",80+Math.floor(Math.random()*121),"Rương vật phẩm");else if(r<.9)gainRes("up",60,"Rương vật phẩm");else gainRes("evp",20,"Rương vật phẩm");}
   renderShop();renderLobby();}
-function shopCards(){if(store.shopD!==today()||!store.shopC.length){const un=E.COLLECT.filter(k=>!OWN.has(k)).sort(()=>Math.random()-.5);store.shopC=un.slice(0,6);store.shopD=today();save();}return store.shopC;}
 
 const VND=n=>n.toLocaleString("vi-VN")+"đ";
 const PAY_GOLD=[["g1",20000,200,0],["g2",50000,550,10],["g3",100000,1150,15],["g4",200000,2400,20],["g5",500000,6250,25],["g6",1000000,13000,30]];
@@ -795,7 +776,6 @@ $("modeWk").addEventListener("click",()=>{SFX.play("tap");openWk();});
 
 /* xếp hạng */
 const BOTS=["Hắc Phong","Tinh Vũ","Lam Nguyệt","Thiết Quyền","Bạch Hổ","Kim Ưng","Dạ Xoa","Hoả Long","Băng Tâm","Lôi Thần","Phong Vân","Tử Điện","Ngân Hà","Huyết Nguyệt","Thanh Xà","Cuồng Phong","Vô Ảnh","Thiên Mã","Địa Long","Xích Diệm","Hàn Băng","Kim Cương","Ảo Mộng","Chiến Thần","Hải Vương","Sơn Quân","Lưu Tinh","Nguyệt Ảnh","Thần Phong","Quang Minh"];
-function botScore(n,i){let h=0;for(const ch of n)h=(h*31+ch.charCodeAt(0))%9973;const day=Math.floor(Date.now()/864e5);return Math.round((30-i)*2.2+h%14+((day*(h%5+1))%9));}
 const LBM=[["rank","Đấu thường"],["online","Online"],["jr","Hành Trình"],["wk","Biến Động"],["conq","Chinh phục"],["draft","Tuyển chọn"]];
 const LBR={d:[[1,1,{gold:300,tok:100}],[2,3,{gold:200,tok:60}],[4,10,{gold:120,tok:30}],[11,30,{gold:60}],[31,9999,{gold:20}]],
   m:[[1,1,{gold:3000,tok:1000,up:500}],[2,3,{gold:2000,tok:600,up:300}],[4,10,{gold:1200,tok:300}],[11,30,{gold:600,tok:150}],[31,9999,{gold:200}]],

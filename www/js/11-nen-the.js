@@ -79,7 +79,6 @@
   function setEq(k, id) { const s = st(); if (id) s.eq[k] = id; else delete s.eq[k]; cnt = Object.keys(s.eq).length; save(); }
 
   /* ---- mua ---- */
-  function price(b) { return { c: b.c, p: b.p }; }
   function buy(id) {
     const b = BY[id], s = st(); if (!b || owned(id)) return false;
     if (store[b.c] < b.p) { toast("Không đủ " + (b.c === "gold" ? "vàng" : "token")); return false; }

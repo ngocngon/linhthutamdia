@@ -225,10 +225,6 @@ function newGame(){
 }
 function closeAll(){document.querySelectorAll(".ov.on").forEach(o=>o.classList.remove("on"));}
 
-function rowHTML(k){
-  const d=C[k];
-  return `<div class="row plain" style="--hc:${HC[d.h]}"><span class="em">${art(k)}</span><span><span class="t1">${d.n}</span><br><span class="tm">${HE[d.h]} · năng lượng ${d.c} · sức mạnh ${d.p}</span><br><span class="t2">${kwfx(skillText(d))}</span></span></div>`;
-}
 function chipRow(el,items,cur,attr){
   $(el).innerHTML=items.map(([k,label,col])=>`<button type="button" class="chip${cur===k?" on":""}" style="--hc:${col||"#a5a1d6"}" ${attr}="${k}">${label}</button>`).join("");
 }
@@ -280,7 +276,6 @@ const LGC={};
 function logo(id){if(LGC[id])return LGC[id];const n=C[id].n,L=n.length,sz=L<=7?"s":L<=11?"m":L<=15?"l":"x";
   return LGC[id]=`<i class="lg lgz ${sz}" data-t="${n}"><b>${n}</b></i>`;}
 function spk(id){return lvl(id)>=4?`<span class="spk"><i></i><i></i><i></i><i></i></span>`:"";}
-const AUC={};
 /* aura v8 thay bằng v9 */
 function srcN(by){if(!by||by==="?")return "một hiệu ứng trong trận";if(by.slice(0,2)==="L:"){const L=LOC[by.slice(2)];return "chiến địa "+(L?L.n:"");}return C[by]?C[by].n:"một hiệu ứng trong trận";}
 /* tách nguyên nhân: tạm tắt từng thẻ/chiến địa đang có hiệu lực rồi xem con số đổi bao nhiêu */

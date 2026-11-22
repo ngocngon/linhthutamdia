@@ -350,7 +350,7 @@
     fxT(() => d.remove(), 1250);
   }
 
-  if (typeof say === "function") {
+  { /* gpu23: say khai báo ở 05, thân hàm ở đây */
     say = function (x, y, t, c, dl) {
       if (reduced || !t) return;
       const run = () => {
@@ -1322,7 +1322,7 @@
   /* ==================== 6. HOẠT ẢNH CHUYỂN ĐỘNG THẺ BÀI MƯỢT 60FPS (CƯỚP THẺ, CƯỚP CHIÊU, DỜI, HUỶ, VỀ TAY) ==================== */
 
   /* 6.1. Chống chồng chéo phản ứng giật thẻ (recoil10 & lean10 mượt một nhịp duy nhất) */
-  if (typeof recoil10 === "function") {
+  { /* gpu23: recoil10 khai báo ở 05, thân hàm ở đây */
     recoil10 = function (el, from, to) {
       if (reduced || !el || !from || !to) return;
       const dx = to.x - from.x, dy = to.y - from.y;
@@ -1338,7 +1338,7 @@
     };
   }
 
-  if (typeof lean10 === "function") {
+  { /* gpu23: lean10 khai báo ở 05, thân hàm ở đây */
     lean10 = function (el, sp, tp) {
       if (reduced || !el || !sp || !tp) return;
       const dx = tp.x - sp.x, dy = tp.y - sp.y;
@@ -1461,11 +1461,11 @@
     return startDelay + flightDur;
   }
 
-  if (typeof mvDur9 === "function") {
+  { /* gpu23: mvDur9 khai báo ở 05, thân hàm ở đây */
     mvDur9 = (s) => (s.k === "swap" ? (s.sp ? 1280 : 1080) : (s.sp ? 1260 : 880));
   }
 
-  if (typeof move10 === "function") {
+  { /* gpu23: move10 khai báo ở 05, thân hàm ở đây */
     move10 = function (s) {
       const r0 = s.r0, r1 = s.tp, h = s.hid, ph = s.ph;
       if (!r0 || !r1) {
@@ -1629,7 +1629,7 @@
     fxT(fin, durMs + 100);
   }
 
-  if (typeof lunge10 === "function") {
+  { /* gpu23: lunge10 khai báo ở 05, thân hàm ở đây */
     lunge10 = function (s, el, sp, tp, L0) {
       const g = ghostOf9(sp, s.src);
       hide9(el, 1);

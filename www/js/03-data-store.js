@@ -43,7 +43,7 @@ const OWN=new Set(store.own);
 const TEST_MAX=true;
 if(TEST_MAX)for(const k of E.COLLECT){const c=store.cards[k]=Object.assign({l:0,bc:"",au:false,an:false},store.cards[k]);if(c.l<6){c.l=6;c.an=true;c.au=true;}}
 applyNames(store.names);
-const AV_FREE=E.COLLECT.filter(k=>C[k].h==="KD").slice(0,8),AV_SHOP=E.COLLECT.filter(k=>C[k].c>=6&&C[k].h!=="KD").slice(0,12);
+const AV_FREE=E.COLLECT.filter(k=>C[k].h==="KD").slice(0,8);
 for(const k of AV_FREE.concat([store.avatar]))if(!store.avs.includes(k))store.avs.push(k);
 if(!store.gift99){store.gift99=true;for(const k of ["gold","up","tok","evp"])store[k]+=99999;}
 const esc=t=>String(t).replace(/[&<>"']/g,ch=>"&#"+ch.charCodeAt(0)+";");
