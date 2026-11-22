@@ -10,5 +10,9 @@
   "devDependencies": {
     "@capacitor/assets": "^4.0.0",
     "@capacitor/cli": "^8.0.0"
+  },
+  "scripts": {
+    "test:engine": "node tests/engine-sim.mjs",
+    "test:ui": "cd tests && npm install --no-audit --no-fund && npx playwright install chromium && node ui-smoke.mjs"
   }
 }
