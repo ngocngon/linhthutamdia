@@ -482,10 +482,15 @@ function tickTimer(){
   paintTimer();
 }
 setInterval(tickTimer,100);
+let pilesSide="p";
 function renderPiles(){
-  const sec=(title,arr)=>`<h3>${title} (${arr.length})</h3>`+(arr.length?arr.map(c=>rowHTML(c.id)).join(""):`<div class="none">Trống.</div>`);
-  $("pilesBody").innerHTML=sec("Bạn đã vứt bỏ",G.disc.p)+sec("Bạn bị tiêu huỷ",G.dead.p)+sec("Máy đã vứt bỏ",G.disc.a)+sec("Máy bị tiêu huỷ",G.dead.a);
+  const nm={p:"Bạn",a:"Đối thủ"},cnt=x=>G.disc[x].length+G.dead[x].length;
+  $("pilesTabs").innerHTML=["p","a"].map(x=>`<button type="button" class="mb-tab${pilesSide===x?" on":""}" data-ps="${x}" aria-pressed="${pilesSide===x}">${nm[x]}<b>${cnt(x)}</b></button>`).join("");
+  const grp=(cls,ic,title,arr)=>`<section class="mb-grp ${cls}"><h3><i>${ic}</i>${title}<b>${arr.length}</b></h3>`+(arr.length?`<div class="mb-grid">${arr.map((c,i)=>({c,n:i+1})).reverse().map(({c,n})=>`<button type="button" class="mb-c" data-zk="${c.id}" aria-label="${esc(C[c.id].n)}, thứ ${n}">${miniCard(c.id,false).replace(/^<button[^>]*>|<\/button>$/g,"")}<em>${n}</em></button>`).join("")}</div>`:`<div class="mb-none">Chưa có thẻ nào</div>`)+`</section>`;
+  $("pilesBody").innerHTML=grp("disc","↯","Vứt bỏ",G.disc[pilesSide])+grp("dead","✕","Tiêu huỷ",G.dead[pilesSide]);
 }
+$("pilesTabs").addEventListener("click",ev=>{const b=ev.target.closest("[data-ps]");if(!b)return;pilesSide=b.dataset.ps;SFX.play("tap");renderPiles();$("pilesBody").scrollTop=0;});
+$("pilesBody").addEventListener("click",ev=>{const b=ev.target.closest("[data-zk]");if(b){SFX.play("tap");openPZ(b.dataset.zk);}});
 
 /* ---- đặt bài & rút lại siêu nhạy kiểu Marvel Snap ---- */
 function recordHandOrigin(uid){
@@ -639,4 +644,4 @@ $("emoMenu").addEventListener("click",ev=>{const b=ev.target.closest("[data-emo]
 $("btnProfile").addEventListener("click",ev=>{if(!G||$("lobby").classList.contains("on"))return;ev.stopImmediatePropagation();ev.preventDefault();SFX.play("tap");$("emoMenu").classList.toggle("on");},true);
 $("modeOnline").addEventListener("click",()=>{SFX.play("tap");closeAll();onlineFind();});
 $("mmCancel").addEventListener("click",()=>{SFX.play("tap");clearTimeout(mmBotT);onlineReset();mmHide();});
-$("btnPiles").addEventListener("click",()=>{renderPiles();$("ovPiles").classList.add("on");});
+$("btnPiles").addEventListener("click",()=>{pilesSide="p";renderPiles();$("ovPiles").classList.add("on");});

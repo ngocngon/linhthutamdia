@@ -12,6 +12,7 @@
 <link rel="stylesheet" href="css/02-board-vfx.css?v=gpu20">
 <link rel="stylesheet" href="css/03-lobby-meta.css?v=gpu20">
 <link rel="stylesheet" href="css/04-vfx-gpu.css?v=gpu20">
+<link rel="stylesheet" href="css/05-mo-bai.css?v=gpu21">
 </head>
 <body>
 <div id="ldr12" role="status" aria-live="polite"><div class="lb12"><b>LINH THÚ TAM ĐỊA</b><div class="bar12"><i id="ldrBar"></i></div><span id="ldrTxt">Đang tải hình… 0%</span><button type="button" id="ldrSkip" hidden>Vào luôn</button></div></div>
@@ -287,8 +288,8 @@
 
 <div class="ov" id="ovPiles"><div class="panel">
   <h2>Mộ bài</h2>
-  <div class="lead">Thẻ đã vứt bỏ và đã tiêu huỷ của hai bên. Thẻ mới nhất nằm cuối danh sách.</div>
-  <div class="body" id="pilesBody"></div>
+  <div class="mb-tabs" id="pilesTabs" role="group" aria-label="Chọn bên"></div>
+  <div class="body mb-body" id="pilesBody"></div>
   <div class="foot"><button class="btn end" type="button" data-close>Đóng</button></div>
 </div></div>
 
