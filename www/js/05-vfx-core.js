@@ -1444,7 +1444,7 @@ function bgRun20(q){let i=0;const nx=()=>{if(i>=q.length){refresh12();return;}if
   const u=q[i++];loadImg12(u,3,false).then(()=>setTimeout(()=>bgIdle20(nx),60));};setTimeout(()=>bgIdle20(nx),2500);}
 function reimg12(){const L=[...IMGRT.bad];IMGRT.bad.clear();for(const k in SP.w)if(!SP.w[k].im)delete SP.w[k];
   return runPool12(L.map(u=>()=>(/\/s\//.test(u)?sheet12(u):loadImg12(u,3,true))),4).then(()=>{document.querySelectorAll("img[data-rt]").forEach(i=>{const o=i.dataset.o;i.dataset.rt="0";i.src=IMGRT.ok[o]||bust12(o,9);});IMGRT.fixed=1;refresh12();});}
-{const _os=openSet;openSet=function(){_os.apply(this,arguments);if($("setBgm"))$("setBgm").checked=!!store.battleBgm;const b=$("setReimg");if(b)b.textContent="Tải lại hình"+(IMGRT.bad.size?` (${IMGRT.bad.size} ảnh lỗi)`:"");};}
+{const _os=openSet;openSet=function(){_os.apply(this,arguments);if(typeof renderSetSpd==="function")renderSetSpd();if(typeof syncSetUi==="function")syncSetUi();if($("setBgm"))$("setBgm").checked=!!store.battleBgm;const b=$("setReimg");if(b)b.textContent="Tải lại hình"+(IMGRT.bad.size?` (${IMGRT.bad.size} ảnh lỗi)`:"");};}
 document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("#setReimg");if(!b)return;b.disabled=true;b.textContent="Đang tải lại…";reimg12().then(()=>{b.disabled=false;b.textContent="Tải lại hình"+(IMGRT.bad.size?` (${IMGRT.bad.size} ảnh lỗi)`:" ✓");});});
 /* ---- hào quang: khung ảnh xử lý tĩnh 1 lần (tăng alpha/tương phản) + viền màu đặc + quầng ---- */
 const KHP12={};

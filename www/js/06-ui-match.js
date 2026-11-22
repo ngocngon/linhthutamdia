@@ -627,7 +627,11 @@ if($("setBgmVol"))$("setBgmVol").addEventListener("input",e=>{if(window.BGM)BGM.
 if($("setBgm"))$("setBgm").addEventListener("change",e=>{if(window.BGM)BGM.toggle(e.target.checked);else{store.battleBgm=!!e.target.checked;save();}});
 $("setMute").addEventListener("change",e=>{store.mute=e.target.checked;save();if(window.BGM)BGM.syncVol();if(G)render();renderLobby();});
 $("setGpu").addEventListener("change",e=>{store.gpu=!!e.target.checked;GPUON=store.gpu;document.body.classList.toggle("gpu",GPUON);BC=null;save();if(G)render();});
-$("setSpd").addEventListener("change",e=>{setSpd10(e.target.value);});
+$("setSpd").addEventListener("change",e=>{setSpd10(e.target.value);syncSetUi();});
+function renderSetSpd(){const sel=$("setSpd"),seg=$("setSpdSeg");if(!sel||!seg)return;const L=(Array.isArray(window.SPD_LEVELS)&&window.SPD_LEVELS.length)?window.SPD_LEVELS:[{k:"cham",n:"Chậm"},{k:"vua",n:"Vừa"},{k:"nhanh",n:"Nhanh"}];sel.innerHTML=L.map(o=>`<option value="${o.k}">${o.n}</option>`).join("");sel.value=SPDV[store.spd]?store.spd:"vua";seg.innerHTML=L.map(o=>`<button type="button" role="radio" class="sx-pill" data-k="${o.k}">${o.n}</button>`).join("");seg.style.setProperty("--n",L.length);syncSetUi();}
+function syncSetUi(){const seg=$("setSpdSeg");if(seg)seg.querySelectorAll(".sx-pill").forEach(b=>{const on=b.dataset.k===store.spd;b.classList.toggle("on",on);b.setAttribute("aria-checked",on);});const m=!!store.mute,o=$("ovSet");if(o)o.classList.toggle("sx-muted",m);const bg=$("setBgm");if(bg&&$("setBgmVol"))$("setBgmVol").closest(".sx-row").classList.toggle("sx-off",!bg.checked);}
+if($("setSpdSeg"))$("setSpdSeg").addEventListener("click",e=>{const b=e.target.closest(".sx-pill");if(!b)return;$("setSpd").value=b.dataset.k;$("setSpd").dispatchEvent(new Event("change"));SFX.play("tap");});
+['setMute','setBgm'].forEach(i=>{if($(i))$(i).addEventListener("change",()=>setTimeout(syncSetUi,0));});
 $("setFx").addEventListener("change",e=>{store.fx=e.target.checked?"on":"off";reduced=store.fx==="off";document.body.classList.toggle("rm",reduced);save();if(G)render();});
 $("setVib").addEventListener("change",e=>{store.vib=e.target.checked;save();});
 $("setGyro").addEventListener("change",e=>{store.gyro=e.target.checked;save();if(!store.gyro){$("hand").style.removeProperty("--gx");$("hand").style.removeProperty("--gy");}});

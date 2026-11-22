@@ -12,6 +12,7 @@
 <link rel="stylesheet" href="css/02-board-vfx.css?v=gpu20">
 <link rel="stylesheet" href="css/03-lobby-meta.css?v=gpu20">
 <link rel="stylesheet" href="css/04-vfx-gpu.css?v=gpu20">
+<link rel="stylesheet" href="css/06-cai-dat.css?v=gpu21">
 </head>
 <body>
 <div id="ldr12" role="status" aria-live="polite"><div class="lb12"><b>LINH THÚ TAM ĐỊA</b><div class="bar12"><i id="ldrBar"></i></div><span id="ldrTxt">Đang tải hình… 0%</span><button type="button" id="ldrSkip" hidden>Vào luôn</button></div></div>
@@ -68,18 +69,26 @@
   <button class="btn ghost" type="button" id="mmCancel">Huỷ</button></div>
 <div id="emoMenu" role="menu" aria-label="Cảm xúc"></div>
 <div id="enPop" role="dialog" aria-label="Năng lượng"><h4>Năng lượng</h4><div class="enb" id="enN">0</div><p>Đặt thẻ sẽ tiêu năng lượng. Mỗi lượt có thể đặt nhiều thẻ.</p><p>Mỗi lượt được thêm 1 năng lượng tối đa. Năng lượng không dùng sẽ mất.</p><button class="btn ghost" type="button" id="enUndo">Hoàn tác tất cả hành động</button></div>
-<div class="ov" id="ovSet"><div class="panel"><h2 style="text-align:center">Cài đặt</h2><div class="body">
-  <label class="srow"><span>Âm lượng hiệu ứng</span><input type="range" id="setVol" min="0" max="100" step="5"><b id="setVolV">100%</b></label>
-  <label class="srow"><span>Âm lượng nhạc nền</span><input type="range" id="setBgmVol" min="0" max="100" step="5"><b id="setBgmVolV">55%</b></label>
-  <label class="srow"><span>Nhạc nền trận đấu</span><input type="checkbox" id="setBgm"></label>
-  <label class="srow"><span>Tắt toàn bộ tiếng</span><input type="checkbox" id="setMute"></label>
-  <label class="srow"><span>Hiệu ứng hình ảnh</span><input type="checkbox" id="setFx"></label>
-  <label class="srow"><span>Đồ hoạ GPU (mượt hơn)</span><input type="checkbox" id="setGpu"></label>
-  <label class="srow"><span>Tốc độ hoạt ảnh</span><select id="setSpd"><option value="cham">Chậm</option><option value="vua">Vừa</option><option value="nhanh">Nhanh</option></select></label>
-  <label class="srow"><span>Rung khi chạm, lật thẻ</span><input type="checkbox" id="setVib"></label>
-  <label class="srow"><span>Nghiêng thẻ theo con quay của máy</span><input type="checkbox" id="setGyro"></label>
-  <button class="btn ghost" type="button" id="setArena" style="width:100%;margin-top:10px">Đổi sàn đấu</button>
-  <button class="btn ghost" type="button" id="setReimg" style="width:100%;margin-top:8px">Tải lại hình</button>
+<div class="ov" id="ovSet"><div class="panel sx"><h2 style="text-align:center">Cài đặt</h2><div class="body">
+  <section class="sx-sec"><h3>Âm thanh</h3>
+    <label class="sx-row"><span class="sx-t">Tắt toàn bộ tiếng</span><input type="checkbox" class="sx-sw" id="setMute"></label>
+    <label class="sx-row sx-sl"><span class="sx-t">Hiệu ứng</span><input type="range" id="setVol" min="0" max="100" step="5"><b id="setVolV">100%</b></label>
+    <label class="sx-row sx-sl"><span class="sx-t">Nhạc nền</span><input type="range" id="setBgmVol" min="0" max="100" step="5"><b id="setBgmVolV">55%</b></label>
+    <label class="sx-row"><span class="sx-t">Phát nhạc nền trong trận</span><input type="checkbox" class="sx-sw" id="setBgm"></label>
+  </section>
+  <section class="sx-sec"><h3>Hình ảnh &amp; hoạt ảnh</h3>
+    <div class="sx-row sx-col"><span class="sx-t">Tốc độ hoạt ảnh</span><div class="sx-seg" id="setSpdSeg" role="radiogroup" aria-label="Tốc độ hoạt ảnh"></div><select id="setSpd" hidden><option value="cham">Chậm</option><option value="vua">Vừa</option><option value="nhanh">Nhanh</option></select></div>
+    <label class="sx-row"><span class="sx-t">Hiệu ứng hình ảnh</span><input type="checkbox" class="sx-sw" id="setFx"></label>
+  </section>
+  <section class="sx-sec"><h3>Điều khiển</h3>
+    <label class="sx-row"><span class="sx-t">Rung khi chạm, lật thẻ</span><input type="checkbox" class="sx-sw" id="setVib"></label>
+    <label class="sx-row"><span class="sx-t">Nghiêng thẻ theo con quay</span><input type="checkbox" class="sx-sw" id="setGyro"></label>
+  </section>
+  <details class="sx-adv" id="setAdv"><summary>Nâng cao</summary>
+    <label class="sx-row"><span class="sx-t">Đồ hoạ GPU (mượt hơn)</span><input type="checkbox" class="sx-sw" id="setGpu"></label>
+    <button class="btn ghost sx-btn" type="button" id="setArena">Đổi sàn đấu</button>
+    <button class="btn ghost sx-btn" type="button" id="setReimg">Tải lại hình</button>
+  </details>
 </div><div class="foot"><button class="btn end" type="button" data-close>Xong</button></div></div></div>
 <div class="ov" id="ovHelp"><div class="panel">
   <h2>Linh Thú Tam Địa</h2>

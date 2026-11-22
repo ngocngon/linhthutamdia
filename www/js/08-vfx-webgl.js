@@ -2837,10 +2837,9 @@
     if (setReimg && setReimg.parentNode) {
       const sBtn = document.createElement("button");
       sBtn.type = "button";
-      sBtn.className = "btn end";
-      sBtn.style.cssText = "width:100%;margin-top:10px";
+      sBtn.className = "btn end sx-btn";
       sBtn.textContent = "✨ Mở Bảng Test Hiệu Ứng (Ghim Cố Định)";
-      setReimg.parentNode.appendChild(sBtn);
+      setReimg.parentNode.appendChild(sBtn); /* nút dev nằm trong mục Nâng cao */
       sBtn.addEventListener("click", () => {
         $id("ovSet").classList.remove("on");
         openLab();
