@@ -486,11 +486,11 @@ async function onlineResolve(op){OL.resolving=true;clearTimeout(OL.waitT);const 
   E.finishEndTurn(CG);disp();
   OL.sub=false;OL.locked=false;OL.resolving=false;document.body.classList.remove("olwait");
   if(CG.turn>=E.turns(CG)){await endReveal(CG,disp);E.finish(CG,"end");disp();OL.myH={t:CG.turn*2+1,v:hashSt(CG)};try{OL.mr.presence({h:OL.myH,sub:0,acts:[],lock:0});}catch(e){}showEnd();return;}
-  {const R0=rects0(),P0=powers();E.startTurn(CG);disp();const evs=G.evs.slice(),locEvs=evs.filter(e=>e.k==="loc"),drawEvs=evs.filter(e=>e.k!=="loc");resetTimer(true);tArmed=true;tLast=0;G.msg="";render();
+  let hNew="";{const R0=rects0(),P0=powers();E.startTurn(CG);hNew=hashSt(CG);/* gpu22: chốt mã trạng thái ngay khi sang lượt, trước khi người chơi kịp đặt thẻ trong lúc diễn đầu lượt */disp();const evs=G.evs.slice(),locEvs=evs.filter(e=>e.k==="loc"),drawEvs=evs.filter(e=>e.k!=="loc");resetTimer(true);tArmed=true;tLast=0;G.msg="";render();
    if(locEvs.length){playFx(locEvs,R0,P0);await sleep(reduced?80:940);}
    if(drawEvs.length){playFx(drawEvs,R0,P0);await sleep(reduced?60:520);}
    banner("LƯỢT "+G.turn,G.turn===E.turns(G)?"Lượt cuối":"");pulse("#orb",[{transform:"scale(1.45)",filter:"brightness(2.2)"},{transform:"scale(1)",filter:"brightness(1)"}],460);await sleep(reduced?50:780);}
-  OL.myH={t:CG.turn*2,v:hashSt(CG)};try{OL.mr.presence({t:CG.turn,sub:0,acts:[],lock:0,h:OL.myH});}catch(e){}
+  OL.myH={t:CG.turn*2,v:hNew||hashSt(CG)};try{OL.mr.presence({t:CG.turn,sub:0,acts:[],lock:0,h:OL.myH});}catch(e){}
   OL.bad=0;checkHash();}
 function checkHash(){if(!OL.mr||!OL.myH||!G||G.phase==="over"||OL.resolving)return;const o=oppOf(OL.mr.peers());if(o&&o.presence.h&&o.presence.h.t===OL.myH.t&&o.presence.h.v!==OL.myH.v){OL.note="Lỗi đồng bộ giữa hai máy, trận được tính hoà.";E.finish(G,"end");G.result.winner=null;showEnd();}}
 function onlineOver(r){if(!G||!G.online)return;olClear();OL.goneAt=0;OL.offAt=0;olNet();try{if(OL.mr&&(r.kind==="retreatP"||r.kind==="timeoutP"))OL.mr.presence({rt:1});}catch(e){}setTimeout(()=>{if(OL.st==="play"||OL.st==="starting")onlineReset();},4000);}
