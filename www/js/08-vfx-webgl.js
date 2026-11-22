@@ -6,15 +6,31 @@
 
   /* ==================== 1. TINH CHỈNH TỐC ĐỘ NHỊP TRẬN CHUẨN MARVEL SNAP ==================== */
   try {
-    SPDV.cham = 1.3;
-    SPDV.vua = 1.0;
-    SPDV.nhanh = 0.78;
+    /* gpu21: 5 mức tốc độ, đều chậm hơn trước (Nhanh mới = Vừa cũ). Hệ số nhân thời lượng mọi hoạt ảnh trong trận */
+    SPDV.nhanh = 1.0;
+    SPDV.vua = 1.3;
+    SPDV.cham = 1.6;
+    SPDV.ratcham = 2.0;
+    SPDV.dienanh = 2.5;
+    window.SPD_LEVELS = [
+      { k: "nhanh", n: "Nhanh", v: 1.0 },
+      { k: "vua", n: "Vừa", v: 1.3 },
+      { k: "cham", n: "Chậm", v: 1.6 },
+      { k: "ratcham", n: "Rất chậm", v: 2.0 },
+      { k: "dienanh", n: "Điện ảnh", v: 2.5 }
+    ];
     const initKey = "linhthu.tamdia.gpu_vfx_v2";
     if (!localStorage.getItem(initKey)) {
       localStorage.setItem(initKey, "1");
       store.spd = "vua";
       store.gpu = true;
       save();
+    }
+    /* chuyển một lần sang mức mặc định mới "Chậm" (anh thấy các mức cũ còn quá nhanh) */
+    if (!localStorage.getItem("ltd_spd_v3")) {
+      localStorage.setItem("ltd_spd_v3", "1");
+      store.spd = "cham";
+      try { save(); } catch (e) {}
     }
     SPD = SPDV[store.spd] || 1.0;
     if (typeof GPUON !== "undefined") GPUON = store.gpu !== false;
@@ -232,6 +248,7 @@
     return `<span class="ntf-act">${esc(condenseActLabel(s))}</span>`;
   }
 
+  const NTF_KEEP_RE = /CƯỚP THẺ|BỊ CƯỚP|ĐỔI PHE|CƯỚP KỸ NĂNG|CHÉP KỸ NĂNG|CẤM ĐẶT|KHÔNG THỂ ĐẶT|CƯỢC|HẾT GIỜ|BỎ LƯỢT/i;
   function pushOppNotif(text, color, opts) {
     if (reduced || !text) return;
     const lobby = $id("lobby");
@@ -241,6 +258,10 @@
     const host = ensureOppHost();
     const cleanKey = String(text).replace(/<[^>]*>/g, "").trim();
     if (!cleanKey) return;
+    /* gpu21: nửa trên sân chỉ hiện thông tin cần thiết (điều người chơi không tự thấy trên bàn).
+       Bảng test VFX đang mở thì vẫn hiện đủ để thử. */
+    const labOn = !!document.querySelector("#vfxLabDrawer.on");
+    if (!labOn && !(opts && opts.essential) && !NTF_KEEP_RE.test(cleanKey)) return;
 
     const arrowIdx = cleanKey.indexOf("▸");
     const srcTag = arrowIdx > 0 ? cleanKey.slice(0, arrowIdx).trim().toUpperCase() : "";
@@ -2623,10 +2644,36 @@
   const arcCore = arcSvg.querySelector(".arc-core");
   const arcRet = arcSvg.querySelector(".arc-reticle");
 
+  /* gpu21: bỏ đường ngắm nét đứt; thay bằng "ô đáp": ô sẽ nhận thẻ sáng lên kèm bóng mờ của chính thẻ đang kéo */
+  arcSvg.style.display = "none";
+  let landSlot = null;
+  function clearLand() {
+    if (!landSlot) return;
+    landSlot.classList.remove("land");
+    const g = landSlot.querySelector(".land-ghost");
+    if (g) g.remove();
+    landSlot = null;
+  }
+  function setLand(slot, srcEl) {
+    if (slot === landSlot) return;
+    clearLand();
+    if (!slot) return;
+    landSlot = slot;
+    slot.classList.add("land");
+    const face = srcEl && (srcEl.querySelector(".hc") || srcEl);
+    if (face) {
+      const g = document.createElement("div");
+      g.className = "land-ghost";
+      g.setAttribute("aria-hidden", "true");
+      const cl = face.cloneNode(true);
+      cl.removeAttribute("id");
+      cl.classList.remove("dsrc", "gpu-hov", "sel");
+      g.appendChild(cl);
+      slot.appendChild(g);
+    }
+  }
   function hideDragArc() {
-    arcGlow.setAttribute("d", "");
-    arcCore.setAttribute("d", "");
-    arcRet.setAttribute("opacity", "0");
+    clearLand();
   }
 
   let dragTrailTick = 0;
@@ -2635,28 +2682,14 @@
 
     if (typeof drag !== "undefined" && drag && drag.on && drag.el) {
       clearHov();
-      const sr = drag.el.getBoundingClientRect();
-      const sx = sr.left + sr.width / 2;
-      const sy = sr.top + sr.height * 0.35;
-      let tx = ev.clientX, ty = ev.clientY;
       const hovLane = document.querySelector(".lane.dhov");
       if (hovLane) {
         const side = hovLane.querySelector(hovLane.classList.contains("okx") ? ".side.opp" : ".side.me") || hovLane;
-        const lr = side.getBoundingClientRect();
-        tx = lr.left + lr.width / 2;
-        ty = lr.top + lr.height / 2;
-        arcRet.setAttribute("cx", tx.toFixed(1));
-        arcRet.setAttribute("cy", ty.toFixed(1));
-        arcRet.setAttribute("opacity", "1");
+        const slot = Array.from(side.querySelectorAll(".slot")).find((x) => !x.querySelector(".mc"));
+        setLand(slot || null, drag.el);
       } else {
-        arcRet.setAttribute("opacity", "0");
+        clearLand();
       }
-
-      const cx = (sx + tx) * 0.5 + (tx - sx) * 0.08;
-      const cy = Math.min(sy, ty) - Math.min(120, Math.hypot(tx - sx, ty - sy) * 0.34);
-      const pathD = `M ${sx.toFixed(1)} ${sy.toFixed(1)} Q ${cx.toFixed(1)} ${cy.toFixed(1)} ${tx.toFixed(1)} ${ty.toFixed(1)}`;
-      arcGlow.setAttribute("d", pathD);
-      arcCore.setAttribute("d", pathD);
 
       if (drag.g) {
         const hcIn = drag.g.querySelector(".hc");
@@ -2811,7 +2844,8 @@
   function buildVfxLab() {
     if ($id("vfxLabDrawer")) return;
 
-    const toolsL = document.querySelector(".sub .tools");
+    /* gpu21: bỏ nút "✨ VFX" khỏi thanh công cụ trận đấu (bảng test vẫn mở được ở sảnh và Cài đặt) */
+    const toolsL = null;
     if (toolsL) {
       const btn = document.createElement("button");
       btn.type = "button";
@@ -3698,4 +3732,48 @@
     if (busy || !inBattle()) return;
     if (G !== lastG) { lastG = G; setTimeout(() => { if (inBattle()) measure(); }, 2500); }
   }, 2000);
+})();
+
+/* ==================== gpu21: TỰ TUA NHANH KHI HOẠT ẢNH CỦA MỘT LƯỢT KÉO DÀI QUÁ 15 GIÂY ====================
+   Đếm từ lúc bấm Kết thúc lượt (lật bài, kỹ năng, cuối lượt, đầu lượt mới). Quá 15 giây thì phần còn lại
+   chạy ở tốc độ tua nhanh và hiện nhãn "⏩ Tua nhanh"; hết lượt trả về tốc độ người chơi đã chọn. */
+(function () {
+  "use strict";
+  const FF_AFTER = 15000, FF_SPD = 0.45;
+  const FF = { iv: 0, t0: 0, on: false };
+  let chip = null;
+  function showChip(on) {
+    if (on) {
+      if (!chip) { chip = document.createElement("div"); chip.id = "ffChip"; chip.setAttribute("aria-live", "polite"); chip.textContent = "⏩ Tua nhanh"; }
+      if (!chip.isConnected) document.body.appendChild(chip);
+      chip.classList.add("on");
+    } else if (chip) chip.classList.remove("on");
+  }
+  function engage() {
+    if (FF.on) return;
+    const old = SPD;
+    if (old <= FF_SPD) return;
+    FF.on = true;
+    SPD = FF_SPD;
+    /* các hoạt ảnh đang chạy dở cũng tăng tốc theo (chỉ hoạt ảnh có hồi kết, không đụng hào quang lặp vô hạn) */
+    try {
+      for (const a of document.getAnimations()) {
+        const t = a.effect && a.effect.getTiming && a.effect.getTiming();
+        if (t && isFinite(t.iterations) && a.playState === "running") a.playbackRate = a.playbackRate * (old / FF_SPD);
+      }
+    } catch (e) {}
+    showChip(true);
+  }
+  function start() {
+    FF.t0 = performance.now(); FF.on = false; clearInterval(FF.iv);
+    FF.iv = setInterval(() => { if (!document.hidden && performance.now() - FF.t0 > FF_AFTER) engage(); }, 200);
+  }
+  function stop() {
+    clearInterval(FF.iv); FF.iv = 0;
+    if (FF.on) { FF.on = false; try { SPD = SPDV[store.spd] || 1; } catch (e) { SPD = 1; } }
+    showChip(false);
+  }
+  window.FFTURN = { start, stop, get on() { return FF.on; } };
+  try { if (typeof endTurnUI === "function") { const f0 = endTurnUI; endTurnUI = async function () { start(); try { return await f0.apply(this, arguments); } finally { stop(); } }; } } catch (e) {}
+  try { if (typeof onlineResolve === "function") { const f1 = onlineResolve; onlineResolve = async function () { start(); try { return await f1.apply(this, arguments); } finally { stop(); } }; } } catch (e) {}
 })();

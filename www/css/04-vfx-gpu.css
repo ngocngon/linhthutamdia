@@ -1729,3 +1729,30 @@ body.rm #ambFx,body:has(.ov.on) #ambFx,body:has(#lobby.on) #ambFx{display:none}
   background:radial-gradient(circle,#ffffff 0%,#9ef4ff 48%,rgba(63,224,255,0) 75%);box-shadow:0 0 10px 2px #67e8ff,0 0 20px rgba(63,224,255,.85)}
 #tbar.low #tspark b{width:17px;height:17px;background:radial-gradient(circle,#ffffff 0%,#ffe27a 42%,#ff3d2b 72%,rgba(255,61,43,0) 100%);
   box-shadow:0 0 12px 3px #ff8a2b,0 0 24px #ff2a4b;animation:gpuFuseSpark .22s ease-in-out infinite alternate}
+
+/* ==================== gpu21: DỌN GIAO DIỆN TRẬN ==================== */
+/* bỏ nút Luật và nút bật/tắt hiệu ứng khỏi thanh trên trận (vẫn chỉnh được trong Cài đặt; Luật xem ở sảnh) */
+.sub #btnHelp,.sub #btnFx{display:none!important}
+/* hiệu ứng nền chiến địa: bỏ khung ô vuông mờ — không viền, lớp màu tan dần ra mép */
+.bfx-box{border-radius:0!important;overflow:visible!important}
+.bfx-box .bfx-rim{display:none!important}
+.bfx-box .bfx-aura{border-radius:0!important;
+  -webkit-mask-image:radial-gradient(ellipse 50% 50% at 50% 50%,#000 30%,rgba(0,0,0,.55) 62%,transparent 100%);
+          mask-image:radial-gradient(ellipse 50% 50% at 50% 50%,#000 30%,rgba(0,0,0,.55) 62%,transparent 100%)}
+/* gpu21: "ô đáp" khi kéo thẻ — ô sẽ nhận thẻ sáng lên, hiện bóng mờ của thẻ đang kéo (thay đường ngắm nét đứt) */
+.slot.land{border:1.5px solid rgba(160,245,255,.95)!important;background:radial-gradient(ellipse at 50% 55%,rgba(63,224,255,.32),rgba(27,108,255,.10) 75%)!important;
+  box-shadow:0 0 14px rgba(63,224,255,.75),inset 0 0 12px rgba(63,224,255,.45)!important;animation:landPulse 1s ease-in-out infinite alternate}
+.slot .land-ghost{position:absolute;inset:3px;pointer-events:none;opacity:.42;filter:saturate(.75) brightness(1.15);border-radius:8px;overflow:hidden;animation:landGhost .9s ease-in-out infinite alternate}
+.slot .land-ghost>*{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;margin:0!important;transform:none!important;left:0!important;top:0!important;animation:none!important;box-shadow:none!important}
+@keyframes landPulse{from{box-shadow:0 0 8px rgba(63,224,255,.55),inset 0 0 8px rgba(63,224,255,.35)}to{box-shadow:0 0 18px rgba(63,224,255,.95),inset 0 0 14px rgba(63,224,255,.55)}}
+@keyframes landGhost{from{opacity:.32}to{opacity:.5}}
+/* gpu21: khi kéo thẻ không vẽ khung chữ nhật quanh chiến địa; chỉ quầng sáng mềm, ô đáp báo chính xác chỗ đặt */
+body.dragging .lane.ok .side.me,body.dragging .lane.okx .side.opp{box-shadow:none!important;
+  background:radial-gradient(ellipse 60% 55% at 50% 50%,rgba(90,190,255,.16),transparent 75%)!important}
+.lane.dhov .side.me,.lane.dhov.okx .side.opp,body.dragging .lane.dhov .side.me{box-shadow:none!important;transform:none!important;
+  background:radial-gradient(ellipse 62% 58% at 50% 50%,rgba(110,225,255,.34),rgba(63,170,255,.10) 60%,transparent 82%)!important}
+/* gpu21: nhãn tua nhanh tự động */
+#ffChip{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 92px);transform:translate(-50%,-6px);z-index:60;pointer-events:none;opacity:0;
+  padding:5px 14px;border-radius:999px;font:800 13px/1.2 "Be Vietnam Pro",system-ui,sans-serif;letter-spacing:.3px;color:#fff3c4;
+  background:linear-gradient(180deg,rgba(40,30,90,.92),rgba(18,14,52,.92));box-shadow:0 0 0 1.5px rgba(255,214,90,.75),0 4px 14px rgba(0,0,0,.45);transition:opacity .2s,transform .2s}
+#ffChip.on{opacity:1;transform:translate(-50%,0)}
