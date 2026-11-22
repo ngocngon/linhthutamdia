@@ -19,7 +19,7 @@ const FX=(()=>{
   const cv=$("fx"),cx=cv.getContext("2d");let ps=[],raf=0,dpr=1,last=0;
   function size(){dpr=FXQ<1?1:Math.min(1.25,window.devicePixelRatio||1);cv.width=Math.round(innerWidth*dpr);cv.height=Math.round(innerHeight*dpr);}
   size();addEventListener("resize",size);
-  function add(o){if(reduced)return;if((o.k==="dot"||o.k==="spark"||o.k==="shard"||o.k==="orb"||o.k==="smoke"||o.k==="sq")&&Math.random()>FXQ)return;if(ps.length>=FXMAX)ps.shift();ps.push(o);if(!raf){last=performance.now();raf=requestAnimationFrame(tick);}}
+  function add(o){if(reduced)return;if((o.k==="dot"||o.k==="spark"||o.k==="shard"||o.k==="orb"||o.k==="smoke"||o.k==="sq")&&Math.random()>FXQ*(window.FXLV===0?.6:1))return;if(ps.length>=FXMAX)ps.shift();ps.push(o);if(!raf){last=performance.now();cv.style.visibility="";raf=requestAnimationFrame(tick);}}
   function tick(t){
     const dt=Math.min(.05,(t-last)/1000)/SPD;last=t;
     cx.setTransform(dpr,0,0,dpr,0,0);cx.globalCompositeOperation="source-over";cx.clearRect(0,0,innerWidth,innerHeight);cx.globalCompositeOperation="lighter";
@@ -46,7 +46,7 @@ const FX=(()=>{
       else{const r=Math.max(.5,p.s*(.4+.6*p.life))*2.6;cx.drawImage(spr(p.c,!sprOk(p.c)),p.x-r,p.y-r,r*2,r*2);}
     }catch(e){p.life=0;cx.restore&&0;}}
     cx.globalAlpha=1;cx.globalCompositeOperation="source-over";
-    raf=ps.length?requestAnimationFrame(tick):0;
+    raf=ps.length?requestAnimationFrame(tick):0;if(!raf)cv.style.visibility="hidden";
   }
   const R=(a,b)=>a+Math.random()*(b-a);
   return {
@@ -1436,7 +1436,12 @@ function fin12(){const L=$("ldr12");if(!L||L.classList.contains("off"))return;L.
 function bg12(){const q=[],seen=new Set();
   for(const k in IMGS.c){const u=IMGS.c[k],i=u.indexOf("#"),su=i<0?u:u.slice(0,i);if(!seen.has(su)&&!SP.w[su]){seen.add(su);q.push(su);}}
   for(const k in IMGS.l){const u=IMGS.l[k];if(typeof u==="string"&&!seen.has(u)){seen.add(u);q.push(u);}}for(const k in IMGS.a){const x=IMGS.a[k]||{};for(const u of [x.b,x.t])if(u&&!seen.has(u)){seen.add(u);q.push(u);}}
-  runPool12(q.map(u=>()=>loadImg12(u,3,false)),2).then(()=>refresh12());}
+  bgRun20(q);}
+/* gpu20: tải nền từng ảnh một, chỉ lúc máy rảnh; tạm dừng khi đang trong trận hoặc tab ẩn để không giật hình */
+function bgBusy20(){try{if(document.hidden)return true;const lb=$("lobby");if(G&&G.phase!=="over"&&!(lb&&lb.classList.contains("on")))return true;}catch(e){}return false;}
+function bgIdle20(fn){if(window.requestIdleCallback)requestIdleCallback(fn,{timeout:2500});else setTimeout(fn,180);}
+function bgRun20(q){let i=0;const nx=()=>{if(i>=q.length){refresh12();return;}if(bgBusy20()){setTimeout(()=>bgIdle20(nx),1500);return;}
+  const u=q[i++];loadImg12(u,3,false).then(()=>setTimeout(()=>bgIdle20(nx),60));};setTimeout(()=>bgIdle20(nx),2500);}
 function reimg12(){const L=[...IMGRT.bad];IMGRT.bad.clear();for(const k in SP.w)if(!SP.w[k].im)delete SP.w[k];
   return runPool12(L.map(u=>()=>(/\/s\//.test(u)?sheet12(u):loadImg12(u,3,true))),4).then(()=>{document.querySelectorAll("img[data-rt]").forEach(i=>{const o=i.dataset.o;i.dataset.rt="0";i.src=IMGRT.ok[o]||bust12(o,9);});IMGRT.fixed=1;refresh12();});}
 {const _os=openSet;openSet=function(){_os.apply(this,arguments);if($("setBgm"))$("setBgm").checked=!!store.battleBgm;const b=$("setReimg");if(b)b.textContent="Tải lại hình"+(IMGRT.bad.size?` (${IMGRT.bad.size} ảnh lỗi)`:"");};}

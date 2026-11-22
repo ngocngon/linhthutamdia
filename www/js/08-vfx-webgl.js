@@ -578,6 +578,8 @@
 
     function emit(opts) {
       if (reduced || store.gpu === false) return;
+      /* gpu20: máy đang yếu thì bớt hạt nhỏ (giữ nguyên vòng sóng, vệt chém, hình chiêu) */
+      if (window.FXLV === 0 && (opts.kind || 0) <= 1 && !opts.keep && Math.random() < 0.35) return;
       if (particles.length >= MAX_QUADS - 450) particles.shift();
       const rgb = Array.isArray(opts.col) ? opts.col : parseCol(opts.c || "#3fe0ff");
       particles.push({
@@ -731,13 +733,39 @@
       return !document.querySelector(".ov.on");
     }
 
+    /* gpu20: hạt bay nền chiến địa chạy bằng lớp CSS nhẹ (chỉ transform/opacity, GPU ghép sẵn),
+       không bắt lớp WebGL toàn màn hình (có hoà trộn screen) vẽ lại mỗi khung khi không có chiêu */
+    let ambHost = null;
+    function ambEnsure() {
+      if (ambHost && ambHost.isConnected) return ambHost;
+      ambHost = document.createElement("div");
+      ambHost.id = "ambFx";
+      ambHost.setAttribute("aria-hidden", "true");
+      (document.body).appendChild(ambHost);
+      return ambHost;
+    }
+    function ambClear() { if (ambHost && ambHost.firstChild) ambHost.textContent = ""; }
+    function ambEmit(o) {
+      const h = ambEnsure();
+      const cap = window.FXLV === 0 ? 14 : 34;
+      if (h.childElementCount >= cap) return;
+      const drag = 1.2, sp = Math.max(0.55, (typeof SPD !== "undefined" && SPD) || 1);
+      const T = o.dur * sp, k = (1 - Math.exp(-drag * o.dur)) / drag;
+      const d = Math.round(o.s0 * 2.3);
+      const el = document.createElement("i");
+      el.className = "amb k" + (o.kind || 0);
+      const wob = (o.turb || 0) * (Math.random() < 0.5 ? -0.16 : 0.16);
+      el.style.cssText = `left:${o.x.toFixed(1)}px;top:${o.y.toFixed(1)}px;width:${d}px;height:${d}px;--c:${o.c};--a:${(Math.min(1, o.a * 1.55)).toFixed(2)};--dx:${(o.vx * k).toFixed(1)}px;--dy:${(o.vy * k).toFixed(1)}px;--wx:${wob.toFixed(1)}px;--s:${Math.max(0.18, (o.s1 || 1.5) / o.s0).toFixed(2)};--r:${o.vrot ? (o.vrot * o.dur * 57).toFixed(0) : 0}deg;animation-duration:${T.toFixed(2)}s`;
+      el.addEventListener("animationend", () => el.remove(), { once: true });
+      h.appendChild(el);
+    }
+
     function stepAmbient(dt) {
-      if (!isBattleVisible()) return;
+      if (!isBattleVisible()) { ambClear(); return; }
       ambTimer += dt;
       if (ambTimer < 0.24) return;
       ambTimer = 0;
-
-      if (particles.length > 48) return;
+      const emit = ambEmit;
       const lrs = window._gpuLaneRects;
       if (!lrs) return;
       for (let li = 0; li < 3; li++) {
@@ -773,6 +801,7 @@
           gl.clearColor(0, 0, 0, 0);
           gl.clear(gl.COLOR_BUFFER_BIT);
           canvasCleared = true;
+          cv.style.visibility = "hidden";
         }
         return;
       }
@@ -791,11 +820,13 @@
           gl.clearColor(0, 0, 0, 0);
           gl.clear(gl.COLOR_BUFFER_BIT);
           canvasCleared = true;
+          cv.style.visibility = "hidden";
         }
         if (isBattleVisible()) rafId = requestAnimationFrame(frame);
         return;
       }
 
+      if (canvasCleared) cv.style.visibility = "";
       canvasCleared = false;
       gl.clearColor(0, 0, 0, 0);
       gl.clear(gl.COLOR_BUFFER_BIT);
@@ -3630,4 +3661,41 @@
 
   buildVfxLab();
   setTimeout(syncOppCourtMetrics, 60);
+})();
+
+/* ==================== gpu20: TỰ CHỈNH MỨC HIỆU ỨNG THEO KHUNG HÌNH ĐO THẬT ====================
+   Mỗi trận đo khoảng 3 giây đầu (sau khi chia bài). Dưới 40 khung/giây: bớt hạt nhỏ (FXLV=0).
+   Từ 54 khung/giây trở lên: trở lại đầy đủ (FXLV=1). Hình thẻ, chữ, hoạt ảnh chiêu không đổi. */
+(function () {
+  "use strict";
+  window.FXLV = 1;
+  try { const v = localStorage.getItem("ltd_fxlv"); if (v === "0") window.FXLV = 0; } catch (e) {}
+  let lastG = null, busy = false;
+  function inBattle() {
+    try {
+      if (document.hidden || typeof G === "undefined" || !G || G.phase === "over") return false;
+      const lb = document.getElementById("lobby");
+      return !(lb && lb.classList.contains("on")) && !document.querySelector(".ov.on");
+    } catch (e) { return false; }
+  }
+  function measure() {
+    busy = true;
+    let n = 0, t0 = 0;
+    const f = (t) => {
+      if (!inBattle()) { busy = false; return; }
+      if (!t0) t0 = t;
+      n++;
+      if (t - t0 < 3000) { requestAnimationFrame(f); return; }
+      const fps = n * 1000 / (t - t0);
+      const lv = fps < 40 ? 0 : fps >= 54 ? 1 : window.FXLV;
+      window.FXLV = lv;
+      try { localStorage.setItem("ltd_fxlv", String(lv)); } catch (e) {}
+      busy = false;
+    };
+    requestAnimationFrame(f);
+  }
+  setInterval(() => {
+    if (busy || !inBattle()) return;
+    if (G !== lastG) { lastG = G; setTimeout(() => { if (inBattle()) measure(); }, 2500); }
+  }, 2000);
 })();

@@ -448,13 +448,15 @@ function renderProfile(){renderAcc();
   $("avGrid").innerHTML=store.avs.map(k=>`<button type="button" class="avb${store.avatar===k?" on":""}" style="--hc:${HC[C[k].h]}" data-av="${k}" aria-label="${C[k].n}">${artFace(k)}</button>`).join("");
 }
 /* ---- đồng hồ lượt 90s & dây cháy Marvel Snap (chỉ cập nhật chữ mỗi giây để nhẹ DOM) ---- */
-let _tPrevKey="";
+let _tPrevKey="",_tBW=0;addEventListener("resize",()=>{_tBW=0;},{passive:true});
 function resetTimer(armed){tLeft=TURN_SEC;tArmed=armed;tLast=0;tBeep=0;_tPrevKey="";paintTimer();}
 function paintTimer(){
   if(!G)return;
   const play=playing(),bar=$("tbar"),prog=play?Math.max(0,Math.min(1,tLeft/TURN_SEC)):0,pStr=prog.toFixed(4);
-  $("tfill").style.transform=`scaleX(${pStr})`;
-  bar.style.setProperty("--tprog",pStr);
+  const fill=$("tfill"),fs=`scaleX(${pStr})`;if(fill.style.transform!==fs)fill.style.transform=fs;
+  /* gpu20: đốm lửa dây cháy đi bằng transform (không tính lại bố cục mỗi 0,1 giây) */
+  let sp=bar._sp;if(!sp||!sp.isConnected){sp=bar._sp=document.createElement("i");sp.id="tspark";sp.setAttribute("aria-hidden","true");sp.appendChild(document.createElement("b"));bar.appendChild(sp);_tBW=0;}
+  if(!_tBW)_tBW=bar.clientWidth;const tx=`translateX(${(prog*_tBW).toFixed(1)}px)`;if(sp.style.transform!==tx)sp.style.transform=tx;
   const sec=Math.max(0,Math.ceil(tLeft)),low=play&&tArmed&&sec<=15,idle=!play||!tArmed;
   const key=`${play?1:0}|${idle?1:0}|${low?1:0}|${G.turn}|${sec}`;
   if(key===_tPrevKey)return;
