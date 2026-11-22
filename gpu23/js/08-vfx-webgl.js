@@ -2754,6 +2754,9 @@
     playDeckOrHandSteal, animateFastCardPlace, animateFastCardUnplay
   };
   const LAB_VER = (() => { try { return new URL(document.currentScript.src).searchParams.get("v") || ""; } catch (e) { return ""; } })();
+  /* thư mục js/ thật của chính file này (bản thử ở thư mục con có <base href="../"> nên không dùng đường dẫn tương đối) */
+  const LAB_JS = (() => { try { return new URL(".", document.currentScript.src).href; } catch (e) { return "js/"; } })();
+  const LAB_CSS = (() => { try { return new URL("../css/", document.currentScript.src).href; } catch (e) { return "css/"; } })();
   let labLoad = null;
   function loadVfxLab() {
     if (window.VFXLAB) return Promise.resolve(window.VFXLAB);
@@ -2762,13 +2765,13 @@
     const css = new Promise((res) => {
       const l = document.createElement("link");
       l.rel = "stylesheet";
-      l.href = "css/dev-vfx-lab.css" + q;
+      l.href = LAB_CSS + "dev-vfx-lab.css" + q;
       l.onload = l.onerror = res;
       document.head.appendChild(l);
     });
     const js = new Promise((res, rej) => {
       const sc = document.createElement("script");
-      sc.src = "js/dev-vfx-lab.js" + q;
+      sc.src = LAB_JS + "dev-vfx-lab.js" + q;
       sc.onload = res;
       sc.onerror = rej;
       document.body.appendChild(sc);
