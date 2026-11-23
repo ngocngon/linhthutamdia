@@ -17,9 +17,13 @@
   // [Ngũ hành] — kiếm khi chơi (nhiệm vụ)
   add("kim", "Kim Ngân", "nh", 0, "Nhiệm vụ"); add("moc", "Mộc Lâm", "nh", 0, "Nhiệm vụ"); add("thuy", "Thuỷ Triều", "nh", 0, "Nhiệm vụ");
   add("hoa", "Hoả Diệm", "nh", 0, "Nhiệm vụ"); add("tho", "Thổ Địa", "nh", 0, "Nhiệm vụ");
-  // [Hoạ tiết Việt] — bản CSS/SVG; sau này thay bằng tranh vẽ img/nen/<id>.webp
-  add("gomlam", "Gốm Lam Chu Đậu", "vn", 1, "Cửa hàng"); add("donghoo", "Tranh Đông Hồ", "vn", 1, "Cửa hàng");
-  add("trongdong", "Trống Đồng Đông Sơn", "vn", 2, "Cửa hàng"); add("sonmai", "Sơn Mài Son Vàng", "vn", 3, "Cửa hàng"); add("khamxacu", "Khảm Xà Cừ", "vn", 3, "Cửa hàng");
+  // [Hoạ tiết Việt] — tranh vẽ ChatGPT (lưới 4×4, cắt bằng tools/cat_luoi_nen.py) ở img/nen/<id>.webp
+  add("donghoo", "Tranh Đông Hồ", "vn", 1, "Cửa hàng"); add("gomlam", "Gốm Lam Chu Đậu", "vn", 1, "Cửa hàng"); add("gachbong", "Gạch Bông Men Lam", "vn", 1, "Cửa hàng");
+  add("maingoi", "Mái Ngói Rêu Phong", "vn", 1, "Nhiệm vụ"); add("ruonglua", "Đồng Lúa Chiều Quê", "vn", 1, "Nhiệm vụ");
+  add("trongdong", "Trống Đồng Đông Sơn", "vn", 2, "Cửa hàng"); add("chamgo", "Chạm Gỗ Đình Làng", "vn", 2, "Cửa hàng"); add("senthuymac", "Sen Thuỷ Mặc", "vn", 2, "Cửa hàng");
+  add("denlong", "Đèn Lồng Hội An", "vn", 2, "Cửa hàng"); add("thocam", "Thổ Cẩm Núi Rừng", "vn", 2, "Cửa hàng");
+  add("sonmai", "Sơn Mài Son Vàng", "vn", 3, "Cửa hàng"); add("khamxacu", "Khảm Xà Cừ", "vn", 3, "Cửa hàng"); add("luatheu", "Lụa Thêu Rồng Mây", "vn", 3, "Cửa hàng");
+  add("maycungdinh", "Mây Cung Đình Huế", "vn", 3, "Thẻ tháng"); add("phudieucham", "Phù Điêu Chăm Pa", "vn", 3, "Cửa hàng"); add("tranhkinh", "Tranh Kính Hoa Sen", "vn", 3, "Cửa hàng");
   // [Phong cảnh] — dùng tranh địa điểm sẵn có (img/l)
   add("hoguom", "Hồ Gươm", "pc", 2, "Cửa hàng"); add("muine", "Đồi Cát Mũi Né", "pc", 2, "Cửa hàng"); add("bangioc", "Thác Bản Giốc", "pc", 2, "Cửa hàng");
   add("thapcham", "Tháp Chàm", "pc", 2, "Cửa hàng"); add("ngocson", "Đền Ngọc Sơn", "pc", 2, "Cửa hàng"); add("vanmieu", "Văn Miếu", "pc", 2, "Cửa hàng");
@@ -34,7 +38,9 @@
   add("tet", "Xuân Tết", "mv", 4, "Sự kiện Tết", { lim: 1, a: 1 }); add("trungthu", "Rằm Trung Thu", "mv", 4, "Sự kiện Trung Thu", { lim: 1, a: 1 });
 
   const BY = {}; for (const b of CAT) BY[b.id] = b;
-  const IMG = new Set();                 // id có tranh vẽ img/nen/<id>.webp (ghi đè bản CSS)
+  const IMG = new Set([                 // id có tranh vẽ img/nen/<id>.webp (ghi đè bản CSS)
+    "donghoo", "gomlam", "gachbong", "maingoi", "ruonglua", "trongdong", "chamgo", "senthuymac", "denlong", "thocam",
+    "sonmai", "khamxacu", "luatheu", "maycungdinh", "phudieucham", "tranhkinh"]);
   const KEM = new Set(["datamtri", "lucthan", "matoc", "maydotam", "mieunuot", "phiung"]); // thẻ chưa hỗ trợ nền (xem tools/tach_nen_nhan_vat.py)
   try { fetch("img/cut/_kem.json").then(r => r.json()).then(j => { for (const k in j) KEM.add(k); }).catch(() => { }); } catch (e) { }
 
@@ -51,9 +57,12 @@
   const cur = c => c === "gold" ? "gold" : "tok";
   const esc2 = t => String(t).replace(/[&<>"']/g, ch => "&#" + ch.charCodeAt(0) + ";");
 
+  /* url() trong biến CSS bị trình duyệt tính theo thư mục của tệp CSS (css/img/...) -> dùng đường dẫn tuyệt đối */
+  const NBURL = {};
+  const nbUrl = id => NBURL[id] || (NBURL[id] = (() => { try { return new URL("img/nen/" + id + ".webp?v=1", document.baseURI).href; } catch (e) { return "img/nen/" + id + ".webp"; } })());
   function bgHTML(id) {
     const im = IMG.has(id);
-    return `<nb-l class="nth nth-${id}${im ? " nbi" : ""}" data-nth="${id}"${im ? ` style="--nbimg:url(img/nen/${id}.webp)"` : ""} aria-hidden="true"></nb-l><b class="nbm" aria-hidden="true"></b>`;
+    return `<nb-l class="nth nth-${id}${im ? " nbi" : ""}" data-nth="${id}"${im ? ` style="--nbimg:url(${nbUrl(id)})"` : ""} aria-hidden="true"></nb-l><b class="nbm" aria-hidden="true"></b>`;
   }
   /* gọi trước ${art(id)} ở mọi nơi vẽ thẻ. Không trang bị -> "" (không tốn gì) */
   function layer(k) {

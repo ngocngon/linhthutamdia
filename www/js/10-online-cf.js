@@ -5,7 +5,7 @@
    db (doc().get()/set()) và user (id()), nên các hàm OL trong 05-vfx-core.js giữ nguyên. */
 (function(){
 "use strict";
-var DEFAULT_SERVER=""; /* điền địa chỉ Worker sau khi triển khai, ví dụ "https://linhthu-server.ten-ban.workers.dev" */
+var DEFAULT_SERVER="https://linhthu-server.likiop00.workers.dev"; /* máy chủ Cloudflare đã triển khai (gpu23) */
 var LS=null;try{LS=window.localStorage;}catch(e){}
 function lsGet(k){try{return LS&&LS.getItem(k);}catch(e){return null;}}
 function lsSet(k,v){try{if(LS){if(v==null)LS.removeItem(k);else LS.setItem(k,v);}}catch(e){}}
@@ -13,7 +13,9 @@ var $q=function(id){return document.getElementById(id);};
 function serverBase(){
   var s=window.LTD_SERVER;
   try{var p=new URL(location.href).searchParams.get("server");if(p){if(p==="off")lsSet("ltd.server",null);else lsSet("ltd.server",p);}}catch(e){}
-  if(!s)s=lsGet("ltd.server")||DEFAULT_SERVER;
+  /* trong trang Claude (link tester) mọi kết nối ra ngoài bị chặn -> giữ phòng chơi của Claude, không dùng máy chủ mặc định */
+  var inClaude=!!(window.claude&&typeof window.claude.use==="function");
+  if(!s)s=lsGet("ltd.server")||(inClaude?"":DEFAULT_SERVER);
   return s?String(s).replace(/\/+$/,""):"";
 }
 var CF={base:serverBase(),token:lsGet("ltd.cf.token")||"",user:null,rating:null,lbc:{},lbf:{},lobby:null,code:"",conns:[]};
