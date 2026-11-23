@@ -331,8 +331,8 @@
 /* gpu22: service worker (chỉ khi chạy qua http/https, không đăng ký trong vỏ Capacitor/APK vì ảnh đã nằm sẵn trong app) */
 (function(){var C=window.Capacitor,nat=C&&C.isNativePlatform&&C.isNativePlatform();
 if(!("serviceWorker" in navigator)||!/^https?:$/.test(location.protocol)||nat)return;
-addEventListener("load",function(){navigator.serviceWorker.register(new URL("sw.js?v=gpu23",document.baseURI).href).then(function(){
-return navigator.serviceWorker.ready;}).then(function(r){setTimeout(function(){try{var w=r.active;if(!w)return;var o=location.origin,L=performance.getEntriesByType("resource").map(function(e){return e.name;}).filter(function(n){return n.indexOf(o)===0;});L.push(location.href);w.postMessage({type:"warm",urls:L});}catch(e){}},4000);}).catch(function(){});});})();
+addEventListener("load",function(){try{navigator.serviceWorker.register(new URL("sw.js?v=gpu23",document.baseURI).href).then(function(){
+return navigator.serviceWorker.ready;}).then(function(r){setTimeout(function(){try{var w=r.active;if(!w)return;var o=location.origin,L=performance.getEntriesByType("resource").map(function(e){return e.name;}).filter(function(n){return n.indexOf(o)===0;});L.push(location.href);w.postMessage({type:"warm",urls:L});}catch(e){}},4000);}).catch(function(){});}catch(e){}});})();
 </script>
 </body>
 </html>
