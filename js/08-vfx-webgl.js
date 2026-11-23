@@ -6,15 +6,31 @@
 
   /* ==================== 1. TINH CHỈNH TỐC ĐỘ NHỊP TRẬN CHUẨN MARVEL SNAP ==================== */
   try {
-    SPDV.cham = 1.3;
-    SPDV.vua = 1.0;
-    SPDV.nhanh = 0.78;
+    /* gpu21: 5 mức tốc độ, đều chậm hơn trước (Nhanh mới = Vừa cũ). Hệ số nhân thời lượng mọi hoạt ảnh trong trận */
+    SPDV.nhanh = 1.0;
+    SPDV.vua = 1.3;
+    SPDV.cham = 1.6;
+    SPDV.ratcham = 2.0;
+    SPDV.dienanh = 2.5;
+    window.SPD_LEVELS = [
+      { k: "nhanh", n: "Nhanh", v: 1.0 },
+      { k: "vua", n: "Vừa", v: 1.3 },
+      { k: "cham", n: "Chậm", v: 1.6 },
+      { k: "ratcham", n: "Rất chậm", v: 2.0 },
+      { k: "dienanh", n: "Điện ảnh", v: 2.5 }
+    ];
     const initKey = "linhthu.tamdia.gpu_vfx_v2";
     if (!localStorage.getItem(initKey)) {
       localStorage.setItem(initKey, "1");
       store.spd = "vua";
       store.gpu = true;
       save();
+    }
+    /* gpu22: mặc định "Rất chậm" (anh chọn sau khi thử 5 mức); chuyển một lần cho mọi máy */
+    if (!localStorage.getItem("ltd_spd_v4")) {
+      localStorage.setItem("ltd_spd_v4", "1");
+      store.spd = "ratcham";
+      try { save(); } catch (e) {}
     }
     SPD = SPDV[store.spd] || 1.0;
     if (typeof GPUON !== "undefined") GPUON = store.gpu !== false;
@@ -232,6 +248,7 @@
     return `<span class="ntf-act">${esc(condenseActLabel(s))}</span>`;
   }
 
+  const NTF_KEEP_RE = /CƯỚP THẺ|BỊ CƯỚP|ĐỔI PHE|CƯỚP KỸ NĂNG|CHÉP KỸ NĂNG|CẤM ĐẶT|KHÔNG THỂ ĐẶT|CƯỢC|HẾT GIỜ|BỎ LƯỢT/i;
   function pushOppNotif(text, color, opts) {
     if (reduced || !text) return;
     const lobby = $id("lobby");
@@ -241,6 +258,10 @@
     const host = ensureOppHost();
     const cleanKey = String(text).replace(/<[^>]*>/g, "").trim();
     if (!cleanKey) return;
+    /* gpu21: nửa trên sân chỉ hiện thông tin cần thiết (điều người chơi không tự thấy trên bàn).
+       Bảng test VFX đang mở thì vẫn hiện đủ để thử. */
+    const labOn = !!document.querySelector("#vfxLabDrawer.on");
+    if (!labOn && !(opts && opts.essential) && !NTF_KEEP_RE.test(cleanKey)) return;
 
     const arrowIdx = cleanKey.indexOf("▸");
     const srcTag = arrowIdx > 0 ? cleanKey.slice(0, arrowIdx).trim().toUpperCase() : "";
@@ -329,7 +350,7 @@
     fxT(() => d.remove(), 1250);
   }
 
-  if (typeof say === "function") {
+  { /* gpu23: say khai báo ở 05, thân hàm ở đây */
     say = function (x, y, t, c, dl) {
       if (reduced || !t) return;
       const run = () => {
@@ -578,6 +599,8 @@
 
     function emit(opts) {
       if (reduced || store.gpu === false) return;
+      /* gpu20: máy đang yếu thì bớt hạt nhỏ (giữ nguyên vòng sóng, vệt chém, hình chiêu) */
+      if (window.FXLV === 0 && (opts.kind || 0) <= 1 && !opts.keep && Math.random() < 0.35) return;
       if (particles.length >= MAX_QUADS - 450) particles.shift();
       const rgb = Array.isArray(opts.col) ? opts.col : parseCol(opts.c || "#3fe0ff");
       particles.push({
@@ -731,13 +754,39 @@
       return !document.querySelector(".ov.on");
     }
 
+    /* gpu20: hạt bay nền chiến địa chạy bằng lớp CSS nhẹ (chỉ transform/opacity, GPU ghép sẵn),
+       không bắt lớp WebGL toàn màn hình (có hoà trộn screen) vẽ lại mỗi khung khi không có chiêu */
+    let ambHost = null;
+    function ambEnsure() {
+      if (ambHost && ambHost.isConnected) return ambHost;
+      ambHost = document.createElement("div");
+      ambHost.id = "ambFx";
+      ambHost.setAttribute("aria-hidden", "true");
+      (document.body).appendChild(ambHost);
+      return ambHost;
+    }
+    function ambClear() { if (ambHost && ambHost.firstChild) ambHost.textContent = ""; }
+    function ambEmit(o) {
+      const h = ambEnsure();
+      const cap = window.FXLV === 0 ? 14 : 34;
+      if (h.childElementCount >= cap) return;
+      const drag = 1.2, sp = Math.max(0.55, (typeof SPD !== "undefined" && SPD) || 1);
+      const T = o.dur * sp, k = (1 - Math.exp(-drag * o.dur)) / drag;
+      const d = Math.round(o.s0 * 2.3);
+      const el = document.createElement("i");
+      el.className = "amb k" + (o.kind || 0);
+      const wob = (o.turb || 0) * (Math.random() < 0.5 ? -0.16 : 0.16);
+      el.style.cssText = `left:${o.x.toFixed(1)}px;top:${o.y.toFixed(1)}px;width:${d}px;height:${d}px;--c:${o.c};--a:${(Math.min(1, o.a * 1.55)).toFixed(2)};--dx:${(o.vx * k).toFixed(1)}px;--dy:${(o.vy * k).toFixed(1)}px;--wx:${wob.toFixed(1)}px;--s:${Math.max(0.18, (o.s1 || 1.5) / o.s0).toFixed(2)};--r:${o.vrot ? (o.vrot * o.dur * 57).toFixed(0) : 0}deg;animation-duration:${T.toFixed(2)}s`;
+      el.addEventListener("animationend", () => el.remove(), { once: true });
+      h.appendChild(el);
+    }
+
     function stepAmbient(dt) {
-      if (!isBattleVisible()) return;
+      if (!isBattleVisible()) { ambClear(); return; }
       ambTimer += dt;
       if (ambTimer < 0.24) return;
       ambTimer = 0;
-
-      if (particles.length > 48) return;
+      const emit = ambEmit;
       const lrs = window._gpuLaneRects;
       if (!lrs) return;
       for (let li = 0; li < 3; li++) {
@@ -773,6 +822,7 @@
           gl.clearColor(0, 0, 0, 0);
           gl.clear(gl.COLOR_BUFFER_BIT);
           canvasCleared = true;
+          cv.style.visibility = "hidden";
         }
         return;
       }
@@ -791,11 +841,13 @@
           gl.clearColor(0, 0, 0, 0);
           gl.clear(gl.COLOR_BUFFER_BIT);
           canvasCleared = true;
+          cv.style.visibility = "hidden";
         }
         if (isBattleVisible()) rafId = requestAnimationFrame(frame);
         return;
       }
 
+      if (canvasCleared) cv.style.visibility = "";
       canvasCleared = false;
       gl.clearColor(0, 0, 0, 0);
       gl.clear(gl.COLOR_BUFFER_BIT);
@@ -1270,7 +1322,7 @@
   /* ==================== 6. HOẠT ẢNH CHUYỂN ĐỘNG THẺ BÀI MƯỢT 60FPS (CƯỚP THẺ, CƯỚP CHIÊU, DỜI, HUỶ, VỀ TAY) ==================== */
 
   /* 6.1. Chống chồng chéo phản ứng giật thẻ (recoil10 & lean10 mượt một nhịp duy nhất) */
-  if (typeof recoil10 === "function") {
+  { /* gpu23: recoil10 khai báo ở 05, thân hàm ở đây */
     recoil10 = function (el, from, to) {
       if (reduced || !el || !from || !to) return;
       const dx = to.x - from.x, dy = to.y - from.y;
@@ -1286,7 +1338,7 @@
     };
   }
 
-  if (typeof lean10 === "function") {
+  { /* gpu23: lean10 khai báo ở 05, thân hàm ở đây */
     lean10 = function (el, sp, tp) {
       if (reduced || !el || !sp || !tp) return;
       const dx = tp.x - sp.x, dy = tp.y - sp.y;
@@ -1409,11 +1461,11 @@
     return startDelay + flightDur;
   }
 
-  if (typeof mvDur9 === "function") {
+  { /* gpu23: mvDur9 khai báo ở 05, thân hàm ở đây */
     mvDur9 = (s) => (s.k === "swap" ? (s.sp ? 1280 : 1080) : (s.sp ? 1260 : 880));
   }
 
-  if (typeof move10 === "function") {
+  { /* gpu23: move10 khai báo ở 05, thân hàm ở đây */
     move10 = function (s) {
       const r0 = s.r0, r1 = s.tp, h = s.hid, ph = s.ph;
       if (!r0 || !r1) {
@@ -1577,7 +1629,7 @@
     fxT(fin, durMs + 100);
   }
 
-  if (typeof lunge10 === "function") {
+  { /* gpu23: lunge10 khai báo ở 05, thân hàm ở đây */
     lunge10 = function (s, el, sp, tp, L0) {
       const g = ghostOf9(sp, s.src);
       hide9(el, 1);
@@ -1645,7 +1697,7 @@
                   ], { duration: 420 });
                   const nm = id && C[id] ? C[id].n : "";
                   pushOppNotif((s.k === "steal" ? "CƯỚP KỸ NĂNG" : "SAO CHÉP KỸ NĂNG") + (nm ? `: ${nm}` : ""), col);
-                  SFX.play(s.k === "steal" ? "dark" : "e_hon");
+                  if (s.k === "steal") SFX.play("steal", 0.9); else SFX.play("e_hon");
                 }
               });
             }
@@ -2592,10 +2644,36 @@
   const arcCore = arcSvg.querySelector(".arc-core");
   const arcRet = arcSvg.querySelector(".arc-reticle");
 
+  /* gpu21: bỏ đường ngắm nét đứt; thay bằng "ô đáp": ô sẽ nhận thẻ sáng lên kèm bóng mờ của chính thẻ đang kéo */
+  arcSvg.style.display = "none";
+  let landSlot = null;
+  function clearLand() {
+    if (!landSlot) return;
+    landSlot.classList.remove("land");
+    const g = landSlot.querySelector(".land-ghost");
+    if (g) g.remove();
+    landSlot = null;
+  }
+  function setLand(slot, srcEl) {
+    if (slot === landSlot) return;
+    clearLand();
+    if (!slot) return;
+    landSlot = slot;
+    slot.classList.add("land");
+    const face = srcEl && (srcEl.querySelector(".hc") || srcEl);
+    if (face) {
+      const g = document.createElement("div");
+      g.className = "land-ghost";
+      g.setAttribute("aria-hidden", "true");
+      const cl = face.cloneNode(true);
+      cl.removeAttribute("id");
+      cl.classList.remove("dsrc", "gpu-hov", "sel");
+      g.appendChild(cl);
+      slot.appendChild(g);
+    }
+  }
   function hideDragArc() {
-    arcGlow.setAttribute("d", "");
-    arcCore.setAttribute("d", "");
-    arcRet.setAttribute("opacity", "0");
+    clearLand();
   }
 
   let dragTrailTick = 0;
@@ -2604,28 +2682,14 @@
 
     if (typeof drag !== "undefined" && drag && drag.on && drag.el) {
       clearHov();
-      const sr = drag.el.getBoundingClientRect();
-      const sx = sr.left + sr.width / 2;
-      const sy = sr.top + sr.height * 0.35;
-      let tx = ev.clientX, ty = ev.clientY;
       const hovLane = document.querySelector(".lane.dhov");
       if (hovLane) {
         const side = hovLane.querySelector(hovLane.classList.contains("okx") ? ".side.opp" : ".side.me") || hovLane;
-        const lr = side.getBoundingClientRect();
-        tx = lr.left + lr.width / 2;
-        ty = lr.top + lr.height / 2;
-        arcRet.setAttribute("cx", tx.toFixed(1));
-        arcRet.setAttribute("cy", ty.toFixed(1));
-        arcRet.setAttribute("opacity", "1");
+        const slot = Array.from(side.querySelectorAll(".slot")).find((x) => !x.querySelector(".mc"));
+        setLand(slot || null, drag.el);
       } else {
-        arcRet.setAttribute("opacity", "0");
+        clearLand();
       }
-
-      const cx = (sx + tx) * 0.5 + (tx - sx) * 0.08;
-      const cy = Math.min(sy, ty) - Math.min(120, Math.hypot(tx - sx, ty - sy) * 0.34);
-      const pathD = `M ${sx.toFixed(1)} ${sy.toFixed(1)} Q ${cx.toFixed(1)} ${cy.toFixed(1)} ${tx.toFixed(1)} ${ty.toFixed(1)}`;
-      arcGlow.setAttribute("d", pathD);
-      arcCore.setAttribute("d", pathD);
 
       if (drag.g) {
         const hcIn = drag.g.querySelector(".hc");
@@ -2682,116 +2746,40 @@
   document.addEventListener("pointercancel", hideDragArc, { passive: true });
   document.addEventListener("pointerleave", clearHov, { passive: true });
 
-  /* ==================== 8. BẢNG TEST HIỆU ỨNG & ÂM THANH LUÔN HIỂN THỊ (5 NHÓM · 32 HIỆU ỨNG ĐẦY ĐỦ) ==================== */
-  const VFX_LAB_TABS = [
-    {
-      id: "play",
-      label: "⚡ Ra Bài",
-      items: [
-        ["fastplay", "⚡ Đặt Thẻ Nhanh", true],
-        ["foedrop", "🎴 Đối Thủ Úp Bài", false],
-        ["fliprev", "🔄 Lật Thẻ Mở Chiêu", true],
-        ["locrev", "🏛️ Mở Chiến Địa 3D", true],
-        ["unplay", "↩️ Rút Lại Về Tay", false],
-        ["drawcard", "🃏 Rút Bài Đầu Lượt", false],
-        ["turnbn", "🚩 Băng Hiệu Lượt", false],
-        ["fuse10s", "⏱️ Đếm Ngược 10s", false]
-      ]
-    },
-    {
-      id: "interact",
-      label: "🧲 Cướp/Dời",
-      items: [
-        ["stealcard", "🧲 Cướp Thẻ Đổi Phe", true],
-        ["decksteal", "🕵️ Cướp Bộ Bài", true],
-        ["stealskill", "🔮 Cướp Kỹ Năng", true],
-        ["clonecard", "🪞 Nhân Bản Thẻ", false],
-        ["silence", "🔇 Xoá Kỹ Năng", false],
-        ["pullcard", "🪝 Kéo Thẻ Đối Thủ", false],
-        ["pushcard", "💨 Đẩy Thẻ Khỏi Ô", false],
-        ["morphcard", "🦋 Biến Hình 3D", false]
-      ]
-    },
-    {
-      id: "combat",
-      label: "💥 Phá/Điểm",
-      items: [
-        ["destroyer", "☄️ Tia Huỷ Diệt Bàn", true],
-        ["destroy3d", "💔 Chém Vỡ Thẻ 3D", true],
-        ["summon", "🐉 Triệu Hồi Thú", false],
-        ["buffpw", "💚 Cộng Điểm (+6)", false],
-        ["debuffpw", "❤️‍🔥 Trừ Điểm (−4)", false],
-        ["doublepw", "✨ Nhân Đôi (×2)", true]
-      ]
-    },
-    {
-      id: "elem",
-      label: "🔥 Hệ/Cược",
-      items: [
-        ["snapcube", "🎲 Cược SNAP ×2/×8", true],
-        ["locklane", "⛓️ Khoá Chiến Địa", false],
-        ["shieldfx", "🛡️ Khiên Bất Tử", false],
-        ["fire", "🔥 Nổ Hoả Ngục", false],
-        ["thunder", "⚡ Lôi Phạt Sét", false],
-        ["frost", "❄️ Băng Phong", false],
-        ["ult", "🗡️ Tuyệt Kỹ S5", true]
-      ]
-    },
-    {
-      id: "audio",
-      label: "🎵 Nhạc/Tốc",
-      items: [
-        ["bgm_b1", "🎵 Nhạc Lượt 1–3", true],
-        ["bgm_b2", "🎸 Nhạc Cao Trào", false],
-        ["bgm_climax", "🔥 Nhạc Lượt Cuối", true],
-        ["bgm_lobby", "🌌 Nhạc Sảnh Chờ", false],
-        ["bgm_toggle", "🔊 Bật/Tắt Nhạc", false],
-        ["spd_fast", "⏩ Nhanh (0.78×)", false],
-        ["spd_norm", "▶️ Chuẩn (1.0×)", false],
-        ["spd_slow", "🐢 Chậm (1.3×)", false]
-      ]
-    }
-  ];
-
-  let curLabTab = "play";
-  let demoLocIdx = 0;
-  let demoTurnIdx = 0;
-  let demoSnapIdx = 0;
-
-  function syncLabButtonsState(isOpen) {
-    const b = $id("btnVfxLab");
-    if (b) b.classList.toggle("active", !!isOpen);
+  /* ==================== 8. BẢNG TEST HIỆU ỨNG & ÂM THANH (CHỈ CHO NHÀ PHÁT TRIỂN) ====================
+     gpu23: mã bảng test nằm ở js/dev-vfx-lab.js (+ css/dev-vfx-lab.css), chỉ nạp khi bấm nút "✨ Bảng Test VFX" ở sảnh
+     hoặc nút mở bảng trong Cài đặt > Nâng cao. Ở đây chỉ gắn 2 nút đó và đưa ra các hàm nội bộ mà bảng test cần. */
+  window.VFX08_LAB = {
+    clamp, smoothAnim, build3DArcFrames, gpuFlash, streamBezierRibbon, pushOppNotif, playCardStealSwap, spawnSoulSiphonOrb,
+    playDeckOrHandSteal, animateFastCardPlace, animateFastCardUnplay
+  };
+  const LAB_VER = (() => { try { return new URL(document.currentScript.src).searchParams.get("v") || ""; } catch (e) { return ""; } })();
+  /* thư mục js/ thật của chính file này (bản thử ở thư mục con có <base href="../"> nên không dùng đường dẫn tương đối) */
+  const LAB_JS = (() => { try { return new URL(".", document.currentScript.src).href; } catch (e) { return "js/"; } })();
+  const LAB_CSS = (() => { try { return new URL("../css/", document.currentScript.src).href; } catch (e) { return "css/"; } })();
+  let labLoad = null;
+  function loadVfxLab() {
+    if (window.VFXLAB) return Promise.resolve(window.VFXLAB);
+    if (labLoad) return labLoad;
+    const q = LAB_VER ? "?v=" + LAB_VER : "";
+    const css = new Promise((res) => {
+      const l = document.createElement("link");
+      l.rel = "stylesheet";
+      l.href = LAB_CSS + "dev-vfx-lab.css" + q;
+      l.onload = l.onerror = res;
+      document.head.appendChild(l);
+    });
+    const js = new Promise((res, rej) => {
+      const sc = document.createElement("script");
+      sc.src = LAB_JS + "dev-vfx-lab.js" + q;
+      sc.onload = res;
+      sc.onerror = rej;
+      document.body.appendChild(sc);
+    });
+    labLoad = Promise.all([css, js]).then(() => window.VFXLAB, (e) => { labLoad = null; throw e; });
+    return labLoad;
   }
-
-  function renderLabTab(tabId) {
-    curLabTab = tabId;
-    const drawer = $id("vfxLabDrawer");
-    if (!drawer) return;
-    drawer.querySelectorAll(".vl-tab").forEach((t) => t.classList.toggle("on", t.dataset.vtab === tabId));
-    const tabObj = VFX_LAB_TABS.find((t) => t.id === tabId) || VFX_LAB_TABS[0];
-    const grid = $id("vlGrid");
-    if (grid) {
-      grid.innerHTML = tabObj.items
-        .map(([k, lbl, feat]) => `<button type="button" class="vl-btn${feat ? " vl-feat" : ""}" data-demo="${k}">${lbl}</button>`)
-        .join("");
-    }
-  }
-
-  function buildVfxLab() {
-    if ($id("vfxLabDrawer")) return;
-
-    const toolsL = document.querySelector(".sub .tools");
-    if (toolsL) {
-      const btn = document.createElement("button");
-      btn.type = "button";
-      btn.className = "tb tb-vfx-lab";
-      btn.id = "btnVfxLab";
-      btn.title = "Bật/tắt bảng test hiệu ứng cố định";
-      btn.textContent = "✨ VFX";
-      toolsL.appendChild(btn);
-      btn.addEventListener("click", toggleLab);
-    }
-
+  function addVfxLabButtons() {
     const lobby = $id("lobby");
     if (lobby) {
       const lbBtn = document.createElement("button");
@@ -2799,835 +2787,152 @@
       lbBtn.id = "lbVfxTest";
       lbBtn.textContent = "✨ Bảng Test VFX";
       lobby.appendChild(lbBtn);
-      lbBtn.addEventListener("click", toggleLab);
+      lbBtn.addEventListener("click", () => { loadVfxLab().then((L) => L.toggleLab()).catch(() => {}); });
     }
 
     const setReimg = $id("setReimg");
     if (setReimg && setReimg.parentNode) {
       const sBtn = document.createElement("button");
       sBtn.type = "button";
-      sBtn.className = "btn end";
-      sBtn.style.cssText = "width:100%;margin-top:10px";
+      sBtn.className = "btn end sx-btn";
       sBtn.textContent = "✨ Mở Bảng Test Hiệu Ứng (Ghim Cố Định)";
-      setReimg.parentNode.appendChild(sBtn);
+      setReimg.parentNode.appendChild(sBtn); /* nút dev nằm trong mục Nâng cao */
       sBtn.addEventListener("click", () => {
         $id("ovSet").classList.remove("on");
-        openLab();
+        loadVfxLab().then((L) => L.openLab()).catch(() => {});
       });
     }
-
-    const drawer = document.createElement("div");
-    drawer.id = "vfxLabDrawer";
-    drawer.setAttribute("role", "dialog");
-    drawer.setAttribute("aria-label", "Bảng Test Hiệu Ứng & Âm Thanh");
-    drawer.innerHTML = `
-      <div class="vl-hd" id="vlHeader" title="Kéo thanh tiêu đề để di chuyển bảng test">
-        <b>⚡ BẢNG TEST VFX (GHIM MỞ)</b>
-        <div class="vl-hd-act">
-          <span class="vl-fps" id="vlFps">60 FPS</span>
-          <button type="button" class="vl-min" id="vlMin" title="Thu gọn / Mở rộng">▾ Thu gọn</button>
-          <button type="button" class="vl-x" id="vlClose" aria-label="Đóng bảng test" title="Đóng bảng test">✕</button>
-        </div>
-      </div>
-      <div class="vl-tabs" id="vlTabs">
-        ${VFX_LAB_TABS.map((t) => `<button type="button" class="vl-tab${t.id === curLabTab ? " on" : ""}" data-vtab="${t.id}">${t.label}</button>`).join("")}
-      </div>
-      <div class="vl-grid" id="vlGrid"></div>
-      <div class="vl-sub">Bảng luôn giữ mở khi bấm test · Kéo tiêu đề để dời vị trí · Chỉ đóng khi bấm ✕</div>
-    `;
-    document.body.appendChild(drawer);
-    renderLabTab(curLabTab);
-
-    /* Chỉ đóng khi bấm ✕ (KHÔNG BAO GIỜ tự tắt khi bấm nút test!) */
-    $id("vlClose").addEventListener("click", (ev) => {
-      ev.stopPropagation();
-      SFX.play("tap");
-      drawer.classList.remove("on");
-      syncLabButtonsState(false);
-    });
-
-    /* Nút Thu gọn / Mở rộng nhanh ngay trên thanh tiêu đề */
-    const minBtn = $id("vlMin");
-    minBtn.addEventListener("click", (ev) => {
-      ev.stopPropagation();
-      SFX.play("tap");
-      const isMin = drawer.classList.toggle("min");
-      minBtn.textContent = isMin ? "▴ Mở rộng" : "▾ Thu gọn";
-    });
-
-    /* Chuyển tab danh mục test & kích hoạt demo liên tục mà KHÔNG đóng bảng */
-    drawer.addEventListener("click", (ev) => {
-      const tabBtn = ev.target.closest("[data-vtab]");
-      if (tabBtn) {
-        SFX.play("tap");
-        drawer.classList.remove("min");
-        minBtn.textContent = "▾ Thu gọn";
-        renderLabTab(tabBtn.dataset.vtab);
-        return;
-      }
-      const demoBtn = ev.target.closest("[data-demo]");
-      if (demoBtn) {
-        SFX.wake();
-        demoBtn.classList.remove("vl-fired");
-        void demoBtn.offsetWidth;
-        demoBtn.classList.add("vl-fired");
-        setTimeout(() => demoBtn.classList.remove("vl-fired"), 360);
-        runDemo(demoBtn.dataset.demo);
-      }
-    });
-
-    /* Cho phép kéo thả di chuyển bảng test nếu người dùng muốn đặt lên góc bất kỳ */
-    let vDrag = null;
-    let vlOffX = 0, vlOffY = 0;
-    $id("vlHeader").addEventListener("pointerdown", (ev) => {
-      if (ev.target.closest("button")) return;
-      vDrag = { sx: ev.clientX, sy: ev.clientY, ox: vlOffX, oy: vlOffY, pid: ev.pointerId };
-    });
-    document.addEventListener("pointermove", (ev) => {
-      if (!vDrag || ev.pointerId !== vDrag.pid) return;
-      vlOffX = clamp(vDrag.ox + (ev.clientX - vDrag.sx), -window.innerWidth * 0.42, window.innerWidth * 0.42);
-      vlOffY = clamp(vDrag.oy + (ev.clientY - vDrag.sy), -window.innerHeight * 0.68, 52);
-      drawer.style.setProperty("--vlx", vlOffX.toFixed(1) + "px");
-      drawer.style.setProperty("--vly", vlOffY.toFixed(1) + "px");
-    }, { passive: true });
-    const endVDrag = () => { vDrag = null; };
-    document.addEventListener("pointerup", endVDrag, { passive: true });
-    document.addEventListener("pointercancel", endVDrag, { passive: true });
-
-    setInterval(() => {
-      if (!drawer.classList.contains("on")) return;
-      const el = $id("vlFps");
-      const bgmTag = window.BGM && BGM.isPlaying() ? "🎵" : "🔇";
-      if (el) el.textContent = `${GLFX.fps()} FPS · ${GLFX.count()} hạt · ${bgmTag}`;
-    }, 350);
   }
 
-  function openLab() {
-    const d = $id("vfxLabDrawer");
-    if (d) {
-      d.classList.add("on");
-      d.classList.remove("min");
-      const minBtn = $id("vlMin");
-      if (minBtn) minBtn.textContent = "▾ Thu gọn";
-      syncLabButtonsState(true);
-    }
-  }
-  function toggleLab() {
-    SFX.play("tap");
-    const d = $id("vfxLabDrawer");
-    if (!d) return;
-    const on = d.classList.toggle("on");
-    if (on) {
-      d.classList.remove("min");
-      const minBtn = $id("vlMin");
-      if (minBtn) minBtn.textContent = "▾ Thu gọn";
-    }
-    syncLabButtonsState(on);
-  }
-
-  function ensureInMatchForDemo(kind) {
-    const lobby = $id("lobby");
-    if (lobby && lobby.classList.contains("on")) {
-      if (typeof newGame === "function") {
-        newGame();
-        lobby.classList.remove("on");
-        if (window.BGM) BGM.syncGame(G);
-        render();
-        openLab();
-        setTimeout(() => runDemo(kind), 110);
-        return false;
-      }
-      const lbPlay = $id("lbPlay");
-      if (lbPlay) {
-        lbPlay.click();
-        openLab();
-        setTimeout(() => runDemo(kind), 820);
-        return false;
-      }
-    }
-    return true;
-  }
-
-  function sampleDemoCardHTML(id, pwDelta) {
-    const pick = id && C[id] ? id : "bachho";
-    const d = C[pick];
-    const delta = pwDelta != null ? pwDelta : 3;
-    const pw = Math.max(0, d.p + delta);
-    const cls = delta > 0 ? "up" : delta < 0 ? "down" : "";
-    return `<button type="button" class="mc q5" style="--hc:${HC[d.h] || "#ffd65a"}">${art(pick)}<span class="mn">${logo(pick)}</span><span class="pwh ${cls}">${pw}</span></button>`;
-  }
-
-  function getLaneSlotRect(laneIdx, side, slotIdx) {
-    const ln = document.querySelector(`#board [data-lane="${laneIdx}"]`) || document.querySelector("#board [data-lane]");
-    if (!ln) return { x: window.innerWidth * 0.5, y: window.innerHeight * 0.4, w: 54, h: 76, slot: null, lane: null };
-    const slots = ln.querySelectorAll(`.side.${side} .slot`);
-    const sl = slots[slotIdx || 0] || slots[0] || ln;
-    const r = sl.getBoundingClientRect();
-    return { x: r.left + r.width / 2, y: r.top + r.height / 2, w: Math.max(48, r.width), h: Math.max(67, r.height), slot: sl, lane: ln };
-  }
-
-  function runDemo(kind) {
-    if (reduced) {
-      store.fx = "on";
-      reduced = false;
-      document.body.classList.remove("rm");
-    }
-    const cx = window.innerWidth * 0.5, cy = window.innerHeight * 0.36;
-
-    switch (kind) {
-      /* ===== NHÓM 1: RA BÀI & LƯỢT ===== */
-      case "fastplay": {
-        if (!ensureInMatchForDemo("fastplay")) return;
-        const handEl = document.querySelector("#hand [data-hc]") || $id("hand");
-        const hr = handEl ? handEl.getBoundingClientRect() : { left: cx - 32, top: window.innerHeight - 130, width: 64, height: 90 };
-        const dst = getLaneSlotRect(demoLocIdx % 3, "me", 1);
-        demoLocIdx++;
-        const cardId = C.thanhlong ? "thanhlong" : Object.keys(C)[0];
-        const col = (C[cardId] && HC[C[cardId].h]) || "#3fe0ff";
-        SFX.play("place");
-        const dummy = ghost({ x: dst.x, y: dst.y, w: dst.w, h: dst.h }, sampleDemoCardHTML(cardId, 2), "g9");
-        dummy.style.opacity = "0";
-        animateFastCardPlace(
-          dummy,
-          { x: hr.left + hr.width / 2, y: hr.top + hr.height / 2, w: Math.max(52, hr.width), h: Math.max(72, hr.height), fromDrag: false },
-          col
-        );
-        pushOppNotif("ĐẶT THẺ TỨC THÌ (150MS) ▸ HÚT VÀO CHIẾN ĐỊA!", "#3fe0ff");
-        setTimeout(() => { if (dummy.isConnected) dummy.remove(); }, 650);
-        break;
-      }
-
-      case "foedrop": {
-        if (!ensureInMatchForDemo("foedrop")) return;
-        const av = $id("avFoe");
-        const ar = av ? av.getBoundingClientRect() : { left: cx + 80, top: 28, width: 48, height: 48 };
-        const sx = ar.left + ar.width / 2, sy = ar.top + ar.height / 2;
-        SFX.play("place");
-        [0, 1].forEach((k) => {
-          const dst = getLaneSlotRect((demoLocIdx + k) % 3, "opp", 2);
-          setTimeout(() => {
-            const backHtml = typeof BACK7 === "function" ? BACK7() : sampleDemoCardHTML("haclong", 0);
-            const g = ghost({ x: dst.x, y: dst.y, w: dst.w, h: dst.h }, backHtml, "g9");
-            const dx = (sx - dst.x) * 0.45, dy = Math.min(-42, (sy - dst.y) * 0.42);
-            g.animate([
-              { transform: `perspective(620px) translate3d(${dx.toFixed(1)}px, ${dy.toFixed(1)}px, 46px) scale(1.22) rotateZ(7deg)`, opacity: 0.35 },
-              { transform: "perspective(620px) translate3d(0, 2px, 0) scale(0.95)", opacity: 1, offset: 0.72 },
-              { transform: "perspective(620px) translate3d(0, 0, 0) scale(1)", opacity: 1 }
-            ], { duration: 185, easing: "cubic-bezier(0.18, 0.95, 0.32, 1)", fill: "forwards" });
-            setTimeout(() => {
-              FX.dust(dst.x, dst.y + dst.h * 0.4, "#ffd8d0");
-              FX.ring(dst.x, dst.y, "#ff7a5a", 46, 3);
-              GLFX.impulseShake(2.8, 0, 1);
-            }, 135);
-            setTimeout(() => g.remove(), 680);
-          }, k * 65);
-        });
-        demoLocIdx++;
-        pushOppNotif("ĐỐI THỦ ĐẶT THẺ ÚP ▸ CHUẨN BỊ LẬT BÀI!", "#ff8a5a");
-        break;
-      }
-
-      case "fliprev": {
-        if (!ensureInMatchForDemo("fliprev")) return;
-        const liveCard = document.querySelector("#board [data-mc]");
-        if (liveCard && typeof revealZoom === "function") {
-          const uid = +liveCard.dataset.mc;
-          SFX.play("flip");
-          revealZoom(uid);
-          const r = liveCard.getBoundingClientRect();
-          setTimeout(() => {
-            FX.wave(r.left + r.width / 2, r.top + r.height / 2, "#ffd65a", 92);
-            FX.sparks(r.left + r.width / 2, r.top + r.height / 2, "#ffd65a", 22, 240);
-            GLFX.impulseShake(4.2, 0, 1);
-          }, 220);
-        } else {
-          const dst = getLaneSlotRect(1, "me", 0);
-          const pick = C.chuque ? "chuque" : Object.keys(C)[0];
-          const d = C[pick];
-          const col = HC[d.h] || "#ff7a2b";
-          const bk = (typeof BACKS !== "undefined" && BACKS.b0) ? BACKS.b0[1] : "linear-gradient(135deg,#2b195c,#0d0826)";
-          SFX.play("flip");
-          const z = document.createElement("div");
-          z.className = "rvz snap-revz";
-          z.style.setProperty("--c", col);
-          z.innerHTML = `<div class="rvz-card"><div class="rvz-face rvz-front"><span class="gc q5" style="--hc:${col}">${art(pick)}<span class="cst">${d.c}</span><span class="pwh up">${d.p + 2}</span><span class="n">${logo(pick)}</span></span></div><div class="rvz-face rvz-back" style="background:${bk}"></div></div>`;
-          document.body.appendChild(z);
-          const zr = z.getBoundingClientRect();
-          const zx = window.innerWidth / 2 - zr.width / 2, zy = window.innerHeight * 0.42 - zr.height / 2;
-          z.style.left = zx + "px";
-          z.style.top = zy + "px";
-          const sx = dst.w / zr.width;
-          const tx = dst.x - (zx + zr.width / 2), ty = dst.y - (zy + zr.height / 2);
-          z.firstElementChild.animate(
-            [{ transform: "rotateY(180deg)" }, { transform: "rotateY(0deg)", offset: 0.34 }, { transform: "rotateY(0deg)" }],
-            { duration: 480, easing: "cubic-bezier(0.22, 1, 0.36, 1)", fill: "forwards" }
-          );
-          z.animate([
-            { transform: `translate3d(${tx}px, ${ty}px, 0) scale(${sx})`, opacity: 0.85 },
-            { transform: "translate3d(0, -6px, 40px) scale(1.08) rotate(-2.5deg)", opacity: 1, offset: 0.3 },
-            { transform: "translate3d(0, 0, 30px) scale(1.02) rotate(-1.5deg)", opacity: 1, offset: 0.68 },
-            { transform: `translate3d(${tx}px, ${ty}px, 0) scale(${sx})`, opacity: 0.95 }
-          ], { duration: 480, easing: "cubic-bezier(0.22, 1, 0.36, 1)", fill: "forwards" }).onfinish = () => {
-            z.remove();
-            const landed = ghost(dst, sampleDemoCardHTML(pick, 2), "g9");
-            FX.wave(dst.x, dst.y, col, 96);
-            FX.sparks(dst.x, dst.y, col, 24, 250);
-            GLFX.impulseShake(4.5, 0, 1);
-            setTimeout(() => landed.remove(), 460);
-          };
-        }
-        pushOppNotif("LẬT THẺ 3D (480MS) ▸ BUNG KỸ NĂNG NGAY LẬP TỨC!", "#ffd65a");
-        break;
-      }
-
-      case "locrev": {
-        if (!ensureInMatchForDemo("locrev")) return;
-        const li = demoLocIdx % 3;
-        demoLocIdx++;
-        if (G && G.locs[li]) {
-          G.locs[li].rvl = true;
-          render();
-        }
-        if (typeof window.gpuLocReveal === "function") window.gpuLocReveal(li);
-        break;
-      }
-
-      case "unplay": {
-        if (!ensureInMatchForDemo("unplay")) return;
-        const src = getLaneSlotRect(1, "me", 0);
-        SFX.play("unplay");
-        animateFastCardUnplay({
-          uid: (G && G.hand.p[0] && G.hand.p[0].uid) || -1,
-          x: src.x,
-          y: src.y,
-          w: src.w,
-          h: src.h,
-          html: sampleDemoCardHTML("bachho", 0)
-        });
-        pushOppNotif("RÚT LẠI THẺ VỀ TAY (155MS) ▸ HOÀN NĂNG LƯỢNG!", "#7fe8ff");
-        break;
-      }
-
-      case "drawcard": {
-        if (!ensureInMatchForDemo("drawcard")) return;
-        const hc = document.querySelector("#hand [data-hc]:last-child") || document.querySelector("#hand [data-hc]");
-        SFX.play("draw");
-        if (hc && CFX && CFX.drawIn) {
-          CFX.drawIn(hc, true, 0);
-        }
-        pushOppNotif("RÚT THẺ ĐẦU LƯỢT ▸ XOÁY 3D VÀO TAY BÀI!", "#7fe8ff");
-        break;
-      }
-
-      case "turnbn": {
-        const labels = [
-          ["LƯỢT 2/6", "Chiến địa giữa lộ diện"],
-          ["LƯỢT 5/6", "Nhịp độ cao trào"],
-          ["LƯỢT CUỐI!", "Tất tay quyết định thắng bại"]
-        ];
-        const [t, s] = labels[demoTurnIdx % labels.length];
-        demoTurnIdx++;
-        if (typeof banner === "function") banner(t, s);
-        break;
-      }
-
-      case "fuse10s": {
-        if (!ensureInMatchForDemo("fuse10s")) return;
-        if (typeof tLeft !== "undefined") {
-          tLeft = 10;
-          tArmed = true;
-          tLast = performance.now();
-          tBeep = 0;
-          if (typeof paintTimer === "function") paintTimer();
-        }
-        SFX.play("tick");
-        pushOppNotif("CẢNH BÁO 10 GIÂY CUỐI ▸ DÂY CHÁY ĐỎ & TIM ĐẬP!", "#ff5a36");
-        break;
-      }
-
-      /* ===== NHÓM 2: CƯỚP & DỜI ===== */
-      case "stealcard": {
-        if (!ensureInMatchForDemo("stealcard")) return;
-        const opp = getLaneSlotRect(1, "opp", 2);
-        const me = getLaneSlotRect(1, "me", 1);
-        const thief = getLaneSlotRect(1, "me", 0);
-        const existingOpp = opp.lane && opp.lane.querySelector(".side.opp .mc:not(.back)");
-        const cardHtml = existingOpp ? cleanCloneHTML(existingOpp) : sampleDemoCardHTML("bachho", 3);
-        const cardName = existingOpp ? (existingOpp.getAttribute("aria-label") || "Bạch Hổ").split(",")[0] : (C.bachho ? C.bachho.n : "Bạch Hổ");
-        pushOppNotif("HỒ TINH ▸ TUNG XÍCH CƯỚP THẺ ĐỔI PHE!", "#d46bff");
-        const actor = ghost(opp, cardHtml, "g9");
-        playCardStealSwap(opp, me, actor, null, thief, thief.slot && thief.slot.querySelector(".mc"), "p", cardName);
-        break;
-      }
-
-      case "decksteal": {
-        if (!ensureInMatchForDemo("decksteal")) return;
-        const pick = C.loithan ? "loithan" : Object.keys(C)[2];
-        const thiefSlot = getLaneSlotRect(1, "me", 0);
-        const thiefGhost = ghost(thiefSlot, sampleDemoCardHTML("chucuoi", 1), "g9");
-        const avFoe = $id("avFoe");
-        if (avFoe && GLFX.ok) {
-          const ar = avFoe.getBoundingClientRect();
-          GLFX.tether(thiefSlot.x, thiefSlot.y, ar.left + ar.width / 2, ar.top + ar.height / 2, "#ffd65a", 10, 0.2, 0.42);
-        }
-        playDeckOrHandSteal({
-          fromSide: "a",
-          toSide: "p",
-          toZone: "hand",
-          uid: (G && G.hand.p[0] && G.hand.p[0].uid) || -99,
-          id: pick
-        }, 0);
-        setTimeout(() => thiefGhost.remove(), 920);
-        break;
-      }
-
-      case "stealskill": {
-        if (!ensureInMatchForDemo("stealskill")) return;
-        const tp = getLaneSlotRect(1, "opp", 2);
-        const sp = getLaneSlotRect(1, "me", 0);
-        pushOppNotif("HẤP LỰC NỮ ▸ CƯỚP KỸ NĂNG ĐỐI THỦ", "#d46bff");
-        const victimGhost = ghost(tp, sampleDemoCardHTML("loithan", 2), "g9");
-        const thiefGhost = ghost(sp, sampleDemoCardHTML("haplucnu", 1), "g9 gpu-steal-actor");
-        thiefGhost.style.setProperty("--steal-c", "#d46bff");
-        thiefGhost.style.zIndex = "34";
-
-        const dx = (tp.x - sp.x) * 0.72, dy = (tp.y - sp.y) * 0.72;
-        const outArc = build3DArcFrames({ steps: 22, dx, dy, curve: 42, lift: -26, s0: 1, sMid: 1.24, s1: 1.18, bank: 10, zLift: 46 });
-        streamBezierRibbon(sp.x, sp.y, outArc.p1, outArc.p2, outArc.p3, 290, "#d46bff", "#ffffff", 2);
-        SFX.play("whoosh");
-
-        thiefGhost.animate(outArc.frames, { duration: 290, easing: "linear", fill: "forwards" }).onfinish = () => {
-          FX.slash(tp.x, tp.y, "#d46bff");
-          FX.vortex(tp.x, tp.y, "#d46bff", 18);
-          GLFX.arc(sp.x + dx, sp.y + dy, tp.x, tp.y, "#ffffff", 9, 1.1, true, 0.26);
-          recoil10(victimGhost, sp, tp);
-          GLFX.impulseShake(4.8, dx, dy);
-          SFX.play("dark");
-
-          setTimeout(() => {
-            spawnSoulSiphonOrb(tp, sp, "loithan", "#d46bff", 340, () => {
-              FX.wave(sp.x, sp.y, "#d46bff", 78);
-              FX.holo(sp.x, sp.y, "#d46bff", 30);
-              SFX.play("e_hon");
-              pushOppNotif("ĐÃ ĐOẠT KỸ NĂNG: LÔI THẦN!", "#e0b0ff");
-            });
-            const backArc = build3DArcFrames({ steps: 18, dx: -dx, dy: -dy, curve: -32, lift: -18, s0: 1.18, sMid: 1.06, s1: 1 });
-            const backShifted = backArc.frames.map((f) => ({
-              offset: f.offset,
-              transform: f.transform.replace(
-                /translate3d\(([^,]+)px,\s*([^,]+)px,/,
-                (_, x, y) => `translate3d(${(dx + parseFloat(x)).toFixed(2)}px, ${(dy + parseFloat(y)).toFixed(2)}px,`
-              )
-            }));
-            thiefGhost.animate(backShifted, { duration: 290, easing: "linear", fill: "forwards" }).onfinish = () => {
-              setTimeout(() => {
-                thiefGhost.remove();
-                victimGhost.remove();
-              }, 220);
-            };
-          }, 95);
-        };
-        break;
-      }
-
-      case "clonecard": {
-        if (!ensureInMatchForDemo("clonecard")) return;
-        const src = getLaneSlotRect(1, "me", 0);
-        const dstA = getLaneSlotRect(0, "me", 1);
-        const dstB = getLaneSlotRect(2, "me", 1);
-        const html = sampleDemoCardHTML("bachho", 2);
-        const baseG = ghost(src, html, "g9");
-        SFX.play("chime");
-        FX.holo(src.x, src.y, "#3fe0ff", 36);
-        pushOppNotif("NHÂN BẢN THẺ ▸ PHÂN TÁCH SANG 2 CHIẾN ĐỊA!", "#3fe0ff");
-        [dstA, dstB].forEach((dst, i) => {
-          setTimeout(() => {
-            const cl = ghost(src, html, "g9");
-            const dx = dst.x - src.x, dy = dst.y - src.y;
-            const arc = build3DArcFrames({ steps: 22, dx, dy, curve: i === 0 ? -28 : 28, lift: -46, s0: 0.9, sMid: 1.22, s1: 1, bank: i === 0 ? -12 : 12, zLift: 54 });
-            streamBezierRibbon(src.x, src.y, arc.p1, arc.p2, arc.p3, 360, "#3fe0ff", "#ffd65a", 2);
-            SFX.play("whoosh");
-            cl.animate(arc.frames, { duration: 360, easing: "linear", fill: "forwards" }).onfinish = () => {
-              SFX.play("summon");
-              FX.wave(dst.x, dst.y, "#3fe0ff", 78);
-              FX.sparks(dst.x, dst.y, "#ffd65a", 18, 210);
-              GLFX.impulseShake(3.2, 0, 1);
-              setTimeout(() => cl.remove(), 420);
-            };
-          }, i * 90);
-        });
-        setTimeout(() => baseG.remove(), 680);
-        break;
-      }
-
-      case "silence": {
-        if (!ensureInMatchForDemo("silence")) return;
-        const tp = getLaneSlotRect(1, "opp", 2);
-        const victim = ghost(tp, sampleDemoCardHTML("loithan", 0), "g9");
-        SFX.play("silence");
-        GLFX.arc(tp.x - 28, tp.y - 34, tp.x + 28, tp.y + 34, "#ff4d7d", 10, 0.5, false, 0.38);
-        GLFX.arc(tp.x + 28, tp.y - 34, tp.x - 28, tp.y + 34, "#ff4d7d", 10, 0.5, false, 0.38);
-        FX.ring(tp.x, tp.y, "#c45cff", 88, 6);
-        FX.vortex(tp.x, tp.y, "#ff4d7d", 22);
-        FX.float(tp.x, tp.y - 16, "⊘ CẤM CHIÊU!", "#ff7a9e");
-        GLFX.impulseShake(4.8);
-        pushOppNotif("PHÁP ẤN TRẦM MẶC ▸ VÔ HIỆU HOÁ KỸ NĂNG!", "#ff7a9e");
-        victim.animate([
-          { filter: "brightness(2.2) saturate(2)" },
-          { transform: "translateX(-5px) rotate(-3deg)", filter: "grayscale(1) brightness(0.7)", offset: 0.35 },
-          { transform: "translateX(5px) rotate(3deg)", filter: "grayscale(1) brightness(0.7)", offset: 0.65 },
-          { transform: "none", filter: "grayscale(1) brightness(0.75)" }
-        ], { duration: 480, fill: "forwards" });
-        setTimeout(() => victim.remove(), 820);
-        break;
-      }
-
-      case "pullcard": {
-        if (!ensureInMatchForDemo("pullcard")) return;
-        const puller = getLaneSlotRect(2, "me", 0);
-        const fromOpp = getLaneSlotRect(0, "opp", 2);
-        const toOpp = getLaneSlotRect(2, "opp", 2);
-        const gPuller = ghost(puller, sampleDemoCardHTML("huyenquy", 1), "g9");
-        const gVictim = ghost(fromOpp, sampleDemoCardHTML("satvuong", 0), "g9");
-        SFX.play("chain");
-        GLFX.tether(puller.x, puller.y, fromOpp.x, fromOpp.y, "#ff9a2b", 12, 0.25, 0.42);
-        pushOppNotif("XÍCH TRÓI HÚT THẺ ▸ KÉO ĐỐI THỦ SANG CHIẾN ĐỊA PHẢI!", "#ffb347");
-        setTimeout(() => {
-          const dx = toOpp.x - fromOpp.x, dy = toOpp.y - fromOpp.y;
-          const arc = build3DArcFrames({ steps: 22, dx, dy, lift: -36, s0: 1, sMid: 1.18, s1: 1, bank: 12, zLift: 44 });
-          streamBezierRibbon(fromOpp.x, fromOpp.y, arc.p1, arc.p2, arc.p3, 330, "#ff9a2b", "#ffd65a", 2);
-          SFX.play("whoosh");
-          gVictim.animate(arc.frames, { duration: 330, easing: "linear", fill: "forwards" }).onfinish = () => {
-            SFX.play("place");
-            FX.wave(toOpp.x, toOpp.y, "#ff9a2b", 76);
-            FX.dust(toOpp.x, toOpp.y + toOpp.h * 0.4, "#ffe2b0");
-            GLFX.impulseShake(4.5, 1, 0);
-            setTimeout(() => { gPuller.remove(); gVictim.remove(); }, 420);
-          };
-        }, 140);
-        break;
-      }
-
-      case "pushcard": {
-        if (!ensureInMatchForDemo("pushcard")) return;
-        const pusher = getLaneSlotRect(1, "me", 0);
-        const fromOpp = getLaneSlotRect(1, "opp", 2);
-        const toOpp = getLaneSlotRect(0, "opp", 2);
-        const gPusher = ghost(pusher, sampleDemoCardHTML("cuongphong", 2), "g9");
-        const gVictim = ghost(fromOpp, sampleDemoCardHTML("satvuong", 0), "g9");
-        SFX.play("boom");
-        FX.wave(fromOpp.x, fromOpp.y, "#5ad8ff", 95);
-        GLFX.arc(pusher.x, pusher.y, fromOpp.x, fromOpp.y, "#7fe8ff", 10, 0.8, false, 0.25);
-        pushOppNotif("CUỒNG PHONG CHƯỞNG ▸ ĐẨY VĂNG THẺ ĐỐI THỦ!", "#7fe8ff");
-        const dx = toOpp.x - fromOpp.x, dy = toOpp.y - fromOpp.y;
-        const arc = build3DArcFrames({ steps: 20, dx, dy, lift: -44, s0: 1, sMid: 1.2, s1: 1, bank: -14, zLift: 48 });
-        streamBezierRibbon(fromOpp.x, fromOpp.y, arc.p1, arc.p2, arc.p3, 310, "#5ad8ff", "#ffffff", 2);
-        gVictim.animate(arc.frames, { duration: 310, easing: "linear", fill: "forwards" }).onfinish = () => {
-          SFX.play("place");
-          FX.wave(toOpp.x, toOpp.y, "#5ad8ff", 72);
-          GLFX.impulseShake(4.2, -1, 0);
-          setTimeout(() => { gPusher.remove(); gVictim.remove(); }, 400);
-        };
-        break;
-      }
-
-      case "morphcard": {
-        if (!ensureInMatchForDemo("morphcard")) return;
-        const slot = getLaneSlotRect(1, "me", 0);
-        const g = ghost(slot, sampleDemoCardHTML("cuhou", 0), "g9");
-        SFX.play("morph");
-        CFX.morph(g);
-        setTimeout(() => {
-          const keys = Object.keys(C);
-          const nextId = C.phuonghoang ? "phuonghoang" : keys[Math.floor(Math.random() * keys.length)];
-          g.innerHTML = sampleDemoCardHTML(nextId, 4);
-          FX.wave(slot.x, slot.y, "#ffd65a", 86);
-          FX.sparks(slot.x, slot.y, "#d46bff", 22, 240);
-          pushOppNotif(`BIẾN HÌNH 3D ▸ HOÁ THÀNH ${(C[nextId] ? C[nextId].n : "THẦN THÚ").toUpperCase()}!`, "#e0b0ff");
-        }, 250);
-        setTimeout(() => g.remove(), 860);
-        break;
-      }
-
-      /* ===== NHÓM 3: PHÁ HUỶ & TĂNG GIẢM ĐIỂM ===== */
-      case "destroyer": {
-        if (!ensureInMatchForDemo("destroyer")) return;
-        const boardEl = $id("board");
-        const br = boardEl ? boardEl.getBoundingClientRect() : { top: 110, height: 420 };
-        SFX.play("laser");
-        pushOppNotif("TIA HUỶ DIỆT TOÀN BÀN ▸ QUÉT SẠCH MỌI CHIẾN ĐỊA!", "#ff6a2b");
-        const beamEl = document.createElement("div");
-        beamEl.className = "gpu-laser-sweep";
-        beamEl.style.top = br.top + "px";
-        document.body.appendChild(beamEl);
-        beamEl.animate([
-          { transform: "translateY(0px) scaleY(0.4)", opacity: 0.4 },
-          { transform: `translateY(${(br.height * 0.15).toFixed(0)}px) scaleY(1.35)`, opacity: 1, offset: 0.18 },
-          { transform: `translateY(${(br.height * 0.85).toFixed(0)}px) scaleY(1.25)`, opacity: 1, offset: 0.82 },
-          { transform: `translateY(${br.height.toFixed(0)}px) scaleY(0.3)`, opacity: 0 }
-        ], { duration: 540, easing: "cubic-bezier(0.22, 0.8, 0.32, 1)", fill: "forwards" }).onfinish = () => beamEl.remove();
-
-        [0, 1, 2].forEach((li) => {
-          setTimeout(() => {
-            const sl = getLaneSlotRect(li, li === 1 ? "me" : "opp", li === 1 ? 1 : 2);
-            SFX.play("destroy");
-            CFX.destroy({ x: sl.x, y: sl.y, w: sl.w, h: sl.h, html: sampleDemoCardHTML(li === 0 ? "satvuong" : li === 1 ? "bachho" : "loithan", 0) });
-          }, 95 + li * 115);
-        });
-        gpuFlash("#ff4d1f", 0.28, 360);
-        GLFX.impulseShake(9.5, 0, 1);
-        break;
-      }
-
-      case "destroy3d": {
-        if (!ensureInMatchForDemo("destroy3d")) return;
-        const sl = getLaneSlotRect(1, "opp", 2);
-        pushOppNotif("KIẾM QUYỀN ▸ CHÉM VỠ THẺ ĐỐI THỦ 6 MẢNH 3D!", "#ff6b8a");
-        SFX.play("slash");
-        SFX.play("destroy");
-        CFX.destroy({ x: sl.x, y: sl.y, w: sl.w, h: sl.h, html: sampleDemoCardHTML("satvuong", 0) });
-        break;
-      }
-
-      case "summon": {
-        if (!ensureInMatchForDemo("summon")) return;
-        const sl = getLaneSlotRect(demoLocIdx % 3, "me", 2);
-        demoLocIdx++;
-        const g = ghost(sl, sampleDemoCardHTML("thanhlong", 4), "g9");
-        SFX.play("summon");
-        CFX.summon(g, "#3dffb4");
-        FX.pillar(sl.x, sl.y + 18, "#3dffb4", 46, 150);
-        FX.sparks(sl.x, sl.y, "#7dffb0", 22, 230);
-        pushOppNotif("TRIỆU HỒI LINH THÚ ▸ CỔNG PHÙ VĂN TRỖI DẬY!", "#7dffb0");
-        setTimeout(() => g.remove(), 820);
-        break;
-      }
-
-      case "buffpw": {
-        if (!ensureInMatchForDemo("buffpw")) return;
-        const live = document.querySelector("#board .side.me [data-mc]");
-        const sl = getLaneSlotRect(1, "me", 0);
-        const target = live || ghost(sl, sampleDemoCardHTML("bachho", 6), "g9");
-        const r = target.getBoundingClientRect();
-        const tx = r.left + r.width / 2, ty = r.top + r.height / 2;
-        SFX.play("buff");
-        CFX.buff(target, 6);
-        FX.ring(tx, ty, "#3dffb4", 76, 5);
-        FX.rise(tx, ty + 14, "#7dffb0", 20);
-        FX.float(tx, ty - 18, "+6 SỨC MẠNH", "#5effb8");
-        pushOppNotif("CƯỜNG HOÁ LINH LỰC ▸ +6 SỨC MẠNH!", "#5effb8");
-        if (!live) setTimeout(() => target.remove(), 740);
-        break;
-      }
-
-      case "debuffpw": {
-        if (!ensureInMatchForDemo("debuffpw")) return;
-        const live = document.querySelector("#board .side.opp [data-mc]");
-        const sl = getLaneSlotRect(1, "opp", 2);
-        const target = live || ghost(sl, sampleDemoCardHTML("satvuong", -4), "g9");
-        const r = target.getBoundingClientRect();
-        const tx = r.left + r.width / 2, ty = r.top + r.height / 2;
-        SFX.play("debuff");
-        CFX.debuff(target);
-        FX.ring(tx, ty, "#ff4d7d", 72, 5);
-        FX.sparks(tx, ty, "#ff4d7d", 20, 220);
-        FX.float(tx, ty - 18, "−4 SỨC MẠNH", "#ff6b8a");
-        GLFX.impulseShake(3.8);
-        pushOppNotif("ÁM KHÍ ĂN MÒN ▸ −4 SỨC MẠNH ĐỐI THỦ!", "#ff6b8a");
-        if (!live) setTimeout(() => target.remove(), 720);
-        break;
-      }
-
-      case "doublepw": {
-        if (!ensureInMatchForDemo("doublepw")) return;
-        const ln = document.querySelector('#board [data-lane="1"]') || document.querySelector("#board [data-lane]");
-        const pwBadge = ln && ln.querySelector(".pw.p");
-        const r = (pwBadge || ln).getBoundingClientRect();
-        const tx = r.left + r.width / 2, ty = r.top + r.height / 2;
-        SFX.play("snap");
-        SFX.play("buff");
-        FX.rays(tx, ty, "#ffd65a", 125);
-        FX.wave(tx, ty, "#ffb32e", 110);
-        FX.holo(tx, ty, "#ffd65a", 40);
-        FX.float(tx, ty - 22, "×2 TỔNG SỨC MẠNH!", "#ffe37a");
-        if (pwBadge) {
-          smoothAnim(pwBadge, [
-            { transform: "translateX(-50%) scale(1)" },
-            { transform: "translateX(-50%) scale(1.65)", filter: "brightness(2)", offset: 0.4 },
-            { transform: "translateX(-50%) scale(1.08)" }
-          ], { duration: 520 });
-        }
-        GLFX.impulseShake(5.5);
-        pushOppNotif("DUY TRÌ NHÂN ĐÔI ▸ ×2 TỔNG SỨC MẠNH CHIẾN ĐỊA!", "#ffd65a");
-        break;
-      }
-
-      /* ===== NHÓM 4: HỆ NGUYÊN TỐ & CƯỢC SNAP ===== */
-      case "snapcube": {
-        const stakes = [["×2", "#b07bff"], ["×4", "#3fe0ff"], ["×8", "#ffd65a"]];
-        const [txt, col] = stakes[demoSnapIdx % stakes.length];
-        demoSnapIdx++;
-        SFX.play("snap");
-        if (typeof snapFx === "function") snapFx(col, txt);
-        pushOppNotif(`CƯỢC SNAP NHÂN ĐÔI ▸ MỨC CƯỢC LÊN ${txt}!`, col, { allowLobby: true });
-        break;
-      }
-
-      case "locklane": {
-        if (!ensureInMatchForDemo("locklane")) return;
-        const ln = document.querySelector(`#board [data-lane="${demoLocIdx % 3}"]`) || document.querySelector("#board [data-lane]");
-        demoLocIdx++;
-        if (!ln) return;
-        const lr = ln.getBoundingClientRect();
-        const lx = lr.left + lr.width / 2, ly = lr.top + lr.height / 2;
-        SFX.play("chain");
-        if (typeof window.playV16 === "function") window.playV16("khoa_dia", lx, ly, Math.max(148, lr.width * 1.15), 620, 0);
-        GLFX.arc(lr.left + 6, ly - 55, lr.right - 6, ly + 55, "#59e8ff", 9, 0.35, false, 0.45);
-        GLFX.arc(lr.right - 6, ly - 55, lr.left + 6, ly + 55, "#59e8ff", 9, 0.35, false, 0.45);
-        FX.wave(lx, ly, "#59e8ff", 110);
-        FX.float(lx, ly, "⛓ KHOÁ CHIẾN ĐỊA!", "#9ef4ff");
-        GLFX.impulseShake(4.8);
-        pushOppNotif("PHONG ẤN KHÔNG GIAN ▸ KHOÁ CỨNG CHIẾN ĐỊA!", "#7fe8ff");
-        break;
-      }
-
-      case "shieldfx": {
-        if (!ensureInMatchForDemo("shieldfx")) return;
-        const sl = getLaneSlotRect(1, "me", 0);
-        const g = ghost(sl, sampleDemoCardHTML("kimquy", 3), "g9");
-        SFX.play("shield");
-        if (typeof window.playV16 === "function") window.playV16("khien_chan", sl.x, sl.y, 148, 620, 0);
-        FX.ring(sl.x, sl.y, "#ffd65a", 68, 6);
-        FX.ring(sl.x, sl.y, "#7fe8ff", 52, 4);
-        FX.holo(sl.x, sl.y, "#ffd65a", 34);
-        FX.float(sl.x, sl.y - 16, "🛡 BẤT TỬ HỘ THỂ", "#ffe68a");
-        pushOppNotif("KHIÊN HỘ THỂ BẤT DIỆT ▸ CHẶN ĐỨNG SÁT THƯƠNG!", "#ffd65a");
-        setTimeout(() => g.remove(), 760);
-        break;
-      }
-
-      case "fire": {
-        SFX.play("boom");
-        SFX.play("e_lua");
-        if (typeof window.playV16 === "function") {
-          window.playV16("thieu_dot", cx, cy, 220, 660, 0);
-          window.playV16("no_lua", cx, cy, 240, 560, 60);
-        }
-        FX.pillar(cx, cy + 60, "#ff6a1f", 72, 260);
-        FX.wave(cx, cy, "#ff8a2b", 165);
-        FX.burst(cx, cy, "#ff5518", 55, 320);
-        FX.sparks(cx, cy, "#ffd65a", 45, 380);
-        FX.rise(cx, cy + 30, "#ffb02e", 28);
-        gpuFlash("#ff6a1f", 0.28, 320);
-        GLFX.impulseShake(8.5);
-        pushOppNotif("HOẢ NGỤC BÙNG NỔ ▸ THIÊU RỤI CHIẾN ĐỊA!", "#ffd65a", { allowLobby: true });
-        break;
-      }
-
-      case "thunder": {
-        SFX.play("e_sam");
-        if (typeof window.playV16 === "function") window.playV16("set_danh", cx, cy, 220, 620, 0);
-        const targets = [
-          [cx - 115, cy - 45],
-          [cx + 115, cy - 35],
-          [cx - 95, cy + 80],
-          [cx + 105, cy + 75]
-        ];
-        GLFX.arc(cx, 20, cx, cy, "#7fe8ff", 16, 1.4, true, 0.42);
-        FX.wave(cx, cy, "#3fe0ff", 150);
-        targets.forEach(([tx, ty], i) => {
-          setTimeout(() => {
-            SFX.play("e_sam");
-            if (typeof window.playV16 === "function") window.playV16(i % 2 ? "no_set" : "set_danh", tx, ty, 136, 500, 0);
-            GLFX.arc(cx, cy, tx, ty, i % 2 ? "#b99aff" : "#3fe0ff", 12, 1.3, true, 0.34);
-            FX.sparks(tx, ty, "#7fe8ff", 24, 280);
-            FX.ring(tx, ty, "#ffffff", 74);
-            GLFX.impulseShake(4.8);
-          }, 60 + i * 65);
-        });
-        gpuFlash("#7fe8ff", 0.24, 280);
-        pushOppNotif("LÔI THẦN ▸ GIÁNG SÉT LIÊN HOÀN!", "#7fe8ff", { allowLobby: true });
-        break;
-      }
-
-      case "frost": {
-        SFX.play("e_bang");
-        if (typeof window.playV16 === "function") {
-          window.playV16("dong_bang", cx, cy, 220, 640, 0);
-          window.playV16("no_bang", cx, cy, 236, 560, 50);
-        }
-        FX.wave(cx, cy, "#9ef0ff", 160);
-        FX.rays(cx, cy, "#dffaff", 145);
-        FX.shards(cx, cy, "#7fe8ff");
-        FX.shards(cx, cy, "#ffffff");
-        FX.burst(cx, cy, "#5ad8ff", 40, 260);
-        gpuFlash("#bff6ff", 0.24, 300);
-        GLFX.impulseShake(5.5);
-        pushOppNotif("BĂNG VƯƠNG ▸ ĐÓNG BĂNG TUYỆT ĐỐI!", "#bff6ff", { allowLobby: true });
-        break;
-      }
-
-      case "ult": {
-        const s5Keys = Object.keys(C).filter((k) => C[k].h === "S5");
-        const pickId = s5Keys[Math.floor(Math.random() * s5Keys.length)] || Object.keys(C)[0];
-        ult({ id: pickId, own: "p" });
-        setTimeout(() => {
-          SFX.play("slash");
-          FX.slash(cx, cy, "#ffd65a");
-        }, 260);
-        break;
-      }
-
-      /* ===== NHÓM 5: NHẠC NỀN & TỐC ĐỘ HOẠT ẢNH ===== */
-      case "bgm_lobby": {
-        if (window.BGM) { store.bgm = true; BGM.play("lobby"); }
-        pushOppNotif("NHẠC NỀN SẢNH CHỜ ▸ 92 BPM COSMIC SYNTH!", "#8ceeff", { allowLobby: true });
-        break;
-      }
-      case "bgm_b1": {
-        if (window.BGM) { store.bgm = true; BGM.play("battle1"); }
-        pushOppNotif("NHẠC CHIẾN ĐẤU LƯỢT 1–3 ▸ 114 BPM CYBER PULSE!", "#3fe0ff", { allowLobby: true });
-        break;
-      }
-      case "bgm_b2": {
-        if (window.BGM) { store.bgm = true; BGM.play("battle2"); }
-        pushOppNotif("NHẠC CAO TRÀO LƯỢT 4–5 ▸ 116 BPM DRIVING ARP!", "#c45cff", { allowLobby: true });
-        break;
-      }
-      case "bgm_climax": {
-        if (window.BGM) { store.bgm = true; BGM.play("climax"); }
-        pushOppNotif("NHẠC LƯỢT CUỐI / SNAP ▸ 122 BPM HEROIC CLIMAX!", "#ffd65a", { allowLobby: true });
-        break;
-      }
-      case "bgm_toggle": {
-        if (window.BGM) {
-          const next = store.bgm === false;
-          BGM.toggle(next);
-          pushOppNotif(next ? "ĐÃ BẬT NHẠC NỀN TRẬN ĐẤU!" : "ĐÃ TẮT NHẠC NỀN TRẬN ĐẤU!", next ? "#6effc8" : "#ff8a9e", { allowLobby: true });
-        }
-        break;
-      }
-      case "spd_fast": {
-        if (typeof setSpd10 === "function") setSpd10("nhanh");
-        SFX.play("pick");
-        pushOppNotif("TỐC ĐỘ HOẠT ẢNH: NHANH (0.78×)!", "#6effc8", { allowLobby: true });
-        break;
-      }
-      case "spd_norm": {
-        if (typeof setSpd10 === "function") setSpd10("vua");
-        SFX.play("pick");
-        pushOppNotif("TỐC ĐỘ HOẠT ẢNH: CHUẨN MARVEL SNAP (1.0×)!", "#3fe0ff", { allowLobby: true });
-        break;
-      }
-      case "spd_slow": {
-        if (typeof setSpd10 === "function") setSpd10("cham");
-        SFX.play("pick");
-        pushOppNotif("TỐC ĐỘ HOẠT ẢNH: CHẬM (1.3×)!", "#ffd65a", { allowLobby: true });
-        break;
-      }
-    }
-  }
-
-  buildVfxLab();
+  addVfxLabButtons();
   setTimeout(syncOppCourtMetrics, 60);
+})();
+
+/* ==================== gpu20: TỰ CHỈNH MỨC HIỆU ỨNG THEO KHUNG HÌNH ĐO THẬT ====================
+   Mỗi trận đo khoảng 3 giây đầu (sau khi chia bài). Dưới 40 khung/giây: bớt hạt nhỏ (FXLV=0).
+   Từ 54 khung/giây trở lên: trở lại đầy đủ (FXLV=1). Hình thẻ, chữ, hoạt ảnh chiêu không đổi. */
+(function () {
+  "use strict";
+  window.FXLV = 1;
+  try { const v = localStorage.getItem("ltd_fxlv"); if (v === "0") window.FXLV = 0; } catch (e) {}
+  let lastG = null, busy = false;
+  function inBattle() {
+    try {
+      if (document.hidden || typeof G === "undefined" || !G || G.phase === "over") return false;
+      const lb = document.getElementById("lobby");
+      return !(lb && lb.classList.contains("on")) && !document.querySelector(".ov.on");
+    } catch (e) { return false; }
+  }
+  function measure() {
+    busy = true;
+    let n = 0, t0 = 0;
+    const f = (t) => {
+      if (!inBattle()) { busy = false; return; }
+      if (!t0) t0 = t;
+      n++;
+      if (t - t0 < 3000) { requestAnimationFrame(f); return; }
+      const fps = n * 1000 / (t - t0);
+      const lv = fps < 40 ? 0 : fps >= 54 ? 1 : window.FXLV;
+      window.FXLV = lv;
+      try { localStorage.setItem("ltd_fxlv", String(lv)); } catch (e) {}
+      busy = false;
+    };
+    requestAnimationFrame(f);
+  }
+  setInterval(() => {
+    if (busy || !inBattle()) return;
+    if (G !== lastG) { lastG = G; setTimeout(() => { if (inBattle()) measure(); }, 2500); }
+  }, 2000);
+})();
+
+/* ==================== gpu22: CHẾ ĐỘ KHUNG HÌNH 60 / 30 / TỰ ĐỘNG ====================
+   60: không giới hạn (theo màn hình, thường 60). 30: mọi vòng vẽ JS (hạt GPU, lớp 2D, hoạt cảnh canvas,
+   đồng hồ) chạy 30 khung/giây đều đặn, đỡ nóng máy và pin. Tự động: đầu mỗi trận đo thật; máy không giữ
+   nổi khoảng 45 khung/giây thì tự khoá 30 cho đều (30 đều mắt hơn 40 giật). Hoạt ảnh CSS do GPU tự chạy. */
+(function () {
+  "use strict";
+  const KEY = "ltd_fps";
+  let mode = "auto";
+  try { const v = localStorage.getItem(KEY); if (v === "60" || v === "30" || v === "auto") mode = v; } catch (e) {}
+  const raf0 = window.requestAnimationFrame.bind(window);
+  const caf0 = window.cancelAnimationFrame.bind(window);
+  let cap = mode === "30" ? 30 : 0, autoCap = 0, seq = 0, drv = 0, last = 0, measuring = false;
+  const q = new Map();
+  function curCap() { return measuring ? 0 : (mode === "30" ? 30 : mode === "auto" ? autoCap : 0); }
+  function driver(t) {
+    drv = 0;
+    if (!q.size) return;
+    const c = curCap();
+    if (c && t - last < 1000 / c - 4) { drv = raf0(driver); return; }
+    last = t;
+    const cbs = Array.from(q.values());
+    q.clear();
+    for (const cb of cbs) { try { cb(t); } catch (e) { setTimeout(() => { throw e; }); } }
+  }
+  window.requestAnimationFrame = function (cb) {
+    if (!curCap()) return raf0(cb);
+    const id = --seq;
+    q.set(id, cb);
+    if (!drv) drv = raf0(driver);
+    return id;
+  };
+  window.cancelAnimationFrame = function (id) { if (id < 0) q.delete(id); else caf0(id); };
+
+  /* đo thật đầu mỗi trận (chế độ Tự động) */
+  let lastG = null;
+  function inBattle() {
+    try {
+      if (document.hidden || typeof G === "undefined" || !G || G.phase === "over") return false;
+      const lb = document.getElementById("lobby");
+      return !(lb && lb.classList.contains("on")) && !document.querySelector(".ov.on");
+    } catch (e) { return false; }
+  }
+  function measure() {
+    measuring = true;
+    let n = 0, t0 = 0;
+    const f = (t) => {
+      if (!inBattle()) { measuring = false; return; }
+      if (!t0) t0 = t;
+      n++;
+      if (t - t0 < 2500) { raf0(f); return; }
+      measuring = false;
+      const fps = n * 1000 / (t - t0);
+      autoCap = fps < 45 ? 30 : 0;
+      window.FPS_MEASURED = Math.round(fps);
+    };
+    raf0(f);
+  }
+  setInterval(() => {
+    if (mode !== "auto" || measuring || !inBattle()) return;
+    if (G !== lastG) { lastG = G; setTimeout(() => { if (inBattle()) measure(); }, 3200); }
+  }, 2000);
+
+  function label() {
+    if (mode === "60") return "Luôn ưu tiên mượt nhất máy cho phép.";
+    if (mode === "30") return "Khoá 30 khung/giây: mát máy, đỡ tốn pin.";
+    return autoCap ? "Tự động: máy đang chạy ổn định ở 30 khung/giây." : "Tự động: đang chạy 60 khung/giây, đo lại đầu mỗi trận.";
+  }
+  window.FPSMODE = {
+    get mode() { return mode; },
+    set(m) { if (m !== "60" && m !== "30" && m !== "auto") return; mode = m; try { localStorage.setItem(KEY, m); } catch (e) {} syncUi(); },
+    get cap() { return curCap(); },
+    label,
+    syncUi /* openSet (05) gọi khi mở Cài đặt */
+  };
+  function syncUi() {
+    const seg = document.getElementById("setFpsSeg");
+    if (seg) seg.querySelectorAll(".sx-pill").forEach((b) => { const on = b.dataset.k === mode; b.classList.toggle("on", on); b.setAttribute("aria-checked", on); });
+    const n = document.getElementById("setFpsNote");
+    if (n) n.textContent = label();
+  }
+  const seg = document.getElementById("setFpsSeg");
+  if (seg) {
+    seg.addEventListener("click", (e) => {
+      const b = e.target.closest(".sx-pill");
+      if (!b) return;
+      window.FPSMODE.set(b.dataset.k);
+      try { SFX.play("tap"); } catch (er) {}
+    });
+  }
+  syncUi();
 })();

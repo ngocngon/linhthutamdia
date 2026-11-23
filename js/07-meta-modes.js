@@ -38,20 +38,6 @@ const BACKS={
  bk_vocuc_3:mkImgBack("Cổ Loa Tinh Đồ","bk_vocuc_3")
 };
 if(typeof TEST_MAX!=="undefined"&&TEST_MAX){for(const bk of Object.keys(BACKS))if(!store.backs.includes(bk))store.backs.push(bk);}
-function mkScene(body){return `url('data:image/svg+xml,${encodeURIComponent("<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 860' preserveAspectRatio='xMidYMid slice'>"+body+"</svg>").replace(/'/g,"%27")}')`;}
-const SCENES={
- ancient:()=>{let c="";for(const x of [20,70,330,380]){c+=`<rect x='${x-14}' y='90' width='28' height='560' fill='url(#col)'/><rect x='${x-20}' y='78' width='40' height='14' fill='#e9cf96'/><rect x='${x-20}' y='648' width='40' height='16' fill='#b8935a'/>`;for(let k=-10;k<=10;k+=5)c+=`<rect x='${x+k-.5}' y='94' width='1' height='552' fill='#6b4a1e' opacity='.45'/>`;}
-   let gl="";for(let i=0;i<9;i++)gl+=`<path d='M${60+i*34} ${700+((i*37)%60)}l8-10 8 10-8 10z' fill='none' stroke='#f0d28a' stroke-opacity='.25'/>`;
-   return mkScene(`<defs><linearGradient id='sky' x1='0' y1='0' x2='0' y2='1'><stop offset='0' stop-color='#ffcf70'/><stop offset='.28' stop-color='#d98a3a'/><stop offset='.6' stop-color='#6a3f1c'/><stop offset='1' stop-color='#22140a'/></linearGradient><linearGradient id='col' x1='0' y1='0' x2='1' y2='0'><stop offset='0' stop-color='#8a6a3a'/><stop offset='.4' stop-color='#f0d9a4'/><stop offset='1' stop-color='#7a5a2c'/></linearGradient><radialGradient id='sun'><stop offset='0' stop-color='#fff6d0'/><stop offset='.5' stop-color='#ffd070'/><stop offset='1' stop-color='#ffd070' stop-opacity='0'/></radialGradient></defs><rect width='400' height='860' fill='url(#sky)'/><circle cx='200' cy='120' r='120' fill='url(#sun)'/><path d='M0 190L80 110l40 44 80-96 80 96 40-44 80 80v60H0z' fill='#7a4f24'/><path d='M110 190l90-110 90 110z' fill='#c9955a'/><path d='M200 80l90 110h-40z' fill='#8a5f2e'/><path d='M0 190h400v670H0z' fill='#2b1a0c' opacity='.72'/><path d='M0 186h400' stroke='#f0d28a' stroke-width='3'/><path d='M0 192h400' stroke='#6b4a1e' stroke-width='6'/>${c}${gl}<path d='M0 800q200-60 400 0v60H0z' fill='#1a0f06'/>`);},
- pixel:()=>{let b="",h=7;const rnd=()=>{h=(h*16807)%2147483647;return h/2147483647;};
-   for(let i=0;i<70;i++)b+=`<rect x='${Math.floor(rnd()*50)*8}' y='${Math.floor(rnd()*40)*8}' width='${rnd()<.2?8:4}' height='${rnd()<.2?8:4}' fill='${["#fff","#7fe0ff","#ffd65a","#ff8af0"][i%4]}' opacity='${.4+rnd()*.6}'/>`;
-   let m="";for(let x=0;x<400;x+=16){const t=Math.round((60+40*Math.sin(x/50)+30*Math.sin(x/23))/8)*8;m+=`<rect x='${x}' y='${330-t}' width='16' height='${t+40}' fill='#2a2f6e'/><rect x='${x}' y='${330-t}' width='16' height='8' fill='#4de3a0'/>`;}
-   let g="";for(let y=370;y<860;y+=32)for(let x=(y/32)%2*32;x<400;x+=64)g+=`<rect x='${x}' y='${y}' width='32' height='32' fill='#141a3c'/>`;
-   return mkScene(`<rect width='400' height='860' fill='#0b0d24'/><rect width='400' height='330' fill='#141046'/>${b}<rect x='296' y='48' width='48' height='48' fill='#ffe27a'/><rect x='304' y='40' width='32' height='8' fill='#ffe27a'/><rect x='304' y='96' width='32' height='8' fill='#ffe27a'/><rect x='312' y='60' width='8' height='8' fill='#d49a1a'/><rect x='328' y='76' width='8' height='8' fill='#d49a1a'/>${m}<rect y='362' width='400' height='8' fill='#4de3a0'/><rect y='370' width='400' height='490' fill='#0d1126'/>${g}`);},
- cartoon:()=>{let f="";for(let i=0;i<14;i++){const x=20+i*29,y=560+((i*53)%240),c=["#ff6b8a","#ffd65a","#fff","#c58cff"][i%4];f+=`<circle cx='${x}' cy='${y}' r='6' fill='${c}' stroke='#2a2140' stroke-width='2'/><circle cx='${x}' cy='${y}' r='2' fill='#2a2140'/>`;}
-   return mkScene(`<defs><linearGradient id='sky' x1='0' y1='0' x2='0' y2='1'><stop offset='0' stop-color='#38b6ff'/><stop offset='1' stop-color='#c8f0ff'/></linearGradient></defs><rect width='400' height='860' fill='url(#sky)'/><g stroke='#2a2140' stroke-width='4' stroke-linejoin='round'><circle cx='320' cy='90' r='44' fill='#ffd65a'/><path d='M320 26v-18M320 172v-18M256 90h-18M402 90h-18M274 44l-12-12M378 148l-12-12M366 44l12-12M262 148l12-12' fill='none' stroke-linecap='round'/><path d='M-20 330q80-150 190-20q60-90 150-10q50-40 100 30v80H-20z' fill='#7ad85a'/><path d='M-20 380q120-90 230-10q90-60 210 10v500H-20z' fill='#4fb84a'/><path d='M60 250v-70l-22 22M60 180l22 22' fill='none' stroke-linecap='round'/><circle cx='60' cy='168' r='30' fill='#2f9a4a'/><circle cx='120' cy='300' r='22' fill='#2f9a4a'/></g><path d='M0 380h400v480H0z' fill='#3a9a3c' opacity='.35'/>${f}`);},
- logo:()=>{let r="";for(let i=0;i<24;i++){const a=i*15*Math.PI/180;r+=`<path d='M${200+Math.cos(a)*150} ${400+Math.sin(a)*150}L${200+Math.cos(a)*(i%2?176:196)} ${400+Math.sin(a)*(i%2?176:196)}' stroke='#7fa8ff' stroke-opacity='.4' stroke-width='2'/>`;}
-   return mkScene(`<defs><radialGradient id='bg' cx='.5' cy='.46' r='.7'><stop offset='0' stop-color='#24388e'/><stop offset='.5' stop-color='#0c1238'/><stop offset='1' stop-color='#04051a'/></radialGradient><linearGradient id='em' x1='0' y1='0' x2='0' y2='1'><stop offset='0' stop-color='#9fd0ff' stop-opacity='.5'/><stop offset='1' stop-color='#8a5cff' stop-opacity='.2'/></linearGradient></defs><rect width='400' height='860' fill='url(#bg)'/><g fill='none' stroke='#7fa8ff' stroke-opacity='.3'><circle cx='200' cy='400' r='140' stroke-width='3'/><circle cx='200' cy='400' r='110' stroke-dasharray='4 8'/><circle cx='200' cy='400' r='230' stroke-opacity='.15'/></g>${r}<path d='M200 290l95 55v110l-95 55-95-55V345z' fill='url(#em)' stroke='#9fd0ff' stroke-opacity='.6' stroke-width='3'/><path d='M200 330l-46 70h34l-10 62 68-84h-36z' fill='#cfe6ff' fill-opacity='.4'/><path d='M0 60h130l20 20h100l20-20h130M0 800h130l20-20h100l20 20h130' fill='none' stroke='#3f8cff' stroke-opacity='.5' stroke-width='2'/>`);}};
 let sceneFor="";
 function arImg(a,small){const x=IMGS.a[a]||{};return (small?x.t:x.b)||"";}
 function applyArena(){const a=store.arena,A=ARENAS[a];document.body.className="ar ar-"+a;const st=document.documentElement.style;st.setProperty("--ac",A[1]);st.setProperty("--ac2",A[2]);
@@ -61,7 +47,6 @@ function applyArena(){const a=store.arena,A=ARENAS[a];document.body.className="a
     h+=`<i class="p-${kind}" style="left:${x}%;top:${kind==="twinkle"?y*.45:kind==="leaf"||kind==="petal"?-8:100+y*.2}%;--dur:${({dust:16,twinkle:2,ember:7,lantern:22,bubble:9,firefly:6,leaf:12,petal:10})[kind]+d*1.3}s;--dl:${dl}s;--sz:${2+d*1.2}px;--dx:${(i%2?1:-1)*(20+d*14)}px"></i>`;}
   $("amb").innerHTML=reduced?"":h;}
 const ARENAS={"thanglong":["Hoàng Thành Thăng Long","#ffb347","#e0402e","dust",0],"halong":["Vịnh Hạ Long","#46e3d3","#ff8ad8","twinkle",0],"dongson":["Đàn Tế Đông Sơn","#e8b45c","#5a86ff","ember",500],"hoian":["Phố Hội Đèn Lồng","#ff6a4a","#ffd65a","lantern",500],"thuycung":["Thuỷ Cung Long Vương","#3fa8ff","#7dffd8","bubble",500],"thiendinh":["Thiên Đình Mây Vàng","#ffe27a","#fff6d0","twinkle",800],"rungtruc":["Rừng Trúc Trăng Đêm","#8dff7a","#d8ffb0","firefly",800],"amphu":["Âm Phủ Huyết Hà","#ff4d3a","#b04dff","ember",800],"mucangchai":["Ruộng Bậc Thang Mùa Vàng","#ffd23a","#7ad36a","leaf",1000],"tet":["Phố Hoa Đào Ngày Tết","#ff7aa8","#ffd65a","petal",1000]};
-const ARF={};
 let foeBack="b1",cardId=null,cardPrev=0;
 if(!BACKS[store.back])store.back="b0";if(!store.arenas.some(k=>ARENAS[k]))store.arenas=[];for(const k of ["thanglong","halong"])if(!store.arenas.includes(k))store.arenas.push(k);store.arenas=store.arenas.filter(k=>ARENAS[k]);if(!ARENAS[store.arena])store.arena="thanglong";
 const lvl=k=>(store.cards[k]&&store.cards[k].l)||0;
@@ -73,23 +58,21 @@ if(store.clc<0)store.clc=Math.floor(colLv()/5);
 function clPending(){return Math.max(0,Math.floor(colLv()/5)-store.clc);}
 function resHTML(ks){return ks.map(k=>`<span class="res1" title="${RES[k][2]}">${icn(k)}${store[k]}</span>`).join("");}
 function grant(k){if(OWN.has(k))return false;OWN.add(k);store.own=[...OWN];return true;}
-function ownDeck(h){const target=[2,3,3,2,1,1],out=[],sh=a=>a.slice().sort(()=>Math.random()-.5),own=[...OWN];
-  for(let b=1;b<=6;b++){const fit=own.filter(k=>Math.min(6,C[k].c)===b),r=sh(fit.filter(k=>C[k].h===h)).concat(sh(fit.filter(k=>C[k].h!==h)));for(let i=0;i<target[b-1]&&i<r.length;i++)out.push(r[i]);}
-  for(const k of sh(own)){if(out.length>=12)break;if(!out.includes(k))out.push(k);}return out;}
 function randNew(){const un=E.COLLECT.filter(k=>!OWN.has(k));if(!un.length)return null;const W={KD:60,C1:60,TB:60,S1:50,S2:25,S3:15,S4:7,S5:3,MP:2};let tot=0;for(const k of un)tot+=W[C[k].h]||1;let r=Math.random()*tot;for(const k of un){r-=W[C[k].h]||1;if(r<=0)return k;}return un[0];}
 const PRICE={KD:60,C1:60,TB:60,S1:100,S2:200,S3:400,S4:800,S5:1200,MP:1500};
-function cardGC(k,extra){const d=C[k];return `<span class="gc${extra||""}" style="--hc:${HC[d.h]};display:block">${art(k)}<span class="cst">${d.c}</span><span class="pwh">${d.p}</span><span class="n">${logo(d.id)}</span>${spk(d.id)}</span>`;}
-function showGain(title,html,c){$("gachaBody").innerHTML=`<h3>${title}</h3>${html}`;$("gachaBody").style.setProperty("--c",c||"#7fd0ff");$("ovGacha").classList.add("on");SFX.play("win");}
-function gainCard(k,title){grant(k);save();showGain(title||"Thẻ mới!",`<div style="width:130px">${cardGC(k)}</div><div>${kwfx(skillText(C[k]))}</div>`,HC[C[k].h]);}
-function gainRes(k,n,title){store[k]+=n;save();showGain(title||"Phần thưởng",`<div class="big" style="--c:${RES[k][1]}">${RES[k][0]}+${n}</div><div>${RES[k][2]}</div>`,RES[k][1]);}
+function cardGC(k,extra,full){const d=C[k];return `<span class="gc${extra||""}" style="--hc:${HC[d.h]};display:block">${nbL(k)}${art(k,full)}<span class="cst">${d.c}</span><span class="pwh">${d.p}</span><span class="n">${logo(d.id)}</span>${spk(d.id)}</span>`;}
+/* gpu23: âm gacha theo bậc thẻ (Bậc 5 / mới phát hành > Bậc 3–4 > còn lại) */
+function gachaSnd(k){const h=C[k]&&C[k].h;return h==="S5"||h==="MP"?"gacha3":h==="S3"||h==="S4"?"gacha2":"gacha1";}
+function showGain(title,html,c,snd){$("gachaBody").innerHTML=`<h3>${title}</h3>${html}`;$("gachaBody").style.setProperty("--c",c||"#7fd0ff");$("ovGacha").classList.add("on");SFX.play(snd||"ui_reward");}
+function gainCard(k,title){grant(k);save();showGain(title||"Thẻ mới!",`<div style="width:130px">${cardGC(k,"",1)}</div><div>${kwfx(skillText(C[k]))}</div>`,HC[C[k].h],gachaSnd(k));}
+function gainRes(k,n,title,snd){store[k]+=n;save();showGain(title||"Phần thưởng",`<div class="big" style="--c:${RES[k][1]}">${RES[k][0]}+${n}</div><div>${RES[k][2]}</div>`,RES[k][1],snd);}
 function gacha(kind){
-  if(kind==="card"){if(store.gold<200)return;store.gold-=200;const k=Math.random()<.7?randNew():null;if(k)gainCard(k,"Rương thẻ");else if(Math.random()<.5)gainRes("up",60+Math.floor(Math.random()*61),"Rương thẻ");else gainRes("tok",40+Math.floor(Math.random()*41),"Rương thẻ");}
+  if(kind==="card"){if(store.gold<200)return;store.gold-=200;const k=Math.random()<.7?randNew():null;if(k)gainCard(k,"Rương thẻ");else if(Math.random()<.5)gainRes("up",60+Math.floor(Math.random()*61),"Rương thẻ","gacha1");else gainRes("tok",40+Math.floor(Math.random()*41),"Rương thẻ","gacha1");}
   else{if(store.tok<150)return;store.tok-=150;const r=Math.random(),nb=Object.keys(BACKS).filter(b=>!store.backs.includes(b)),na=Object.keys(ARENAS).filter(a=>!store.arenas.includes(a));
-    if(r<.35&&nb.length){const b=nb[Math.floor(Math.random()*nb.length)];store.backs.push(b);save();showGain("Mặt sau mới",`<span class="bkp" style="--bk:${BACKS[b][1]};width:110px"></span><div>${BACKS[b][0]}</div>`);}
-    else if(r<.5&&na.length){const a=na[Math.floor(Math.random()*na.length)];store.arenas.push(a);save();showGain("Sàn đấu mới",`<span class="arp" style="--ap:url(${arImg(a,1)}) center 22%/cover;height:180px;width:120px"></span><div>${ARENAS[a][0]}</div>`);}
-    else if(r<.75)gainRes("gold",80+Math.floor(Math.random()*121),"Rương vật phẩm");else if(r<.9)gainRes("up",60,"Rương vật phẩm");else gainRes("evp",20,"Rương vật phẩm");}
+    if(r<.35&&nb.length){const b=nb[Math.floor(Math.random()*nb.length)];store.backs.push(b);save();showGain("Mặt sau mới",`<span class="bkp" style="--bk:${BACKS[b][1]};width:110px"></span><div>${BACKS[b][0]}</div>`,undefined,"gacha2");}
+    else if(r<.5&&na.length){const a=na[Math.floor(Math.random()*na.length)];store.arenas.push(a);save();showGain("Sàn đấu mới",`<span class="arp" style="--ap:url(${arImg(a,1)}) center 22%/cover;height:180px;width:120px"></span><div>${ARENAS[a][0]}</div>`,undefined,"gacha2");}
+    else if(r<.75)gainRes("gold",80+Math.floor(Math.random()*121),"Rương vật phẩm","gacha1");else if(r<.9)gainRes("up",60,"Rương vật phẩm","gacha1");else gainRes("evp",20,"Rương vật phẩm","gacha1");}
   renderShop();renderLobby();}
-function shopCards(){if(store.shopD!==today()||!store.shopC.length){const un=E.COLLECT.filter(k=>!OWN.has(k)).sort(()=>Math.random()-.5);store.shopC=un.slice(0,6);store.shopD=today();save();}return store.shopC;}
 
 const VND=n=>n.toLocaleString("vi-VN")+"đ";
 const PAY_GOLD=[["g1",20000,200,0],["g2",50000,550,10],["g3",100000,1150,15],["g4",200000,2400,20],["g5",500000,6250,25],["g6",1000000,13000,30]];
@@ -124,10 +107,10 @@ function payDo(){const x=payFind(payId);if(!x)return;const P=payP();
   if(x.gold)P.first[x.id]=1;else if(x.id==="sig")P.bought.sig=today();else if(x.once)P.bought[x.id]=1;else if(x.wk)P.bought[x.id]=weekKey();
   if(x.id==="mc"){const e=new Date();e.setDate(e.getDate()+29);P.mc={end:e.getFullYear()+"-"+String(e.getMonth()+1).padStart(2,"0")+"-"+String(e.getDate()).padStart(2,"0"),last:today()};}
   let extra="";if(x.bk){const nb=Object.keys(BACKS).filter(b=>!store.backs.includes(b));if(nb.length){const b=nb[Math.floor(Math.random()*nb.length)];store.backs.push(b);extra=`<div style="margin-top:8px"><span class="bkp" style="--bk:${BACKS[b][1]};width:64px;display:inline-block"></span><div>${BACKS[b][0]}</div></div>`;}else{store.tok+=300;extra=`<div>Đã có đủ mặt lưng: ${icn("tok")}+300</div>`;}}
-  if(x.pass){const S=PS();if(x.pass===2&&S.prem<2){S.xp=Math.min(PS_LV*PS_XP-1,S.xp+10*PS_XP);const k2=psCard(2);if(grant(k2))extra+=`<div style="width:120px;margin:8px auto 0">${cardGC(k2)}</div><div>Thẻ ${esc(C[k2].n)}</div>`;else{store.tok+=300;extra+=`<div>Đã có thẻ ${esc(C[k2].n)}: ${icn("tok")}+300</div>`;}}S.prem=Math.max(S.prem,x.pass);extra+=`<div>Đã mở khoá thẻ tháng ${x.pass===2?"Siêu cao cấp":"Cao cấp"}</div>`;}
-  if(x.card){if(grant(x.card)){extra+=`<div style="width:120px;margin:8px auto 0">${cardGC(x.card)}</div><div>${esc(C[x.card].n)}</div>`;}else{store.tok+=300;extra+=`<div>Đã có thẻ ${esc(C[x.card].n)}: ${icn("tok")}+300</div>`;}}
+  if(x.pass){const S=PS();if(x.pass===2&&S.prem<2){S.xp=Math.min(PS_LV*PS_XP-1,S.xp+10*PS_XP);const k2=psCard(2);if(grant(k2))extra+=`<div style="width:120px;margin:8px auto 0">${cardGC(k2,"",1)}</div><div>Thẻ ${esc(C[k2].n)}</div>`;else{store.tok+=300;extra+=`<div>Đã có thẻ ${esc(C[k2].n)}: ${icn("tok")}+300</div>`;}}S.prem=Math.max(S.prem,x.pass);extra+=`<div>Đã mở khoá thẻ tháng ${x.pass===2?"Siêu cao cấp":"Cao cấp"}</div>`;}
+  if(x.card){if(grant(x.card)){extra+=`<div style="width:120px;margin:8px auto 0">${cardGC(x.card,"",1)}</div><div>${esc(C[x.card].n)}</div>`;}else{store.tok+=300;extra+=`<div>Đã có thẻ ${esc(C[x.card].n)}: ${icn("tok")}+300</div>`;}}
   P.total+=x.pr;save();$("ovPay").classList.remove("on");
-  showGain("Nạp thành công",`<div class="gfs big">${giftHTML(x.g)}</div>${extra}`,"#ffd65a");renderShop();renderLobby();}
+  showGain("Nạp thành công",`<div class="gfs big">${giftHTML(x.g)}</div>${extra}`,"#ffd65a","ui_buy");renderShop();renderLobby();}
 $("payBody").addEventListener("click",ev=>{const b=ev.target.closest("[data-py]");if(!b)return;if(b.dataset.py==="ok"){payDo();}else{$("ovPay").classList.remove("on");}});
 $("ovPay").addEventListener("click",ev=>{if(ev.target.id==="ovPay")$("ovPay").classList.remove("on");});
 function srng(seed){let h=2166136261>>>0;for(let i=0;i<seed.length;i++){h^=seed.charCodeAt(i);h=Math.imul(h,16777619);}return ()=>{h=(h+0x6D2B79F5)|0;let t=h;t=Math.imul(t^(t>>>15),t|1);t^=t+Math.imul(t^(t>>>7),t|61);return ((t^(t>>>14))>>>0)/4294967296;};}
@@ -146,6 +129,7 @@ const SVI={star:'<svg viewBox="0 0 24 24"><path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6
  pin:'<svg viewBox="0 0 24 24"><path d="M14.5 2.5l7 7-2.2.6-4 4 .5 4.4-1.7 1.7-4-4-4.6 4.6-1.4-1.4 4.6-4.6-4-4 1.7-1.7 4.4.5 4-4z"/></svg>'};
 function svi(k){return k.startsWith("i:")?icn(k.slice(2)):`<i class="svi" aria-hidden="true">${SVI[k]}</i>`;}
 const SSEC={deal:[["hot","Nổi bật","star"],["day","Hằng ngày","sun"],["deco","Trang trí","brush"],["up","Nâng cấp","i:up"],["gold","Vàng","i:gold"]],card:[["daily","Thẻ ngày","card"],["series","Gói Bậc","pack"],["tok","Token","i:tok"]]};
+SSEC.nen=NEN.sections();
 const SHELP={hot:"Gói nhân vật đổi mỗi ngày. Bộ bài dựng sẵn đổi mỗi tuần và tự giảm giá theo số thẻ bạn đã có.",day:"3 ưu đãi đổi mới mỗi ngày, mỗi món mua được 1 lần. Mua đủ 10 lần ưu đãi hằng ngày để nhận thêm 600 token.",deco:"3 món trang trí bạn chưa có, giảm 25%, đổi mới mỗi 8 giờ. Bên dưới là toàn bộ mặt lưng và sàn đấu.",up:"Nhận miễn phí 25 điểm nâng cấp mỗi 8 giờ, hoặc đổi vàng lấy điểm nâng cấp.",upk:"Nâng ngay 1 bậc chất lượng cho thẻ bạn đang có, rẻ hơn khoảng 30% so với nâng thường. Đổi mới mỗi ngày.",gold:"Nạp vàng và các gói ưu đãi. Lần đầu mua mỗi mốc vàng được nhân đôi.",daily:"6 thẻ xoay tua mỗi ngày. Ghim 1 thẻ để giữ nó lại sang các ngày sau cho đến khi mua.",series:"Mỗi gói cho 1 thẻ ngẫu nhiên của nhóm đó mà bạn chưa có, không bao giờ trùng. Bấm Xem thẻ để xem các thẻ có thể nhận.",tok:"Nhận miễn phí 20 token mỗi ngày. Đổi vàng lấy token, gói càng lớn càng được thêm."};
 function secHead(id,t,end,sub){return `<div class="shh"><span class="sht"><b>${t}</b>${sub?`<small>${sub}</small>`:""}</span>${end?cdHTML(end):""}<button type="button" class="hq" data-help="${id}" aria-label="Giải thích">?</button></div>`;}
 function sigCard(){const r=srng("sig"+today()),pool=E.COLLECT.filter(k=>["S4","S5","MP"].includes(C[k].h)),un=pool.filter(k=>!OWN.has(k));return spick(un.length?un:pool,1,r)[0];}
@@ -168,7 +152,7 @@ function upCards(){const r=srng("uk"+today()),own=[...OWN].filter(k=>lvl(k)<6);r
 function decoDeals(){const r=srng("dc8"+slot8()),it=[...Object.keys(BACKS).filter(b=>!store.backs.includes(b)).map(b=>["bk",b]),...Object.keys(ARENAS).filter(a=>!store.arenas.includes(a)).map(a=>["ar",a])];return spick(it,3,r);}
 function decoPrice(t,v){return t==="bk"?["tok",225]:["gold",Math.round(ARENAS[v][4]*.75/10)*10];}
 const TOKP=[[200,500],[500,1200],[1200,2700],[3000,6500]],UPP=[[500,400],[1500,1100]];
-function miniCard(k,ok){return `<button type="button" class="dkc${ok?" ok":""}" data-zk="${k}" aria-label="${esc(C[k].n)}"><span class="gc mini${qCls(k)}" style="--hc:${HC[C[k].h]}${qSt(k)}">${art(k)}<span class="cst">${C[k].c}</span><span class="pwh">${C[k].p}</span></span>${ok?`<i class="tick">✓</i>`:""}</button>`;}
+function miniCard(k,ok){return `<button type="button" class="dkc${ok?" ok":""}" data-zk="${k}" aria-label="${esc(C[k].n)}"><span class="gc mini${qCls(k)}" style="--hc:${HC[C[k].h]}${qSt(k)}">${nbL(k)}${art(k)}<span class="cst">${C[k].c}</span><span class="pwh">${C[k].p}</span></span>${ok?`<i class="tick">✓</i>`:""}</button>`;}
 let shopTab="deal",shopSub="bk";
 function pz(k,n,owned,used){if(used)return `<span class="pz use">Đang dùng</span>`;if(owned)return `<span class="pz own">Dùng</span>`;return `<span class="pz${store[k]<n?" no":""}">${icn(k)}${n}</span>`;}
 function shopDeal(){const S=SH();let h="";
@@ -211,17 +195,17 @@ function shopCard(){const S=SH();let h="";
   h+=`<section class="ssec" id="ss-tok">`+secHead("tok","Đổi token")+`<div class="shg"><button type="button" class="si gp" data-tf="1" ${ft?"":"disabled"}>${ft?`<span class="x2 free">Miễn phí</span>`:""}${pile(0,"tok")}<span class="amt">${icn("tok")}20</span>${ft?`<span class="pv">Nhận</span>`:`<span class="pz own">Đã nhận</span>`}</button>${TOKP.map(([n,g],i)=>`<button type="button" class="si gp" data-tb="${i}" ${store.gold<g?"disabled":""}>${i?`<span class="bnx">+${Math.round((n/g*2.5-1)*100)}%</span>`:""}${pile(Math.min(5,i+2),"tok")}<span class="amt">${icn("tok")}${n.toLocaleString("vi-VN")}</span>${pz("gold",g)}</button>`).join("")}</div></section>`;
   return h;}
 function renderShop(){
-  if(shopTab!=="deal"&&shopTab!=="card")shopTab="deal";
+  if(shopTab!=="deal"&&shopTab!=="card"&&shopTab!=="nen")shopTab="deal";
   $("shopRes").innerHTML=resHTML(["gold","up","tok","evp","gems"]);
   for(const b of $("shopTabs").children){const on=b.dataset.st===shopTab;b.classList.toggle("on",on);b.setAttribute("aria-selected",on);}
   $("shopSub").innerHTML=SSEC[shopTab].map(([id,n,ic],i)=>`<button type="button" data-go="${id}" class="${i?"":"on"}">${svi(ic)}<span>${n}</span></button>`).join("");
-  const bd=$("shopBody"),y=bd.scrollTop;bd.innerHTML=shopTab==="deal"?shopDeal():shopCard();bd.scrollTop=y;shopSpy();
+  const bd=$("shopBody"),y=bd.scrollTop;bd.innerHTML=shopTab==="deal"?shopDeal():shopTab==="card"?shopCard():NEN.shop();bd.scrollTop=y;shopSpy();
 }
 function secTop(id){const bd=$("shopBody"),el=$("ss-"+id);if(!el)return 0;return el.getBoundingClientRect().top-bd.getBoundingClientRect().top+bd.scrollTop;}
 function shopSpy(){const bd=$("shopBody"),secs=SSEC[shopTab];let cur=secs[0][0];for(const [id] of secs)if(secTop(id)<=bd.scrollTop+60)cur=id;if(bd.scrollTop+bd.clientHeight>=bd.scrollHeight-4)cur=secs[secs.length-1][0];for(const b of $("shopSub").children)b.classList.toggle("on",b.dataset.go===cur);}
 $("shopBody").addEventListener("scroll",()=>{cancelAnimationFrame(shopSpy._r);shopSpy._r=requestAnimationFrame(shopSpy);},{passive:true});
-$("shopSub").addEventListener("click",ev=>{const b=ev.target.closest("[data-go]");if(!b)return;SFX.play("tap");const bd=$("shopBody");bd.scrollTo({top:Math.max(0,secTop(b.dataset.go)-4),behavior:document.body.classList.contains("rm")?"auto":"smooth"});});
-$("shopTabs").addEventListener("click",ev=>{const b=ev.target.closest("[data-st]");if(!b||b.dataset.st===shopTab)return;shopTab=b.dataset.st;SFX.play("tap");$("shopBody").scrollTop=0;renderShop();});
+$("shopSub").addEventListener("click",ev=>{const b=ev.target.closest("[data-go]");if(!b)return;SFX.play("ui_tab");const bd=$("shopBody");bd.scrollTo({top:Math.max(0,secTop(b.dataset.go)-4),behavior:document.body.classList.contains("rm")?"auto":"smooth"});});
+$("shopTabs").addEventListener("click",ev=>{const b=ev.target.closest("[data-st]");if(!b||b.dataset.st===shopTab)return;shopTab=b.dataset.st;SFX.play("ui_tab");$("shopBody").scrollTop=0;renderShop();});
 function openShop(){renderShop();$("ovShop").classList.add("on");}
 setInterval(()=>{if(!$("ovShop").classList.contains("on"))return;let re=false;for(const e of document.querySelectorAll("#ovShop [data-cd]")){const ms=+e.dataset.cd-Date.now();if(ms<=0)re=true;e.textContent=cdText(ms);}if(re)renderShop();},20000);
 
@@ -267,29 +251,29 @@ $("psLeft").addEventListener("click",ev=>{const b=ev.target.closest("button");if
   if(b.dataset.zk){openPZ(b.dataset.zk);return;}
   if(b.dataset.pt){psTier=+b.dataset.pt;renderPass();return;}
   if(b.dataset.pay){payAsk(b.dataset.pay);return;}
-  if(b.dataset.pall){const S=PS(),lv=psLv(),got={};let n=0;for(let i=1;i<=lv;i++){if(!S.cf.includes(i)){S.cf.push(i);psGrant(psRw(i,0));n++;}if(S.prem&&!S.cp.includes(i)){S.cp.push(i);psGrant(psRw(i,1));n++;}}save();toast(`Đã nhận ${n} phần thưởng`);renderPass();renderLobby();}});
+  if(b.dataset.pall){const S=PS(),lv=psLv(),got={};let n=0;for(let i=1;i<=lv;i++){if(!S.cf.includes(i)){S.cf.push(i);psGrant(psRw(i,0));n++;}if(S.prem&&!S.cp.includes(i)){S.cp.push(i);psGrant(psRw(i,1));n++;}}save();if(n)SFX.play("ui_reward");toast(`Đã nhận ${n} phần thưởng`);renderPass();renderLobby();}});
 $("psList").addEventListener("click",ev=>{const b=ev.target.closest("[data-pc]");if(!b||b.disabled)return;const [t,l]=b.dataset.pc.split("|"),i=+l,S=PS();
   {const rw=psRw(i,t==="p"?1:0);if(rw.card&&(i>psLv()||(t==="p"&&(!S.prem||S.cp.includes(i))))){SFX.play("tap");openPZ(rw.card);return;}}
   if(i>psLv())return;
   if(t==="f"){if(S.cf.includes(i))return;S.cf.push(i);const rw=psRw(i,0);psGrant(rw);}else{if(!S.prem||S.cp.includes(i))return;S.cp.push(i);const rw=psRw(i,1);psGrant(rw);if(rw.card){save();renderPass();renderLobby();revealFx(rw.card,"S5","Thẻ tháng");return;}}
-  SFX.play("win");save();renderPass();renderLobby();});
+  SFX.play("ui_reward");save();renderPass();renderLobby();});
 /* nhiệm vụ tuần + đăng nhập */
 const WM=[[5,{gold:100}],[10,{gold:200,tok:50}],[15,{gold:400,tok:100}]];
 function wmS(){const w=weekId();if(!store.wm||store.wm.w!==w)store.wm={w,n:0,cl:[]};return store.wm;}
 function renderMis(){const S=PS(),lg=S.login===today(),W=wmS();
   $("misTop").innerHTML=`<div class="mlg${lg?"":" ready"}"><span class="tx"><b>Đăng nhập hôm nay</b><small>+100 XP thẻ tháng</small></span>${lg?`<span class="pz own">Đã nhận</span>`:`<button type="button" class="btn end" data-lg="1">Nhận</button>`}</div>`;
   $("misWk").innerHTML=`<div class="shh"><span class="sht"><b>Thử thách tuần</b><small>hoàn thành nhiệm vụ ngày trong tuần</small></span>${cdHTML(endWeek())}</div><div class="wmb"><span class="bar"><i style="width:${Math.min(100,W.n/15*100)}%"></i></span><b>${Math.min(15,W.n)}/15</b></div><div class="shg">${WM.map(([n,g],i)=>{const ok=W.n>=n,got=W.cl.includes(i);return `<button type="button" class="si wmi" data-wm2="${i}" ${ok&&!got?"":"disabled"}><span class="amt">${n} nhiệm vụ</span><span class="gfs">${rwHTML(g)}</span><span class="gf">+300 XP</span>${got?`<span class="pz own">Đã nhận</span>`:ok?`<span class="pv">Nhận</span>`:`<span class="pz own">${Math.min(W.n,n)}/${n}</span>`}</button>`;}).join("")}</div>`;}
-$("misTop").addEventListener("click",ev=>{if(!ev.target.closest("[data-lg]"))return;const S=PS();if(S.login===today())return;S.login=today();psAdd(100);save();SFX.play("win");toast("+100 XP thẻ tháng");renderMis();renderLobby();});
-$("misWk").addEventListener("click",ev=>{const b=ev.target.closest("[data-wm2]");if(!b||b.disabled)return;const W=wmS(),i=+b.dataset.wm2,[n,g]=WM[i];if(W.n<n||W.cl.includes(i))return;W.cl.push(i);for(const k in g)store[k]+=g[k];psAdd(300);save();SFX.play("win");showGain("Thử thách tuần",`<div class="gfs big">${rwHTML(g)}</div><div>+300 XP thẻ tháng</div>`,"#ffd65a");renderMis();renderLobby();});
+$("misTop").addEventListener("click",ev=>{if(!ev.target.closest("[data-lg]"))return;const S=PS();if(S.login===today())return;S.login=today();psAdd(100);save();SFX.play("ui_reward");toast("+100 XP thẻ tháng");renderMis();renderLobby();});
+$("misWk").addEventListener("click",ev=>{const b=ev.target.closest("[data-wm2]");if(!b||b.disabled)return;const W=wmS(),i=+b.dataset.wm2,[n,g]=WM[i];if(W.n<n||W.cl.includes(i))return;W.cl.push(i);for(const k in g)store[k]+=g[k];psAdd(300);save();showGain("Thử thách tuần",`<div class="gfs big">${rwHTML(g)}</div><div>+300 XP thẻ tháng</div>`,"#ffd65a");renderMis();renderLobby();});
 /* băng rôn thông báo ở sảnh */
 let bnrI=0,bnrT=0,bnrList=[];
 function bnrSlides(){const out=[],S=PS(),pk=psCard(1);
   out.push({id:"pass",c:"#b06bff",art0:1,tag:`THẺ THÁNG ${new Date().getMonth()+1}`,t:psName(),d:S.prem?"Bạn đã mở khoá Cao cấp. Làm nhiệm vụ để lên cấp!":"Làm nhiệm vụ, đăng nhập mỗi ngày để lên cấp. Mở khoá Cao cấp để nhận thẻ "+C[pk].n+".",btn:S.prem?"Xem thẻ tháng":"Mua gói Cao cấp",art:cardGC(pk),go:"pass"});
   if(clPending())out.push({id:"col",c:"#3dffb4",tag:"QUÀ SƯU TẬP",t:`Nhận ${clPending()} phần thưởng`,d:"Cấp sưu tập của bạn đã đạt mốc mới.",btn:"Nhận ngay",art:`<span class="bico">${icn("col")}</span>`,go:"col"});
-  try{const sg=sigPack();if(packAvail(sg))out.push({id:"sig",c:HC[C[sg.card].h],tag:"GÓI MỚI HÔM NAY",t:C[sg.card].n,d:"Gói nhân vật kèm 1.000 vàng, 300 điểm nâng cấp, 200 token.",btn:VND(sg.pr),art:cardGC(sg.card),go:"shop:hot"});}catch(e){}
+  try{const sg=sigPack();if(packAvail(sg))out.push({id:"sig",c:HC[C[sg.card].h],tag:"GÓI MỚI HÔM NAY",t:C[sg.card].n,d:"Gói nhân vật kèm 1.000 vàng, 300 điểm nâng cấp, 200 token.",btn:VND(sg.pr),art:cardGC(sg.card,"",1),go:"shop:hot"});}catch(e){}
   try{const mu=wkMut(wkS().id);out.push({id:"wk",c:"#3fd0ff",tag:"SỰ KIỆN TUẦN",t:"Chiến Địa Biến Động",d:"Luật tuần này: "+mu.map(m=>m.n).join(", ")+".",btn:"Tham gia",art:`<span class="bico">${spak("S2").replace("<b>2</b>","<b>⚡</b>").replace("BẬC","SỰ KIỆN")}</span>`,go:"wk"});}catch(e){}
   {const P=payP(),f=PAY_GOLD.some(g=>!P.first[g[0]]);out.push({id:"gold",c:"#ffb02e",tag:f?"NẠP LẦN ĐẦU X2":"GÓI NẠP",t:f?"Nạp vàng nhân đôi":"Nguyệt phiếu 30 ngày",d:f?"Lần đầu nạp mỗi mốc được gấp đôi vàng.":"Nhận 100 vàng mỗi ngày, 30 ngày liền.",btn:"Xem gói nạp",art:`<span class="bico">${pile(5)}</span>`,go:"shop:gold"});}
-  try{const dk=dailyCards()[0];out.push({id:"daily",c:HC[C[dk].h],tag:"THẺ HẰNG NGÀY",t:"6 thẻ mới hôm nay",d:"Thẻ xoay tua mỗi ngày, ghim 1 thẻ để giữ lại.",btn:"Đến cửa hàng",art:cardGC(dk),go:"shop:card"});}catch(e){}
+  try{const dk=dailyCards()[0];out.push({id:"daily",c:HC[C[dk].h],tag:"THẺ HẰNG NGÀY",t:"6 thẻ mới hôm nay",d:"Thẻ xoay tua mỗi ngày, ghim 1 thẻ để giữ lại.",btn:"Đến cửa hàng",art:cardGC(dk,"",1),go:"shop:card"});}catch(e){}
   return out;}
 function renderBnr(){const el=$("lbBnr");if(!el)return;bnrList=bnrSlides();if(bnrI>=bnrList.length)bnrI=0;
   const BNI={pass:"bnr_pass",wk:"mode_wk",gold:"bnr_shop",sig:"bnr_shop",daily:"bnr_shop",col:"mode_jr"};el.innerHTML=bnrList.map((b,i)=>`<button type="button" class="bsl${i===bnrI?" on":""}${UI(BNI[b.id])?" bimg":""}" style="--bc:${b.c};${UI(BNI[b.id])?`--bi:url(${UI(BNI[b.id])})`:""}" data-bgo="${b.go}" aria-label="${esc(b.t)}" ${i===bnrI?"":"tabindex=\"-1\""}><span class="bart">${b.art}</span><span class="btx"><span class="btag">${esc(b.tag)}</span><b class="bt">${esc(b.t)}</b><small>${esc(b.d)}</small><span class="bbtn">${esc(b.btn)}</span></span></button>`).join("");
@@ -319,12 +303,12 @@ function openPreview(x){const pool=serPool(x),un=pool.filter(k=>!OWN.has(k)),pr=
   $("openBody").innerHTML=`<div class="opv"><div class="opk big">${spak(x)}</div><div class="onm">${serName(x)}</div><div class="osub">${un.length?`Nhận 1 thẻ ${x==="CB"?"Cơ Bản":HE[x]} ngẫu nhiên mà bạn chưa có. Còn ${un.length}/${pool.length} thẻ.`:`Bạn đã có đủ ${pool.length} thẻ của gói này.`}</div><div class="oacts"><button type="button" class="btn ghost" data-op="pool">Xem thẻ bài</button>${un.length?`<button type="button" class="btn end" data-op="buy" ${store.tok<pr?"disabled":""}>${icn("tok")}${pr}</button>`:""}</div><button type="button" class="opx" data-op="x" aria-label="Đóng">✕</button></div>`;
   $("ovOpen").classList.add("on");}
 function revealFx(k,packX,title){const d=C[k],c=HC[d.h]||"#7fd0ff",rm=document.body.classList.contains("rm");
-  $("openBody").innerHTML=`<div class="opn" style="--c:${c}"><div class="orays"></div><div class="opk">${spak(packX)}</div><div class="oflash"></div><div class="ocd"><div class="ocb"><div class="ofr">${cardGC(k)}</div><div class="obk" style="background:${BACKS[dBack(store.decks[store.cur])][1]}"></div></div></div><div class="oinf"><div class="ott">${esc(title||"Thẻ mới!")}</div><div class="onm">${esc(d.n)}</div><div class="osub">${esc(HE[d.h]||"")} · nhận ở chất lượng Thường</div><div class="osk">${kwfx(skillText(d))}</div><button type="button" class="btn end" data-op="x">Nhận</button></div></div>`;
+  $("openBody").innerHTML=`<div class="opn" style="--c:${c}"><div class="orays"></div><div class="opk">${spak(packX)}</div><div class="oflash"></div><div class="ocd"><div class="ocb"><div class="ofr">${cardGC(k,"",1)}</div><div class="obk" style="background:${BACKS[dBack(store.decks[store.cur])][1]}"></div></div></div><div class="oinf"><div class="ott">${esc(title||"Thẻ mới!")}</div><div class="onm">${esc(d.n)}</div><div class="osub">${esc(HE[d.h]||"")} · nhận ở chất lượng Thường</div><div class="osk">${kwfx(skillText(d))}</div><button type="button" class="btn end" data-op="x">Nhận</button></div></div>`;
   $("ovOpen").classList.add("on");const el=$("openBody").firstElementChild;
-  if(rm){el.classList.add("s3");SFX.play("win");return;}
+  if(rm){el.classList.add("s3");SFX.play(gachaSnd(k));return;}
   SFX.play("tap");requestAnimationFrame(()=>el.classList.add("s1"));
   setTimeout(()=>{el.classList.add("s2");SFX.play("place");},850);
-  setTimeout(()=>{el.classList.add("s3");SFX.play("win");},1450);}
+  setTimeout(()=>{el.classList.add("s3");SFX.play(gachaSnd(k));},1450);}
 function buySeries(x){const pr=(SER.find(z=>z[0]===x)||[0,0])[1],un=serPool(x).filter(k=>!OWN.has(k));if(!un.length||store.tok<pr)return;store.tok-=pr;const k=un[Math.floor(Math.random()*un.length)];grant(k);save();revealFx(k,x,serName(x));renderShop();renderLobby();}
 $("openBody").addEventListener("click",ev=>{const b=ev.target.closest("[data-op]");if(!b||b.disabled)return;const a=b.dataset.op;SFX.play("tap");
   if(a==="x")$("ovOpen").classList.remove("on");else if(a==="buy"&&openCfg)buySeries(openCfg.x);else if(a==="pool"&&openCfg)openPool(openCfg.x);});
@@ -343,11 +327,12 @@ $("poolGrid").addEventListener("click",ev=>{const b=ev.target.closest("[data-zk]
 /* ---- phóng to thẻ ---- */
 let pzK=null,pzAlt=0;
 function openPZ(k,alt){pzK=k;pzAlt=alt||0;const LK=[k,...(LINKS[k]||[])],ai=pzAlt%LK.length,sid=LK[ai],d=C[sid],kw=kwfx;
-  $("pzBody").innerHTML=`<div class="fanw">${fanSides(LK,ai)}<span class="gc${qCls(sid)}" style="--hc:${HC[d.h]};--bk:${backBg()}${qSt(sid)};display:block">${art(sid)}<span class="cst">${d.c}</span><span class="pwh">${d.p}</span><span class="n">${logo(sid)}</span>${bacTag(d)}${lkBtn(ai,LK.length)}${flipBtn()}</span></div><div class="pkt">${sid!==k?"Thẻ liên quan của "+esc(C[k].n):esc(HE[d.h]||"")+" · "+esc(DANG[d.t]||"")+(OWN.has(k)?" · đã có":"")}</div><div class="zt">${kw(skillText(d))}</div><button type="button" class="zcl" data-pzx="1" aria-label="Đóng">✕</button>`;
+  $("pzBody").innerHTML=`<div class="fanw">${fanSides(LK,ai)}<span class="gc${qCls(sid)}" style="--hc:${HC[d.h]};--bk:${backBg()}${qSt(sid)};display:block">${nbL(sid)}${art(sid,1)}<span class="cst">${d.c}</span><span class="pwh">${d.p}</span><span class="n">${logo(sid)}</span>${bacTag(d)}${lkBtn(ai,LK.length)}${flipBtn()}</span></div><div class="pkt">${sid!==k?"Thẻ liên quan của "+esc(C[k].n):esc(HE[d.h]||"")+" · "+esc(DANG[d.t]||"")+(OWN.has(k)?" · đã có":"")}</div><div class="zt">${kw(skillText(d))}</div>${NEN.slot(sid)}<button type="button" class="zcl" data-pzx="1" aria-label="Đóng">✕</button>`;
   $("ovPZ").classList.add("on");}
 $("pzBody").addEventListener("click",ev=>{if(ev.target.closest("[data-lk]")){SFX.play("tap");openPZ(pzK,pzAlt+1);return;}const fz=ev.target.closest("[data-fan]");if(fz){SFX.play("tap");const n=1+(LINKS[pzK]||[]).length;openPZ(pzK,(pzAlt+ +fz.dataset.fan+n)%n);return;}if(ev.target.closest("[data-pzx]"))$("ovPZ").classList.remove("on");});
 $("ovPZ").addEventListener("click",ev=>{if(ev.target.id==="ovPZ")$("ovPZ").classList.remove("on");});
 $("shopBody").addEventListener("click",ev=>{const b=ev.target.closest("button");if(!b||b.disabled)return;const ds=b.dataset,S=SH();SFX.play("tap");
+  if(NEN.shopClick(ds))return;
   if(ds.help){toast(SHELP[ds.help]||"",5200);return;}
   if(ds.zk){openPZ(ds.zk);return;}
   if(ds.ss){shopSub=ds.ss;renderShop();return;}
@@ -356,19 +341,19 @@ $("shopBody").addEventListener("click",ev=>{const b=ev.target.closest("button");
   if(ds.ser){openPreview(ds.ser);return;}
   if(ds.mcc){const P=payP();if(mcLeft()>0&&P.mc.last!==today()){P.mc.last=today();store.gold+=100;save();showGain("Nguyệt phiếu",`<div class="big">${icn("gold")}+100</div><div>Còn ${mcLeft()} ngày</div>`,"#ffd65a");renderShop();renderLobby();}return;}
   if(ds.gacha){gacha(ds.gacha);return;}
-  if(ds.dkb){const bb=deckBundles().find(x=>x.id===ds.dkb);if(!bb)return;const miss=bb.ids.filter(k=>!OWN.has(k)),pr=miss.length*DK_PER;if(store.gold<pr)return;store.gold-=pr;for(const k of miss)grant(k);let note="";if(store.decks.length<12&&!store.decks.some(d=>d.n===bb.n&&d.ids.join()===bb.ids.join())){store.decks.push({n:bb.n.slice(0,16),ids:bb.ids.slice(),b:""});note="<div>Đã thêm vào danh sách bộ bài của bạn.</div>";}save();showGain(miss.length?"Đã mua bộ bài":"Đã lưu bộ bài",`<div class="dkg sm">${bb.ids.map(k=>miniCard(k,true)).join("")}</div><div>${esc(bb.n)}${miss.length?` · nhận ${miss.length} thẻ mới`:""}</div>${note}`,"#7fd0ff");renderShop();renderLobby();return;}
+  if(ds.dkb){const bb=deckBundles().find(x=>x.id===ds.dkb);if(!bb)return;const miss=bb.ids.filter(k=>!OWN.has(k)),pr=miss.length*DK_PER;if(store.gold<pr){SFX.play("ui_error",.6);return;}store.gold-=pr;for(const k of miss)grant(k);let note="";if(store.decks.length<12&&!store.decks.some(d=>d.n===bb.n&&d.ids.join()===bb.ids.join())){store.decks.push({n:bb.n.slice(0,16),ids:bb.ids.slice(),b:""});note="<div>Đã thêm vào danh sách bộ bài của bạn.</div>";}save();showGain(miss.length?"Đã mua bộ bài":"Đã lưu bộ bài",`<div class="dkg sm">${bb.ids.map(k=>miniCard(k,true)).join("")}</div><div>${esc(bb.n)}${miss.length?` · nhận ${miss.length} thẻ mới`:""}</div>${note}`,"#7fd0ff",miss.length?"ui_buy":"ui_reward");renderShop();renderLobby();return;}
   if(ds.dpc){if(S.dp>=10){S.dp-=10;store.tok+=600;save();showGain("Thưởng ưu đãi hằng ngày",`<div class="big">${icn("tok")}+600</div>`,"#c9a4ff");renderShop();renderLobby();}return;}
   if(ds.do){const o=DOFF.find(x=>x.id===ds.do);if(!o||S.db[o.id]||store.gold<o.cost)return;
     if(o.mys){const un=E.COLLECT.filter(k=>!OWN.has(k));if(!un.length)return;store.gold-=o.cost;S.db[o.id]=1;S.dp++;const k=un[Math.floor(Math.random()*un.length)];grant(k);save();revealFx(k,"MYS","Thẻ bí ẩn");renderShop();renderLobby();return;}
-    store.gold-=o.cost;S.db[o.id]=1;S.dp++;const gk=Object.keys(o.g)[0];store[gk]+=o.g[gk];save();showGain(o.n,`<div class="big">${icn(gk)}+${o.g[gk]}</div>`,RES[gk][1]);renderShop();renderLobby();return;}
-  if(ds.dd){const [t,v]=ds.dd.split(":"),[ck,pr]=decoPrice(t,v);if(store[ck]<pr)return;if(t==="bk"){if(store.backs.includes(v))return;store.backs.push(v);}else{if(store.arenas.includes(v))return;store.arenas.push(v);}store[ck]-=pr;save();toast(`Đã mua ${t==="bk"?BACKS[v][0]:ARENAS[v][0]}`);renderShop();renderLobby();return;}
-  if(ds.fu){if(Date.now()-(S.fu||0)<SLOT8)return;S.fu=Date.now();store.up+=25;save();toast("+25 điểm nâng cấp");renderShop();renderLobby();return;}
-  if(ds.ub){const [n,g]=UPP[+ds.ub]||[];if(!n||store.gold<g)return;store.gold-=g;store.up+=n;save();showGain("Điểm nâng cấp",`<div class="big">${icn("up")}+${n}</div>`,"#7fd0ff");renderShop();renderLobby();return;}
-  if(ds.uc){const k=ds.uc,l=lvl(k),pr=Math.round(UPC[l]*.7);if(!OWN.has(k)||l>=6||S.db["u"+k]||store.up<pr)return;store.up-=pr;store.cards[k]=Object.assign({l:0,bc:"",au:false,an:false},store.cards[k]);store.cards[k].l=l+1;S.db["u"+k]=1;save();showGain("Cường hoá thành công",`<div style="width:120px;margin:0 auto">${cardGC(k)}</div><div>${esc(C[k].n)}: <b style="color:${QN[l+1][1]}">${QN[l+1][0]}</b></div>`,QN[l+1][1]);renderShop();renderLobby();return;}
-  if(ds.dcb){const k=ds.dcb,pr=PRICE[C[k].h]||500;if(OWN.has(k)||store.tok<pr)return;store.tok-=pr;grant(k);if(S.pin===k)S.pin="";save();revealFx(k,C[k].h,"Thẻ bài hằng ngày");renderShop();renderLobby();return;}
+    store.gold-=o.cost;S.db[o.id]=1;S.dp++;const gk=Object.keys(o.g)[0];store[gk]+=o.g[gk];save();showGain(o.n,`<div class="big">${icn(gk)}+${o.g[gk]}</div>`,RES[gk][1],"ui_buy");renderShop();renderLobby();return;}
+  if(ds.dd){const [t,v]=ds.dd.split(":"),[ck,pr]=decoPrice(t,v);if(store[ck]<pr)return;if(t==="bk"){if(store.backs.includes(v))return;store.backs.push(v);}else{if(store.arenas.includes(v))return;store.arenas.push(v);}store[ck]-=pr;save();SFX.play("ui_buy",.9);toast(`Đã mua ${t==="bk"?BACKS[v][0]:ARENAS[v][0]}`);renderShop();renderLobby();return;}
+  if(ds.fu){if(Date.now()-(S.fu||0)<SLOT8)return;S.fu=Date.now();store.up+=25;save();SFX.play("ui_reward");toast("+25 điểm nâng cấp");renderShop();renderLobby();return;}
+  if(ds.ub){const [n,g]=UPP[+ds.ub]||[];if(!n||store.gold<g)return;store.gold-=g;store.up+=n;save();showGain("Điểm nâng cấp",`<div class="big">${icn("up")}+${n}</div>`,"#7fd0ff","ui_buy");renderShop();renderLobby();return;}
+  if(ds.uc){const k=ds.uc,l=lvl(k),pr=Math.round(UPC[l]*.7);if(!OWN.has(k)||l>=6||S.db["u"+k])return;if(store.up<pr){SFX.play("ui_error",.6);return;}store.up-=pr;store.cards[k]=Object.assign({l:0,bc:"",au:false,an:false},store.cards[k]);store.cards[k].l=l+1;S.db["u"+k]=1;save();showGain("Cường hoá thành công",`<div style="width:120px;margin:0 auto">${cardGC(k,"",1)}</div><div>${esc(C[k].n)}: <b style="color:${QN[l+1][1]}">${QN[l+1][0]}</b></div>`,QN[l+1][1],"ui_buy");renderShop();renderLobby();return;}
+  if(ds.dcb){const k=ds.dcb,pr=PRICE[C[k].h]||500;if(OWN.has(k))return;if(store.tok<pr){SFX.play("ui_error",.6);return;}store.tok-=pr;grant(k);if(S.pin===k)S.pin="";save();revealFx(k,C[k].h,"Thẻ bài hằng ngày");renderShop();renderLobby();return;}
   if(ds.pin){S.pin=S.pin===ds.pin?"":ds.pin;save();toast(S.pin?"Đã ghim thẻ, thẻ sẽ ở lại đến khi bạn mua":"Đã bỏ ghim");renderShop();return;}
-  if(ds.tf){if(S.db.ft)return;S.db.ft=1;store.tok+=20;save();toast("+20 token");renderShop();renderLobby();return;}
-  if(ds.tb){const [n,g]=TOKP[+ds.tb]||[];if(!n||store.gold<g)return;store.gold-=g;store.tok+=n;save();showGain("Đổi token",`<div class="big">${icn("tok")}+${n}</div>`,"#c9a4ff");renderShop();renderLobby();return;}
+  if(ds.tf){if(S.db.ft)return;S.db.ft=1;store.tok+=20;save();SFX.play("ui_reward");toast("+20 token");renderShop();renderLobby();return;}
+  if(ds.tb){const [n,g]=TOKP[+ds.tb]||[];if(!n||store.gold<g)return;store.gold-=g;store.tok+=n;save();showGain("Đổi token",`<div class="big">${icn("tok")}+${n}</div>`,"#c9a4ff","ui_buy");renderShop();renderLobby();return;}
   if(ds.back){if(!store.backs.includes(ds.back)){if(store.tok<300)return;store.tok-=300;store.backs.push(ds.back);}store.back=ds.back;}
   else if(ds.arena){if(!store.arenas.includes(ds.arena)){const pr=ARENAS[ds.arena][4];if(store.gold<pr)return;store.gold-=pr;store.arenas.push(ds.arena);}store.arena=ds.arena;}
   else return;
@@ -381,8 +366,8 @@ function renderCard(){const k=cardId,d=C[k],o=OWN.has(k),l=lvl(k),pv=cardPrev,c=
   const LK=[k,...(LINKS[k]||[])],ai=cardAlt%LK.length,sid=LK[ai],sd=C[sid];
   $("cardHead").textContent=sid!==k?`Thẻ liên quan · ${d.n}`:`Thẻ nhân vật${DANG[d.t]?" · "+DANG[d.t]:""}${o?"":" · chưa sở hữu"}`;
   const qc=cu&&c.bc?c.bc:QN[pv][1],cls=pv?` qf q${pv}${cu&&c.bc?" qcc":""}${cu&&c.au?" qau":""}${cu&&c.an?" qan":""}`:"";
-  $("cardBody").innerHTML=`<div class="fanw">${fanSides(LK,ai)}<div class="bigc${cls}" style="--hc:${HC[d.h]};--bk:${backBg()};${cu&&c.bc?"--qc:"+c.bc:""}">${art(sid)}<span class="cst">${sd.c}</span><span class="pwh">${sd.p}</span><span class="n">${logo(sid)}</span>${sid===k?spk(k):""}${bacTag(sd)}${lkBtn(ai,LK.length)}${flipBtn()}</div></div>
-  <div class="cinfo cvtx">${kwfx(skillText(sd))}</div>
+  $("cardBody").innerHTML=`<div class="fanw">${fanSides(LK,ai)}<div class="bigc${cls}" style="--hc:${HC[d.h]};--bk:${backBg()};${cu&&c.bc?"--qc:"+c.bc:""}">${nbL(sid)}${art(sid,1)}<span class="cst">${sd.c}</span><span class="pwh">${sd.p}</span><span class="n">${logo(sid)}</span>${sid===k?spk(k):""}${bacTag(sd)}${lkBtn(ai,LK.length)}${flipBtn()}</div></div>
+  <div class="cinfo cvtx">${kwfx(skillText(sd))}</div>${NEN.slot(sid)}
   ${cardRen?`<div class="frow cvren"><input id="cardName" type="text" maxlength="16" value="${esc(d.n)}" autocomplete="off" aria-label="Tên thẻ"><button type="button" class="sortb" data-rn="1">Lưu</button>${store.names[k]?`<button type="button" class="sortb" data-rn="0">Tên gốc</button>`:""}</div>`:""}
   ${o&&l===6?`<div class="cust"><div class="sw">${SWATCH.map(x=>`<button type="button" data-bc="${x}" class="${c.bc===x?"on":""}" style="--c:${x}" aria-label="Màu viền ${x}"></button>`).join("")}<button type="button" data-bc="" class="${!c.bc?"on":""}" style="--c:conic-gradient(#ff4d6d,#ffd65a,#7dff8a,#3fe0ff,#c45cff,#ff4d6d)" aria-label="Viền cầu vồng"></button></div><div class="tg2"><button type="button" class="tgb${c.au?" on":""}" data-tg="au">Hào quang</button><button type="button" class="tgb${c.an?" on":""}" data-tg="an">Thẻ động</button></div></div>`:""}`;
   $("cardQ").style.setProperty("--qc",qc);
@@ -409,8 +394,8 @@ $("ovCard").addEventListener("click",ev=>{const n=ev.target.closest("[data-cn]")
   if(ev.target.closest("#cardFav")){SFX.play("tap");toggleFav(cardId);renderCard();renderDeck(true);return;}
   if(ev.target.closest("#cardRen")){SFX.play("tap");cardRen=!cardRen;renderCard();if(cardRen)setTimeout(()=>{const x=$("cardName");if(x){x.focus();x.select();}},30);}});
 $("btnUp").addEventListener("click",()=>{const k=cardId,b=$("btnUp");
-  if(b.dataset.m==="buy"){const pr=PRICE[C[k].h]||500;if(store.tok<pr)return;store.tok-=pr;grant(k);save();SFX.play("win");}
-  else if(b.dataset.m==="up"){const l=lvl(k);if(l>=6||store.up<UPC[l])return;store.up-=UPC[l];store.cards[k]=Object.assign({l:0,bc:"",au:false,an:false},store.cards[k]);store.cards[k].l=l+1;cardPrev=l+1;save();SFX.play("win");try{const r=document.querySelector(".bigc").getBoundingClientRect();FX.ring(r.left+r.width/2,r.top+r.height/2,QN[l+1][1],120,6);FX.burst(r.left+r.width/2,r.top+r.height/2,QN[l+1][1],26,220);}catch(e){}}
+  if(b.dataset.m==="buy"){const pr=PRICE[C[k].h]||500;if(store.tok<pr){SFX.play("ui_error",.6);return;}store.tok-=pr;grant(k);save();SFX.play("ui_buy",.9);}
+  else if(b.dataset.m==="up"){const l=lvl(k);if(l>=6)return;if(store.up<UPC[l]){SFX.play("ui_error",.6);return;}store.up-=UPC[l];store.cards[k]=Object.assign({l:0,bc:"",au:false,an:false},store.cards[k]);store.cards[k].l=l+1;cardPrev=l+1;save();SFX.play("win");try{const r=document.querySelector(".bigc").getBoundingClientRect();FX.ring(r.left+r.width/2,r.top+r.height/2,QN[l+1][1],120,6);FX.burst(r.left+r.width/2,r.top+r.height/2,QN[l+1][1],26,220);}catch(e){}}
   renderCard();renderDeck(true);renderLobby();});
 function claimCL(){if(!clPending())return;const i=store.clc++;const m=i%4;
   if(m===0){const k=randNew();if(k)gainCard(k,"Mốc sưu tập "+(i+1)*5);else gainRes("gold",200,"Mốc sưu tập "+(i+1)*5);}
@@ -444,7 +429,7 @@ const POOL=E.COLLECT.slice();
 function rnd3(ex){const o=[];while(o.length<3){const k=POOL[Math.floor(Math.random()*POOL.length)];if(!ex.includes(k)&&!o.includes(k))o.push(k);}return o;}
 function cardTile(k,attr,u){const d=C[k],ug=u&&u.n?`<span class="ugb">⬆${u.n}</span>`:"";
   const cs=d.c-((u&&u.c)||0),pw=d.p+((u&&u.p)||0);
-  return `<button type="button" class="gc mdc" style="--hc:${HC[d.h]}" ${attr} aria-label="${esc(d.n)}">${art(k)}<span class="cst${cs<d.c?" up":""}">${cs}</span><span class="pwh${pw>d.p?" up":""}">${pw}</span>${ug}</button>`;}
+  return `<button type="button" class="gc mdc" style="--hc:${HC[d.h]}" ${attr} aria-label="${esc(d.n)}">${nbL(k)}${art(k)}<span class="cst${cs<d.c?" up":""}">${cs}</span><span class="pwh${pw>d.p?" up":""}">${pw}</span>${ug}</button>`;}
 /* ---- trận theo chế độ ---- */
 function startModeGame(mode,pDeck,foeDeck,upP,upA,xo){mmBot(nm=>{startModeGame0(mode,pDeck,foeDeck,upP,upA,xo);$("foeName").textContent=nm;runMatchIntro("LƯỢT 1",mode.lbl||"",true);});}
 function startModeGame0(mode,pDeck,foeDeck,upP,upA,xo){
@@ -529,16 +514,16 @@ function openModeHub(k){if(k==="online"){onlineFind();return;}if(k==="draft")ope
 /* ---- sự kiện ---- */
 $("runBody").addEventListener("click",ev=>{const b=ev.target.closest("[data-drp],[data-dru],[data-cq]");if(!b)return;
   if(b.dataset.drp){const R=store.run;R.deck.push(b.dataset.drp);SFX.play("tap");if(R.deck.length>=DR_SIZE){R.ph="play";}else R.offer=rnd3(R.deck);save();renderDraft();}
-  else if(b.dataset.dru!=null){const R=store.run;if(!R.off)return;const [k,kk]=R.off[+b.dataset.dru];const u=addUpg(k,R.upg[k],kk);R.upg[k]=u;R.off=null;R.ph="play";R.hist.push(`Nâng cấp ${C[k].n}: ${UPK[kk]}.`);save();SFX.play("win");showGain("Nâng cấp thẻ",`${cardTile(k,"tabindex=\"-1\"",u)}<div class="big">${esc(C[k].n)}</div><div>${esc(UPK[kk])}</div>`,"#7dff8a");renderDraft();}
+  else if(b.dataset.dru!=null){const R=store.run;if(!R.off)return;const [k,kk]=R.off[+b.dataset.dru];const u=addUpg(k,R.upg[k],kk);R.upg[k]=u;R.off=null;R.ph="play";R.hist.push(`Nâng cấp ${C[k].n}: ${UPK[kk]}.`);save();showGain("Nâng cấp thẻ",`${cardTile(k,"tabindex=\"-1\"",u)}<div class="big">${esc(C[k].n)}</div><div>${esc(UPK[kk])}</div>`,"#7dff8a");renderDraft();}
   else if(b.dataset.cq!=null){const i=+b.dataset.cq;store.conq.cur={t:i,me:MYHP,foe:CQ[i].hp,log:[]};save();renderConq();}});
-function drBuy(){const R=store.run;if(!R||R.buy>=HP_BUY||store.gold<HP_COST)return;store.gold-=HP_COST;R.buy++;R.hp++;R.hist.push(`Mua 1 máu (${HP_COST} vàng).`);save();SFX.play("win");renderDraft();renderLobby();}
+function drBuy(){const R=store.run;if(!R||R.buy>=HP_BUY)return;if(store.gold<HP_COST){SFX.play("ui_error",.6);return;}store.gold-=HP_COST;R.buy++;R.hp++;R.hist.push(`Mua 1 máu (${HP_COST} vàng).`);save();SFX.play("ui_buy",.9);renderDraft();renderLobby();}
 $("runBody").addEventListener("click",ev=>{if(ev.target.closest("#drBuy"))drBuy();});
 $("runBody").addEventListener("keydown",ev=>{if((ev.key==="Enter"||ev.key===" ")&&ev.target.matches(".ropc")){ev.preventDefault();ev.target.click();}});
 $("runFoot").addEventListener("click",ev=>{const id=ev.target.closest("button")&&ev.target.closest("button").id;if(id==="drBuy"){drBuy();return;}if(id==="drSkip"){store.run.ph="play";store.run.off=null;save();renderDraft();return;}
   if(id==="drPlay")drPlay();else if(id==="cqPlay")cqPlay();
   else if(id==="drQuit"){if(armQuit!=="dr"){armQuit="dr";ev.target.textContent="Bấm lần nữa để bỏ";return;}armQuit="";store.run=null;if(G&&G.mode&&G.mode.k==="draft")G=null;save();drNew();renderDraft();}
   else if(id==="cqQuit"){if(armQuit!=="cq"){armQuit="cq";ev.target.textContent="Bấm lần nữa để bỏ";return;}armQuit="";store.conq.cur=null;if(G&&G.mode&&G.mode.k==="conq")G=null;save();renderConq();}
-  else if(id==="drClaim"){const rw=drReward(store.run);store.gold+=rw.gold;store.up+=rw.up;store.tok+=rw.tok;store.evp+=rw.evp;drNew();SFX.play("win");renderDraft();renderLobby();}});
+  else if(id==="drClaim"){const rw=drReward(store.run);store.gold+=rw.gold;store.up+=rw.up;store.tok+=rw.tok;store.evp+=rw.evp;drNew();SFX.play("ui_reward");renderDraft();renderLobby();}});
 let armQuit="";
 $("modeDraft").addEventListener("click",()=>{SFX.play("tap");openDraft();});
 $("modeConq").addEventListener("click",()=>{SFX.play("tap");openConq();});
@@ -754,7 +739,7 @@ function wkModeEnd(r){const W=wkS();if(r.winner==="p")W.w++;else if(r.winner==="
   const nx=WK_MS.find((m,i)=>!W.cl.includes(i)&&W.w<m.w);return `Tuần này: ${W.w} thắng · ${W.l} thua`+(WK_MS.some((m,i)=>W.w>=m.w&&!W.cl.includes(i))?"<br><b>Có mốc thưởng tuần để nhận!</b>":nx?`<br>Còn ${nx.w-W.w} trận thắng đến mốc ${nx.t}`:"");}
 /* ---- sự kiện ---- */
 $("runBody").addEventListener("click",ev=>{const b=ev.target.closest("[data-jp],[data-jr],[data-ju],[data-jn],[data-js],[data-jx],[data-jy],[data-jf],[data-jk],[data-wm]");if(!b)return;
-  const d=b.dataset;if(d.wm!=null){const W=wkS(),i=+d.wm,m=WK_MS[i];if(W.w<m.w||W.cl.includes(i))return;W.cl.push(i);for(const k in m.rw)store[k]+=m.rw[k];save();SFX.play("win");renderWk();renderLobby();return;}
+  const d=b.dataset;if(d.wm!=null){const W=wkS(),i=+d.wm,m=WK_MS[i];if(W.w<m.w||W.cl.includes(i))return;W.cl.push(i);for(const k in m.rw)store[k]+=m.rw[k];save();SFX.play("ui_reward");renderWk();renderLobby();return;}
   const R=JR();if(!R)return;
   if(d.jp&&R.ph==="pick"){R.deck.push(d.jp);SFX.play("tap");if(R.deck.length>=DR_SIZE){R.off=relicOffer(R,3);R.rsn="start";R.ph="relic";}else R.offer=withR(R,()=>rnd3(R.deck));}
   else if(d.jr&&R.ph==="relic"&&R.off.includes(d.jr)){gainRelic(R,d.jr);SFX.play("win");const why=R.rsn;R.off=null;
@@ -777,13 +762,13 @@ function jrClick(id,el){
   else if(id==="jrAb"||id==="jdAb"){if(armJr!==id){armJr=id;el.textContent="Bấm lần nữa để bỏ";return;}armJr="";const s=id==="jrAb"?"jr":"jd";store[s]=null;if(G&&G.mode&&G.mode.k==="jr"&&G.mode.slot===s)G=null;save();jrHub();}
   else if(id==="jrHubB")jrHub();
   else if(id==="jrPlay")jrPlay();
-  else if(id==="jrBuy"){const R=JR();if(!R||R.ph!=="map"||R.buy>=hpBuyMax(R)||store.gold<HP_COST)return;store.gold-=HP_COST;R.buy++;R.hp++;R.hist.push(`Mua 1 máu (${HP_COST} vàng).`);save();SFX.play("win");renderJr();renderLobby();}
+  else if(id==="jrBuy"){const R=JR();if(!R||R.ph!=="map"||R.buy>=hpBuyMax(R))return;if(store.gold<HP_COST){SFX.play("ui_error",.6);return;}store.gold-=HP_COST;R.buy++;R.hp++;R.hist.push(`Mua 1 máu (${HP_COST} vàng).`);save();SFX.play("ui_buy",.9);renderJr();renderLobby();}
   else if(id==="jrRelSkip"){const R=JR();store.gold+=300;const why=R.rsn;R.off=null;if(why==="start")enterAct(R);else if(why==="boss"){if(R.act>=JR_ACTS-1)jrEnd(R,true);else{R.act++;enterAct(R);}}else jrAfterNode(R);save();renderJr();}
   else if(id==="jrUpSkip"){jrAfterNode(JR());save();renderJr();}
   else if(id==="jrFBack"){const R=JR();R.fk=null;R.fo=null;save();renderJr();}
   else if(id==="jrClaim"){const R=JR();if(!R||R.ph!=="done")return;const s=jrScore(R,R.win),rw=jrReward(s);for(const k in rw)store[k]+=rw[k];
     if(R.daily&&!R.prac){const D=jm().daily[R.daily];if(D&&!D.claimed){D.claimed=1;store.evp+=100;}}
-    store[jrSlot]=null;save();SFX.play("win");jrHub();renderLobby();}
+    store[jrSlot]=null;save();SFX.play("ui_reward");jrHub();renderLobby();}
   else if(id==="wkPlay")wkPlay();
   else return false;return true;}
 $("runBody").addEventListener("click",ev=>{const b=ev.target.closest("button[id]");if(b&&/^(jr|jd|wk)/.test(b.id))jrClick(b.id,b);});
@@ -793,7 +778,6 @@ $("modeWk").addEventListener("click",()=>{SFX.play("tap");openWk();});
 
 /* xếp hạng */
 const BOTS=["Hắc Phong","Tinh Vũ","Lam Nguyệt","Thiết Quyền","Bạch Hổ","Kim Ưng","Dạ Xoa","Hoả Long","Băng Tâm","Lôi Thần","Phong Vân","Tử Điện","Ngân Hà","Huyết Nguyệt","Thanh Xà","Cuồng Phong","Vô Ảnh","Thiên Mã","Địa Long","Xích Diệm","Hàn Băng","Kim Cương","Ảo Mộng","Chiến Thần","Hải Vương","Sơn Quân","Lưu Tinh","Nguyệt Ảnh","Thần Phong","Quang Minh"];
-function botScore(n,i){let h=0;for(const ch of n)h=(h*31+ch.charCodeAt(0))%9973;const day=Math.floor(Date.now()/864e5);return Math.round((30-i)*2.2+h%14+((day*(h%5+1))%9));}
 const LBM=[["rank","Đấu thường"],["online","Online"],["jr","Hành Trình"],["wk","Biến Động"],["conq","Chinh phục"],["draft","Tuyển chọn"]];
 const LBR={d:[[1,1,{gold:300,tok:100}],[2,3,{gold:200,tok:60}],[4,10,{gold:120,tok:30}],[11,30,{gold:60}],[31,9999,{gold:20}]],
   m:[[1,1,{gold:3000,tok:1000,up:500}],[2,3,{gold:2000,tok:600,up:300}],[4,10,{gold:1200,tok:300}],[11,30,{gold:600,tok:150}],[31,9999,{gold:200}]],
@@ -828,14 +812,14 @@ function renderRank(){const pend=lbPending(),pm=new Set(pend.map(x=>x.mode));
   h+=`<div class="rkl">${rows.slice(0,30).map((r,i)=>`<div class="rk${r.me?" me":""}${i<3?" t"+(i+1):""}"><b>${i+1}</b><span>${esc(r.n)}</span><span>${r.v} điểm</span></div>`).join("")}${me>=30?`<div class="rk me"><b>${me+1}</b><span>${esc(store.name||"Bạn")}</span><span>${mypts} điểm</span></div>`:""}</div><div class="shn">Đối thủ trong bảng hiện là máy mô phỏng cho đến khi có máy chủ xếp hạng.</div>`;
   $("rankBody").innerHTML=h;}
 function openRank(){renderRank();$("ovRank").classList.add("on");}
-$("rankModes").addEventListener("click",ev=>{const b=ev.target.closest("[data-rm]");if(!b)return;rkMode=b.dataset.rm;SFX.play("tap");renderRank();$("rankBody").scrollTop=0;});
-$("rankPer").addEventListener("click",ev=>{const b=ev.target.closest("[data-rp]");if(!b)return;rkPer=b.dataset.rp;SFX.play("tap");renderRank();});
+$("rankModes").addEventListener("click",ev=>{const b=ev.target.closest("[data-rm]");if(!b)return;rkMode=b.dataset.rm;SFX.play("ui_tab");renderRank();$("rankBody").scrollTop=0;});
+$("rankPer").addEventListener("click",ev=>{const b=ev.target.closest("[data-rp]");if(!b)return;rkPer=b.dataset.rp;SFX.play("ui_tab");renderRank();});
 $("rankBody").addEventListener("click",ev=>{const b=ev.target.closest("[data-rc]");if(!b)return;const [mode,kk,kind]=b.dataset.rc.split("|"),L=lbS(),id=mode+"|"+kk;if(L.cl[id])return;const x=lbPending().find(y=>y.mode===mode&&y.kk===kk);if(!x)return;L.cl[id]=1;for(const k in x.rw)store[k]+=x.rw[k];save();showGain("Thưởng xếp hạng",`<div class="gfs big">${rwHTML(x.rw)}</div><div>Hạng ${x.rank} · ${LBM.find(m=>m[0]===mode)[1]}</div>`,"#ffd65a");renderRank();renderLobby();});
 /* ảnh đại diện tải lên */
 $("avFile").addEventListener("change",ev=>{const f=ev.target.files&&ev.target.files[0];ev.target.value="";if(!f||!/^image\//.test(f.type))return;const rd=new FileReader();
   rd.onload=()=>{const im=new Image();im.onload=()=>{const cv=document.createElement("canvas");cv.width=cv.height=160;const m=Math.min(im.width,im.height),cx=cv.getContext("2d");cx.drawImage(im,(im.width-m)/2,(im.height-m)/2,m,m,0,0,160,160);
     try{store.avImg=cv.toDataURL("image/jpeg",.82);save();$("avMe").innerHTML=meAv();renderLobby();}catch(e){}};im.src=rd.result;};rd.readAsDataURL(f);});
-$("btnGift").addEventListener("click",()=>{for(const k of ["gold","up","tok","evp"])store[k]+=99999;save();SFX.play("win");renderLobby();showGain("Tài khoản thử nghiệm",`<div class="big">+99.999</div><div>Vàng, điểm nâng cấp, token và điểm sự kiện</div>`,"#ffd65a");});
+$("btnGift").addEventListener("click",()=>{for(const k of ["gold","up","tok","evp"])store[k]+=99999;save();renderLobby();showGain("Tài khoản thử nghiệm",`<div class="big">+99.999</div><div>Vàng, điểm nâng cấp, token và điểm sự kiện</div>`,"#ffd65a");});
 $("avClear").addEventListener("click",()=>{store.avImg="";save();$("avMe").innerHTML=meAv();renderLobby();});
 let arenaSel=null;
 function renderArenaPick(){const ks=Object.keys(ARENAS);if(!arenaSel)arenaSel=store.arena;
@@ -846,7 +830,7 @@ $("lbMisBtn").addEventListener("click",()=>{SFX.play("tap");renderMis();$("ovMis
 $("lbShow").addEventListener("click",()=>{const k=$("lbShow").dataset.k;if(k&&C[k]){SFX.play("tap");openCard(k);}});
 $("lbArena").addEventListener("click",()=>{arenaSel=store.arena;renderArenaPick();$("ovArena").classList.add("on");SFX.play("tap");});
 $("arenaBody").addEventListener("click",ev=>{const b=ev.target.closest("[data-ar]");if(!b)return;arenaSel=b.dataset.ar;SFX.play("tap");renderArenaPick();});
-$("btnArenaUse").addEventListener("click",()=>{const k=arenaSel;if(!store.arenas.includes(k)){const pr=ARENAS[k][4];if(store.gold<pr)return;store.gold-=pr;store.arenas.push(k);SFX.play("win");}store.arena=k;save();renderArenaPick();renderLobby();});
+$("btnArenaUse").addEventListener("click",()=>{const k=arenaSel;if(!store.arenas.includes(k)){const pr=ARENAS[k][4];if(store.gold<pr){SFX.play("ui_error",.6);return;}store.gold-=pr;store.arenas.push(k);SFX.play("ui_buy",.9);}store.arena=k;save();renderArenaPick();renderLobby();});
 $("btnLobby").addEventListener("click",showLobby);$("btnEndLobby").addEventListener("click",showLobby);
 $("lbPlay").addEventListener("click",()=>{SFX.play("tap");playNow();});$("modePlay").addEventListener("click",playNow);
 $("lbDeck").addEventListener("click",openDecks);$("lbProfile").addEventListener("click",()=>$("btnProfile").click());
@@ -888,7 +872,7 @@ let pickAlt=0;
 function openPick(k,alt){if(alt===undefined)pickAlt=0;else pickAlt=alt;F.foc=k;const d0=C[k],LK=[k,...(LINKS[k]||[])],ai=pickAlt%LK.length,sid=LK[ai],d=C[sid],on=draft.has(k),own=OWN.has(k),full=draft.size>=12;
   const btn=on?`<button type="button" class="btn pkrm" data-pk="rm">Bỏ khỏi bộ bài</button>`:!own?`<button type="button" class="btn" disabled>Chưa sở hữu thẻ này</button>`:full?`<button type="button" class="btn" disabled>Bộ bài đã đủ 12 thẻ</button>`:`<button type="button" class="btn end" data-pk="add">Thêm vào bộ bài</button>`;
   const lv=lvl(k),qn=QN[lv]||QN[0],kw=kwfx;
-  $("pkBody").innerHTML=`${lv?`<div class="zq" style="--qc:${qn[1]}">${esc(qn[0])} · Cấp ${lv}</div>`:""}<div class="fanw">${fanSides(LK,ai)}<span class="gc${qCls(sid)}" style="--hc:${HC[d.h]};--bk:${backBg()}${qSt(sid)};display:block">${art(sid)}<span class="cst">${d.c}</span><span class="pwh">${d.p}</span><span class="n">${logo(sid)}</span>${bacTag(d)}${lkBtn(ai,LK.length)}${flipBtn()}</span></div>
+  $("pkBody").innerHTML=`${lv?`<div class="zq" style="--qc:${qn[1]}">${esc(qn[0])} · Cấp ${lv}</div>`:""}<div class="fanw">${fanSides(LK,ai)}<span class="gc${qCls(sid)}" style="--hc:${HC[d.h]};--bk:${backBg()}${qSt(sid)};display:block">${nbL(sid)}${art(sid,1)}<span class="cst">${d.c}</span><span class="pwh">${d.p}</span><span class="n">${logo(sid)}</span>${bacTag(d)}${lkBtn(ai,LK.length)}${flipBtn()}</span></div>
   <div class="pkt">${sid!==k?"Thẻ liên quan của "+esc(d0.n):esc(HE[d.h]||"")+" · "+esc(DANG[d.t]||"")}</div><div class="zt">${kw(skillText(d))}</div>
   <div class="pkn">Bộ bài: <b>${draft.size}/12</b>${on?" · <span class=\"ok\">đã có trong bộ</span>":""}</div>
   <div class="pka">${btn}<button type="button" class="btn pkfv${store.fav.includes(k)?" on":""}" data-pk="fav" aria-label="Yêu thích" aria-pressed="${store.fav.includes(k)}">★</button></div><button type="button" class="zcl" data-pk="x" aria-label="Đóng">✕</button>`;
@@ -1051,7 +1035,7 @@ function syncDeckToolsUI(){
   strip.innerHTML=`<div class="rs-hd"><span>✨ Đề xuất cho bộ đang xếp (${draft.size}/12):</span><small>Chạm thẻ để thêm nhanh</small></div><div class="rs-row">${recs.map(r=>{const d=C[r.id];return `<button type="button" class="rs-it" data-radd="${r.id}" style="--hc:${HC[d.h]}"><span class="rs-c">${d.c}</span><span class="rs-p">${d.p}</span>${art(r.id)}<b>${esc(d.n)}</b><i>${esc(r.reason)}</i></button>`;}).join("")}</div>`;
   if(typeof spWatch==="function")spWatch(strip);
 }
-{const _rdOrig=renderDeck;renderDeck=function(){_rdOrig.apply(this,arguments);try{syncDeckToolsUI();}catch(e){}};}
+/* (renderDeck ở 06 tự gọi syncDeckToolsUI) */
 
 let recTab="card";
 const REC_PRESETS_CACHE={};
@@ -1177,7 +1161,7 @@ if($("recInline"))$("recInline").addEventListener("click",ev=>{
   const k=b.dataset.radd;if(!F.col&&draft.size<12&&OWN.has(k)&&!draft.has(k)){draft.add(k);SFX.play("place");renderDeck(true);}
 });
 if($("recTabs"))$("recTabs").addEventListener("click",ev=>{
-  const b=ev.target.closest("[data-rt]");if(!b)return;recTab=b.dataset.rt;SFX.play("tap");renderRecModal();$("recBody").scrollTop=0;
+  const b=ev.target.closest("[data-rt]");if(!b)return;recTab=b.dataset.rt;SFX.play("ui_tab");renderRecModal();$("recBody").scrollTop=0;
 });
 if($("recBody"))$("recBody").addEventListener("click",ev=>{
   const bf=ev.target.closest("[data-rfill]");
@@ -1252,3 +1236,19 @@ try{window.claude&&window.claude.hot&&window.claude.hot.snapshot&&window.claude.
 if(window.claude&&window.claude.hot&&window.claude.hot.ready)window.claude.hot.ready(start);
 else start((window.claude&&window.claude.hot&&window.claude.hot.data)||{});
 window.UI={get G(){return G;},render,newGame,get t(){return tLeft;},set t(v){tLeft=v;},get armed(){return tArmed;}};
+
+/* ===== gpu23: âm mở / đóng bảng (.ov) =====
+   Theo dõi thuộc tính class của từng .ov (không theo dõi cả cây DOM). Các thay đổi trong cùng một lượt xử lý được gộp:
+   có bảng mở -> ui_open, chỉ có bảng đóng -> ui_close; tối đa 1 tiếng mỗi 150ms. Bỏ qua bảng có âm riêng
+   (kết thúc trận, nhận thưởng/gacha, mở gói). */
+(function(){
+  const SKIP=new Set(["ovEnd","ovGacha","ovOpen"]);let q=null,lastT=0;
+  const flush=()=>{const o=q;q=null;const now=performance.now();if(now-lastT<150)return;
+    if(o.open){lastT=now;SFX.play("ui_open",.55);}else if(o.close){lastT=now;SFX.play("ui_close",.45);}};
+  const mo=new MutationObserver(ms=>{for(const m of ms){const el=m.target;if(SKIP.has(el.id))continue;
+    const was=/(^|\s)on(\s|$)/.test(m.oldValue||""),is=el.classList.contains("on");if(was===is)continue;
+    if(!q){q={open:false,close:false};queueMicrotask(flush);}if(is)q.open=true;else q.close=true;}});
+  const watch=el=>{if(el&&el.nodeType===1&&el.classList.contains("ov")&&!el._ovSnd){el._ovSnd=1;mo.observe(el,{attributes:true,attributeFilter:["class"],attributeOldValue:true});}};
+  document.querySelectorAll(".ov").forEach(watch);
+  new MutationObserver(ms=>{for(const m of ms)for(const n of m.addedNodes)watch(n);}).observe(document.body,{childList:true});
+})();

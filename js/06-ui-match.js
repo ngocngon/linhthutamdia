@@ -3,7 +3,7 @@ function render(){render0();paintZoom();}
 /* vá bàn đấu: so từng ô với lần vẽ trước, chỉ thay ô nào đổi */
 let BC=null;
 function laneKey(ln){const c=ln.children;return {l:c[1].outerHTML,o:[...c[0].children].map(x=>x.className+"|"+x.innerHTML),m:[...c[2].children].map(x=>x.className+"|"+x.innerHTML)};}
-function patchBoard(html){const b=$("board"),t=document.createElement("template");t.innerHTML=html;const nl=[...t.content.children];let keys;
+function patchBoard0(html){const b=$("board"),t=document.createElement("template");t.innerHTML=html;const nl=[...t.content.children];let keys;
   try{keys=nl.map(laneKey);}catch(e){b.innerHTML=html;BC=null;return;}
   if(!BC||BC.length!==nl.length||b.children.length!==nl.length||[...b.children].some(x=>x.children.length!==3)){b.replaceChildren(...nl);BC=keys;return;}
   for(let i=0;i<nl.length;i++){const live=b.children[i],nw=nl[i],k=keys[i],c=BC[i],lc=live.children,nc=[...nw.children];
@@ -14,9 +14,8 @@ function patchBoard(html){const b=$("board"),t=document.createElement("template"
     if(c.l!==k.l)live.children[1].replaceWith(nc[1]);}
   BC=keys;}
 /* patchBoard: thẻ đang lật bị dựng lại thì giữ tiếp hoạt ảnh lật, không chạy lại từ đầu */
-const _pb12=patchBoard;
-patchBoard=function(html){const fl=new Map();try{for(const m of document.querySelectorAll("#board .mc.flip")){const a=m.getAnimations?m.getAnimations().find(x=>/^(flip|flip3|gpuCardFlip)$/.test(x.animationName)&&x.playState==="running"):null;if(a)fl.set(m.dataset.mc,{el:m,t:a.currentTime||0});}}catch(e){}
-  _pb12(html);if(!fl.size)return;for(const [u,o] of fl){const n=document.querySelector(`#board [data-mc="${u}"]`);if(n&&n!==o.el&&!n.classList.contains("flip")){n.style.animationDelay=(-o.t)+"ms";n.classList.add("flip");n.addEventListener("animationend",()=>{n.style.animationDelay="";},{once:true});}}};
+function patchBoard(html){const fl=new Map();try{for(const m of document.querySelectorAll("#board .mc.flip")){const a=m.getAnimations?m.getAnimations().find(x=>/^(flip|flip3|gpuCardFlip)$/.test(x.animationName)&&x.playState==="running"):null;if(a)fl.set(m.dataset.mc,{el:m,t:a.currentTime||0});}}catch(e){}
+  patchBoard0(html);if(!fl.size)return;for(const [u,o] of fl){const n=document.querySelector(`#board [data-mc="${u}"]`);if(n&&n!==o.el&&!n.classList.contains("flip")){n.style.animationDelay=(-o.t)+"ms";n.classList.add("flip");n.addEventListener("animationend",()=>{n.style.animationDelay="";},{once:true});}}};
 function render0(){
   const play=playing();
   $("meName").textContent=(store.name||"Bạn").toUpperCase();
@@ -95,7 +94,7 @@ function render0(){
   if(!(drag&&drag.on)){$("hand").dataset.n=G.hand.p.length;$("hand").style.setProperty("--n",Math.max(1,G.hand.p.length));const hh=G.hand.p.length?G.hand.p.map((c,ix,ar)=>{const kk=ix-(ar.length-1)/2;
     const d=C[c.id],cs=E.cost(G,c),pw=handPow(c);
     const no=play&&![0,1,2].some(li=>E.canPlay(G,"p",c,li));
-    return `<button type="button" class="hc${c.uid===sel?" sel":""}${no?" no":""}${c.sil?" sil":""}${qCls(c.id)}" style="--i:${ix};--k:${kk};--a:${Math.abs(kk)};--hc:${HC[d.h]}${qSt(c.id)}" data-hc="${c.uid}" aria-label="${d.n}, năng lượng ${cs}, sức mạnh ${pw}">${art(c.id)}<span class="cst ${cs<d.c?"up":cs>d.c?"down":""}">${cs}</span><span class="pwh ${pw>d.p?"up":pw<d.p?"down":""}">${pw}</span><span class="n">${logo(d.id)}</span>${spk(d.id)}${markBadges(c,"hand")}<i class="fl"></i>${c.ug?`<span class="ugb">⬆${c.ug}</span>`:""}</button>`;
+    return `<button type="button" class="hc${c.uid===sel?" sel":""}${no?" no":""}${c.sil?" sil":""}${qCls(c.id)}" style="--i:${ix};--k:${kk};--a:${Math.abs(kk)};--hc:${HC[d.h]}${qSt(c.id)}" data-hc="${c.uid}" aria-label="${d.n}, năng lượng ${cs}, sức mạnh ${pw}">${nbL(c.id)}${art(c.id)}<span class="cst ${cs<d.c?"up":cs>d.c?"down":""}">${cs}</span><span class="pwh ${pw>d.p?"up":pw<d.p?"down":""}">${pw}</span><span class="n">${logo(d.id)}</span>${spk(d.id)}${markBadges(c,"hand")}<i class="fl"></i>${c.ug?`<span class="ugb">⬆${c.ug}</span>`:""}</button>`;
   }).join(""):`<div class="empty">Hết bài trên tay</div>`;const he=$("hand");if(he._h!==hh||he.children.length===0){he._h=hh;he.innerHTML=hh;}}
   $("orb").textContent=String(G.energy.p);$("btnEnd").classList.toggle("nudge",!!(play&&G.phase==="play"&&!G.hand.p.some(c=>[0,1,2].some(li=>E.canPlay(G,"p",c,li)))));
   const end=$("btnEnd");
@@ -112,7 +111,50 @@ function render0(){
 }
 
 let ddPlan=false;
-async function endTurnUI(auto){
+/* ==================== gpu21: TỰ TUA NHANH KHI HOẠT ẢNH CỦA MỘT LƯỢT KÉO DÀI QUÁ 15 GIÂY ====================
+   Đếm từ lúc bấm Kết thúc lượt (lật bài, kỹ năng, cuối lượt, đầu lượt mới). Quá 15 giây thì phần còn lại
+   chạy ở tốc độ tua nhanh và hiện nhãn "⏩ Tua nhanh"; hết lượt trả về tốc độ người chơi đã chọn. */
+(function () {
+  "use strict";
+  const FF_AFTER = 15000, FF_SPD = 0.45;
+  const FF = { iv: 0, t0: 0, on: false };
+  let chip = null;
+  function showChip(on) {
+    if (on) {
+      if (!chip) { chip = document.createElement("div"); chip.id = "ffChip"; chip.setAttribute("aria-live", "polite"); chip.textContent = "⏩ Tua nhanh"; }
+      if (!chip.isConnected) document.body.appendChild(chip);
+      chip.classList.add("on");
+    } else if (chip) chip.classList.remove("on");
+  }
+  function engage() {
+    if (FF.on) return;
+    const old = SPD;
+    if (old <= FF_SPD) return;
+    FF.on = true;
+    SPD = FF_SPD;
+    /* các hoạt ảnh đang chạy dở cũng tăng tốc theo (chỉ hoạt ảnh có hồi kết, không đụng hào quang lặp vô hạn) */
+    try {
+      for (const a of document.getAnimations()) {
+        const t = a.effect && a.effect.getTiming && a.effect.getTiming();
+        if (t && isFinite(t.iterations) && a.playState === "running") a.playbackRate = a.playbackRate * (old / FF_SPD);
+      }
+    } catch (e) {}
+    showChip(true);
+  }
+  function start() {
+    FF.t0 = performance.now(); FF.on = false; clearInterval(FF.iv);
+    FF.iv = setInterval(() => { if (!document.hidden && performance.now() - FF.t0 > FF_AFTER) engage(); }, 200);
+  }
+  function stop() {
+    clearInterval(FF.iv); FF.iv = 0;
+    if (FF.on) { FF.on = false; try { SPD = SPDV[store.spd] || 1; } catch (e) { SPD = 1; } }
+    showChip(false);
+  }
+  window.FFTURN = { start, stop, get on() { return FF.on; } }; /* endTurnUI (06) và onlineResolve (05) bọc phần diễn của lượt bằng start/stop */
+})();
+
+async function endTurnUI(auto){FFTURN.start();try{return await endTurnRun(auto);}finally{FFTURN.stop();}}
+async function endTurnRun(auto){
   if(!playing())return;
   if(G.online){onlineEnd();return;}
   sel=look=moveSel=null;
@@ -209,7 +251,7 @@ function showEnd(){
   render();
   const fw=r.kind==="end"?endFinale():0;
   const eb=reduced?0:1300;if(eb)setTimeout(()=>{try{endBanner(r);}catch(e){}},fw);
-  setTimeout(()=>{if(r.winner==="p"){FX.rain("#ffd65a");SFX.play("win");}else if(r.winner==="a")SFX.play("lose");$("ovEnd").classList.add("on");},fw+eb);
+  setTimeout(()=>{if(r.winner==="p"){FX.rain("#ffd65a");SFX.play("win");}else if(r.winner==="a")SFX.play("lose");else SFX.play("draw_game",.85);$("ovEnd").classList.add("on");},fw+eb);
 }
 function newGame(){
   BC=null;TN0=0;LOCID=[];seenRev.clear();prevPow.clear();seenLoc.clear();seenStg.clear();prevLd=[];PWV={};sel=look=moveSel=null;armRetreat=0;
@@ -225,10 +267,6 @@ function newGame(){
 }
 function closeAll(){document.querySelectorAll(".ov.on").forEach(o=>o.classList.remove("on"));}
 
-function rowHTML(k){
-  const d=C[k];
-  return `<div class="row plain" style="--hc:${HC[d.h]}"><span class="em">${art(k)}</span><span><span class="t1">${d.n}</span><br><span class="tm">${HE[d.h]} · năng lượng ${d.c} · sức mạnh ${d.p}</span><br><span class="t2">${kwfx(skillText(d))}</span></span></div>`;
-}
 function chipRow(el,items,cur,attr){
   $(el).innerHTML=items.map(([k,label,col])=>`<button type="button" class="chip${cur===k?" on":""}" style="--hc:${col||"#a5a1d6"}" ${attr}="${k}">${label}</button>`).join("");
 }
@@ -267,12 +305,13 @@ function renderDeck(keepScroll){
   const ids=sortIds(E.COLLECT.filter(deckMatches));$("filtCnt").textContent=ids.length;
   const full=!F.col&&draft.size>=12,fvs=new Set(store.fav);
   $("deckList").innerHTML=ids.map(k=>{const d=C[k],on=draft.has(k);
-    return `<button type="button" class="gc${on?" on":""}${fvs.has(k)?" fav":""}${F.foc===k?" foc":""}${full&&!on?" dim":""}${OWN.has(k)?qCls(k):" lock"}" style="--hc:${HC[d.h]}${qSt(k)}" data-pick="${k}" aria-label="${d.n}, năng lượng ${d.c}, sức mạnh ${d.p}">${art(k)}<span class="cst">${d.c}</span><span class="pwh">${d.p}</span><span class="n">${logo(d.id)}</span>${spk(d.id)}<span class="fv">★</span><span class="ck">✓</span>${OWN.has(k)&&canUp(k)?`<span class="gup" aria-label="Có thể nâng cấp">▲</span>`:""}<span class="gi" style="--qc:${(QN[lvl(k)]||QN[0])[1]}">${OWN.has(k)?`<span class="pips">${[1,2,3,4,5,6].map(i=>`<i class="${i<=lvl(k)?"f":""}"></i>`).join("")}</span>`:"<em>Chưa có</em>"}</span></button>`;}).join("")
+    return `<button type="button" class="gc${on?" on":""}${fvs.has(k)?" fav":""}${F.foc===k?" foc":""}${full&&!on?" dim":""}${OWN.has(k)?qCls(k):" lock"}" style="--hc:${HC[d.h]}${qSt(k)}" data-pick="${k}" aria-label="${d.n}, năng lượng ${d.c}, sức mạnh ${d.p}">${nbL(k)}${art(k)}<span class="cst">${d.c}</span><span class="pwh">${d.p}</span><span class="n">${logo(d.id)}</span>${spk(d.id)}<span class="fv">★</span><span class="ck">✓</span>${OWN.has(k)&&canUp(k)?`<span class="gup" aria-label="Có thể nâng cấp">▲</span>`:""}<span class="gi" style="--qc:${(QN[lvl(k)]||QN[0])[1]}">${OWN.has(k)?`<span class="pips">${[1,2,3,4,5,6].map(i=>`<i class="${i<=lvl(k)?"f":""}"></i>`).join("")}</span>`:"<em>Chưa có</em>"}</span></button>`;}).join("")
     ||`<div class="none" style="grid-column:1/-1">Không có thẻ nào khớp bộ lọc.</div>`;
   body.scrollTop=y;
   const f=F.foc&&C[F.foc];
   $("deckDetail").innerHTML="";$("deckDetail").style.display="none";
   $("btnSaveDeck").disabled=draft.size!==12;
+  try{syncDeckToolsUI();}catch(e){} /* thanh công cụ bộ bài (07) */
 }
 function toggleDraft(k){if(draft.has(k))draft.delete(k);else if(draft.size<12&&OWN.has(k))draft.add(k);}
 function lhash(t){let h=2166136261;for(let i=0;i<t.length;i++)h=Math.imul(h^t.charCodeAt(i),16777619)>>>0;return h;}
@@ -280,7 +319,6 @@ const LGC={};
 function logo(id){if(LGC[id])return LGC[id];const n=C[id].n,L=n.length,sz=L<=7?"s":L<=11?"m":L<=15?"l":"x";
   return LGC[id]=`<i class="lg lgz ${sz}" data-t="${n}"><b>${n}</b></i>`;}
 function spk(id){return lvl(id)>=4?`<span class="spk"><i></i><i></i><i></i><i></i></span>`:"";}
-const AUC={};
 /* aura v8 thay bằng v9 */
 function srcN(by){if(!by||by==="?")return "một hiệu ứng trong trận";if(by.slice(0,2)==="L:"){const L=LOC[by.slice(2)];return "chiến địa "+(L?L.n:"");}return C[by]?C[by].n:"một hiệu ứng trong trận";}
 /* tách nguyên nhân: tạm tắt từng thẻ/chiến địa đang có hiệu lực rồi xem con số đổi bao nhiêu */
@@ -448,13 +486,15 @@ function renderProfile(){renderAcc();
   $("avGrid").innerHTML=store.avs.map(k=>`<button type="button" class="avb${store.avatar===k?" on":""}" style="--hc:${HC[C[k].h]}" data-av="${k}" aria-label="${C[k].n}">${artFace(k)}</button>`).join("");
 }
 /* ---- đồng hồ lượt 90s & dây cháy Marvel Snap (chỉ cập nhật chữ mỗi giây để nhẹ DOM) ---- */
-let _tPrevKey="";
+let _tPrevKey="",_tBW=0;addEventListener("resize",()=>{_tBW=0;},{passive:true});
 function resetTimer(armed){tLeft=TURN_SEC;tArmed=armed;tLast=0;tBeep=0;_tPrevKey="";paintTimer();}
 function paintTimer(){
   if(!G)return;
   const play=playing(),bar=$("tbar"),prog=play?Math.max(0,Math.min(1,tLeft/TURN_SEC)):0,pStr=prog.toFixed(4);
-  $("tfill").style.transform=`scaleX(${pStr})`;
-  bar.style.setProperty("--tprog",pStr);
+  const fill=$("tfill"),fs=`scaleX(${pStr})`;if(fill.style.transform!==fs)fill.style.transform=fs;
+  /* gpu20: đốm lửa dây cháy đi bằng transform (không tính lại bố cục mỗi 0,1 giây) */
+  let sp=bar._sp;if(!sp||!sp.isConnected){sp=bar._sp=document.createElement("i");sp.id="tspark";sp.setAttribute("aria-hidden","true");sp.appendChild(document.createElement("b"));bar.appendChild(sp);_tBW=0;}
+  if(!_tBW)_tBW=bar.clientWidth;const tx=`translateX(${(prog*_tBW).toFixed(1)}px)`;if(sp.style.transform!==tx)sp.style.transform=tx;
   const sec=Math.max(0,Math.ceil(tLeft)),low=play&&tArmed&&sec<=15,idle=!play||!tArmed;
   const key=`${play?1:0}|${idle?1:0}|${low?1:0}|${G.turn}|${sec}`;
   if(key===_tPrevKey)return;
@@ -480,10 +520,15 @@ function tickTimer(){
   paintTimer();
 }
 setInterval(tickTimer,100);
+let pilesSide="p";
 function renderPiles(){
-  const sec=(title,arr)=>`<h3>${title} (${arr.length})</h3>`+(arr.length?arr.map(c=>rowHTML(c.id)).join(""):`<div class="none">Trống.</div>`);
-  $("pilesBody").innerHTML=sec("Bạn đã vứt bỏ",G.disc.p)+sec("Bạn bị tiêu huỷ",G.dead.p)+sec("Máy đã vứt bỏ",G.disc.a)+sec("Máy bị tiêu huỷ",G.dead.a);
+  const nm={p:"Bạn",a:"Đối thủ"},cnt=x=>G.disc[x].length+G.dead[x].length;
+  $("pilesTabs").innerHTML=["p","a"].map(x=>`<button type="button" class="mb-tab${pilesSide===x?" on":""}" data-ps="${x}" aria-pressed="${pilesSide===x}">${nm[x]}<b>${cnt(x)}</b></button>`).join("");
+  const grp=(cls,ic,title,arr)=>`<section class="mb-grp ${cls}"><h3><i>${ic}</i>${title}<b>${arr.length}</b></h3>`+(arr.length?`<div class="mb-grid">${arr.map((c,i)=>({c,n:i+1})).reverse().map(({c,n})=>`<button type="button" class="mb-c" data-zk="${c.id}" aria-label="${esc(C[c.id].n)}, thứ ${n}">${miniCard(c.id,false).replace(/^<button[^>]*>|<\/button>$/g,"")}<em>${n}</em></button>`).join("")}</div>`:`<div class="mb-none">Chưa có thẻ nào</div>`)+`</section>`;
+  $("pilesBody").innerHTML=grp("disc","↯","Vứt bỏ",G.disc[pilesSide])+grp("dead","✕","Tiêu huỷ",G.dead[pilesSide]);
 }
+$("pilesTabs").addEventListener("click",ev=>{const b=ev.target.closest("[data-ps]");if(!b)return;pilesSide=b.dataset.ps;SFX.play("ui_tab");renderPiles();$("pilesBody").scrollTop=0;});
+$("pilesBody").addEventListener("click",ev=>{const b=ev.target.closest("[data-zk]");if(b){SFX.play("tap");openPZ(b.dataset.zk);}});
 
 /* ---- đặt bài & rút lại siêu nhạy kiểu Marvel Snap ---- */
 function recordHandOrigin(uid){
@@ -580,7 +625,7 @@ function paintZoom(){const z=$("zoom");let id=null;
   if(qd&&playing()&&!OL.sub)act=`<button type="button" class="ib alt" data-zdo="unplay">Rút lại thẻ này</button>`;
   let skTxt=skillText(d);
   if(bi){const qp=questProg(bi);if(qp)skTxt=skTxt.replace(/\(\d+\/\d+\)/,qp[2]?"(Hoàn thành ✓)":`(${qp[0]}/${qp[1]})`);}
-  z.innerHTML=`${lv?`<div class="zq" style="--qc:${qn[1]}">${esc(qn[0])} · Cấp ${lv}</div>`:""}<span class="gc${qCls(id)}" style="--hc:${HC[d.h]}${qSt(id)};display:block">${art(id)}<span class="cst${cs<d.c?" up":cs>d.c?" down":""}">${cs}</span><span class="pwh ${pw>d.p?"up":pw<d.p?"down":""}">${pw}</span><span class="n">${logo(id)}</span>${bi?markBadges(bi,zWhere):""}</span>
+  z.innerHTML=`${lv?`<div class="zq" style="--qc:${qn[1]}">${esc(qn[0])} · Cấp ${lv}</div>`:""}<span class="gc${qCls(id)}" style="--hc:${HC[d.h]}${qSt(id)};display:block">${nbL(id)}${art(id,1)}<span class="cst${cs<d.c?" up":cs>d.c?" down":""}">${cs}</span><span class="pwh ${pw>d.p?"up":pw<d.p?"down":""}">${pw}</span><span class="n">${logo(id)}</span>${bi?markBadges(bi,zWhere):""}</span>
   <div class="zt">${kw(skTxt)}${mkNotes}${br}</div>${hc?`<div class="zhint">Kéo thẻ hoặc chạm chiến địa để đặt ngay.</div>`:""}<div class="zact">${act}</div><button type="button" class="zcl" aria-label="Đóng">✕</button>`;z.classList.add("on");}
 $("hand").addEventListener("click",ev=>{
   const hc=ev.target.closest("[data-hc]");if(!hc)return;
@@ -625,7 +670,11 @@ if($("setBgmVol"))$("setBgmVol").addEventListener("input",e=>{if(window.BGM)BGM.
 if($("setBgm"))$("setBgm").addEventListener("change",e=>{if(window.BGM)BGM.toggle(e.target.checked);else{store.battleBgm=!!e.target.checked;save();}});
 $("setMute").addEventListener("change",e=>{store.mute=e.target.checked;save();if(window.BGM)BGM.syncVol();if(G)render();renderLobby();});
 $("setGpu").addEventListener("change",e=>{store.gpu=!!e.target.checked;GPUON=store.gpu;document.body.classList.toggle("gpu",GPUON);BC=null;save();if(G)render();});
-$("setSpd").addEventListener("change",e=>{setSpd10(e.target.value);});
+$("setSpd").addEventListener("change",e=>{setSpd10(e.target.value);syncSetUi();});
+function renderSetSpd(){const sel=$("setSpd"),seg=$("setSpdSeg");if(!sel||!seg)return;const L=(Array.isArray(window.SPD_LEVELS)&&window.SPD_LEVELS.length)?window.SPD_LEVELS:[{k:"cham",n:"Chậm"},{k:"vua",n:"Vừa"},{k:"nhanh",n:"Nhanh"}];sel.innerHTML=L.map(o=>`<option value="${o.k}">${o.n}</option>`).join("");sel.value=SPDV[store.spd]?store.spd:"vua";seg.innerHTML=L.map(o=>`<button type="button" role="radio" class="sx-pill" data-k="${o.k}">${o.n}</button>`).join("");seg.style.setProperty("--n",L.length);syncSetUi();}
+function syncSetUi(){const seg=$("setSpdSeg");if(seg)seg.querySelectorAll(".sx-pill").forEach(b=>{const on=b.dataset.k===store.spd;b.classList.toggle("on",on);b.setAttribute("aria-checked",on);});const m=!!store.mute,o=$("ovSet");if(o)o.classList.toggle("sx-muted",m);const bg=$("setBgm");if(bg&&$("setBgmVol"))$("setBgmVol").closest(".sx-row").classList.toggle("sx-off",!bg.checked);}
+if($("setSpdSeg"))$("setSpdSeg").addEventListener("click",e=>{const b=e.target.closest(".sx-pill");if(!b)return;$("setSpd").value=b.dataset.k;$("setSpd").dispatchEvent(new Event("change"));SFX.play("tap");});
+['setMute','setBgm'].forEach(i=>{if($(i))$(i).addEventListener("change",()=>setTimeout(syncSetUi,0));});
 $("setFx").addEventListener("change",e=>{store.fx=e.target.checked?"on":"off";reduced=store.fx==="off";document.body.classList.toggle("rm",reduced);save();if(G)render();});
 $("setVib").addEventListener("change",e=>{store.vib=e.target.checked;save();});
 $("setGyro").addEventListener("change",e=>{store.gyro=e.target.checked;save();if(!store.gyro){$("hand").style.removeProperty("--gx");$("hand").style.removeProperty("--gy");}});
@@ -637,4 +686,4 @@ $("emoMenu").addEventListener("click",ev=>{const b=ev.target.closest("[data-emo]
 $("btnProfile").addEventListener("click",ev=>{if(!G||$("lobby").classList.contains("on"))return;ev.stopImmediatePropagation();ev.preventDefault();SFX.play("tap");$("emoMenu").classList.toggle("on");},true);
 $("modeOnline").addEventListener("click",()=>{SFX.play("tap");closeAll();onlineFind();});
 $("mmCancel").addEventListener("click",()=>{SFX.play("tap");clearTimeout(mmBotT);onlineReset();mmHide();});
-$("btnPiles").addEventListener("click",()=>{renderPiles();$("ovPiles").classList.add("on");});
+$("btnPiles").addEventListener("click",()=>{pilesSide="p";renderPiles();$("ovPiles").classList.add("on");});

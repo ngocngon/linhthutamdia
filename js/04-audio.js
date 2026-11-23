@@ -293,22 +293,81 @@ const SFX = (() => {
 
   const VIB = { ult: [15, 35, 65], boom: [20, 25, 50], place: 10, flip: 8, destroy: [25, 25, 35], snap: [25, 35, 25], act: 16, win: [35, 50, 35] };
 
+  /* ===== Mẫu âm thanh thật (sprite www/sfx/sfx.mp3 + sfx.json: tên → [bắt đầu, độ dài] giây) =====
+     Chưa tải xong / thiếu mẫu → dùng lại bộ tổng hợp S[...] ở trên làm dự phòng. */
+  const bufs = {};
+  let loadState = 0; // 0 chưa tải, 1 đang tải, 2 xong, 3 lỗi
+  const recent = {};
+  let voices = 0;
+  const DUCK = { ult: 0.9, boom: 0.7, destroy: 0.7, snap: 0.8, win: 1.6, lose: 1.4, horn: 0.6, e_sam: 0.5, e_dat: 0.5, gacha3: 1.4, loc: 0.5, timeout: 0.5 };
+
+  function loadSamples() {
+    if (loadState || !ac) return;
+    loadState = 1;
+    Promise.all([
+      fetch("sfx/sfx.json").then((r) => r.json()),
+      fetch("sfx/sfx.mp3").then((r) => r.arrayBuffer())
+    ])
+      .then(([idx, ab]) => new Promise((res, rej) => {
+        const p = ac.decodeAudioData(ab, (b) => res([idx, b]), rej);
+        if (p && p.catch) p.catch(rej);
+      }))
+      .then(([idx, big]) => {
+        const sr = big.sampleRate, src = big.getChannelData(0);
+        for (const k in idx) {
+          const a = Math.floor(idx[k][0] * sr), n = Math.max(1, Math.floor(idx[k][1] * sr));
+          const b = ac.createBuffer(1, n, sr);
+          b.getChannelData(0).set(src.subarray(a, a + n));
+          bufs[k] = b;
+        }
+        loadState = 2;
+      })
+      .catch(() => { loadState = 3; });
+  }
+
+  function playSample(n, vol) {
+    const b = bufs[n];
+    if (!b || !ac) return false;
+    const now = ac.currentTime;
+    const r = (recent[n] = (recent[n] || []).filter((t) => now - t < 0.12));
+    if (r.length >= 3 || voices >= 10) return true; // nuốt bớt, không rơi về synth
+    r.push(now);
+    const src = ac.createBufferSource();
+    const g = ac.createGain();
+    src.buffer = b;
+    src.playbackRate.value = 1 + (Math.random() * 2 - 1) * 0.04;
+    g.gain.value = sfxGainVal(0.9 * (vol == null ? 1 : vol) * (1 + (Math.random() * 2 - 1) * 0.1));
+    src.connect(g);
+    g.connect(outNode());
+    voices++;
+    src.onended = () => { voices--; try { g.disconnect(); } catch (e) {} };
+    src.start();
+    if (DUCK[n] && typeof BGM !== "undefined" && BGM.duck) BGM.duck(0.4, DUCK[n]);
+    return true;
+  }
+
   return {
     ctx,
     outNode,
+    loaded() { return Object.keys(bufs).length; },
+    names() { return Object.keys(bufs); },
     wake() {
       try {
         ctx();
+        loadSamples();
         if (typeof BGM !== "undefined") BGM.wake();
       } catch (e) {}
     },
-    play(n) {
+    play(n, vol) { /* vol: hệ số âm lượng riêng cho mẫu này (mặc định 1) */
       if (store.vib !== false && VIB[n] && navigator.vibrate) {
         try { navigator.vibrate(VIB[n]); } catch (e) {}
       }
       if (store.mute) return;
       try {
-        if (ctx() && S[n]) S[n]();
+        if (!ctx()) return;
+        if (loadState === 0) loadSamples();
+        if (playSample(n, vol)) return;
+        if (S[n]) S[n]();
       } catch (e) {}
     }
   };
@@ -642,6 +701,17 @@ const BGM = (() => {
   }
 
   return {
+    duck(depth, sec) {
+      if (!bgmBus || !isBgmAllowed()) return;
+      const ac = SFX.ctx();
+      if (!ac) return;
+      const t = ac.currentTime, g = calcGain();
+      try {
+        bgmBus.gain.cancelScheduledValues(t);
+        bgmBus.gain.setTargetAtTime(Math.max(0.0001, g * (1 - depth)), t, 0.03);
+        bgmBus.gain.setTargetAtTime(g, t + sec, 0.25);
+      } catch (e) {}
+    },
     wake() {
       if (store.bgm === undefined) store.bgm = true;
       if (store.battleBgm === undefined) store.battleBgm = false;
