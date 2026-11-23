@@ -154,8 +154,10 @@ window.playV16=playV16;window.v16Html=v16Html;window.v16Activate=v16Activate;win
 /* ===== VFX tầng 3: màn tuyệt kỹ S5 (920ms) + màn tuyệt kỹ S4 (960ms) tuần tự tuyệt đối ===== */
 const isUlt=d=>!!d&&d.h==="S5";
 const isUltS4=d=>!!d&&d.h==="S4";
-function ultOf(evs){for(const ev of evs)if(ev.k==="flip"){const f=E.find(G,ev.uid),inst=(f&&f.inst)||anyC(ev.uid)||(ev.id?{uid:ev.uid,id:ev.id,own:ev.own||"p"}:null);if(inst&&isUlt(C[inst.id]))return inst;}return null;}
-function ultS4Of(evs){for(const ev of evs)if(ev.k==="flip"){const f=E.find(G,ev.uid),inst=(f&&f.inst)||anyC(ev.uid)||(ev.id?{uid:ev.uid,id:ev.id,own:ev.own||"p"}:null);if(inst&&isUltS4(C[inst.id]))return inst;}return null;}
+/* flip của thẻ lật thường (không phải thẻ được kéo/đưa vào bằng hiệu ứng: flip.eff=1) */
+const flip1=e=>e.k==="flip"&&!e.eff;
+function ultOf(evs){for(const ev of evs.filter(flip1).concat(evs.filter(e=>e.k==="flip"&&e.eff)))if(ev.k==="flip"){const f=E.find(G,ev.uid),inst=(f&&f.inst)||anyC(ev.uid)||(ev.id?{uid:ev.uid,id:ev.id,own:ev.own||"p"}:null);if(inst&&isUlt(C[inst.id]))return inst;}return null;}
+function ultS4Of(evs){for(const ev of evs.filter(flip1).concat(evs.filter(e=>e.k==="flip"&&e.eff)))if(ev.k==="flip"){const f=E.find(G,ev.uid),inst=(f&&f.inst)||anyC(ev.uid)||(ev.id?{uid:ev.uid,id:ev.id,own:ev.own||"p"}:null);if(inst&&isUltS4(C[inst.id]))return inst;}return null;}
 function ult(inst){if(typeof spLoad==="function")spLoad(inst.id);const d=C[inst.id],mine=inst.own==="p",c=HC[d.h]||"#ffd65a",sk=String(d.x||"").replace(/^[^:]{2,16}:\s*/,"");
   document.querySelectorAll(".ult,.ult-s4").forEach(e=>e.remove());const z=document.createElement("div");z.className="ult"+(mine?"":" foe");z.style.setProperty("--c",c);
   z.innerHTML=`<div class="ultb"><i class="ulsp"></i></div><div class="ulart">${art(inst.id,1)}</div><div class="ultx"><small>Tuyệt kỹ · ${esc(DANG[d.t]||"")}</small><b>${esc(d.n)}</b><em>${esc(sk)}</em></div><i class="ulfl"></i>`;
@@ -180,8 +182,9 @@ function playFx(evs,R0,P0){
   if(u4){ultS4(u4);holdFx(1000);fxT(()=>{try{playFxSeq(evs,R0,P0);}catch(e){}},980);return 0;}
   return playFxSeq(evs,R0,P0);
 }
-/* Tách chuẩn 2 nhịp không chồng chéo: Nhịp 1 lật thẻ + v16 lat_the (420ms) hoàn tất rồi mới sang Nhịp 2 tung kỹ năng */
-function playFxSeq(evs,R0,P0){if(reduced||!evs.some(e=>e.k==="flip")||!evs.some(e=>e.k!=="flip")){
+/* Tách chuẩn 2 nhịp không chồng chéo: Nhịp 1 lật thẻ + v16 lat_the (420ms) hoàn tất rồi mới sang Nhịp 2 tung kỹ năng.
+   Luật kéo thẻ: thẻ được ĐƯA vào chiến địa bằng hiệu ứng có flip mang eff:1 -> diễn ở Nhịp 2, đúng thứ tự sau khi nó bay xuống (summon/revive) */
+function playFxSeq(evs,R0,P0){if(reduced||!evs.some(flip1)||!evs.some(e=>!flip1(e))){
     const hPrev=HAND0,sPrev=SNX;if(evs._hand0)HAND0=evs._hand0;if(evs._snx)SNX=evs._snx;
     try{return playFxCore(evs,R0,P0);}finally{HAND0=hPrev;SNX=sPrev;}}
   playFxCore(evs,R0,P0,1);holdFx(440);
@@ -203,7 +206,7 @@ function chip(fr,to,html,cb,delay){if(reduced||!fr||!to||!html||CHIPN>=5){if(cb)
   const a=g.animate([{transform:"translate(0,0) scale(1)",opacity:1},{transform:`translate(${dx*.5}px,${dy*.5+lift}px) scale(.62) rotate(${dx>0?8:-8}deg)`,opacity:1,offset:.55},{transform:`translate(${dx}px,${dy}px) scale(.34)`,opacity:.9}],{duration:420,delay:delay||0,easing:"cubic-bezier(.45,.05,.55,1)",fill:"both"});
   let done=false;const fin=()=>{if(done)return;done=true;CHIPN--;g.remove();if(cb)cb();};a.onfinish=fin;fxT(fin,(delay||0)+700);}
 function playFxCore(evs,R0,P0,part){
-  const evA=evs;if(part===1)evs=evs.filter(e=>e.k==="flip");else if(part===2)evs=evs.filter(e=>e.k!=="flip");
+  const evA=evs;if(part===1)evs=evs.filter(flip1);else if(part===2)evs=evs.filter(e=>!flip1(e));
   const R1=rects(),P1=powers();const snd=new Set();
   if(part!==1){try{plan8(evA,R0,R1,P0,P1);}catch(e){console.error(e);S8=new Set();}try{post9(evA);}catch(e){}}
   const at=uid=>R1.get(uid)||R0.get(uid);
