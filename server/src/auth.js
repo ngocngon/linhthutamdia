@@ -2,18 +2,32 @@ import { b64u, unb64u, utf8, fromUtf8, hmacSign, timingSafeEq, pbkdf2, newSalt, 
 
 export const TOKEN_TTL = 30 * 24 * 3600; // giây
 
+/* Khoá ký phiên: dùng secret SESSION_SECRET nếu có; nếu không, tự sinh 32 byte ngẫu nhiên một lần và lưu trong D1
+   (bảng config). Đổi khoá = mọi phiên đăng nhập cũ hết hiệu lực. */
+let _sk = null;
+export async function sessionKey(env) {
+  if (env.SESSION_SECRET) return env.SESSION_SECRET;
+  if (_sk) return _sk;
+  const row = await env.DB.prepare("SELECT v FROM config WHERE k='session_secret'").first();
+  if (row && row.v) return (_sk = row.v);
+  const k = b64u(crypto.getRandomValues(new Uint8Array(32)));
+  await env.DB.prepare("INSERT OR IGNORE INTO config (k, v) VALUES ('session_secret', ?)").bind(k).run();
+  const again = await env.DB.prepare("SELECT v FROM config WHERE k='session_secret'").first();
+  return (_sk = again.v);
+}
+
 export async function signToken(env, user, now = Date.now()) {
   const p = b64u(utf8(JSON.stringify({ u: user.id, n: user.username, v: user.token_ver | 0, e: Math.floor(now / 1000) + TOKEN_TTL })));
   const body = "v1." + p;
-  return body + "." + (await hmacSign(env.SESSION_SECRET, body));
+  return body + "." + (await hmacSign(await sessionKey(env), body));
 }
 
 // Trả về payload hợp lệ (chưa kiểm tra D1) hoặc null
 export async function verifyToken(env, token, now = Date.now()) {
-  if (!env.SESSION_SECRET || typeof token !== "string") return null;
+  if (typeof token !== "string") return null;
   const parts = token.split(".");
   if (parts.length !== 3 || parts[0] !== "v1") return null;
-  const sig = await hmacSign(env.SESSION_SECRET, parts[0] + "." + parts[1]);
+  const sig = await hmacSign(await sessionKey(env), parts[0] + "." + parts[1]);
   if (!timingSafeEq(sig, parts[2])) return null;
   let p;
   try { p = JSON.parse(fromUtf8(unb64u(parts[1]))); } catch { return null; }
