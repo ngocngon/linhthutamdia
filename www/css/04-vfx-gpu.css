@@ -1546,3 +1546,19 @@ body.rm .fxg.hero5 { display: none !important; }
 .fxg.c29f>.c29b{position:absolute;left:50%;top:-10px;transform:translateX(-50%);z-index:3;padding:1px 6px;border-radius:9px;background:#0a5fd0;box-shadow:0 0 0 1.5px #bff4ff,0 0 10px #3fe0ff;font:900 13px/1.2 system-ui,sans-serif;color:#fff;text-shadow:0 1px 0 #000}
 .fxg.c29f>.c29b.up{background:#c0244a;box-shadow:0 0 0 1.5px #ffd0da,0 0 10px #ff6b8a}
 .fxg.t29>.t29cap{position:absolute;left:50%;top:100%;margin-top:5px;transform:translateX(-50%);white-space:nowrap;z-index:3;padding:2px 8px;border-radius:8px;background:rgba(10,8,30,.88);box-shadow:0 0 0 1px rgba(255,255,255,.25);font:800 11px/1.25 system-ui,sans-serif;letter-spacing:.02em;text-shadow:0 1px 0 #000}
+
+/* gpu35: khi sân bị che kín (đang ở sảnh) hoặc có bảng phủ (.ov) đang mở -> dừng hoạt ảnh CSS lặp phía sau
+   (nền thẻ động, viền, hào quang, nền chiến địa, bụi sảnh). Hoạt ảnh WAAPI (element.animate) không bị ảnh hưởng.
+   Đo: sảnh sau 1 ván còn ~51 hoạt ảnh CSS chạy ngầm (sân phía sau) -> chỉ còn hoạt ảnh của chính sảnh. */
+body:has(#lobby.on) #app *, body:has(#lobby.on) #app *::before, body:has(#lobby.on) #app *::after,
+body:has(.ov.on:not(.sheet)) #app *, body:has(.ov.on:not(.sheet)) #app *::before, body:has(.ov.on:not(.sheet)) #app *::after,
+body:has(.ov.on:not(.sheet)) #lobby *, body:has(.ov.on:not(.sheet)) #lobby *::before, body:has(.ov.on:not(.sheet)) #lobby *::after,
+body:has(#mm.on) #app *, body:has(#mm.on) #lobby * {
+  animation-play-state: paused !important;
+}
+/* bụi/đèn lồng nền sàn (#amb) và cảnh nền (#scene) nằm dưới sảnh (sảnh có nền đặc, rộng tối đa 520px) */
+@media (max-width: 540px) {
+  body:has(#lobby.on) #amb *, body:has(#lobby.on) #scene * { animation-play-state: paused !important; }
+}
+/* vệt sáng nút (sheen): chạy bằng transform thay vì "left" -> không tính lại bố cục mỗi khung hình (cùng quãng đường: -60% -> 130% bề rộng nút = 475% bề rộng vệt) */
+@keyframes sheen{0%,60%{transform:translateX(0) skewX(-20deg)}100%{transform:translateX(475%) skewX(-20deg)}}
