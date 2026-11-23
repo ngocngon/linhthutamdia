@@ -3,7 +3,7 @@
 
   python3 tools/dung_tester.py <thư mục ra>        (thư mục ra phải chưa tồn tại)
 
-- Chép www/ sang thư mục ra, trừ img/c, img/ct, img/v16 (gom vào các gói pak/*.bin) và tệp dev.
+- Chép www/ sang thư mục ra, trừ img/c, img/ct, img/v16 (gom vào các gói pak/*.webp) và tệp dev.
 - Gói = các tệp webp nối liền; js/00-pak.js mang chỉ mục (đường dẫn -> gói, vị trí, độ dài).
   Khi cần ảnh, trang fetch() đúng gói đó rồi cắt ra Blob URL (không mã hoá lại ảnh).
 - Vá trong BẢN DỰNG (không sửa www/): spLoad dùng gói, bg12 bỏ tải trước ảnh thẻ, boot12 chờ gói hiệu ứng lõi,
@@ -44,9 +44,9 @@ os.makedirs(os.path.join(OUT, "pak"), exist_ok=True)
 
 def write_pak(name, files):
     i = len(paks)
-    paks.append("pak/" + name + ".bin")
+    paks.append("pak/" + name + ".webp")
     off = 0
-    with open(os.path.join(OUT, "pak", name + ".bin"), "wb") as w:
+    with open(os.path.join(OUT, "pak", name + ".webp"), "wb") as w:
         for r in files:
             b = open(os.path.join(ROOT, r), "rb").read()
             w.write(b)
@@ -69,7 +69,7 @@ for d, cap in PACKED.items():
     if chunk:
         write_pak(d.split("/")[1] + "-" + str(n), chunk)
 
-shim = """/* BẢN TESTER (tools/dung_tester.py): ảnh thẻ + hiệu ứng v16 nằm trong gói pak/*.bin, tải khi cần rồi cắt thành Blob URL. */
+shim = """/* BẢN TESTER (tools/dung_tester.py): ảnh thẻ + hiệu ứng v16 nằm trong gói pak/*.webp, tải khi cần rồi cắt thành Blob URL. */
 (function(){"use strict";
 var P=%s,I=%s,V=%s,CORE=%s;
 var blob={},ld={};
