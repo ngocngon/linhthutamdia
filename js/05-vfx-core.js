@@ -85,7 +85,7 @@ const FX=(()=>{
     float(x,y,txt,c){if(reduced)return;const d=document.createElement("div");d.className="float";d.textContent=txt;x=Math.max(14+txt.length*6,Math.min(innerWidth-14-txt.length*6,x));d.style.left=x+"px";d.style.top=y+"px";d.style.color=c;document.body.appendChild(d);fxT(()=>d.remove(),1500);}
   };
 })();
-function cleanCloneHTML(el){if(!el)return "";const k=el.cloneNode(true);k.removeAttribute("id");k.classList.remove("land","flip","bump","gpu-slam","gpu-hov","press","sel","look");k.style.opacity="";k.style.transform="";return k.outerHTML;}
+function cleanCloneHTML(el){if(!el)return "";const k=el.cloneNode(true);k.removeAttribute("id");k.classList.remove("land","flip","bump","gpu-slam","gpu-hov","press","sel","look","hero-hid");k.style.opacity="";k.style.transform="";return k.outerHTML;}
 function rects(){const m=new Map();document.querySelectorAll("#board [data-mc]").forEach(el=>{const r=el.getBoundingClientRect();m.set(+el.dataset.mc,{x:r.left+r.width/2,y:r.top+r.height/2,w:r.width,h:r.height,html:cleanCloneHTML(el)});});return m;}
 let EN0={p:0,a:0};function rects0(){try{SD0=new Map();if(G)for(let i=0;i<3;i++)for(const s of E.SIDES)for(const c of G.locs[i].cards[s])SD0.set(c.uid,s);}catch(e){}try{LW0=[0,1,2].map(i=>{const lw=document.querySelector(`#board [data-lane="${i}"] .locw`);if(!lw)return null;const k=lw.cloneNode(true);k.classList.remove("new","look");return {html:k.outerHTML};});}catch(e){}HAND0=snapHand();try{snapX();}catch(e){}if(G){ME0={p:G.maxE.p,a:G.maxE.a};EN0={p:G.energy.p,a:G.energy.a};}return rects();}
 function powers(){const m=new Map();for(let i=0;i<3;i++)for(const s of E.SIDES)for(const c of G.locs[i].cards[s])if(c.rev)m.set(c.uid,E.power(G,c,i));return m;}
@@ -151,45 +151,159 @@ function playV16(key,x,y,size,durMs,delayMs,rotDeg,noCap){
   return dl+dur;
 }
 window.playV16=playV16;window.v16Html=v16Html;window.v16Activate=v16Activate;window.v16Pre=v16Pre;
-/* ===== VFX tầng 3: màn tuyệt kỹ S5 (920ms) + màn tuyệt kỹ S4 (960ms) tuần tự tuyệt đối ===== */
+/* ===== gpu26: TUYỆT KỸ BẬC 5 / BẬC 4 kiểu MARVEL SNAP =====
+   (a) Màn ra mắt: chính LÁ THẺ đầy đủ (nền thẻ, khung bậc, năng lượng/sức mạnh, tên) bay từ ô trên bàn ra giữa màn hình,
+       phóng to, quầng sáng màu hệ, dòng "Tuyệt kỹ" bên dưới rồi thu về đúng ô. S5: tia sáng xoay + rung nhẹ; S4 gọn hơn.
+       Diễn SAU nhịp lật trên bàn và TRƯỚC nhịp kỹ năng. Chạm màn hình để bỏ qua.
+   (b) Thẻ "ra tay": khi bước kỹ năng có nguồn là thẻ S5/S4 trên bàn, bản sao cố định của chính lá thẻ nhấc lên ~1,6–1,75× tại chỗ,
+       nghiêng/lao nhẹ về phía mục tiêu, viền sáng màu hệ; điểm phát đòn (tâm nguồn) dời theo lá thẻ đã nhấc; xong thì hạ về.
+   Chỉ dùng transform/opacity trong hoạt ảnh. Thời lượng tính theo ms thật (đã nhân SPD) và có trần. */
 const isUlt=d=>!!d&&d.h==="S5";
 const isUltS4=d=>!!d&&d.h==="S4";
+const isHero5=d=>isUlt(d)||isUltS4(d);
 /* flip của thẻ lật thường (không phải thẻ được kéo/đưa vào bằng hiệu ứng: flip.eff=1) */
 const flip1=e=>e.k==="flip"&&!e.eff;
-function ultOf(evs){for(const ev of evs.filter(flip1).concat(evs.filter(e=>e.k==="flip"&&e.eff)))if(ev.k==="flip"){const f=E.find(G,ev.uid),inst=(f&&f.inst)||anyC(ev.uid)||(ev.id?{uid:ev.uid,id:ev.id,own:ev.own||"p"}:null);if(inst&&isUlt(C[inst.id]))return inst;}return null;}
-function ultS4Of(evs){for(const ev of evs.filter(flip1).concat(evs.filter(e=>e.k==="flip"&&e.eff)))if(ev.k==="flip"){const f=E.find(G,ev.uid),inst=(f&&f.inst)||anyC(ev.uid)||(ev.id?{uid:ev.uid,id:ev.id,own:ev.own||"p"}:null);if(inst&&isUltS4(C[inst.id]))return inst;}return null;}
-function ult(inst){if(typeof spLoad==="function")spLoad(inst.id);const d=C[inst.id],mine=inst.own==="p",c=HC[d.h]||"#ffd65a",sk=String(d.x||"").replace(/^[^:]{2,16}:\s*/,"");
-  document.querySelectorAll(".ult,.ult-s4").forEach(e=>e.remove());const z=document.createElement("div");z.className="ult"+(mine?"":" foe");z.style.setProperty("--c",c);
-  z.innerHTML=`<div class="ultb"><i class="ulsp"></i></div><div class="ulart">${art(inst.id,1)}</div><div class="ultx"><small>Tuyệt kỹ · ${esc(DANG[d.t]||"")}</small><b>${esc(d.n)}</b><em>${esc(sk)}</em></div><i class="ulfl"></i>`;
-  document.body.appendChild(z);if(typeof spWatch==="function")spWatch(z);fxT(()=>z.remove(),920);SFX.fam("ult",{el:elOf(inst.id)});}
-function ultS4(inst){if(typeof spLoad==="function")spLoad(inst.id);const d=C[inst.id],mine=inst.own==="p",c=HC[d.h]||"#ff7ae6",sk=String(d.x||"").replace(/^[^:]{2,16}:\s*/,"");
-  document.querySelectorAll(".ult,.ult-s4").forEach(e=>e.remove());const z=document.createElement("div");z.className="ult-s4"+(mine?"":" foe");z.style.setProperty("--c",c);
-  z.innerHTML=`<div class="ul4-bg"><i class="ul4-sp"></i></div><div class="ul4-art">${art(inst.id,1)}</div><div class="ul4-tx"><small>TUYỆT KỸ S4 · ${esc(DANG[d.t]||"")}</small><b>${esc(d.n)}</b><em>${esc(sk)}</em></div><i class="ul4-fl"></i>`;
+function ultsOf(evs){const out=[],seen=new Set();for(const ev of evs.filter(flip1).concat(evs.filter(e=>e.k==="flip"&&e.eff))){if(seen.has(ev.uid))continue;seen.add(ev.uid);
+  const f=E.find(G,ev.uid),inst=(f&&f.inst)||anyC(ev.uid)||(ev.id?{uid:ev.uid,id:ev.id,own:ev.own||"p"}:null);if(inst&&C[inst.id]&&isHero5(C[inst.id]))out.push(inst);}return out;}
+/* màu: quầng theo hệ nguyên tố của nhân vật, viền theo màu bậc */
+function ucCol(id){const d=C[id],e=elOf(id);return [(e&&ELD[e]?ELD[e][0]:null)||HC[d.h]||"#ffd65a",HC[d.h]||"#ffd65a"];}
+/* thẻ thứ 2 trở đi trong cùng một lượt ngắn hơn */
+const UCN={g:null,t:-1,n:0};
+function ucNth(){const t=G?G.turn:-1;if(UCN.g!==G||UCN.t!==t){UCN.g=G;UCN.t=t;UCN.n=0;}return UCN.n++;}
+/* tổng thời lượng một màn (ms thật): ≈1,0 s (S5) / 0,88 s (S4) × SPD, trần 1,7 s / 1,45 s; tua nhanh 0,38 s */
+function ucDur(s5,nth){if(window.FFTURN&&FFTURN.on)return 380;let t=Math.min((s5?1000:880)*SPD,s5?1700:1450);if(nth>0)t=Math.max(600,t*.66);return Math.round(t);}
+function ucCard(inst){const id=inst.id,d=C[id],mine=inst.own==="p";let cs=d.c,pw=d.p;try{const f=E.find(G,inst.uid);if(f){pw=E.power(G,f.inst,f.li);cs=E.cost(G,f.inst);}}catch(e){}
+  const q=mine&&typeof qCls==="function"?qCls(id):"",qs=mine&&typeof qSt==="function"?qSt(id):"";
+  return `<span class="gc${q}" style="--hc:${HC[d.h]}${qs};display:block">${mine?nbL(id):""}${art(id,1)}<span class="cst${cs<d.c?" up":cs>d.c?" down":""}">${cs}</span><span class="pwh ${pw>d.p?"up":pw<d.p?"down":""}">${pw}</span><span class="n">${logo(id)}</span>${typeof spk==="function"?spk(id):""}</span>`;}
+let UC=null;
+function ultShow(inst,done,nth){
+  const fin1=()=>{if(done){const f=done;done=null;try{f();}catch(e){console.error(e);}}};
+  if(reduced||!inst||!C[inst.id]){fin1();return;}
+  try{
+  if(UC)UC.end(true);
+  const id=inst.id,d=C[id],s5=isUlt(d),mine=inst.own!=="a",[c,c2]=ucCol(id);
+  if(typeof spLoad==="function"){spLoad(id);spLoad(id+"@f");}
+  const T=ucDur(s5,nth|0),TIN=Math.round(T*.27),TOUT=Math.round(T*.23),HOLD=T-TIN-TOUT,oi=TIN/T,oh=(TIN+HOLD)/T;
+  const VW=innerWidth,VH=innerHeight,W=Math.round(Math.min(VW*.6,250,(VH-170)/1.28)),H=Math.round(W*1.28);
+  const cx=VW/2,cy=Math.round(Math.max(H/2+(mine?56:86),Math.min(VH*(mine?.47:.4),VH-H/2-100)));
+  const slot=document.querySelector(`#board [data-mc="${inst.uid}"]`),sr=slot?slot.getBoundingClientRect():null,has=!!(sr&&sr.width);
+  const fr=has?{x:sr.left+sr.width/2,y:sr.top+sr.height/2,s:Math.max(.12,sr.width/W)}:{x:cx,y:mine?VH+H*.3:-H*.3,s:.4};
+  const dx=(fr.x-cx).toFixed(1),dy=(fr.y-cy).toFixed(1),rz=mine?-3:3;
+  const sk=String(d.x||"").replace(/^[^:]{2,16}:\s*/,""),dg=DANG[d.t]||"";
+  const z=document.createElement("div");z.className="uc5 "+(s5?"s5":"s4")+(mine?"":" foe");z.setAttribute("aria-label",`Tuyệt kỹ ${d.n}. Chạm để bỏ qua`);
+  z.style.setProperty("--c",c);z.style.setProperty("--c2",c2);
+  z.innerHTML=`<i class="uc-dim"></i>${s5?`<i class="uc-rays" style="left:${cx}px;top:${cy}px;--hs:${Math.round(W*2.9)}px"></i>`:""}<i class="uc-halo" style="left:${cx}px;top:${cy}px;--hs:${Math.round(W*(s5?2.4:1.95))}px"></i>`
+    +(mine?"":`<div class="uc-who" style="top:${Math.round(cy-H/2-34)}px"><b>Đối thủ</b></div>`)
+    +`<div class="uc-card" style="left:${Math.round(cx-W/2)}px;top:${Math.round(cy-H/2)}px;width:${W}px;height:${H}px">${ucCard(inst)}<i class="uc-shw"><i class="uc-sh"></i></i></div>`
+    +`<div class="uc-lb" style="top:${Math.round(cy+H/2+12)}px"><small>Tuyệt kỹ${dg?" · "+esc(dg):""}</small>${sk?`<em>${esc(sk)}</em>`:""}</div><div class="uc-tap">Chạm để bỏ qua</div>`;
   document.body.appendChild(z);if(typeof spWatch==="function")spWatch(z);
-  if(z.animate){z.animate([
-    {opacity:0,transform:"translate(-62%, -50%) skewX(-10deg) scale(0.86)"},
-    {opacity:1,transform:"translate(-50%, -50%) skewX(-2deg) scale(1.02)",offset:0.16},
-    {opacity:1,transform:"translate(-50%, -50%) skewX(0deg) scale(1)",offset:0.80},
-    {opacity:0,transform:"translate(-38%, -50%) skewX(8deg) scale(0.94)"}
-  ],{duration:940,easing:"cubic-bezier(0.18, 0.92, 0.24, 1)",fill:"forwards"});}
-  fxT(()=>z.remove(),960);SFX.fam("ult",{el:elOf(inst.id),vol:.55,rate:1.14,noacc:1});}
+  if(slot){slot.classList.add("hero-hid");hide9(slot,1);}
+  const A=[],R=ms=>ms/SPD;
+  const an=(e,kf,o)=>{if(!e||!e.animate)return null;const a=e.animate(kf,Object.assign({fill:"both",easing:"linear"},o,{duration:R(o.duration),delay:R(o.delay||0)}));A.push(a);return a;};
+  const st0=`translate(${dx}px,${dy}px) scale(${fr.s.toFixed(3)})`;
+  an(z.querySelector(".uc-card"),[{transform:st0,opacity:has?1:0,easing:"cubic-bezier(.2,.85,.25,1)"},{transform:`translate(0,-6px) scale(1.07) rotate(${rz}deg)`,opacity:1,offset:oi*.78,easing:"ease-out"},
+    {transform:"none",opacity:1,offset:oi},{transform:"translate(0,-5px) scale(1.025)",opacity:1,offset:oh,easing:"cubic-bezier(.55,0,.7,.25)"},{transform:st0,opacity:has?1:0}],{duration:T});
+  an(z.querySelector(".uc-dim"),[{opacity:0},{opacity:1,offset:oi*.6},{opacity:1,offset:oh},{opacity:0}],{duration:T});
+  an(z.querySelector(".uc-halo"),[{opacity:0,transform:"scale(.3)"},{opacity:1,transform:"scale(1.08)",offset:oi,easing:"ease-out"},{opacity:.85,transform:"scale(1)",offset:oh},{opacity:0,transform:"scale(.45)"}],{duration:T});
+  an(z.querySelector(".uc-rays"),[{opacity:0,transform:"rotate(0deg) scale(.5)"},{opacity:.95,transform:"rotate(28deg) scale(1)",offset:oi},{opacity:.8,transform:"rotate(82deg) scale(1.04)",offset:oh},{opacity:0,transform:"rotate(100deg) scale(.6)"}],{duration:T});
+  an(z.querySelector(".uc-sh"),[{transform:"translateX(-120%) skewX(-14deg)"},{transform:"translateX(330%) skewX(-14deg)"}],{duration:Math.max(260,HOLD*.7),delay:TIN*.85,easing:"ease-in-out"});
+  const tx=[{opacity:0,transform:"translateY(10px)"},{opacity:0,transform:"translateY(10px)",offset:oi*.6},{opacity:1,transform:"none",offset:oi},{opacity:1,transform:"none",offset:oh},{opacity:0,transform:"translateY(8px)",offset:Math.min(1,oh+.08)},{opacity:0,transform:"translateY(8px)"}];
+  an(z.querySelector(".uc-lb"),tx,{duration:T});an(z.querySelector(".uc-who"),tx,{duration:T});
+  an(z.querySelector(".uc-tap"),[{opacity:0},{opacity:0,offset:oi},{opacity:.7,offset:Math.min(oh,oi+.1)},{opacity:.7,offset:oh},{opacity:0,offset:Math.min(1,oh+.05)},{opacity:0}],{duration:T});
+  holdFx(R(T+90));
+  try{SFX.fam("ult",s5?{el:elOf(id)}:{el:elOf(id),vol:.55,rate:1.14,noacc:1});}catch(e){}
+  const t0=performance.now();let ended=false,sk1=false,tm=0;
+  const tA=setTimeout(()=>{if(ended)return;FXBIG=true;try{FX.burst(cx,cy,c,s5?26:14,s5?260:180);FX.ring(cx,cy,c2,W*.62,s5?5:3);if(s5){FX.sparks(cx,cy,"#ffffff",14,260);FX.shake(4);}}finally{FXBIG=false;}},TIN*.8);
+  const end=abort=>{if(ended)return;ended=true;clearTimeout(tm);clearTimeout(tA);A.forEach(a=>{try{a.cancel();}catch(e){}});z.remove();if(UC===ctl)UC=null;
+    const s2=document.querySelector(`#board [data-mc="${inst.uid}"]`);for(const e of [slot,s2])if(e){e.classList.remove("hero-hid");hide9(e,0);}
+    if(!abort&&has){FX.ring(fr.x,fr.y,c2,Math.max(30,sr.width*.75),3);FX.glow(fr.x,fr.y,c,Math.max(40,sr.width*.95),.35);pulse(`#board [data-mc="${inst.uid}"]`,[{transform:"scale(1.12)"},{transform:"scale(1)"}],260);}
+    fin1();};
+  const skip=()=>{if(ended||sk1)return;sk1=true;const el=performance.now()-t0;if(el>=TIN+HOLD)return;const q=Math.max(150,Math.min(TOUT,240));
+    A.forEach(a=>{try{a.currentTime=TIN+HOLD;a.playbackRate=TOUT/q;}catch(e){}});clearTimeout(tm);tm=setTimeout(()=>end(false),q);
+    try{FX_UNTIL=Math.min(FX_UNTIL,performance.now()+q+60);}catch(e){}try{noClick=Date.now()+450;}catch(e){}};
+  const ctl={end,skip};UC=ctl;
+  z.addEventListener("pointerdown",ev=>{ev.preventDefault();ev.stopPropagation();skip();});
+  z.addEventListener("click",ev=>{ev.preventDefault();ev.stopPropagation();});
+  tm=setTimeout(()=>end(false),T);
+  }catch(e){console.error(e);fin1();}
+}
+/* bảng thử VFX (dev) gọi ult({id,own}) */
+function ult(inst){ultShow(inst,null,0);}
+/* FXLV 0 (máy yếu): chỉ loé nhẹ tại ô */
+function ucFlash(inst){const el=document.querySelector(`#board [data-mc="${inst.uid}"]`);if(!el||!C[inst.id])return;const q=ctr(el),w=el.getBoundingClientRect().width,[c,c2]=ucCol(inst.id);
+  FX.glow(q.x,q.y,c,Math.max(44,w*1.1),.4);FX.ring(q.x,q.y,c2,Math.max(30,w*.8),3);pulse(`#board [data-mc="${inst.uid}"]`,[{transform:"scale(1)"},{transform:"scale(1.25)",offset:.4},{transform:"scale(1)"}],420);
+  try{SFX.fam("ult",{el:elOf(inst.id),vol:.5,noacc:1});}catch(e){}holdFx(300);}
+/* ---- (b) thẻ nhân vật S5/S4 ra tay ---- */
+let HERO={uid:0};
+function heroDrop(){if(HERO.uid)heroDown(true);}
+function heroUp(evA,R0,R1,P0,P1){
+  if(reduced||!G)return;heroDrop();
+  const sev=evA.find(e=>e.k==="skill"||e.k==="act"),SRC=sev?sev.uid:((evA.find(e=>e.src>0&&e.k!=="loc")||{}).src||0);
+  if(!SRC||!R1.has(SRC))return;const f=E.find(G,SRC);if(!f||!f.inst.rev)return;const d=C[f.inst.id];if(!isHero5(d))return;
+  if(!sev&&!evA.some(e=>e.src===SRC))return;
+  const el=document.querySelector(`#board [data-mc="${SRC}"]`),r=R1.get(SRC);if(!el||!r||!r.w)return;
+  /* mục tiêu: thẻ/chiến địa bị tác động trong bước này */
+  const pts=[],seen=new Set([SRC]),addU=u=>{if(!u||seen.has(u)||pts.length>=8)return;seen.add(u);const p=where7(u,R0,R1);if(p&&isFinite(p.x))pts.push(p);};
+  for(const e of evA){if(e.k==="skill"||e.k==="act"||e.k==="flip"||e.k==="surge")continue;
+    if(e.k==="abcopy"){addU(e.uid===SRC?e.from:e.uid);continue;}
+    if(e.k==="loc"||e.k==="locfx"){if(e.src===SRC&&e.li!=null&&pts.length<8){const pl=plate8(e.li);if(pl)pts.push(pl);}continue;}
+    if(e.uid!=null)addU(e.uid);}
+  for(const [u,v] of P1)if(P0.has(u)&&P0.get(u)!==v)addU(u);
+  const s5=isUlt(d),S=s5?1.75:1.6,[c,c2]=ucCol(d.id),has=pts.length>0;
+  let tx=0,ty=0;for(const p of pts){tx+=p.x/pts.length;ty+=p.y/pts.length;}
+  const vx=has?tx-r.x:0,vy=has?ty-r.y:0,L=Math.hypot(vx,vy)||1,lean=has?Math.min(14,L*.12):0;
+  const hw=r.w*S/2,hh=r.h*S/2,nx=Math.min(innerWidth-hw-4,Math.max(hw+4,r.x+vx/L*lean)),ny=Math.min(innerHeight-hh-4,Math.max(hh+4,r.y+vy/L*lean-Math.max(8,r.h*.14)));
+  const ox=nx-r.x,oy=ny-r.y,rot=has&&Math.abs(vx)>8?(vx>0?5:-5):0;
+  const g=document.createElement("div");g.className="fxg hero5 "+(s5?"s5":"s4");
+  g.style.cssText=`left:${(r.x-r.w/2).toFixed(1)}px;top:${(r.y-r.h/2).toFixed(1)}px;width:${r.w.toFixed(1)}px;height:${r.h.toFixed(1)}px;--c:${c};--c2:${c2}`;
+  g.innerHTML=`<i class="h5-glow"></i>${cleanCloneHTML(el)}<i class="h5-rim"></i>`;document.body.appendChild(g);if(typeof spWatch==="function")spWatch(g);
+  el.classList.add("hero-hid");
+  const UP=(window.FFTURN&&FFTURN.on)?90:200,tf=`translate(${ox.toFixed(1)}px,${oy.toFixed(1)}px) rotate(${rot}deg) scale(${S})`;
+  g.animate([{transform:"none"},{transform:`translate(${(-ox*.15).toFixed(1)}px,4px) scale(.94)`,offset:.22},{transform:`translate(${(ox*1.06).toFixed(1)}px,${(oy*1.06).toFixed(1)}px) rotate(${rot*1.2}deg) scale(${(S*1.04).toFixed(3)})`,offset:.78},{transform:tf}],{duration:UP,easing:"cubic-bezier(.3,.7,.3,1)",fill:"forwards"});
+  const gl=g.querySelector(".h5-glow"),rim=g.querySelector(".h5-rim");
+  if(gl){gl.animate([{opacity:0,transform:"scale(.6)"},{opacity:.95,transform:"scale(1)"}],{duration:UP,fill:"forwards"});if(!has)gl.animate([{opacity:.95,transform:"scale(1)"},{opacity:1,transform:"scale(1.22)",offset:.4},{opacity:.85,transform:"scale(1)"}],{duration:520,delay:UP,fill:"forwards"});}
+  if(rim)rim.animate([{opacity:0},{opacity:1}],{duration:UP,fill:"forwards"});
+  HERO={uid:SRC,g,el,s:S,tf,t0:performance.now(),up:UP,self:!has,c,r};
+  /* tâm phát đòn = tâm lá thẻ đã nhấc */
+  R1.set(SRC,Object.assign({},r,{x:nx,y:ny}));
+  FX.glow(nx,ny+hh*.85,c,Math.min(60,r.w*1.1),.5);
+  if(!has)fxT(()=>{FX.ring(nx,ny,c2,Math.min(56,r.w*1.2),3);FX.rise(nx,ny+hh*.5,c,10);},UP);
+  holdFx(UP+380);}
+/* hạ thẻ khi mọi đòn của bước đã xong (có trần) */
+function heroSched(){const H=HERO;if(!H.uid||H.tm)return;const now=performance.now(),minEnd=H.t0+(H.up+(H.self?560:420))*SPD,cap=H.t0+2600*SPD;
+  /* có lịch đòn (plan8) -> hạ ngay sau đòn cuối trúng; không có -> theo thời gian giữ hiệu ứng, tối đa 1,4 s gốc */
+  const fx=Math.max(FX_UNTIL,now+Math.min(4800,FXHOLD)*SPD),plan=H.t8>0?H.t0+(H.t8+120)*SPD:Math.min(fx,H.t0+1400*SPD);
+  const end=Math.min(cap,fx,Math.max(minEnd,plan)),DOWN=(window.FFTURN&&FFTURN.on)?100:220,at=Math.max(now,end-DOWN*SPD*.5);
+  H.tm=setTimeout(()=>{if(HERO===H)heroDown(false);},at-now);holdFx((at-now)/SPD+DOWN+30);}
+function heroDown(fast){const H=HERO;if(!H.uid)return;HERO={uid:0};clearTimeout(H.tm);clearInterval(H.iv);const g=H.g,uid=H.uid;
+  const show=()=>{for(const e of [H.el,document.querySelector(`#board [data-mc="${uid}"]`)])if(e)e.classList.remove("hero-hid");};
+  if(fast||reduced||!g||!g.isConnected){if(g)g.remove();show();return;}
+  g.style.opacity="";const DOWN=(window.FFTURN&&FFTURN.on)?100:220;
+  const cur=document.querySelector(`#board [data-mc="${uid}"]`);let ex=0,ey=0;if(cur){const b=cur.getBoundingClientRect();if(b.width){ex=b.left+b.width/2-H.r.x;ey=b.top+b.height/2-H.r.y;}}
+  const a=g.animate([{transform:H.tf},{transform:`translate(${ex.toFixed(1)}px,${(ey+3).toFixed(1)}px) scale(.97)`,offset:.8},{transform:`translate(${ex.toFixed(1)}px,${ey.toFixed(1)}px)`}],{duration:DOWN,easing:"cubic-bezier(.5,0,.4,1)",fill:"forwards"});
+  for(const k of g.querySelectorAll(".h5-glow,.h5-rim"))k.animate([{opacity:getComputedStyle(k).opacity},{opacity:0}],{duration:DOWN*.8,fill:"forwards"});
+  let dn=0;const fin=()=>{if(dn)return;dn=1;g.remove();show();};a.onfinish=fin;setTimeout(fin,DOWN*SPD+200);}
+/* đòn lao bằng chính thân thẻ (ghostOf9) của thẻ đang nhấc: bản sao cùng cỡ đã nhấc, tạm ẩn thẻ nhấc */
+function heroWatch(H){if(H.iv)return;H.iv=setInterval(()=>{if(HERO!==H){clearInterval(H.iv);return;}if(!document.querySelector(".g9h")){H.g.style.opacity="";clearInterval(H.iv);H.iv=0;}},60);}
 function playFx(evs,R0,P0){
   try{evs._hand0=new Map(HAND0);evs._snx=SNX;}catch(e){}
   try{if(!reduced&&pre7(evs))holdFx(260);}catch(e){}
-  const u=reduced?null:ultOf(evs);
-  if(u){ult(u);holdFx(960);fxT(()=>{try{playFxSeq(evs,R0,P0);}catch(e){}},940);return 0;}
-  const u4=reduced?null:ultS4Of(evs);
-  if(u4){ultS4(u4);holdFx(1000);fxT(()=>{try{playFxSeq(evs,R0,P0);}catch(e){}},980);return 0;}
-  return playFxSeq(evs,R0,P0);
+  heroDrop();
+  const us=reduced?[]:ultsOf(evs);
+  if(!us.length)return playFxSeq(evs,R0,P0);
+  const mid=go=>{if(window.FXLV===0){us.forEach(ucFlash);fxT(go,260);return;}let i=0;const nx=()=>{if(i>=us.length){go();return;}ultShow(us[i++],nx,ucNth());};nx();};
+  if(!evs.some(flip1)){holdFx(200);mid(()=>{try{playFxSeq(evs,R0,P0);}catch(e){console.error(e);}});return 0;}
+  return playFxSeq(evs,R0,P0,mid);
 }
 /* Tách chuẩn 2 nhịp không chồng chéo: Nhịp 1 lật thẻ + v16 lat_the (420ms) hoàn tất rồi mới sang Nhịp 2 tung kỹ năng.
+   gpu26: thẻ S5/S4 -> chen màn ra mắt (mid) giữa Nhịp 1 và Nhịp 2.
    Luật kéo thẻ: thẻ được ĐƯA vào chiến địa bằng hiệu ứng có flip mang eff:1 -> diễn ở Nhịp 2, đúng thứ tự sau khi nó bay xuống (summon/revive) */
-function playFxSeq(evs,R0,P0){if(reduced||!evs.some(flip1)||!evs.some(e=>!flip1(e))){
-    const hPrev=HAND0,sPrev=SNX;if(evs._hand0)HAND0=evs._hand0;if(evs._snx)SNX=evs._snx;
-    try{return playFxCore(evs,R0,P0);}finally{HAND0=hPrev;SNX=sPrev;}}
+function playFxSeq(evs,R0,P0,mid){
+  const run=part=>{const hPrev=HAND0,sPrev=SNX;if(evs._hand0)HAND0=evs._hand0;if(evs._snx)SNX=evs._snx;try{return playFxCore(evs,R0,P0,part);}finally{HAND0=hPrev;SNX=sPrev;}};
+  if(reduced||!evs.some(flip1)||!evs.some(e=>!flip1(e))){if(!mid)return run();
+    run();holdFx(440);fxT(()=>{try{mid(()=>{});}catch(e){console.error(e);}},420);return 0;}
   playFxCore(evs,R0,P0,1);holdFx(440);
-  fxT(()=>{const hPrev=HAND0,sPrev=SNX;if(evs._hand0)HAND0=evs._hand0;if(evs._snx)SNX=evs._snx;
-    try{playFxCore(evs,R0,P0,2);}catch(e){}finally{HAND0=hPrev;SNX=sPrev;}},420);return 0;}
+  fxT(()=>{const go=()=>{try{run(2);}catch(e){console.error(e);}};if(mid){try{mid(go);}catch(e){console.error(e);go();}}else go();},420);return 0;}
 let TN0=0,LOCID=[];
 function turnFlare(n,o){if(reduced)return;const b=$("btnEnd").getBoundingClientRect(),x=Math.min(innerWidth-40,b.left+b.width*.78),d=document.createElement("div");d.className="tflare";d.textContent=n;d.style.left=x+"px";d.style.top=(b.top-4)+"px";document.body.appendChild(d);fxT(()=>d.remove(),1900);
   FX.pillar(x,b.top+b.height,"#ff7a1f",56,170);FX.sparks(x,b.top,"#ffb04d",18,300);FX.ash(x,b.top,12);SFX.play("boom");fxT(()=>banner(n>o?"THÊM LƯỢT!":"BỚT LƯỢT!","Ván này có "+n+" lượt"),500);}
@@ -208,7 +322,8 @@ function chip(fr,to,html,cb,delay){if(reduced||!fr||!to||!html||CHIPN>=5){if(cb)
 function playFxCore(evs,R0,P0,part){
   const evA=evs;if(part===1)evs=evs.filter(flip1);else if(part===2)evs=evs.filter(e=>!flip1(e));
   const R1=rects(),P1=powers();const snd=new Set();
-  if(part!==1){try{plan8(evA,R0,R1,P0,P1);}catch(e){console.error(e);S8=new Set();}try{post9(evA);}catch(e){}}
+  if(part!==1){try{heroUp(evA,R0,R1,P0,P1);}catch(e){console.error(e);}}
+  if(part!==1){try{const t8=plan8(evA,R0,R1,P0,P1);if(HERO.uid)HERO.t8=+t8||0;}catch(e){console.error(e);S8=new Set();}try{post9(evA);}catch(e){}}
   const at=uid=>R1.get(uid)||R0.get(uid);
   let imp=0,ix=0,iy=0,nDes=0;const hit=(k,x,y)=>{if(k>imp){imp=k;ix=x;iy=y;}};
   /* thẻ nguồn của bước này (thẻ vừa dùng kỹ năng) */
@@ -227,7 +342,9 @@ function playFxCore(evs,R0,P0,part){
         if(big){FX.pillar(p.x,p.y+p.h*.45,c,p.w*.9,p.h*2.2);hit(d.c>=6?1:0,p.x,p.y);if(d.c<6)FX.shake(4);}
         if(q===6)FX.sparks(p.x,p.y,"#ffffff",10,240);holdFx(410);} break;
       case "act": if(p){FX.sigil(p.x,p.y+p.h*.42,"#ffd65a",p.w,6,true,1);FX.glow(p.x,p.y,"#ffd65a",90);FX.wave(p.x,p.y,"#ffd65a",60);pulse(`[data-mc="${ev.uid}"]`,[{transform:"scale(1.28)"},{transform:"scale(1)"}],420);} cue("act"); break;
-      case "skill": if(p){const c=SKC[ev.t]||"#fff";
+      case "skill": if(p&&HERO.uid&&HERO.uid===ev.uid){/* gpu26: thẻ S5/S4 đang nhấc -> vòng phép nằm dưới chân, không che mặt nhân vật */const c=HERO.c||SKC[ev.t]||"#fff",hh=p.h*HERO.s/2;
+          FX.sigil(p.x,p.y+hh*.92,c,p.w*HERO.s*.62,6,true,.9);FX.glow(p.x,p.y+hh*.7,c,Math.min(60,p.w*1.1),.4);}
+        else if(p){const c=SKC[ev.t]||"#fff";
         if(ev.t==="rev"){FX.sigil(p.x,p.y,c,p.w*.75,6,false,.75);FX.glow(p.x,p.y,c,56,.32);}
         else if(ev.t==="end"){FX.sigil(p.x,p.y+p.h*.42,c,p.w*.85,5,true,.9);FX.rise(p.x,p.y+10,c,10);}
         else{FX.sigil(p.x,p.y,c,p.w*.65,7,false,.7);FX.glow(p.x,p.y,c,54,.32);}
@@ -286,6 +403,7 @@ function playFxCore(evs,R0,P0,part){
   {const PRI=["destroy","exile","locx","act","revive","steal","silence","copy","merge","morph","summon","create","discard","move","swap","block","dbl","up3","up2","up1","dn3","dn2","dn1","egain","energy","costup","costdn","aura","endt","locrev"];
    const ks=[...cues.keys()].sort((a,b)=>(PRI.indexOf(a)<0?99:PRI.indexOf(a))-(PRI.indexOf(b)<0?99:PRI.indexOf(b))).slice(0,3);
    ks.forEach((k,i)=>SFX.fam(k,{delay:i*.09,vol:i?.8:1}));}
+  try{heroSched();}catch(e){}
   return hold;
 }
 
@@ -1044,7 +1162,8 @@ function post9(evA){if(reduced)return;for(const e of evA)if(e.k==="flip"){const 
 /* ---- bước đi của thân thẻ (chỉ transform/opacity trên bản sao) ---- */
 function hide9(el,h){if(!el)return;const ps=el.parentElement,xs=[el];if(ps)ps.querySelectorAll(":scope>.au9,:scope>.au9r,:scope>.ak9,:scope>.au10,:scope>.au10g,:scope>.kh11").forEach(x=>xs.push(x));xs.forEach(x=>x.style.opacity=h?"0":"");}
 const mcEl9=u=>u>0?document.querySelector(`#board [data-mc="${u}"]`):null;
-function ghostOf9(r,uid){const el=mcEl9(uid);return ghost(r,el?cleanCloneHTML(el):((r&&r.html)||lite(uid)||""),"g9");}
+function ghostOf9(r,uid){const H=HERO.uid&&HERO.uid===uid&&HERO.g?HERO:null;if(H&&r)r={x:r.x,y:r.y,w:r.w*H.s,h:r.h*H.s,html:r.html};const el=mcEl9(uid),g=ghost(r,el?cleanCloneHTML(el):((r&&r.html)||lite(uid)||""),"g9");
+  if(H){g.classList.add("g9h");H.g.style.opacity="0";heroWatch(H);}return g;}
 function pop9(el,s,ms){if(el)anim(el,[{transform:"none"},{transform:`scale(${s})`,offset:.4},{transform:"none"}],{duration:ms||420,fill:"none"});}
 function shout9(el,p,c){pop9(el,1.25,440);if(p)FX.glow(p.x,p.y,c,Math.min(32,(p.w||50)*.5),.5);}
 function swing9(el,p,c){if(el)anim(el,[{transform:"none"},{transform:"rotate(-14deg) scale(1.1)",offset:.35},{transform:"rotate(16deg) scale(1.12)",offset:.65},{transform:"none"}],{duration:620,fill:"none"});if(p)FX.glow(p.x,p.y,c,Math.min(32,(p.w||50)*.5),.5);}
@@ -1380,7 +1499,7 @@ function spWait12(ids,ms){ids=ids.filter(k=>IMGS.c[k]);for(const k of ids)if(!SP
 function artReady12(evs){if(reduced)return Promise.resolve();const ids=[];for(const e of evs)if(e.k==="flip"){const c=anyC(e.uid);if(c)ids.push(c.id);}return ids.length?spWait12(ids,400):Promise.resolve();}
 /* vào trận: tải + giải mã trước sprite cả hai bộ bài và thẻ phụ */
 function warmMatch12(){try{const ids=new Set();for(const sd of ["p","a"]){for(const k of (G.start&&G.start[sd])||[])ids.add(k);for(const z of ["hand","deck"])for(const c of (G[z]&&G[z][sd])||[])ids.add(c.id);}
-  for(const k of [...ids])for(const t of LINKS[k]||[])ids.add(t);for(const k of ids){spLoad(k);v16Pre(k);if(SIGV[k])v16Pre(String(SIGV[k].img||"").replace(/^v_/,""));}
+  for(const k of [...ids])for(const t of LINKS[k]||[])ids.add(t);for(const k of ids){spLoad(k);if(C[k]&&isHero5(C[k]))spLoad(k+"@f");v16Pre(k);if(SIGV[k])v16Pre(String(SIGV[k].img||"").replace(/^v_/,""));}
   for(const k of ["tieu_diet","loai_bo","rut_bai","tao_the","cuoc_x2","sao_chep","hoi_sinh","di_chuyen","bien_hinh","nang_luong","nhan_doi","khien_chan","hut_keo","thang","thua","no_lua","no_set","no_doc","no_bang","no_sang","no_toi","vet_chem","vet_cao","manh_vo","bui_dap","sao_tang","thieu_dot","dong_bang","set_danh","doc_lan"])v16Pre(k);}catch(e){}}
 /* (warmMatch12 được gọi ở đầu dealIn) */
 /* màn hình tải */

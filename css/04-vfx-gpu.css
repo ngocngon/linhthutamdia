@@ -445,12 +445,6 @@ body.rm #oppNotifHost {
   font-size: 52px !important;
 }
 
-.ult {
-  top: var(--opp-cy, 22vh) !important;
-  height: min(46vw, 205px) !important;
-  pointer-events: none !important;
-}
-
 body:has(#lobby:not(.on)) #toastX {
   top: calc(var(--opp-top, 88px) + 6px) !important;
   bottom: auto !important;
@@ -1045,139 +1039,6 @@ body.rm .choreo-afterimage {
   transform: scale(0.95);
 }
 
-/* ==================== MÀN TUYỆT KỸ BẬC S4 (.ult-s4) ==================== */
-.ult-s4 {
-  --c: #ff7ae6;
-  position: fixed;
-  left: 50%;
-  top: var(--opp-cy, 23vh);
-  width: min(94vw, 426px);
-  height: min(34vw, 142px);
-  transform: translate(-50%, -50%);
-  z-index: 54;
-  opacity: 1;
-  pointer-events: none !important;
-  display: grid;
-  grid-template-columns: min(28vw, 118px) 1fr;
-  align-items: center;
-  gap: 11px;
-  padding: 9px 16px 9px 11px;
-  will-change: transform, opacity;
-}
-body.rm .ult-s4 {
-  display: none !important;
-}
-.ult-s4.foe {
-  grid-template-columns: 1fr min(28vw, 118px);
-  padding: 9px 11px 9px 16px;
-}
-.ult-s4.foe .ul4-art { order: 2; }
-.ult-s4.foe .ul4-tx { order: 1; text-align: right; align-items: flex-end; }
-.ult-s4 .ul4-bg {
-  position: absolute;
-  inset: 8px 0;
-  border-radius: 16px;
-  clip-path: polygon(16px 0, 100% 0, calc(100% - 16px) 100%, 0 100%);
-  background:
-    linear-gradient(110deg, rgba(8, 10, 38, 0.97) 0%, rgba(44, 18, 92, 0.96) 52%, rgba(8, 12, 38, 0.97) 100%);
-  border: 2px solid var(--c, #ff7ae6);
-  box-shadow:
-    0 12px 30px rgba(0, 0, 0, 0.85),
-    0 0 26px var(--c, #ff7ae6),
-    inset 0 0 22px rgba(255, 122, 230, 0.28);
-  overflow: hidden;
-}
-.ult-s4 .ul4-sp {
-  position: absolute;
-  inset: -60%;
-  background: conic-gradient(from 0deg, transparent 0deg, rgba(255, 122, 230, 0.35) 30deg, transparent 65deg, rgba(127, 232, 255, 0.35) 180deg, transparent 225deg);
-  animation: gpuReticleSpin 3.2s linear infinite;
-}
-.ult-s4 .ul4-art {
-  position: relative;
-  z-index: 2;
-  width: 100%;
-  height: 100%;
-  border-radius: 13px;
-  overflow: hidden;
-  border: 2px solid #ffffff;
-  background: radial-gradient(circle at 50% 35%, #5b2ca8, #0c0828 78%);
-  box-shadow: 0 0 22px var(--c, #ff7ae6), 0 8px 18px rgba(0, 0, 0, 0.78);
-}
-.ult-s4 .ul4-art .art {
-  position: absolute !important;
-  inset: 0 !important;
-  left: 0 !important;
-  top: 0 !important;
-  width: 100% !important;
-  height: 100% !important;
-  object-fit: cover;
-  object-position: 50% 15%;
-}
-.ult-s4 .ul4-tx {
-  position: relative;
-  z-index: 2;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 3px;
-}
-.ult-s4 .ul4-tx small {
-  display: inline-block;
-  padding: 2px 8px;
-  border-radius: 4px;
-  background: linear-gradient(90deg, var(--c, #ff7ae6), #7fe8ff);
-  color: #0d0622;
-  font-family: var(--f-display), sans-serif;
-  font-style: italic;
-  font-weight: 900;
-  font-size: 10.5px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  transform: skewX(-10deg);
-  box-shadow: 0 0 12px var(--c, #ff7ae6);
-}
-.ult-s4 .ul4-tx b {
-  font-family: var(--f-display), sans-serif;
-  font-style: italic;
-  font-weight: 900;
-  font-size: clamp(21px, 5.8vw, 28px);
-  line-height: 1.05;
-  text-transform: uppercase;
-  color: #ffffff;
-  text-shadow: 0 2px 0 #05061a, 0 0 14px var(--c, #ff7ae6);
-  max-width: 100%;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.ult-s4 .ul4-tx em {
-  font-style: normal;
-  font-size: 11.5px;
-  font-weight: 600;
-  line-height: 1.25;
-  color: #f4eeff;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  text-shadow: 0 1px 2px #000;
-}
-.ult-s4 .ul4-fl {
-  position: absolute;
-  inset: 0;
-  z-index: 3;
-  pointer-events: none;
-  background: linear-gradient(105deg, transparent 32%, rgba(255, 255, 255, 0.72) 50%, transparent 68%);
-  mix-blend-mode: screen;
-  animation: ultS4Sweep 0.75s ease-out forwards;
-}
-@keyframes ultS4Sweep {
-  0% { transform: translateX(-110%); opacity: 0.9; }
-  100% { transform: translateX(115%); opacity: 0; }
-}
-
 /* ==================== PHONG ẤN MỞ CHIẾN ĐỊA & CỔNG TRIỆU HỒI / GƯƠNG NHÂN BẢN ==================== */
 .gpu-loc-seal,
 .gpu-summon-gate,
@@ -1527,3 +1388,150 @@ body.dragging .lane.ok .side.me,body.dragging .lane.okx .side.opp{box-shadow:non
   padding:5px 14px;border-radius:999px;font:800 13px/1.2 "Be Vietnam Pro",system-ui,sans-serif;letter-spacing:.3px;color:#fff3c4;
   background:linear-gradient(180deg,rgba(40,30,90,.92),rgba(18,14,52,.92));box-shadow:0 0 0 1.5px rgba(255,214,90,.75),0 4px 14px rgba(0,0,0,.45);transition:opacity .2s,transform .2s}
 #ffChip.on{opacity:1;transform:translate(-50%,0)}
+
+/* ==================== gpu26: MÀN RA MẮT TUYỆT KỸ S5/S4 (.uc5) & THẺ NHÂN VẬT RA TAY (.hero5) ====================
+   Chỉ transform/opacity được hoạt ảnh (WAAPI ở 05 ultShow/heroUp); bóng/quầng là nền tĩnh. */
+.uc5 {
+  position: fixed;
+  inset: 0;
+  z-index: 44;
+  overflow: hidden;
+  pointer-events: auto;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: none;
+  contain: layout paint;
+}
+.uc5 > * { position: absolute; pointer-events: none; }
+.uc5 .uc-dim {
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 45%, rgba(12, 6, 34, 0.42), rgba(2, 2, 12, 0.8) 74%);
+  opacity: 0;
+  will-change: opacity;
+}
+.uc5 .uc-halo,
+.uc5 .uc-rays {
+  width: var(--hs);
+  height: var(--hs);
+  margin: calc(var(--hs) / -2) 0 0 calc(var(--hs) / -2);
+  border-radius: 50%;
+  opacity: 0;
+  will-change: transform, opacity;
+}
+.uc5 .uc-halo {
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--c) 70%, #fff) 0, color-mix(in srgb, var(--c) 62%, transparent) 30%, color-mix(in srgb, var(--c) 22%, transparent) 58%, transparent 74%);
+}
+.uc5 .uc-rays {
+  background: repeating-conic-gradient(from 0deg, color-mix(in srgb, var(--c) 55%, #fff) 0deg 3.5deg, transparent 3.5deg 15deg);
+  -webkit-mask-image: radial-gradient(closest-side, transparent 18%, #000 34%, rgba(0, 0, 0, 0.55) 62%, transparent 100%);
+  mask-image: radial-gradient(closest-side, transparent 18%, #000 34%, rgba(0, 0, 0, 0.55) 62%, transparent 100%);
+}
+.uc5 .uc-card { will-change: transform, opacity; transform-origin: 50% 50%; }
+.uc5 .uc-card > .gc {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+  aspect-ratio: auto !important;
+  margin: 0 !important;
+  font-size: 19px;
+  border-radius: 14px;
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--c2) 70%, #fff), 0 0 26px 4px var(--c), 0 20px 34px rgba(0, 0, 0, 0.72);
+}
+.uc5 .uc-card > .gc .n { font-size: 22px; min-height: 42px; }
+.uc5 .uc-shw {
+  position: absolute;
+  inset: 0;
+  border-radius: 14px;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 7;
+}
+.uc5 .uc-sh {
+  position: absolute;
+  top: -10%;
+  bottom: -10%;
+  left: 0;
+  width: 42%;
+  background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.5) 50%, transparent);
+  transform: translateX(-120%) skewX(-14deg);
+  mix-blend-mode: screen;
+  will-change: transform;
+}
+.uc5 .uc-lb,
+.uc5 .uc-who,
+.uc5 .uc-tap {
+  left: 5vw;
+  right: 5vw;
+  text-align: center;
+  opacity: 0;
+  will-change: transform, opacity;
+}
+.uc5 .uc-lb small {
+  display: inline-block;
+  padding: 3px 13px;
+  border-radius: 6px;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--c2) 70%, #fff), var(--c2));
+  color: #160a1e;
+  font: 900 12.5px/1.3 system-ui, sans-serif;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  box-shadow: 0 0 0 1.5px rgba(0, 0, 0, 0.55), 0 0 16px var(--c2);
+}
+.uc5 .uc-lb em {
+  display: -webkit-box;
+  max-width: 340px;
+  margin: 7px auto 0;
+  font: 600 12.5px/1.34 system-ui, sans-serif;
+  font-style: normal;
+  color: #f3efff;
+  text-shadow: 0 1px 2px #000, 0 0 8px rgba(0, 0, 0, 0.8);
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.uc5 .uc-who b {
+  display: inline-block;
+  padding: 3px 12px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #ff7a9c, #d8204e);
+  color: #fff;
+  font: 900 11.5px/1.35 system-ui, sans-serif;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  box-shadow: 0 0 0 1.5px rgba(0, 0, 0, 0.5), 0 0 12px rgba(255, 77, 125, 0.8);
+}
+.uc5 .uc-tap {
+  bottom: max(12px, env(safe-area-inset-bottom));
+  font: 700 11px/1 system-ui, sans-serif;
+  color: #d8d4f0;
+  letter-spacing: 0.06em;
+  text-shadow: 0 1px 2px #000;
+}
+.uc5.s4 .uc-card > .gc { box-shadow: 0 0 0 2px color-mix(in srgb, var(--c2) 70%, #fff), 0 0 18px 2px var(--c), 0 16px 28px rgba(0, 0, 0, 0.7); }
+body.rm .uc5 { display: none !important; }
+
+/* thẻ nguồn đang được "nhấc" hoặc đang ra giữa màn hình: ẩn ô gốc (bản sao thế chỗ) */
+#board .mc.hero-hid { visibility: hidden !important; }
+/* z 15 (sau #fx canvas trong DOM) -> quầng/hạt 2D ở tâm nguồn không che mặt nhân vật; đạo cụ bay (16–42) vẫn nổi trên */
+.fxg.hero5 { z-index: 15; will-change: transform; transform-origin: 50% 50%; overflow: visible; }
+.hero5 > .h5-glow {
+  position: absolute;
+  inset: -40% -55%;
+  border-radius: 50%;
+  /* tâm trong suốt: thẻ Vô Cực có nền trong (tranh tràn khung) -> quầng chỉ toả quanh viền, không phủ màu lên nhân vật */
+  background: radial-gradient(closest-side, transparent 0 44%, color-mix(in srgb, var(--c) 70%, #fff) 52%, color-mix(in srgb, var(--c) 40%, transparent) 64%, transparent 82%);
+  opacity: 0;
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+.hero5 > .h5-rim {
+  position: absolute;
+  inset: -2px;
+  border-radius: 9px;
+  box-shadow: 0 0 0 1.5px color-mix(in srgb, var(--c2) 65%, #fff), 0 0 10px 2px var(--c), 0 8px 14px rgba(0, 0, 0, 0.6);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 6;
+}
+.hero5.s4 > .h5-glow { inset: -32% -45%; }
+body.rm .fxg.hero5 { display: none !important; }
