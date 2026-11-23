@@ -18,7 +18,8 @@ nb-l{display:block}
 .nth::before,.nth::after{content:"";position:absolute;pointer-events:none;will-change:auto}
 .nth .nbm{display:none}
 .nth.nbi{background-image:var(--nbimg)!important;background-size:cover!important;background-position:center!important}
-.nth.nbi::before,.nth.nbi::after{display:none}
+.nth.nbi:not(.nbfx)::before,.nth.nbi:not(.nbfx)::after{display:none}
+.nth.nbfx::before,.nth.nbfx::after{opacity:.55;mix-blend-mode:screen}
 /* hoạt ảnh chỉ chạy ở thẻ lớn (xem thẻ, cửa hàng, xem thử); thẻ trong trận, tay bài, lưới sưu tập đứng yên ở khung hình đầu */
 .nth[data-nth]::before,.nth[data-nth]::after{animation-play-state:paused}
 .bigc>.nth[data-nth]::before,.bigc>.nth[data-nth]::after,#ovPZ .gc>.nth[data-nth]::before,#ovPZ .gc>.nth[data-nth]::after,#zoom .gc>.nth[data-nth]::before,#zoom .gc>.nth[data-nth]::after,.nbpv>.nth[data-nth]::before,.nbpv>.nth[data-nth]::after{animation-play-state:running}
@@ -222,6 +223,131 @@ css.append('''@keyframes nbSlide{to{transform:translate3d(-50%,0,0)}}
 @keyframes nbSheen{0%,100%{transform:translateX(-30%) skewX(-18deg)}50%{transform:translateX(260%) skewX(-18deg)}}
 @keyframes nbPulse{0%,100%{opacity:.55}50%{opacity:1}}
 ''')
+# ---------------- NỀN ĐỘNG / ÁNH KIM trên tranh vẽ (lớp hiệu ứng nhẹ: chỉ transform/opacity) ----------------
+# DOM (js/11-nen-the.js bgHTML): <nb-l class="nth nth-ID nbi nbfx"><i class="nbk"></i><i class="nbx nbx1"></i><i class="nbx nbx2"></i><i class="nbx nbx3"></i></nb-l>
+#   .nbk = tranh vẽ (chuyển động zoom/pan chậm kiểu Ken Burns ở thẻ lớn); ::before = lớp hiệu ứng CHÍNH (chạy cả ở thẻ nhỏ);
+#   ::after và .nbx* = lớp phụ (chỉ thẻ lớn). Thẻ nhỏ chạy: tay bài (.hc), bàn (.mc), ô xem thử cửa hàng (.nbmini). Lưới sưu tập, khay bộ bài: đứng yên.
+BIGP=['.bigc>','#ovPZ .gc>','#zoom .gc>','.nbpv>']
+RUNP=BIGP+['.hc>','.mc>','.nbmini>']
+def B(sel,P=BIGP):return ','.join(p+sel for p in P)
+def Bs(sels,P=BIGP):return ','.join(B(s,P) for s in sels)
+NB=lambda i:f'.nth.nbfx.nth-{i}'
+VB="preserveAspectRatio='none'"
+def T(body,defs=''):return S(100,128,body,defs,' '+VB)
+def wrapx(f_,x):  # vẽ thêm bản sao ở x±100 để lát ngang liền mạch
+    return f_(x)+f_(x-100)+f_(x+100)
+css.append('''/* ---- lớp hiệu ứng trên tranh vẽ: nền động + ánh kim ---- */
+.nth.nbfx{background-image:none!important}
+.nth .nbk{position:absolute;z-index:-1;left:0;top:0;right:0;bottom:0;display:block;background:var(--nbimg) center/cover no-repeat;transform-origin:50% 50%}
+.nth .nbx{display:none;position:absolute;pointer-events:none}
+.nth.nbfx::before,.nth.nbfx::after{opacity:1;mix-blend-mode:normal;filter:none;background-repeat:repeat}
+.nth.nbfx::after{display:none}
+.nth.nbi:not(.nbfx)::before,.nth.nbi:not(.nbfx)::after{display:none}
+@keyframes nbKB{from{transform:scale(1) translate3d(0,0,0)}to{transform:scale(1.055) translate3d(-1.3%,-1.6%,0)}}
+@keyframes nbTw{0%,100%{opacity:.25}50%{opacity:1}}
+@keyframes nbSway{0%{transform:translate3d(0,-50%,0)}25%{transform:translate3d(3.5%,-37.5%,0)}50%{transform:translate3d(0,-25%,0)}75%{transform:translate3d(-3.5%,-12.5%,0)}100%{transform:translate3d(0,0,0)}}
+@keyframes nbSwayB{0%{transform:translate3d(0,-50%,0)}25%{transform:translate3d(-3%,-37.5%,0)}50%{transform:translate3d(0,-25%,0)}75%{transform:translate3d(3%,-12.5%,0)}100%{transform:translate3d(0,0,0)}}
+@keyframes nbFlick{0%,100%{opacity:.45;transform:scale(1,1)}30%{opacity:.9;transform:scale(1.03,1.07)}60%{opacity:.6;transform:scale(.98,1.02)}}
+@keyframes nbBurst{0%{opacity:0;transform:scale(.25)}12%{opacity:1}55%{opacity:.75;transform:scale(1)}100%{opacity:0;transform:scale(1.18)}}
+@keyframes nbSwing{from{transform:rotate(-4deg)}to{transform:rotate(4deg)}}
+@keyframes nbSheen2{0%{transform:translateX(-40%) skewX(-18deg)}78%,100%{transform:translateX(330%) skewX(-18deg)}}
+@keyframes nbMoon{0%,100%{opacity:.3;transform:scale(.96)}50%{opacity:1;transform:scale(1.2)}}
+@keyframes nbBreath{0%,100%{opacity:.4;transform:scale(1)}50%{opacity:1;transform:scale(1.08)}}''')
+
+# hiện lớp phụ ở thẻ lớn
+css.append(Bs(['.nth.nbfx::after'])+'{display:block}')
+css.append(Bs(['.nth.nbfx .nbx'])+'{display:block}')
+css.append(Bs(['.nth.nbfx .nbk'])+'{animation:nbKB 18s ease-in-out infinite alternate}')
+# chạy / dừng
+css.append('.nth[data-nth]::before,.nth[data-nth]::after,.nth[data-nth] .nbk,.nth[data-nth] .nbx{animation-play-state:paused}')
+css.append(Bs(['.nth[data-nth]::before','.nth[data-nth]::after','.nth[data-nth] .nbk','.nth[data-nth] .nbx'],RUNP)+'{animation-play-state:running}')
+css.append('body.rm .nth .nbk,body.rm .nth .nbx,body.nblow .nth .nbk,body.nblow .nth .nbx{animation:none!important}')
+css.append('@media (prefers-reduced-motion:reduce){.nth .nbk,.nth .nbx{animation:none!important}}')
+
+def lay(i,which,css_body):  # which: before/after
+    R(f'{NB(i)}::{which}',"right:auto;bottom:auto;transform:none;opacity:1;"+css_body)
+
+# ===== Mây Trôi: hai tầng mây trôi ngang =====
+cdef="<radialGradient id='c'><stop offset='0' stop-color='#fff' stop-opacity='.95'/><stop offset='.55' stop-color='#fff' stop-opacity='.6'/><stop offset='1' stop-color='#fff' stop-opacity='0'/></radialGradient>"
+def cl(L):
+    return ''.join(wrapx(lambda x,y=y,rx=rx,ry=ry:f"<ellipse cx='{x}' cy='{y}' rx='{rx}' ry='{ry}' fill='url(%23c)'/>".replace('%23','#'),x) for x,y,rx,ry in L)
+mt1=T(cl([(14,92,24,11),(30,100,18,8),(52,84,20,9),(76,98,26,12),(90,88,16,8),(60,110,24,9)]),cdef)
+mt2=T(cl([(22,26,22,6),(48,40,18,5),(74,22,24,7),(88,48,14,4),(8,58,16,5),(60,66,20,5)]),cdef)
+lay('maytroi','before',f"left:0;top:0;width:200%;height:100%;background:{mt1} 0 0/50% 100% repeat-x;opacity:.9;animation:nbSlide calc(34s*var(--nbs,1)) linear infinite")
+lay('maytroi','after',f"left:0;top:0;width:200%;height:100%;background:{mt2} 0 0/50% 100% repeat-x;opacity:.8;animation:nbSlide calc(20s*var(--nbs,1)) linear infinite")
+
+# ===== Đèn Trời: đèn bay lên =====
+def lant2(x,y,s):
+    return (f"<g transform='translate({x} {y}) scale({s})'><circle r='9' fill='url(%23g)'/><path d='M-3.4 -4.6h6.8l1.9 9.2h-10.6z' fill='url(%23b)' stroke='%23ffe7ae' stroke-opacity='.6' stroke-width='.35'/><rect x='-2.7' y='-5.4' width='5.4' height='1.2' rx='.5' fill='%237a3a12'/></g>").replace('%23','#')
+ldef="<radialGradient id='g'><stop offset='0' stop-color='#ffc65a' stop-opacity='.7'/><stop offset='1' stop-color='#ff8a2a' stop-opacity='0'/></radialGradient><linearGradient id='b' x1='0' y1='0' x2='0' y2='1'><stop offset='0' stop-color='#ffe08a'/><stop offset='1' stop-color='#ff7a2a'/></linearGradient>"
+L1=[(16,16,1.9),(70,28,1.6),(40,52,1.3),(86,74,1.7),(24,92,1.5),(58,112,1.3)]
+L2=[(80,10,1.1),(32,30,1.2),(54,66,1.4),(10,56,1),(92,100,1.05),(40,92,1.1),(66,48,1),(20,120,1.15)]
+lay('dentroi','before',f"left:0;top:0;width:100%;height:200%;background:{T(''.join(lant2(*a) for a in L1),ldef)} 0 0/100% 50% repeat-y;animation:nbRise calc(20s*var(--nbs,1)) linear infinite")
+lay('dentroi','after',f"left:0;top:0;width:100%;height:200%;background:{T(''.join(lant2(*a) for a in L2),ldef)} 0 0/100% 50% repeat-y;opacity:.9;animation:nbRise calc(12s*var(--nbs,1)) linear infinite")
+R('.nth-dentroi .nbx1',"left:0;right:0;bottom:0;height:46%;background:radial-gradient(ellipse at 50% 100%,rgba(255,170,70,.55),transparent 68%);animation:nbBreath calc(4.2s*var(--nbs,1)) ease-in-out infinite;transform-origin:50% 100%")
+
+# ===== Sóng Nước: gợn chạy + lấp lánh + tia nắng =====
+def wv(y,a,ph):
+    d=f"M{ph-25} {y}"
+    for _ in range(7):d+=f"q12.5 {-a} 25 0"
+    return d
+wave=''.join(f"<path d='{wv(y,a,p)}' fill='none' stroke='#e6fbff' stroke-opacity='{o}' stroke-width='{w}' stroke-linecap='round'/>" for y,a,p,o,w in [(44,4,0,.75,1.5),(56,5,10,.65,1.7),(70,6,3,.75,1.6),(84,6,15,.65,1.8),(98,7,6,.7,1.8),(112,7,20,.6,2)])
+def sp(x,y,s):return f"<path d='M{x} {y-s}L{x+s*.28} {y-s*.28}L{x+s} {y}L{x+s*.28} {y+s*.28}L{x} {y+s}L{x-s*.28} {y+s*.28}L{x-s} {y}L{x-s*.28} {y-s*.28}z' fill='#fff' fill-opacity='.95'/>"
+spk=''.join(sp(*a) for a in [(12,50,4.6),(34,62,3.4),(58,48,5),(80,58,3.6),(22,80,3.8),(46,90,4.8),(70,78,3.4),(90,96,4.6),(10,108,3.6),(38,116,4),(64,106,4.8),(84,120,3.4)])
+lay('songnuoc','before',f"left:0;top:0;width:200%;height:100%;background:{T(wave)} 0 0/50% 100% repeat-x;animation:nbSlide calc(12s*var(--nbs,1)) linear infinite")
+lay('songnuoc','after',f"left:0;top:0;width:200%;height:100%;background:{T(spk)} 0 0/50% 100% repeat-x;animation:nbSlideR calc(26s*var(--nbs,1)) linear infinite,nbTw calc(2.2s*var(--nbs,1)) ease-in-out infinite")
+R('.nth-songnuoc .nbx1',"left:0;right:0;top:0;height:60%;background:radial-gradient(ellipse at 50% 0,rgba(255,255,225,.65),transparent 62%);animation:nbBreath calc(5s*var(--nbs,1)) ease-in-out infinite;transform-origin:50% 0")
+
+# ===== Lửa Thiêng: tàn lửa bay lên + lửa nhấp nháy =====
+fdef="<radialGradient id='e'><stop offset='0' stop-color='#fff2b0'/><stop offset='.3' stop-color='#ff9a1f'/><stop offset='.65' stop-color='#d82a08' stop-opacity='.85'/><stop offset='1' stop-color='#b01000' stop-opacity='0'/></radialGradient>"
+def em(L):return ''.join(f"<circle cx='{x}' cy='{y}' r='{r}' fill='url(#e)'/>" for x,y,r in L)
+E1=[(44,10,4.2),(52,32,3.4),(40,54,4.4),(60,76,3.6),(48,98,4.6),(56,118,3.6),(30,22,3),(70,44,3.4),(26,70,3.8),(74,90,3.6),(36,110,3),(64,8,2.8)]
+E2=[(50,16,2),(46,40,1.8),(54,60,2.1),(42,84,1.8),(58,104,2),(36,30,1.5),(66,26,1.7),(30,58,1.7),(70,70,1.5),(38,96,1.7),(62,120,1.5),(22,12,1.4),(78,50,1.5),(18,84,1.4),(82,108,1.5)]
+lay('lua','before',f"left:0;top:0;width:100%;height:200%;background:{T(em(E1),fdef)} 0 0/100% 50% repeat-y;animation:nbRise calc(7s*var(--nbs,1)) linear infinite,nbTw calc(1.7s*var(--nbs,1)) ease-in-out infinite")
+lay('lua','after',f"left:0;top:0;width:100%;height:200%;background:{T(em(E2),fdef)} 0 0/100% 50% repeat-y;animation:nbRise calc(4.2s*var(--nbs,1)) linear infinite,nbTw calc(.9s*var(--nbs,1)) ease-in-out infinite")
+R('.nth-lua .nbx1',"left:12%;right:12%;top:8%;height:70%;background:radial-gradient(ellipse at 50% 62%,rgba(255,250,200,.85),rgba(255,176,46,.45) 38%,transparent 70%);animation:nbFlick calc(1.6s*var(--nbs,1)) ease-in-out infinite;transform-origin:50% 90%")
+
+# ===== Xuân Tết: cánh hoa rơi + pháo hoa =====
+def pet(x,y,rx,ry,rot,col):return f"<ellipse cx='{x}' cy='{y}' rx='{rx}' ry='{ry}' fill='{col}' transform='rotate({rot} {x} {y})'/>"
+PC=['#ff7fb0','#ffffff','#ffd23f','#ff9cc2']
+P1=[(14,8,4.6,2.6,30),(40,22,4.2,2.5,-20),(70,12,4.8,2.8,50),(88,34,4.2,2.5,-40),(26,46,4.8,2.8,15),(56,58,4.2,2.5,70),(80,76,4.6,2.6,-25),(12,88,4.2,2.5,40),(46,100,4.8,2.8,-55),(68,116,4.2,2.5,20),(92,104,4.6,2.6,60),(30,70,4,2.4,-10)]
+P2=[(22,16,2,1.2,10),(58,6,2.2,1.3,-30),(84,22,2,1.2,45),(36,38,2.2,1.3,-15),(66,50,2,1.2,25),(10,64,2.2,1.3,-50),(50,82,2,1.2,35),(78,96,2.2,1.3,-20),(24,112,2,1.2,55),(94,70,2,1.2,0)]
+tp1=T(''.join(pet(x,y,rx,ry,r,PC[i%4]) for i,(x,y,rx,ry,r) in enumerate(P1)))
+tp2=T(''.join(pet(x,y,rx,ry,r,PC[(i+1)%4]) for i,(x,y,rx,ry,r) in enumerate(P2)))
+lay('tet','before',f"left:0;top:0;width:100%;height:200%;background:{tp1} 0 0/100% 50% repeat-y;animation:nbSway calc(11s*var(--nbs,1)) linear infinite")
+lay('tet','after',f"left:0;top:0;width:100%;height:200%;background:{tp2} 0 0/100% 50% repeat-y;opacity:.9;animation:nbSwayB calc(7.5s*var(--nbs,1)) linear infinite")
+def burst(c1,c2):
+    b=''
+    for k in range(16):
+        a=k*22.5;import math
+        x1=50+14*math.cos(math.radians(a));y1=50+14*math.sin(math.radians(a));x2=50+46*math.cos(math.radians(a));y2=50+46*math.sin(math.radians(a))
+        b+=f"<line x1='{f(x1)}' y1='{f(y1)}' x2='{f(x2)}' y2='{f(y2)}' stroke='{c1 if k%2 else c2}' stroke-width='2.2' stroke-linecap='round' stroke-opacity='.9'/><circle cx='{f(50+(52 if k%2 else 50)*math.cos(math.radians(a)))}' cy='{f(50+(52 if k%2 else 50)*math.sin(math.radians(a)))}' r='2.2' fill='{c2}'/>"
+    return U(f"<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='7' fill='{c2}' fill-opacity='.9'/>{b}</svg>")
+for n,(cx,cy,w,c1,c2,dl) in enumerate([(46,23,34,'#ff8ad0','#ffe9a8',0),(63,32,30,'#fff3c4','#ffd36a',1.3),(35,38,26,'#ffd36a','#ffb0e0',2.5)],1):
+    R(f'.nth-tet .nbx{n}',f"left:{cx-w/2}%;top:calc({cy}% - {w*0.39:.1f}%);width:{w}%;aspect-ratio:1;background:{burst(c1,c2)} center/100% 100% no-repeat;opacity:0;animation:nbBurst calc(4s*var(--nbs,1)) ease-out {dl}s infinite")
+
+# ===== Rằm Trung Thu: trăng toả sáng nhịp thở + đèn lắc =====
+lay('trungthu','before',"left:0;top:0;width:100%;height:100%;background:radial-gradient(circle at 50% 22%,rgba(255,252,210,.95),rgba(255,228,130,.5) 20%,rgba(255,226,130,.2) 36%,transparent 54%);animation:nbMoon calc(4.4s*var(--nbs,1)) ease-in-out infinite;transform-origin:50% 22%")
+mo=T(''.join(f"<circle cx='{x}' cy='{y}' r='{r}' fill='url(#m)'/>" for x,y,r in [(20,20,3.4),(64,44,2.8),(38,72,3.8),(82,90,3.2),(12,110,3),(58,120,3.6),(90,60,2.6),(30,96,2.8),(72,14,3),(48,52,2.6)]),"<radialGradient id='m'><stop offset='0' stop-color='#fffbe0'/><stop offset='.4' stop-color='#ffd76a'/><stop offset='1' stop-color='#ffb030' stop-opacity='0'/></radialGradient>")
+lay('trungthu','after',f"left:0;top:0;width:100%;height:200%;background:{mo} 0 0/100% 50% repeat-y;animation:nbRise calc(16s*var(--nbs,1)) linear infinite,nbTw calc(2.6s*var(--nbs,1)) ease-in-out infinite")
+R('.nth-trungthu .nbx1',"left:80%;top:0;width:20%;height:28%;transform-origin:50% 0;background:radial-gradient(ellipse at 50% 62%,rgba(255,196,80,.6),transparent 60%);animation:nbSwing calc(3.2s*var(--nbs,1)) ease-in-out infinite alternate")
+R('.nth-trungthu .nbx2',"left:7%;top:3%;width:30%;height:42%;transform-origin:50% 0;background:radial-gradient(ellipse at 50% 76%,rgba(255,206,90,.55),transparent 58%);animation:nbSwing calc(3.9s*var(--nbs,1)) ease-in-out -1.4s infinite alternate")
+R('.nth-trungthu .nbx3',"left:0;top:58%;width:22%;height:22%;transform-origin:50% 0;background:radial-gradient(ellipse at 50% 50%,rgba(255,196,80,.5),transparent 62%);animation:nbSwing calc(2.9s*var(--nbs,1)) ease-in-out -.6s infinite alternate")
+
+# ===== Ánh kim: vệt sáng quét rõ + lấp lánh + phản theo nghiêng =====
+bandc={'vangdat':'rgba(255,244,190,.0),rgba(255,240,170,.85),rgba(255,255,255,.0)','bac':'rgba(235,245,255,0),rgba(245,250,255,.9),rgba(235,245,255,0)','cauvong':'rgba(255,255,255,0),rgba(255,120,200,.55) 22%,rgba(255,236,120,.6) 40%,rgba(120,255,200,.6) 58%,rgba(120,170,255,.55) 78%,rgba(255,255,255,0)'}
+glt=U("<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 128' preserveAspectRatio='none'>"+''.join(f"<path d='M{x} {y-s}L{x+s*.25} {y-s*.25}L{x+s} {y}L{x+s*.25} {y+s*.25}L{x} {y+s}L{x-s*.25} {y+s*.25}L{x-s} {y}L{x-s*.25} {y-s*.25}z' fill='#fff'/>" for x,y,s in [(14,14,3),(70,10,2.4),(40,34,2.6),(88,40,3),(22,62,2.4),(60,70,3.2),(82,92,2.4),(12,100,3),(48,112,2.6),(92,120,2.2)])+"</svg>")
+for i in ('vangdat','bac','cauvong'):
+    stops=bandc[i]
+    lay(i,'before',f"left:-45%;top:-15%;width:55%;height:130%;background:linear-gradient(90deg,{stops});transform:skewX(-18deg);animation:nbSheen2 calc(3.8s*var(--nbs,1)) ease-in-out infinite")
+    lay(i,'after',f"left:0;top:0;width:100%;height:100%;background:{glt} 0 0/100% 100% no-repeat;opacity:.8;animation:nbTw calc(1.9s*var(--nbs,1)) ease-in-out infinite")
+    R(f'.nth-{i} .nbx1',"left:0;top:0;right:0;bottom:0;background:radial-gradient(circle at var(--mx,50%) var(--my,50%),rgba(255,255,255,.5),transparent 42%)")
+
+
+SMALLP=['.hc>','.mc>','.nbmini>']
+css.append(','.join(p+'.nth-trungthu.nbfx::after' for p in SMALLP)+'{display:block}')
+css.append(','.join(p+'.nth' for p in SMALLP)+'{--nbs:.45}')
+css.append(','.join(p+'.nth-'+i+'.nbfx .nbx1' for p in SMALLP for i in ('lua','dentroi','songnuoc'))+'{display:block}')
 css.append(open(os.path.join(os.path.dirname(os.path.abspath(__file__)),'nen_ui.css'),encoding='utf8').read() if os.path.exists(os.path.join(os.path.dirname(os.path.abspath(__file__)),'nen_ui.css')) else '')
 open(OUT,'w',encoding='utf8').write('\n'.join(css)+'\n')
 print(OUT,sum(len(c) for c in css))
