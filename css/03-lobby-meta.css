@@ -986,3 +986,27 @@ body.rm .kh11b{animation:none!important}
 #ovCard.nbm-on .bigc{width:min(62cqw,230px,calc(var(--bh)*.76));min-width:0;margin:12px auto 0}
 #ovCard.nbm-on .body{overflow:hidden}
 @media (max-height:700px){#ovCard .cvx{margin:2px auto 6px;height:38px}#ovCard .cvnav{height:44px}#ovCard .cvbot{padding-top:2px}#ovCard .cvact{padding-top:4px}#ovCard .cvb,#ovCard #btnUp{height:42px}#ovCard .cvtx{font-size:14px!important;padding:6px 18px 4px!important}}
+/* ===== viền Vô Cực ở màn xem thẻ lớn: chuyển động êm, không nhấp nháy =====
+   Trước đây: viền conic-gradient quay bằng cách animate @property --ang (vẽ lại mỗi khung hình) 7 s/vòng, màu lướt qua vàng/lục (sáng) và tím/đỏ (tối)
+   -> tại mỗi điểm viền sáng-tối đổi nhanh; viền màu tuỳ chọn còn có dải tối quét quanh; lấp lánh 1,8 s, ngọc 2 s, hình nhún 4 s chồng lệch chu kỳ;
+   mỗi lần renderCard viết lại innerHTML nên mọi animation khởi động lại từ 0 (giật).
+   Nay: vòng viền là phần tử riêng quay bằng transform (30 s/vòng, màu cùng độ sáng, không dải tối), hào quang thở bằng opacity (6 s, biên độ nhỏ),
+   pha hoạt ảnh giữ qua các lần render (--qd). Chỉ animate transform/opacity. */
+.bigc.qf.q6,.bigc.qf.q6:not(.qcc){animation:none!important}
+.bigc.qf.q6 .qrg{position:absolute;inset:-4px;z-index:1;border-radius:inherit;padding:4px;pointer-events:none;overflow:hidden;
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0)}
+.bigc.qf.q6 .qrg b{position:absolute;left:50%;top:50%;width:190%;aspect-ratio:1;transform:translate(-50%,-50%) rotate(0deg);will-change:transform;
+  background:conic-gradient(#ff6b9d,#ffc15a,#b4ee7a,#5ee0ff,#a88bff,#ff6bd6,#ff6b9d);animation:qrg-spin 30s linear infinite;animation-delay:var(--qd,0s)}
+.bigc.qf.q6.qcc .qrg b{background:conic-gradient(var(--qc),color-mix(in srgb,var(--qc) 78%,#fff) 25%,var(--qc) 50%,color-mix(in srgb,var(--qc) 78%,#fff) 75%,var(--qc))}
+@keyframes qrg-spin{to{transform:translate(-50%,-50%) rotate(360deg)}}
+.bigc.qf.q6::before{display:block!important;content:"";position:absolute;inset:-4px;z-index:0;border-radius:inherit;pointer-events:none;background:none;
+  box-shadow:0 0 16px 2px rgba(196,92,255,.5);opacity:.8;animation:qrg-pulse 6s ease-in-out infinite;animation-delay:var(--qd,0s)}
+.bigc.qf.q6.qcc::before{box-shadow:0 0 16px 2px color-mix(in srgb,var(--qc) 55%,transparent)}
+@keyframes qrg-pulse{0%,100%{opacity:.7}50%{opacity:1}}
+.bigc.qf.q6>.art:not(.pic){animation:qbo2 6s ease-in-out infinite!important;animation-delay:var(--qd,0s)!important}
+@keyframes qbo2{0%,100%{transform:translateY(0)}50%{transform:translateY(-2%)}}
+.bigc.qf.q6>.cst{animation:none!important}
+.bigc.qf.q6 .spk i{animation-name:spk2;animation-duration:5.4s}
+@keyframes spk2{0%,100%{opacity:0;transform:scale(.4) rotate(0deg)}50%{opacity:.8;transform:scale(.8) rotate(45deg)}}
+body.rm .bigc.qf.q6 .qrg b,body.rm .bigc.qf.q6::before,body.rm .bigc.qf.q6 .spk i,body.rm .bigc.qf.q6>.art,body.nblow .bigc.qf.q6 .qrg b,body.nblow .bigc.qf.q6::before,body.nblow .bigc.qf.q6 .spk i,body.nblow .bigc.qf.q6>.art{animation:none!important}
+@media (prefers-reduced-motion:reduce){.bigc.qf.q6 .qrg b,.bigc.qf.q6::before,.bigc.qf.q6 .spk i,.bigc.qf.q6>.art{animation:none!important}}
