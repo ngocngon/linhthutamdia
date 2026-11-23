@@ -1773,7 +1773,7 @@
       const W = (u) => (typeof where7 === "function" ? where7(u, R0, R1) : null);
 
       /* (A) Vứt bỏ bài tuần tự: (1) Vũ khí bay chém trúng lá bài (230ms) -> (2) Lá bài mới bốc cháy (620ms) — KHÔNG đè nhau! */
-      const discards = evs.filter((e) => e.k === "discard" && e.src > 0);
+      const discards = []; /* vứt bỏ do 05-vfx-core.discardBeat diễn: phóng to giữa màn hình rồi bay xuống Mộ */
       const hMap = evs._hand0 || (typeof HAND0 !== "undefined" ? HAND0 : null);
       discards.slice(0, 4).forEach((e, idx) => {
         const sc = anyC(e.src);
