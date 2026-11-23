@@ -1512,8 +1512,12 @@ body.rm .uc5 { display: none !important; }
 
 /* thẻ nguồn đang được "nhấc" hoặc đang ra giữa màn hình: ẩn ô gốc (bản sao thế chỗ) */
 #board .mc.hero-hid { visibility: hidden !important; }
-/* z 15 (sau #fx canvas trong DOM) -> quầng/hạt 2D ở tâm nguồn không che mặt nhân vật; đạo cụ bay (16–42) vẫn nổi trên */
-.fxg.hero5 { z-index: 15; will-change: transform; transform-origin: 50% 50%; overflow: visible; }
+/* gpu35: thẻ nhấc nằm TRÊN lớp ánh sáng GPU (#fxgl 28) và sprite loé (.fx-v16 30) -> không loé ngang mặt nhân vật;
+   đạo cụ bay (.p8 33, đạo cụ tranh vẽ 34–41) và số nổi (.float 32) vẫn ở trên thẻ nhấc */
+.fxg.hero5 { z-index: 31; will-change: transform; transform-origin: 50% 50%; overflow: visible; }
+.p8 { z-index: 33; }
+.float { z-index: 32; }
+.m8, .fx7shd, .fx7lock, .fx7eye { z-index: 33; }
 .hero5 > .h5-glow {
   position: absolute;
   inset: -40% -55%;
