@@ -251,10 +251,12 @@ function showEnd(){
   G.msg=`Ván đã kết thúc. Bấm <b>Ván mới</b> để chơi tiếp.`;
   render();
   const fw=r.kind==="end"?endFinale():0;
-  const eb=reduced?0:1300;if(eb)setTimeout(()=>{try{endBanner(r);}catch(e){}},fw);
-  setTimeout(()=>{if(r.winner==="p"){FX.rain("#ffd65a");SFX.play("win");}else if(r.winner==="a")SFX.play("lose");else SFX.play("draw_game",.85);$("ovEnd").classList.add("on");},fw+eb);
+  const eb=reduced?0:1300,g0=G; /* ván đã đổi (bấm Ván mới sớm) -> không bật banner/màn kết quả cũ đè lên ván mới */
+  if(eb)setTimeout(()=>{if(G!==g0)return;try{endBanner(r);}catch(e){}},fw);
+  setTimeout(()=>{if(G!==g0)return;if(r.winner==="p"){FX.rain("#ffd65a");SFX.play("win");}else if(r.winner==="a")SFX.play("lose");else SFX.play("draw_game",.85);$("ovEnd").classList.add("on");},fw+eb);
 }
 function newGame(){
+  try{$("ovEnd").classList.remove("on");}catch(e){}
   BC=null;TN0=0;LOCID=[];seenRev.clear();prevPow.clear();seenLoc.clear();seenStg.clear();prevLd=[];PWV={};sel=look=moveSel=null;armRetreat=0;
   const hs=Object.keys(E.PARTNER);
   const foeDeck=E.themedDeck(hs[Math.floor(Math.random()*hs.length)]);
