@@ -1,15 +1,7 @@
 name: Dựng APK Android
 
+# Chỉ dựng APK khi chủ game yêu cầu: tab Actions → "Dựng APK Android" → Run workflow.
 on:
-  push:
-    branches: [main]
-    paths:
-      - "www/**"
-      - "assets/**"
-      - "capacitor.config.json"
-      - "package.json"
-      - "tools/android/**"
-      - ".github/workflows/android.yml"
   workflow_dispatch:
 
 permissions:
