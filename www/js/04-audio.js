@@ -291,7 +291,7 @@ const SFX = (() => {
     }
   };
 
-  const VIB = { ult: [15, 35, 65], boom: [20, 25, 50], place: 10, flip: 8, destroy: [25, 25, 35], snap: [25, 35, 25], act: 16, win: [35, 50, 35] };
+  const VIB = { rv_t5: [12, 20, 30], ult: [15, 35, 65], boom: [20, 25, 50], place: 10, flip: 8, destroy: [25, 25, 35], snap: [25, 35, 25], act: 16, win: [35, 50, 35] };
 
   /* ===== Mẫu âm thanh thật (sprite www/sfx/sfx.mp3 + sfx.json: tên → [bắt đầu, độ dài] giây) =====
      Chưa tải xong / thiếu mẫu → dùng lại bộ tổng hợp S[...] ở trên làm dự phòng. */
@@ -299,51 +299,147 @@ const SFX = (() => {
   let loadState = 0; // 0 chưa tải, 1 đang tải, 2 xong, 3 lỗi
   const recent = {};
   let voices = 0;
-  const DUCK = { ult: 0.9, boom: 0.7, destroy: 0.7, snap: 0.8, win: 1.6, lose: 1.4, horn: 0.6, e_sam: 0.5, e_dat: 0.5, gacha3: 1.4, loc: 0.5, timeout: 0.5 };
+  const DUCK = { ult: 0.9, boom: 0.7, destroy: 0.7, snap: 0.8, win: 1.6, lose: 1.4, horn: 0.6, e_sam: 0.5, e_dat: 0.5, gacha3: 1.4, loc: 0.5, timeout: 0.5, rv_t5: 0.8, f_bigup: 0.4, f_bigdn: 0.5, f_exile: 0.5 };
 
-  function loadSamples() {
-    if (loadState || !ac) return;
-    loadState = 1;
-    Promise.all([
-      fetch("sfx/sfx.json").then((r) => r.json()),
-      fetch("sfx/sfx.mp3").then((r) => r.arrayBuffer())
+  /* Hai sprite: sfx.mp3 (69 âm ElevenLabs gốc) + sfx2.mp3 (âm mới dựng từ chính các mẫu gốc: lớp lật thẻ theo bậc, họ kỹ năng) */
+  function cutSprite(idx, big) {
+    const sr = big.sampleRate, src = big.getChannelData(0);
+    for (const k in idx) {
+      const a = Math.floor(idx[k][0] * sr), n = Math.max(1, Math.floor(idx[k][1] * sr));
+      const b = ac.createBuffer(1, n, sr);
+      b.getChannelData(0).set(src.subarray(a, a + n));
+      bufs[k] = b;
+    }
+  }
+  function loadSprite(name, optional) {
+    return Promise.all([
+      fetch("sfx/" + name + ".json").then((r) => { if (!r.ok) throw new Error(name); return r.json(); }),
+      fetch("sfx/" + name + ".mp3").then((r) => { if (!r.ok) throw new Error(name); return r.arrayBuffer(); })
     ])
       .then(([idx, ab]) => new Promise((res, rej) => {
         const p = ac.decodeAudioData(ab, (b) => res([idx, b]), rej);
         if (p && p.catch) p.catch(rej);
       }))
-      .then(([idx, big]) => {
-        const sr = big.sampleRate, src = big.getChannelData(0);
-        for (const k in idx) {
-          const a = Math.floor(idx[k][0] * sr), n = Math.max(1, Math.floor(idx[k][1] * sr));
-          const b = ac.createBuffer(1, n, sr);
-          b.getChannelData(0).set(src.subarray(a, a + n));
-          bufs[k] = b;
-        }
-        loadState = 2;
-      })
-      .catch(() => { loadState = 3; });
+      .then(([idx, big]) => cutSprite(idx, big))
+      .catch((e) => { if (!optional) throw e; });
+  }
+  function loadSamples() {
+    if (loadState || !ac) return;
+    loadState = 1;
+    loadSprite("sfx", false)
+      .then(() => { loadState = 2; return loadSprite("sfx2", true); })
+      .catch(() => { if (loadState !== 2) loadState = 3; });
   }
 
-  function playSample(n, vol) {
+  function playSample(n, vol, o) {
     const b = bufs[n];
     if (!b || !ac) return false;
+    o = o || {};
     const now = ac.currentTime;
     const r = (recent[n] = (recent[n] || []).filter((t) => now - t < 0.12));
-    if (r.length >= 3 || voices >= 10) return true; // nuốt bớt, không rơi về synth
+    if (r.length >= 3 || voices >= 14) return true; // nuốt bớt, không rơi về synth
     r.push(now);
     const src = ac.createBufferSource();
     const g = ac.createGain();
+    const nodes = [g];
     src.buffer = b;
-    src.playbackRate.value = 1 + (Math.random() * 2 - 1) * 0.04;
+    src.playbackRate.value = (o.rate || 1) * (1 + (Math.random() * 2 - 1) * 0.04);
     g.gain.value = sfxGainVal(0.9 * (vol == null ? 1 : vol) * (1 + (Math.random() * 2 - 1) * 0.1));
     src.connect(g);
-    g.connect(outNode());
+    let last = g;
+    for (const [ty, fr] of [["highpass", o.hp], ["lowpass", o.lp]]) {
+      if (!fr) continue;
+      const f = ac.createBiquadFilter();
+      f.type = ty;
+      f.frequency.value = fr;
+      last.connect(f);
+      last = f;
+      nodes.push(f);
+    }
+    last.connect(outNode());
     voices++;
-    src.onended = () => { voices--; try { g.disconnect(); } catch (e) {} };
-    src.start();
+    src.onended = () => { voices--; for (const x of nodes) { try { x.disconnect(); } catch (e) {} } };
+    src.start(now + (o.delay || 0));
     if (DUCK[n] && typeof BGM !== "undefined" && BGM.duck) BGM.duck(0.4, DUCK[n]);
     return true;
+  }
+
+  /* ===== Sắc thái theo HỆ của thẻ nguồn: chỉnh cao độ/lọc nhẹ + lớp nhấn e_<hệ> ===== */
+  const EL = {
+    lua: { r: 0.95, lp: 7500, a: "e_lua" }, bang: { r: 1.08, hp: 450, a: "e_bang" }, sam: { r: 1.04, hp: 220, a: "e_sam" },
+    doc: { r: 0.93, lp: 5200, a: "e_doc" }, toi: { r: 0.85, lp: 3800, a: "e_toi" }, sang: { r: 1.12, hp: 500, a: "e_sang" },
+    gio: { r: 1.06, hp: 320, a: "e_gio" }, dat: { r: 0.8, lp: 4800, a: "e_dat" }, nuoc: { r: 1.0, lp: 6500, a: "e_nuoc" },
+    mau: { r: 0.9, lp: 5200, a: "e_mau" }, cokhi: { r: 1.02, hp: 260, a: "e_cokhi" }, hon: { r: 1.15, hp: 300, a: "e_hon" },
+    moc: { r: 0.97, a: "e_moc" }
+  };
+  /* tên mẫu "hiệu ứng" được nhuộm theo hệ khi đang có thẻ nguồn (UI, lật thẻ, thắng/thua... không bị nhuộm) */
+  const FLAV = new Set(["destroy", "slash", "boom", "punch", "bow", "dagger", "bite", "web", "chain", "magnet", "tentacle", "forge", "gavel", "horn",
+    "whoosh", "laser", "summon", "buff", "hurt", "debuff", "silence", "shield", "steal", "dark", "double", "energy", "move", "morph", "discard", "revive", "act", "chime"]);
+  const ACC = new Set(["destroy", "summon", "buff", "hurt", "debuff", "silence", "shield", "steal", "morph", "revive", "move", "discard", "boom", "act", "double", "energy"]);
+  let srcEl = null, srcT = 0;
+  const curEl = () => (srcEl && performance.now() - srcT < 1800 ? srcEl : null);
+
+  /* ===== Họ kỹ năng: khoá -> các biến thể mẫu (xoay vòng để không lặp y hệt) ===== */
+  const FAM = {
+    destroy: ["destroy"], exile: ["f_exile"], discard: ["discard"], move: ["move"], swap: ["f_swap"], bounce: ["f_bounce"], pull: ["f_pull"], draw: ["draw"],
+    summon: ["summon"], create: ["f_create"], deckadd: ["f_deckadd"], shuffle: ["f_shuffle"], revive: ["revive"], copy: ["f_copy"], steal: ["steal"],
+    silence: ["silence"], lock: ["f_lock"], shield: ["shield"], block: ["f_block"], up1: ["f_smallup"], up2: ["buff"], up3: ["f_bigup"],
+    dn1: ["f_smalldn"], dn2: ["debuff"], dn3: ["f_bigdn"], dbl: ["f_dbl"], energy: ["energy"], egain: ["f_energy2"], nrgloss: ["f_nrg_loss"],
+    costdn: ["f_costdn"], costup: ["f_costup"], merge: ["f_absorb"], morph: ["morph"], locup: ["f_locup"], locdn: ["f_afflict"], locx: ["f_xform"],
+    locrev: ["loc", "f_reveal_loc"], ult: ["ult"], aura: ["f_aura"], endt: ["f_end"], act: ["act"], hurt: ["hurt"]
+  };
+  const famIdx = {};
+  function fam(key, o) {
+    o = o || {};
+    if (store.mute) return;
+    try {
+      if (!ctx()) return;
+      if (loadState === 0) loadSamples();
+      const L = FAM[key];
+      if (!L) return;
+      const i = (famIdx[key] = ((famIdx[key] == null ? -1 : famIdx[key]) + 1) % L.length), n = L[i];
+      const el = o.el === undefined ? curEl() : o.el, p = el && EL[el];
+      const vol = o.vol == null ? 1 : o.vol;
+      if (VIB[n] && store.vib !== false && navigator.vibrate) { try { navigator.vibrate(VIB[n]); } catch (e) {} }
+      const ok = playSample(n, vol, { rate: (p ? p.r : 1) * (o.rate || 1), hp: p && p.hp, lp: p && p.lp, delay: o.delay });
+      if (!ok && S[n]) S[n]();
+      if (ok && p && !o.noacc) playSample(p.a, vol * 0.4, { delay: (o.delay || 0) + 0.05, rate: 1 + (famIdx[key] % 2) * 0.06 });
+    } catch (e) {}
+  }
+
+  /* ===== Lật thẻ: một lần lật = một âm nhiều lớp (thân lật + nhấn hệ + lớp theo Bậc); lật dồn dập thì thưa dần/gộp lại ===== */
+  const REVB = ["rv_a", "rv_b", "rv_c"];
+  let revBody = 0, revTimes = [];
+  const tierOf = (h) => (h === "S5" || h === "MP" ? 5 : h === "S4" ? 4 : h === "S3" ? 3 : 1);
+  function reveal(o) {
+    o = o || {};
+    if (store.mute) return;
+    try {
+      if (!ctx()) return;
+      if (loadState === 0) loadSamples();
+      if (!bufs.rv_a) { if (S.flip) S.flip(); return; }
+      const now = performance.now();
+      revTimes = revTimes.filter((t) => now - t < 1800);
+      const n = revTimes.length, tier = o.tier || tierOf(o.h), el = o.el, p = el && EL[el];
+      revTimes.push(now);
+      if (store.vib !== false && navigator.vibrate) { try { navigator.vibrate(tier >= 5 ? [12, 20, 30] : 8); } catch (e) {} }
+      const rate = (p ? 1 + (p.r - 1) * 0.5 : 1) * (tier >= 4 ? 0.97 : 1);
+      if (n === 0) {
+        revBody = (revBody + 1 + (Math.random() < 0.5 ? 1 : 0)) % 3;
+        playSample(REVB[revBody], 1, { rate });
+      } else if (n === 1) {
+        playSample("rv_soft", 0.85, { rate: rate * (0.95 + Math.random() * 0.2) });
+      } else if (n === 2) {
+        playSample("rv_cas", 0.9, { rate });
+      } else if (tier < 4 && n % 2 === 0) {
+        playSample("rv_soft", 0.5, { rate: rate * 1.1 });
+      }
+      const accVol = (tier >= 5 ? 0.62 : tier === 4 ? 0.5 : tier === 3 ? 0.42 : 0.32) * (n >= 2 ? 0.6 : 1);
+      if (p && (n < 2 || tier >= 4)) playSample(p.a, accVol, { delay: 0.1, rate: 1 + (tier - 3) * 0.02 });
+      if (tier >= 5) playSample("rv_t5", n >= 2 ? 0.8 : 1, { delay: 0.04, rate: o.h === "MP" ? 1.08 : 1 });
+      else if (tier === 4 && n < 3) playSample("rv_t4", n >= 2 ? 0.7 : 0.9, { delay: 0.05 });
+      else if (tier === 3 && n < 2) playSample("rv_t3", 0.8, { delay: 0.05 });
+    } catch (e) {}
   }
 
   return {
@@ -358,6 +454,11 @@ const SFX = (() => {
         if (typeof BGM !== "undefined") BGM.wake();
       } catch (e) {}
     },
+    fam,
+    reveal,
+    src(el) { srcEl = el || null; srcT = performance.now(); },
+    famOf(id) { try { return typeof sfxFamOf === "function" && C[id] ? sfxFamOf(C[id]) : "none"; } catch (e) { return "none"; } },
+    famKeys() { return Object.keys(FAM); },
     play(n, vol) { /* vol: hệ số âm lượng riêng cho mẫu này (mặc định 1) */
       if (store.vib !== false && VIB[n] && navigator.vibrate) {
         try { navigator.vibrate(VIB[n]); } catch (e) {}
@@ -366,7 +467,11 @@ const SFX = (() => {
       try {
         if (!ctx()) return;
         if (loadState === 0) loadSamples();
-        if (playSample(n, vol)) return;
+        const el = FLAV.has(n) ? curEl() : null, p = el && EL[el];
+        if (playSample(n, vol, p ? { rate: p.r, hp: p.hp, lp: p.lp } : null)) {
+          if (p && ACC.has(n)) playSample(p.a, (vol == null ? 1 : vol) * 0.3, { delay: 0.05 });
+          return;
+        }
         if (S[n]) S[n]();
       } catch (e) {}
     }

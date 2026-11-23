@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Nghe thử âm thanh - Linh Thú Tam Địa</title>
+<base href="../">
 <style>
 body{background:#10131a;color:#e6e9f0;font:15px/1.5 system-ui,sans-serif;margin:0;padding:16px}
 h1{font-size:20px;margin:0 0 4px}p.s{color:#8c95a8;margin:0 0 14px}
@@ -13,9 +14,26 @@ button:active{background:#1b4fd0}
 #bar{position:sticky;top:0;background:#10131a;padding:8px 0;z-index:2}
 #out{width:100%;max-width:1100px;height:60px;background:#171c27;color:#e6e9f0;border:1px solid #232938;border-radius:6px;margin-top:10px}
 #st{color:#8c95a8;margin-left:10px}
+.mới,.new{background:#ff7a3c;color:#10131a;border-radius:4px;padding:0 5px;font-size:11px;font-weight:700;margin-left:6px}
+h2{font-size:17px;margin:22px 0 6px;color:#ffd37a}select{background:#171c27;color:#e6e9f0;border:1px solid #232938;border-radius:6px;padding:5px}
+details summary{cursor:pointer;color:#8c95a8}details div{font-size:12px;color:#aab2c5;max-width:520px}.gr td{background:#141926}
+.mini{background:#3a4560}.tag{color:#7be05a;font-size:12px}
 </style></head><body>
-<h1>Nghe thử âm thanh (69 âm)</h1>
+<h1>Nghe thử âm thanh (69 âm gốc + 34 âm mới)</h1>
 <p class="s">Bấm &#9654; để nghe. Tick cột &laquo;Làm lại&raquo; với âm chưa ưng, rồi bấm &laquo;Sao chép danh sách&raquo; và gửi lại cho mình. Các âm ghi &laquo;chưa gắn&raquo; đã có sẵn nhưng game chưa gọi tới.</p>
+<h2>1. Lật thẻ &mdash; một lần lật = một âm nhiều lớp <span class="new">Mới</span></h2>
+<p class="s">Cũ: mọi thẻ cùng một tiếng <code>flip</code> + tiếng hệ + chuông (cost&ge;5). Mới: thân lật xoay vòng 3 kiểu (<code>rv_a/b/c</code>) + lớp nhấn theo <b>hệ</b> + lớp theo <b>Bậc</b> (Bậc 3 <code>rv_t3</code>, Bậc 4 <code>rv_t4</code>, Bậc 5/Mới phát hành <code>rv_t5</code> nặng, có rung và hạ nhạc nền). Lật dồn dập trong 1,8 s: lá thứ 2 chỉ còn bản mỏng <code>rv_soft</code>, lá thứ 3 gộp thành <code>rv_cas</code>, từ lá thứ 4 chỉ còn lớp của thẻ Bậc cao.</p>
+<div id="bar2">Bậc: <select id="rvH"><option value="S1">Bậc 1&ndash;2 / Khởi đầu</option><option value="S3">Bậc 3</option><option value="S4">Bậc 4</option><option value="S5">Bậc 5</option><option value="MP">Mới phát hành</option></select>
+Hệ: <select id="rvE"></select>
+<button id="rv1">Lật 1 lá</button> <button id="rv4">Lật dồn 5 lá (0,44 s/lá, bậc ngẫu nhiên)</button></div>
+<table><thead><tr><th></th><th>Tên</th><th>Vai trò trong một lần lật</th></tr></thead><tbody id="tbRv"></tbody></table>
+<h2>2. Họ kỹ năng &mdash; mỗi họ một tiếng riêng, nhuộm theo hệ <span class="new">Mới</span></h2>
+<p class="s">Họ được chọn theo <b>điều kỹ năng thực sự làm</b> (sự kiện trong luật chơi, phát đúng lúc hoạt ảnh trúng đích), kỹ năng không có sự kiện riêng thì phân họ theo chữ mô tả (<code>sfxFamOf</code> trong <code>js/04a-sfx-fam.js</code>). Cột &laquo;Hệ&raquo; để nghe cùng một họ với từng hệ: cao độ/bộ lọc đổi theo hệ + lớp nhấn <code>e_*</code>.</p>
+<div id="bar3">Nghe họ với hệ: <select id="fmE"></select></div>
+<table><thead><tr><th></th><th>Họ</th><th>Mẫu</th><th>Phát khi (sự kiện / hoạt ảnh)</th><th>Số thẻ</th></tr></thead><tbody id="tbFam"></tbody></table>
+<h2>3. Hệ &mdash; sắc thái cho mọi tiếng hiệu ứng <span class="new">Mới</span></h2>
+<table><thead><tr><th></th><th>Hệ</th><th>Lớp nhấn</th><th>Chỉnh cao độ / lọc</th></tr></thead><tbody id="tbEl"></tbody></table>
+<h2>4. Toàn bộ mẫu (gốc ElevenLabs + dựng offline)</h2>
 <div id="bar"><button id="all">Nghe lần lượt tất cả</button> <button id="cp">Sao chép danh sách làm lại</button><span id="st">Đang tải...</span></div>
 <table><thead><tr><th></th><th>Tên</th><th>Dùng khi</th><th>Mô tả (prompt)</th><th>Làm lại</th></tr></thead><tbody>
 <tr><td><button class="pl" data-n="tap">&#9654;</button></td><td><code>tap</code></td><td>Bấm nút / chạm giao diện</td><td class="pr">short crisp wooden temple block tap, clean game UI click, dry</td><td><input type="checkbox" class="redo" data-n="tap"></td></tr>
@@ -32,7 +50,7 @@ button:active{background:#1b4fd0}
 <tr><td><button class="pl" data-n="pick">&#9654;</button></td><td><code>pick</code></td><td>Nhấc thẻ lên</td><td class="pr">short soft card pick up from table, paper snap with light wood tick</td><td><input type="checkbox" class="redo" data-n="pick"></td></tr>
 <tr><td><button class="pl" data-n="place">&#9654;</button></td><td><code>place</code></td><td>Đặt thẻ xuống bàn</td><td class="pr">playing card placed down firmly on wooden board, solid wooden thud with short paper slap</td><td><input type="checkbox" class="redo" data-n="place"></td></tr>
 <tr><td><button class="pl" data-n="unplay">&#9654;</button></td><td><code>unplay</code></td><td>Trả thẻ về tay</td><td class="pr">card slides back, quick paper swoosh with soft wood tick</td><td><input type="checkbox" class="redo" data-n="unplay"></td></tr>
-<tr><td><button class="pl" data-n="flip">&#9654;</button></td><td><code>flip</code></td><td>Lật thẻ</td><td class="pr">card flip reveal, fast paper flick with small bronze ping</td><td><input type="checkbox" class="redo" data-n="flip"></td></tr>
+<tr><td><button class="pl" data-n="flip">&#9654;</button></td><td><code>flip</code></td><td>Lật thẻ (nay chỉ còn là nguồn của <code>rv_*</code>)</td><td class="pr">card flip reveal, fast paper flick with small bronze ping</td><td><input type="checkbox" class="redo" data-n="flip"></td></tr>
 <tr><td><button class="pl" data-n="loc">&#9654;</button></td><td><code>loc</code></td><td>Lộ chiến địa</td><td class="pr">low bronze gong soft hit with short whoosh, stone tablet reveal, location revealed</td><td><input type="checkbox" class="redo" data-n="loc"></td></tr>
 <tr><td><button class="pl" data-n="turn">&#9654;</button></td><td><code>turn</code></td><td>Bắt đầu lượt</td><td class="pr">bright wooden mo block double knock with bell ping, new turn starts, game</td><td><input type="checkbox" class="redo" data-n="turn"></td></tr>
 <tr><td><button class="pl" data-n="snap">&#9654;</button></td><td><code>snap</code></td><td>SNAP / tăng cược</td><td class="pr">deep bronze drum hit single powerful with short reverb tail, boom, game stake raise</td><td><input type="checkbox" class="redo" data-n="snap"></td></tr>
@@ -89,11 +107,37 @@ button:active{background:#1b4fd0}
 <tr><td><button class="pl" data-n="draw_game">&#9654;</button></td><td><code>draw_game</code></td><td>Hoà (chưa gắn)</td><td class="pr">neutral resolve sting, two mellow wooden knocks and soft bell, tie</td><td><input type="checkbox" class="redo" data-n="draw_game"></td></tr>
 </tbody></table>
 <textarea id="out" placeholder="Danh sách âm cần làm lại sẽ hiện ở đây" readonly></textarea>
+<script>window.store={vol:100,vib:false,mute:false};</script>
+<script src="js/01-engine.js"></script><script src="js/04a-sfx-fam.js"></script><script src="js/04-audio.js"></script>
 <script>
-const AC=new (window.AudioContext||window.webkitAudioContext)();let big=null,idx=null,cur=null;
-Promise.all([fetch("sfx.json").then(r=>r.json()),fetch("sfx.mp3").then(r=>r.arrayBuffer())]).then(([j,ab])=>new Promise((res,rej)=>{const p=AC.decodeAudioData(ab,b=>res([j,b]),rej);if(p&&p.catch)p.catch(rej)})).then(([j,b])=>{idx=j;big=b;document.getElementById("st").textContent="Sẵn sàng"}).catch(e=>{document.getElementById("st").textContent="Lỗi tải: "+e});
-function play(n){return new Promise(res=>{if(!big||!idx[n])return res();AC.resume();if(cur)try{cur.stop()}catch(e){}const s=AC.createBufferSource();s.buffer=big;s.connect(AC.destination);s.onended=res;s.start(0,idx[n][0],idx[n][1]);cur=s})}
-document.querySelectorAll(".pl").forEach(b=>b.onclick=()=>play(b.dataset.n));
+const AC=new (window.AudioContext||window.webkitAudioContext)();const bigs={},idx={};let cur=null;
+const NEWN=new Set();
+async function ld(nm,opt){try{const [j,ab]=await Promise.all([fetch("sfx/"+nm+".json").then(r=>r.json()),fetch("sfx/"+nm+".mp3").then(r=>r.arrayBuffer())]);const b=await new Promise((res,rej)=>{const p=AC.decodeAudioData(ab,res,rej);if(p&&p.catch)p.catch(rej)});for(const k in j){idx[k]=j[k];bigs[k]=b;if(nm==="sfx2")NEWN.add(k)}}catch(e){if(!opt)throw e}}
+const NAME={destroy:"Tiêu huỷ",exile:"Trục xuất"};
+const EV={destroy:"Sự kiện destroy: lúc đòn trúng thẻ (kèm tiếng vũ khí riêng của thẻ từ 09-card-choreo)",exile:"Kỹ năng Trục xuất (phân họ theo chữ), khi hiệu ứng chạy",discard:"Sự kiện discard (vứt khỏi tay)",move:"Sự kiện move: lúc thẻ bắt đầu trượt sang chiến địa khác",swap:"Bước hoán đổi phe (swap): lúc hai thẻ đổi chỗ",bounce:"Thẻ trả về tay (tohand / bước bounce): lúc thẻ bay về tay",pull:"Kéo / rút thẻ từ bộ bài đối thủ (phân họ theo chữ)",draw:"Rút thẻ của mình (phân họ theo chữ; đầu lượt vẫn dùng draw)",summon:"Sự kiện summon: lúc thẻ rơi xuống chiến địa",create:"Tạo / sao chép thẻ vào tay (X.hnew, bước sao chép thẻ)",deckadd:"Xáo / thêm thẻ vào bộ bài (X.din): lúc thẻ bay vào bộ bài",shuffle:"Xáo thẻ vào bộ bài (phân họ theo chữ)",revive:"Sự kiện revive",copy:"Sao chép kỹ năng (abcopy / bước copy / phản ứng react): lúc kỹ năng bay về thẻ nguồn",steal:"Cướp kỹ năng (sil có src) / đổi phe",silence:"Sự kiện sil: thẻ mất kỹ năng",lock:"Khoá chiến địa / cấm đặt thẻ (lock flood, lock np)",shield:"Chiến địa bảo vệ (lshield) / kỹ năng Bất khả huỷ",block:"Thẻ chặn được đòn (blocked): khiên hiện ra",up1:"Thẻ tăng 1&ndash;2 sức mạnh",up2:"Thẻ tăng 3&ndash;5 sức mạnh",up3:"Thẻ tăng &ge;6 sức mạnh",dn1:"Thẻ giảm 1&ndash;2 sức mạnh",dn2:"Thẻ giảm 3&ndash;5 sức mạnh",dn3:"Thẻ giảm &ge;5&ndash;6 sức mạnh",dbl:"Sức mạnh nhân đôi (v = 2&times;v0)",egain:"Nhận năng lượng (egain, Đầu lượt, kỹ năng +năng lượng)",nrgloss:"Mất năng lượng tối đa (phân họ theo chữ)",costdn:"Giảm giá thẻ trên tay / trong bộ bài (X.cm &lt; 0)",costup:"Tăng giá thẻ (X.cm &gt; 0)",merge:"Hợp thể / hấp thụ sức mạnh (thẻ biến mất vào thẻ khác)",morph:"Biến đổi / đặt lại sức mạnh về số cố định (morph, reset)",locup:"Chiến địa cộng sức mạnh (lplus)",locdn:"Chiến địa giáng sức mạnh (lminus)",locx:"Đổi chiến địa / hiệu ứng chiến địa (locfx)",aura:"Duy Trì / Bị Động (khi chạy không có sự kiện riêng)",endt:"Kỹ năng Cuối Lượt (skill t=end)",act:"Kích Hoạt (act)"};
+const ELN={lua:"Lửa",bang:"Băng",sam:"Sấm sét",doc:"Độc",toi:"Bóng tối",sang:"Ánh sáng",gio:"Gió",dat:"Đất",nuoc:"Nước",mau:"Máu",cokhi:"Cơ khí",hon:"Hồn",moc:"Mộc"};
+const ELP={lua:"cao độ 0,95, lọc thấp 7,5 kHz",bang:"cao độ 1,08, lọc cao 450 Hz",sam:"cao độ 1,04, lọc cao 220 Hz",doc:"cao độ 0,93, lọc thấp 5,2 kHz",toi:"cao độ 0,85, lọc thấp 3,8 kHz",sang:"cao độ 1,12, lọc cao 500 Hz",gio:"cao độ 1,06, lọc cao 320 Hz",dat:"cao độ 0,80, lọc thấp 4,8 kHz",nuoc:"cao độ 1,00, lọc thấp 6,5 kHz",mau:"cao độ 0,90, lọc thấp 5,2 kHz",cokhi:"cao độ 1,02, lọc cao 260 Hz",hon:"cao độ 1,15, lọc cao 300 Hz",moc:"cao độ 0,97"};
+const RV={rv_a:"Thân lật kiểu A (xoay vòng)",rv_b:"Thân lật kiểu B (xoay vòng)",rv_c:"Thân lật kiểu C (xoay vòng)",rv_soft:"Bản mỏng cho lá lật thứ 2 trong 1,8 s",rv_cas:"Bản gộp 3 lần lật liền nhau",rv_t3:"Lớp Bậc 3 (chuông ngắn)",rv_t4:"Lớp Bậc 4 (lấp lánh dâng lên)",rv_t5:"Lớp Bậc 5 / Mới phát hành: chiêng-trống-sừng nặng, rung máy, hạ nhạc nền"};
+function ready(){return Promise.all([ld("sfx"),ld("sfx2",true)])}
+function play(n){return new Promise(res=>{const b=bigs[n];if(!b||!idx[n])return res();AC.resume();if(cur)try{cur.stop()}catch(e){}const s=AC.createBufferSource();s.buffer=b;s.connect(AC.destination);s.onended=res;s.start(0,idx[n][0],idx[n][1]);cur=s})}
+function bindPl(root){root.querySelectorAll(".pl").forEach(b=>b.onclick=()=>play(b.dataset.n))}
+ready().then(()=>{
+  document.getElementById("st").textContent="Sẵn sàng ("+Object.keys(idx).length+" âm)";SFX.wake();
+  // đánh dấu Mới trong bảng cũ
+  document.querySelectorAll("#bar ~ table tbody tr code").forEach(c=>{if(NEWN.has(c.textContent))c.insertAdjacentHTML("afterend",'<span class="new">Mới</span>')});
+  const ESEL=['<option value="">(không hệ)</option>'].concat(Object.keys(ELN).map(k=>`<option value="${k}">${ELN[k]}</option>`)).join("");
+  document.getElementById("rvE").innerHTML=ESEL;document.getElementById("fmE").innerHTML=ESEL;
+  document.getElementById("tbRv").innerHTML=Object.keys(RV).map(n=>`<tr><td><button class="pl" data-n="${n}">&#9654;</button></td><td><code>${n}</code><span class="new">Mới</span></td><td>${RV[n]}</td></tr>`).join("");
+  // họ kỹ năng + thẻ
+  const cnt={},names={};const C=LT.C;for(const id in C){const f=sfxFamOf(C[id]);cnt[f]=(cnt[f]||0)+1;(names[f]=names[f]||[]).push(C[id].n)}
+  document.getElementById("tbFam").innerHTML=Object.keys(SFX_FAMS).filter(k=>k!=="none").map(k=>{const [lb,sm]=SFX_FAMS[k];const nw=NEWN.has(sm);return `<tr><td><button class="pl" data-n="${sm}">&#9654;</button> <button class="mini fm" data-k="${k}">+hệ</button></td><td><b>${lb}</b><br><span class="pr">${k}</span></td><td><code>${sm}</code>${nw?'<span class="new">Mới</span>':''}</td><td>${EV[k]||""}</td><td>${cnt[k]||0}${names[k]?`<details><summary>xem thẻ</summary><div>${names[k].join(", ")}</div></details>`:""}</td></tr>`}).join("");
+  document.getElementById("tbEl").innerHTML=Object.keys(ELN).map(k=>`<tr><td><button class="mini el" data-k="${k}">&#9654;</button></td><td>${ELN[k]} <span class="pr">${k}</span></td><td><code>e_${k}</code></td><td>${ELP[k]}</td></tr>`).join("");
+  bindPl(document.body);
+  document.querySelectorAll(".fm").forEach(b=>b.onclick=()=>{SFX.wake();SFX.fam(b.dataset.k,{el:document.getElementById("fmE").value||null})});
+  document.querySelectorAll(".el").forEach(b=>b.onclick=()=>{SFX.wake();SFX.fam("up2",{el:b.dataset.k})});
+  document.getElementById("rv1").onclick=()=>{SFX.wake();SFX.reveal({h:document.getElementById("rvH").value,el:document.getElementById("rvE").value||null})};
+  document.getElementById("rv4").onclick=()=>{SFX.wake();const hs=["S1","S3","S4","S1","S5"],es=Object.keys(ELN);hs.forEach((h,i)=>setTimeout(()=>SFX.reveal({h:h,el:es[(i*3+2)%es.length]}),i*440))};
+}).catch(e=>{document.getElementById("st").textContent="Lỗi tải: "+e});
 document.getElementById("all").onclick=async()=>{for(const b of document.querySelectorAll(".pl")){b.scrollIntoView({block:"center"});await play(b.dataset.n);await new Promise(r=>setTimeout(r,250))}};
 const out=document.getElementById("out");
 function upd(){out.value=[...document.querySelectorAll(".redo:checked")].map(c=>c.dataset.n).join(", ")}
