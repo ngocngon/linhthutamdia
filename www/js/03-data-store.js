@@ -99,6 +99,8 @@ const norm=t=>t.normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/đ/g,"d
 const seenRev=new Set(),prevPow=new Map(),seenLoc=new Set(),seenStg=new Set();let prevLd=[];
 if(!store.spdV2){store.spdV2=1;store.spd="vua";if(store.bgm===undefined)store.bgm=true;if(store.bgmVol===undefined)store.bgmVol=55;save();}
 if(!store.bgmV4){store.bgmV4=1;store.battleBgm=false;save();}
+/* gpu29: bật lại nhạc nền trong trận theo mặc định (vẫn tắt được trong Cài đặt) */
+if(!store.bgmV5){store.bgmV5=1;store.battleBgm=true;if(store.bgm===false)store.bgm=true;save();}
 const SPDV={cham:1.3,vua:1.0,nhanh:0.78};let SPD=SPDV[store.spd]||1.0;const fxT=(f,ms,...a)=>setTimeout(f,(+ms||0)*SPD,...a);
 let FXHOLD=0,FX_UNTIL=0;
 function holdFx(ms){const d=Math.min(4800,Math.max(0,+ms||0));if(d>0)FX_UNTIL=Math.max(FX_UNTIL,performance.now()+d*SPD);}

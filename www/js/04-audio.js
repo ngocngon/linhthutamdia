@@ -299,6 +299,7 @@ const SFX = (() => {
   let loadState = 0; // 0 chưa tải, 1 đang tải, 2 xong, 3 lỗi
   const recent = {};
   let voices = 0;
+  const live = []; /* thời điểm bắt đầu của các âm đang phát */
   const DUCK = { ult: 0.9, boom: 0.7, destroy: 0.7, snap: 0.8, win: 1.6, lose: 1.4, horn: 0.6, e_sam: 0.5, e_dat: 0.5, gacha3: 1.4, loc: 0.5, timeout: 0.5, rv_t5: 0.8, f_bigup: 0.4, f_bigdn: 0.5, f_exile: 0.5 };
 
   /* Hai sprite: sfx.mp3 (69 âm ElevenLabs gốc) + sfx2.mp3 (âm mới dựng từ chính các mẫu gốc: lớp lật thẻ theo bậc, họ kỹ năng) */
@@ -334,9 +335,13 @@ const SFX = (() => {
   function playSample(n, vol, o) {
     const b = bufs[n];
     if (!b || !ac) return false;
+    if (ac.state !== "running") return true; /* bộ âm đang tạm dừng: không xếp hàng âm (tránh kẹt bộ đếm), chờ mở khoá */
     o = o || {};
     const now = ac.currentTime;
-    const r = (recent[n] = (recent[n] || []).filter((t) => now - t < 0.12));
+    /* tự chữa bộ đếm: nếu có âm không bao giờ báo kết thúc (máy treo/tạm dừng giữa chừng) thì xoá phiếu quá 4 giây */
+    for (let i = live.length - 1; i >= 0; i--) if (now - live[i] > 4) { live.splice(i, 1); }
+    voices = live.length;
+    const r = (recent[n] = (recent[n] || []).filter((t) => now - t < 0.12 && t <= now));
     if (r.length >= 3 || voices >= 14) return true; // nuốt bớt, không rơi về synth
     r.push(now);
     const src = ac.createBufferSource();
@@ -357,8 +362,8 @@ const SFX = (() => {
       nodes.push(f);
     }
     last.connect(outNode());
-    voices++;
-    src.onended = () => { voices--; for (const x of nodes) { try { x.disconnect(); } catch (e) {} } };
+    const tk = now; live.push(tk); voices = live.length;
+    src.onended = () => { const i = live.indexOf(tk); if (i >= 0) live.splice(i, 1); voices = live.length; for (const x of nodes) { try { x.disconnect(); } catch (e) {} } };
     src.start(now + (o.delay || 0));
     if (DUCK[n] && typeof BGM !== "undefined" && BGM.duck) BGM.duck(0.4, DUCK[n]);
     return true;
@@ -891,6 +896,20 @@ const BGM = (() => {
 })();
 
 window.BGM = BGM;
+/* Mở khoá âm thanh: trình duyệt điện thoại chỉ cho bật AudioContext trong thao tác thật của người dùng
+   (touchend / click / keydown; pointerdown bằng ngón tay KHÔNG tính). Gọi lại mỗi lần chạm để hồi phục sau khi
+   chuyển app, khoá màn hình, có cuộc gọi... (iOS chuyển AudioContext sang "interrupted"/"suspended"). */
+(() => {
+  const unlock = () => {
+    try {
+      if (store.mute) return;
+      SFX.wake();
+      const ac = SFX.ctx();
+      if (ac && ac.state !== "running" && ac.resume) ac.resume().catch(() => {});
+    } catch (e) {}
+  };
+  for (const ev of ["touchend", "click", "keydown"]) document.addEventListener(ev, unlock, { capture: true, passive: true });
+})();
 document.addEventListener("visibilitychange", () => {
   try {
     const ac = SFX.ctx();
