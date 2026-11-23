@@ -1535,3 +1535,14 @@ body.rm .uc5 { display: none !important; }
 }
 .hero5.s4 > .h5-glow { inset: -32% -45%; }
 body.rm .fxg.hero5 { display: none !important; }
+
+/* ===== gpu29: lá trên cùng bộ bài lật ra (t29) · mặt sau lá trên tay đối thủ đổi năng lượng (c29f) ===== */
+.fxg.t29{pointer-events:none}
+.fxg.t29>.lc{box-shadow:0 16px 30px rgba(0,0,0,.75),0 0 0 2px #fff6cf,0 0 22px var(--hc,#ffe08a) !important}
+.fxg.t29 .lcc.t29d{background:radial-gradient(circle at 35% 30%,#b8ffe0,#13b37a 70%)}
+.fxg.t29 .lcc.t29u,.fxg.t29 .lcp.t29d{background:radial-gradient(circle at 35% 30%,#ffb0c0,#d2234a 70%)}
+.fxg.t29 .lcp.t29u{background:linear-gradient(180deg,#c8ffd9,#2fd27a 60%,#0c8a48)}
+.fxg.c29f{pointer-events:none}
+.fxg.c29f>.c29b{position:absolute;left:50%;top:-10px;transform:translateX(-50%);z-index:3;padding:1px 6px;border-radius:9px;background:#0a5fd0;box-shadow:0 0 0 1.5px #bff4ff,0 0 10px #3fe0ff;font:900 13px/1.2 system-ui,sans-serif;color:#fff;text-shadow:0 1px 0 #000}
+.fxg.c29f>.c29b.up{background:#c0244a;box-shadow:0 0 0 1.5px #ffd0da,0 0 10px #ff6b8a}
+.fxg.t29>.t29cap{position:absolute;left:50%;top:100%;margin-top:5px;transform:translateX(-50%);white-space:nowrap;z-index:3;padding:2px 8px;border-radius:8px;background:rgba(10,8,30,.88);box-shadow:0 0 0 1px rgba(255,255,255,.25);font:800 11px/1.25 system-ui,sans-serif;letter-spacing:.02em;text-shadow:0 1px 0 #000}

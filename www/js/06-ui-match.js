@@ -1,5 +1,6 @@
 /* Module 06: Giao diện bàn đấu, vòng lặp lượt chơi, kéo thả thẻ & bộ đếm giờ */
-function render(){render0();paintZoom();}
+/* gpu29: trong lúc diễn một bước, bàn được vẽ theo "khung trước bước" GV (05: pvShow) cho tới khi nhịp kỹ năng bắt đầu */
+function render(){if(typeof GV!=="undefined"&&GV&&GV!==G){const g=G;G=GV;try{render0();paintZoom();}finally{G=g;}return;}render0();paintZoom();}
 /* vá bàn đấu: so từng ô với lần vẽ trước, chỉ thay ô nào đổi */
 let BC=null;
 function laneKey(ln){const c=ln.children;return {l:c[1].outerHTML,o:[...c[0].children].map(x=>x.className+"|"+x.innerHTML),m:[...c[2].children].map(x=>x.className+"|"+x.innerHTML)};}
@@ -178,26 +179,26 @@ async function endTurnRun(auto){
   await sleep(reduced?45:Math.max(180,myDur+foeDur+35));
   /* (2) PHA LẬT BÀI & TUNG CHIÊU TUẦN TỰ TỪNG THẺ MỘT: Thẻ trước xong 100% (FX_UNTIL) mới sang thẻ sau */
   for(const st of steps){
-    const R0=rects0(),P0=powers();
+    const R0=rects0(),P0=powers(),G0=pvSnap();
     const did=E.doStep(G,st);
     if(!did&&!G.msgs.length)continue;
     const evs=G.evs.slice();await artReady12(evs);
     if(G.msgs.length)G.msg=fmt(G.msgs);
-    render();playFx(evs,R0,P0);
+    stepFx(G0,evs,R0,P0); /* gpu29: thẻ lật + màn ra mắt trên "khung trước bước"; kết quả kỹ năng chỉ hiện khi đòn trúng */
     const hasFlip=evs.some(e=>e.k==="flip"),hasMore=evs.some(e=>e.k!=="flip");
     await sleep(reduced?65:hasFlip?(hasMore?720:440):480);
   }
   /* (3) PHA CUỐI LƯỢT TUẦN TỰ TỪNG THẺ / CHIẾN ĐỊA / NHIỆM VỤ MỘT */
   for(const st of E.beginEndTurn(G)){
-    const R0=rects0(),P0=powers();
+    const R0=rects0(),P0=powers(),G0=pvSnap();
     const did=E.stepEndTurn(G,st);
     if(!did&&!G.msgs.length&&!G.evs.length)continue;
     const evs=G.evs.slice();await artReady12(evs);
     if(G.msgs.length)G.msg=`<b>Cuối lượt:</b> `+G.msgs.slice(0,4).join(" · ");
-    render();playFx(evs,R0,P0);
+    stepFx(G0,evs,R0,P0);
     await sleep(reduced?65:480);
   }
-  E.finishEndTurn(G);
+  pvApply();E.finishEndTurn(G);
   if(G.turn>=E.turns(G)){await endReveal(G);E.finish(G,"end");showEnd();return;}
   /* (4) PHA ĐẦU LƯỢT MỚI TÁCH 4 NHỊP RÕ RÀNG: (4a) Lộ diện Chiến Địa -> (4b) Rút bài & Đầu lượt -> (4c) Cược Snap / Vô Uý -> (4d) Băng hiệu Lượt */
   {
