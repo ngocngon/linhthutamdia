@@ -30,7 +30,7 @@
   add("thapcham", "Tháp Chàm", "pc", 2, "Cửa hàng"); add("ngocson", "Đền Ngọc Sơn", "pc", 2, "Cửa hàng"); add("vanmieu", "Văn Miếu", "pc", 2, "Cửa hàng");
   add("halong", "Vịnh Hạ Long Sương Sớm", "pc", 3, "Cửa hàng"); add("bacthang", "Ruộng Bậc Thang Mùa Vàng", "pc", 3, "Cửa hàng"); add("hue", "Ngọ Môn Hoàng Hôn", "pc", 3, "Cửa hàng");
   add("fansipan", "Fansipan Biển Mây", "pc", 3, "Cửa hàng"); add("bienchieu", "Biển Đảo Hoàng Hôn", "pc", 3, "Cửa hàng"); add("ructrang", "Rừng Trúc Đêm Trăng", "pc", 3, "Cửa hàng");
-  add("hoian", "Phố Cổ Hội An", "pc", 3, "Cửa hàng"); add("sapa", "Sa Pa Mây Phủ", "pc", 3, "Thẻ tháng"); add("phongnha", "Động Phong Nha", "pc", 3, "Cửa hàng");
+  add("thanglong", "Hoàng Thành Thăng Long", "pc", 3, "Cửa hàng"); add("hoian", "Phố Cổ Hội An", "pc", 3, "Cửa hàng"); add("sapa", "Sa Pa Mây Phủ", "pc", 3, "Thẻ tháng"); add("phongnha", "Động Phong Nha", "pc", 3, "Cửa hàng");
   add("sondoong", "Cột Sáng Sơn Đoòng", "pc", 4, "Cửa hàng"); add("nuilua", "Núi Lửa Thần Thoại", "pc", 4, "Cửa hàng");
   add("thuyte", "Cung Điện Thuỷ Tề", "pc", 4, "Thẻ tháng"); add("tanvien", "Tản Viên Mây Ngũ Sắc", "pc", 4, "Cửa hàng");
   // [Thần thoại] — tranh vẽ ChatGPT (img/nen)
@@ -53,7 +53,8 @@
     "halong", "bacthang", "fansipan", "sondoong", "trangan", "hoguom", "hue", "muine", "bangioc", "dalat", "chonoi", "bienchieu",
     "nuilua", "thuyte", "tanvien", "ructrang",
     "tet", "trungthu", "dentroi", "rongvang", "phuonghoang", "thiendinh", "amphu", "rungnam", "nganha", "giongbao", "bangtuyet",
-    "dungnham", "cungtrang", "vangdat", "cauvong", "daisen"]);
+    "dungnham", "cungtrang", "vangdat", "cauvong", "daisen",
+    "kim", "moc", "thuy", "hoa", "tho", "thapcham", "ngocson", "vanmieu", "hoian", "sapa", "phongnha", "bac", "maytroi", "songnuoc", "lua", "thanglong"]);
   const KEM = new Set(["datamtri", "lucthan", "matoc", "maydotam", "mieunuot", "phiung"]); // thẻ chưa hỗ trợ nền (xem tools/tach_nen_nhan_vat.py)
   try { fetch("img/cut/_kem.json").then(r => r.json()).then(j => { for (const k in j) KEM.add(k); }).catch(() => { }); } catch (e) { }
 
