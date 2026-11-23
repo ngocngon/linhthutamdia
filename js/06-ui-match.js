@@ -452,8 +452,8 @@ function brk(inst,li,where){const d=C[inst.id],bp=E.basePow(inst);
   if(!pChanged&&!cChanged&&!notes.length)return "";
   const tot=(v,base,good)=>`<b class="${v===base?"":good(v,base)?"up":"down"}">${v}</b>`;
   /* gpu38: gọn — số đang hiện đã có trên thẻ nên không lặp lại; chỉ ghi gốc + từng nguồn cộng/trừ */
-  const secP=pChanged&&P?`<div class="bkp"><h5>Sức mạnh <small>gốc ${d.p}${where==="hand"?" · tính theo chiến địa giữa":""}</small></h5><ul>${P}</ul></div>`:"";
-  const secC=cChanged&&Cc?`<div class="bkc"><h5>Năng lượng <small>gốc ${d.c}</small></h5><ul>${Cc}</ul></div>`:"";
+  const secP=pChanged&&P?`<div class="bkp"><h5>Sức mạnh ${tot(cur,d.p,(a,b)=>a>b)} <small>gốc ${d.p}${where==="hand"?" · tính theo chiến địa giữa":""}</small></h5><ul>${P}</ul></div>`:"";
+  const secC=cChanged&&Cc?`<div class="bkc"><h5>Năng lượng ${tot(cc,d.c,(a,b)=>a<b)} <small>gốc ${d.c}</small></h5><ul>${Cc}</ul></div>`:"";
   return `<div class="brk v2">${where==="hand"?secC+secP:secP+secC}${notes.length?`<p>${notes.join("<br>")}</p>`:""}</div>`;}
 const NICO_SPELLS=[
   ["😈","#ff5a7a","Phép lượt này: Biến thẻ tiếp theo bạn đặt thành Tiểu Quỷ (6 sức mạnh)."],
@@ -779,7 +779,7 @@ function paintZoom(){const z=$("zoom");let id=null;
   if(qd&&playing()&&!OL.sub)act=`<button type="button" class="ib alt" data-zdo="unplay">Rút lại thẻ này</button>`;
   let skTxt=skillText(d);
   if(bi){const qp=questProg(bi);if(qp)skTxt=skTxt.replace(/\(\d+\/\d+\)/,qp[2]?"(Hoàn thành ✓)":`(${qp[0]}/${qp[1]})`);}
-  z.innerHTML=`<span class="gc${qCls(id)}" style="--hc:${HC[d.h]}${qSt(id)};display:block">${nbL(id)}${art(id,1)}<span class="cst${cs<d.c?" up":cs>d.c?" down":""}">${cs}</span><span class="pwh ${pw>d.p?"up":pw<d.p?"down":""}">${pw}</span><span class="n">${logo(id)}</span>${bi?markBadges(bi,zWhere):""}</span>
+  z.innerHTML=`<span class="gc${qCls(id)}" style="--hc:${HC[d.h]}${qSt(id)};display:block">${nbL(id)}${art(id,1)}<span class="cst${cs<d.c?" up":cs>d.c?" down":""}">${cs}</span><span class="pwh ${pw>d.p?"up":pw<d.p?"down":""}">${pw}</span>${pw!==d.p?`<span class="zdl p ${pw>d.p?"up":"down"}">${pw>d.p?"+":"−"}${Math.abs(pw-d.p)}</span>`:""}${cs!==d.c?`<span class="zdl c ${cs<d.c?"up":"down"}">${cs>d.c?"+":"−"}${Math.abs(cs-d.c)}</span>`:""}<span class="n">${logo(id)}</span>${bi?markBadges(bi,zWhere):""}</span>
   <div class="zt">${bi?abHTML(bi,skTxt,zWhere):kw(skTxt)}${mkNotes}${br}</div>${hc?`<div class="zhint">Kéo thẻ hoặc chạm chiến địa để đặt ngay.</div>`:""}<div class="zact">${act}</div><button type="button" class="zcl" aria-label="Đóng">✕</button>`;z.classList.add("on");}
 $("hand").addEventListener("click",ev=>{
   const hc=ev.target.closest("[data-hc]");if(!hc)return;

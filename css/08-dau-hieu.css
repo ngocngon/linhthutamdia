@@ -160,3 +160,13 @@ body.rm .hand .hc .hda{box-shadow:none}
 
 /* gpu38: bảng phân tích gọn */
 .brk.v2 h5 small{font-weight:600;font-size:.82em;letter-spacing:0;text-transform:none;opacity:.72;margin-left:6px}
+
+/* gpu39: màn thông tin thẻ — số sức mạnh/năng lượng đổi màu khi tăng giảm + nhãn chênh lệch */
+.gc>.pwh.up::after{background:linear-gradient(180deg,#b6ffcf,#1fd67a 50%,#0a7a3a)!important}
+.gc>.pwh.down::after{background:linear-gradient(180deg,#ffb3c4,#ff3d6b 50%,#9a0a2a)!important}
+.gc>.pwh.up{color:#00290f!important;text-shadow:0 1px 0 #d8ffe8!important}
+.gc>.pwh.down{color:#3a0012!important;text-shadow:0 1px 0 #ffd0da!important}
+.gc>.zdl{position:absolute;z-index:9;top:17%;padding:1px 7px 2px;border-radius:999px;font:900 italic 15px/1.1 "Barlow Condensed","Be Vietnam Pro",sans-serif;letter-spacing:.02em;border:1.5px solid rgba(0,0,0,.55);box-shadow:0 2px 5px rgba(0,0,0,.5);white-space:nowrap}
+.gc>.zdl.p{right:-4%}.gc>.zdl.c{left:-4%}
+.gc>.zdl.up{background:linear-gradient(180deg,#b6ffcf,#1fd67a);color:#00290f}
+.gc>.zdl.down{background:linear-gradient(180deg,#ffb3c4,#ff3d6b);color:#3a0012}
