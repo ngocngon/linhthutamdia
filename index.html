@@ -5,15 +5,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <title>Linh Thú Tam Địa — Bản Nâng Cấp WebGL GPU</title>
 <link rel="icon" href="data:,">
-<link rel="stylesheet" href="css/00-fonts.css?v=gpu33">
-<link rel="stylesheet" href="css/01-arena-cards.css?v=gpu33">
-<link rel="stylesheet" href="css/02-board-vfx.css?v=gpu33">
-<link rel="stylesheet" href="css/03-lobby-meta.css?v=gpu33">
-<link rel="stylesheet" href="css/04-vfx-gpu.css?v=gpu33">
-<link rel="stylesheet" href="css/05-mo-bai.css?v=gpu33">
-<link rel="stylesheet" href="css/06-cai-dat.css?v=gpu33">
-<link rel="stylesheet" href="css/07-nen-the.css?v=gpu33">
-<link rel="stylesheet" href="css/08-dau-hieu.css?v=gpu33">
+<link rel="stylesheet" href="css/00-fonts.css?v=gpu34">
+<link rel="stylesheet" href="css/01-arena-cards.css?v=gpu34">
+<link rel="stylesheet" href="css/02-board-vfx.css?v=gpu34">
+<link rel="stylesheet" href="css/03-lobby-meta.css?v=gpu34">
+<link rel="stylesheet" href="css/04-vfx-gpu.css?v=gpu34">
+<link rel="stylesheet" href="css/05-mo-bai.css?v=gpu34">
+<link rel="stylesheet" href="css/06-cai-dat.css?v=gpu34">
+<link rel="stylesheet" href="css/07-nen-the.css?v=gpu34">
+<link rel="stylesheet" href="css/08-dau-hieu.css?v=gpu34">
 </head>
 <body>
 <div id="ldr12" role="status" aria-live="polite"><div class="lb12"><b>LINH THÚ TAM ĐỊA</b><div class="bar12"><i id="ldrBar"></i></div><span id="ldrTxt">Đang tải hình… 0%</span><button type="button" id="ldrSkip" hidden>Vào luôn</button></div></div>
@@ -70,7 +70,7 @@
   <button class="btn ghost" type="button" id="mmCancel">Huỷ</button></div>
 <div id="emoMenu" role="menu" aria-label="Cảm xúc"></div>
 <div id="enPop" role="dialog" aria-label="Năng lượng"><h4>Năng lượng</h4><div class="enb" id="enN">0</div><p>Đặt thẻ sẽ tiêu năng lượng. Mỗi lượt có thể đặt nhiều thẻ.</p><p>Mỗi lượt được thêm 1 năng lượng tối đa. Năng lượng không dùng sẽ mất.</p><button class="btn ghost" type="button" id="enUndo">Hoàn tác tất cả hành động</button></div>
-<div class="ov" id="ovSet"><div class="panel sx"><h2 style="text-align:center">Cài đặt</h2><div class="body">
+<div class="ov" id="ovSet"><div class="panel sx"><h2 style="text-align:center">Cài đặt <small id="setVer" class="setver"></small></h2><div class="body">
   <section class="sx-sec"><h3>Âm thanh</h3>
     <label class="sx-row"><span class="sx-t">Tắt toàn bộ tiếng</span><input type="checkbox" class="sx-sw" id="setMute"></label>
     <label class="sx-row sx-sl"><span class="sx-t">Hiệu ứng</span><input type="range" id="setVol" min="0" max="100" step="5"><b id="setVolV">100%</b></label>
@@ -150,6 +150,7 @@
 </div></div>
 
 <div id="lobby" class="on">
+  <div id="lbVer" class="lbver" aria-label="Phiên bản trò chơi"></div>
   <div class="lb-top lb3t">
     <button type="button" class="lbic" id="lbMute" aria-label="Cài đặt"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1"/></svg></button>
     <button class="lb-av" id="lbProfile" type="button" aria-label="Hồ sơ"><div class="hexav" id="lbAv"></div><span class="lbn"><b id="lbName">BẠN</b><small id="lbLvl"></small></span></button>
@@ -319,23 +320,23 @@
 </div></div>
 
 
-<script src="js/11-nen-the.js?v=gpu33"></script>
-<script src="js/01-engine.js?v=gpu33"></script>
-<script src="js/03-data-store.js?v=gpu33"></script>
-<script src="js/04a-sfx-fam.js?v=gpu33"></script>
-<script src="js/04-audio.js?v=gpu33"></script>
-<script src="js/05-vfx-core.js?v=gpu33"></script>
-<script src="js/06-ui-match.js?v=gpu33"></script>
-<script src="js/07-meta-modes.js?v=gpu33"></script>
-<script src="js/08-vfx-webgl.js?v=gpu33"></script>
-<script src="js/09-card-choreo.js?v=gpu33"></script>
-<script src="js/10-online-cf.js?v=gpu33"></script>
-<script src="js/12-dau-hieu.js?v=gpu33"></script>
+<script src="js/11-nen-the.js?v=gpu34"></script>
+<script src="js/01-engine.js?v=gpu34"></script>
+<script src="js/03-data-store.js?v=gpu34"></script>
+<script src="js/04a-sfx-fam.js?v=gpu34"></script>
+<script src="js/04-audio.js?v=gpu34"></script>
+<script src="js/05-vfx-core.js?v=gpu34"></script>
+<script src="js/06-ui-match.js?v=gpu34"></script>
+<script src="js/07-meta-modes.js?v=gpu34"></script>
+<script src="js/08-vfx-webgl.js?v=gpu34"></script>
+<script src="js/09-card-choreo.js?v=gpu34"></script>
+<script src="js/10-online-cf.js?v=gpu34"></script>
+<script src="js/12-dau-hieu.js?v=gpu34"></script>
 <script>
 /* gpu22: service worker (chỉ khi chạy qua http/https, không đăng ký trong vỏ Capacitor/APK vì ảnh đã nằm sẵn trong app) */
 (function(){var C=window.Capacitor,nat=C&&C.isNativePlatform&&C.isNativePlatform();
 if(!("serviceWorker" in navigator)||!/^https?:$/.test(location.protocol)||nat)return;
-addEventListener("load",function(){try{navigator.serviceWorker.register(new URL("sw.js?v=gpu33",document.baseURI).href).then(function(){
+addEventListener("load",function(){try{navigator.serviceWorker.register(new URL("sw.js?v=gpu34",document.baseURI).href).then(function(){
 return navigator.serviceWorker.ready;}).then(function(r){setTimeout(function(){try{var w=r.active;if(!w)return;var o=location.origin,L=performance.getEntriesByType("resource").map(function(e){return e.name;}).filter(function(n){return n.indexOf(o)===0;});L.push(location.href);w.postMessage({type:"warm",urls:L});}catch(e){}},4000);}).catch(function(){});}catch(e){}});})();
 </script>
 </body>

@@ -181,7 +181,7 @@ function ultShow(inst,done,nth){
   if(reduced||!inst||!C[inst.id]){fin1();return;}
   try{
   if(UC)UC.end(true);
-  const id=inst.id,d=C[id],s5=isUlt(d),mine=inst.own!=="a",[c,c2]=ucCol(id);
+  const id=inst.id,d=C[id],lo5=window.FXLV===0,s5=isUlt(d),mine=inst.own!=="a",[c,c2]=ucCol(id);
   if(typeof spLoad==="function"){spLoad(id);spLoad(id+"@f");}
   const T=ucDur(s5,nth|0),TIN=Math.round(T*.27),TOUT=Math.round(T*.23),HOLD=T-TIN-TOUT,oi=TIN/T,oh=(TIN+HOLD)/T;
   const VW=innerWidth,VH=innerHeight,W=Math.round(Math.min(VW*.6,250,(VH-170)/1.28)),H=Math.round(W*1.28);
@@ -192,7 +192,7 @@ function ultShow(inst,done,nth){
   const sk=String(d.x||"").replace(/^[^:]{2,16}:\s*/,""),dg=DANG[d.t]||"";
   const z=document.createElement("div");z.className="uc5 "+(s5?"s5":"s4")+(mine?"":" foe");z.setAttribute("aria-label",`Tuyệt kỹ ${d.n}. Chạm để bỏ qua`);
   z.style.setProperty("--c",c);z.style.setProperty("--c2",c2);
-  z.innerHTML=`<i class="uc-dim"></i>${s5?`<i class="uc-rays" style="left:${cx}px;top:${cy}px;--hs:${Math.round(W*2.9)}px"></i>`:""}<i class="uc-halo" style="left:${cx}px;top:${cy}px;--hs:${Math.round(W*(s5?2.4:1.95))}px"></i>`
+  z.innerHTML=`<i class="uc-dim"></i>${s5&&!lo5?`<i class="uc-rays" style="left:${cx}px;top:${cy}px;--hs:${Math.round(W*2.9)}px"></i>`:""}<i class="uc-halo" style="left:${cx}px;top:${cy}px;--hs:${Math.round(W*(s5?2.4:1.95))}px"></i>`
     +(mine?"":`<div class="uc-who" style="top:${Math.round(cy-H/2-34)}px"><b>Đối thủ</b></div>`)
     +`<div class="uc-card" style="left:${Math.round(cx-W/2)}px;top:${Math.round(cy-H/2)}px;width:${W}px;height:${H}px">${ucCard(inst)}<i class="uc-shw"><i class="uc-sh"></i></i></div>`
     +`<div class="uc-lb" style="top:${Math.round(cy+H/2+12)}px"><small>Tuyệt kỹ${dg?" · "+esc(dg):""}</small>${sk?`<em>${esc(sk)}</em>`:""}</div><div class="uc-tap">Chạm để bỏ qua</div>`;
@@ -213,7 +213,7 @@ function ultShow(inst,done,nth){
   holdFx(R(T+90));
   try{SFX.fam("ult",s5?{el:elOf(id)}:{el:elOf(id),vol:.55,rate:1.14,noacc:1});}catch(e){}
   const t0=performance.now();let ended=false,sk1=false,tm=0;
-  const tA=setTimeout(()=>{if(ended)return;FXBIG=true;try{FX.burst(cx,cy,c,s5?26:14,s5?260:180);FX.ring(cx,cy,c2,W*.62,s5?5:3);if(s5){FX.sparks(cx,cy,"#ffffff",14,260);FX.shake(4);}}finally{FXBIG=false;}},TIN*.8);
+  const tA=setTimeout(()=>{if(ended||lo5)return;FXBIG=true;try{FX.burst(cx,cy,c,s5?26:14,s5?260:180);FX.ring(cx,cy,c2,W*.62,s5?5:3);if(s5){FX.sparks(cx,cy,"#ffffff",14,260);FX.shake(4);}}finally{FXBIG=false;}},TIN*.8);
   const end=abort=>{if(ended)return;ended=true;clearTimeout(tm);clearTimeout(tA);A.forEach(a=>{try{a.cancel();}catch(e){}});z.remove();if(UC===ctl)UC=null;
     const s2=document.querySelector(`#board [data-mc="${inst.uid}"]`);for(const e of [slot,s2])if(e){e.classList.remove("hero-hid");hide9(e,0);}
     if(!abort&&has){FX.ring(fr.x,fr.y,c2,Math.max(30,sr.width*.75),3);FX.glow(fr.x,fr.y,c,Math.max(40,sr.width*.95),.35);pulse(`#board [data-mc="${inst.uid}"]`,[{transform:"scale(1.12)"},{transform:"scale(1)"}],260);}
@@ -295,9 +295,10 @@ function playFx(evs,R0,P0){
   /* gpu29: thẻ S4/S5 được KÉO vào chiến địa trong chính bước này (triệu hồi / đặt từ bộ bài): màn ra mắt diễn trong nhịp kỹ năng,
      ngay sau khi thẻ bay tới ô (bước "ult29" của plan8), không diễn trước khi thẻ xuất hiện */
   try{const arr=new Set(evs.filter(e=>e.k==="summon"||(e.k==="top"&&e.a==="place")).map(e=>e.uid)),ef=new Set(evs.filter(e=>e.k==="flip"&&e.eff).map(e=>e.uid));
-    const d=us.filter(i=>ef.has(i.uid)&&arr.has(i.uid)&&!evs.some(e=>flip1(e)&&e.uid===i.uid));if(d.length&&window.FXLV!==0){evs._ultD=d;us=us.filter(i=>!d.includes(i));}}catch(e){}
+    const d=us.filter(i=>ef.has(i.uid)&&arr.has(i.uid)&&!evs.some(e=>flip1(e)&&e.uid===i.uid));if(d.length){evs._ultD=d;us=us.filter(i=>!d.includes(i));}}catch(e){}
   if(!us.length)return playFxSeq(evs,R0,P0);
-  const mid=go=>{if(window.FXLV===0){us.forEach(ucFlash);fxT(go,260);return;}let i=0;const nx=()=>{if(i>=us.length){go();return;}ultShow(us[i++],nx,ucNth());};nx();};
+  /* gpu34: máy yếu (FXLV 0) vẫn hiện màn ra mắt (bản nhẹ: không tia xoay, không hạt, không rung) */
+  const mid=go=>{let i=0;const nx=()=>{if(i>=us.length){go();return;}ultShow(us[i++],nx,ucNth());};nx();};
   if(!evs.some(flip1)){holdFx(200);mid(()=>{try{playFxSeq(evs,R0,P0);}catch(e){console.error(e);}});return 0;}
   return playFxSeq(evs,R0,P0,mid);
 }
