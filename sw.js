@@ -20,7 +20,8 @@ async function put(req, res) {
   try { const c = await caches.open(CACHE); await c.put(req, res); } catch (e) {}
 }
 async function networkFirst(req) {
-  try { const res = await fetch(req); put(req, res.clone()); return res; }
+  /* cache:"no-cache" = luôn hỏi lại máy chủ (ETag/304, rẻ) -> không dùng index.html cũ trong bộ nhớ đệm HTTP của trình duyệt */
+  try { const res = await fetch(req.url, { cache: "no-cache", credentials: "same-origin", redirect: "manual" }); put(req, res.clone()); return res; }
   catch (e) {
     const c = await caches.open(CACHE);
     return (await c.match(req)) || (await c.match(req, { ignoreSearch: true })) || Response.error();

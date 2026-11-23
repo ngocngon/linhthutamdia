@@ -5,15 +5,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <title>Linh Thú Tam Địa — Bản Nâng Cấp WebGL GPU</title>
 <link rel="icon" href="data:,">
-<link rel="stylesheet" href="css/00-fonts.css?v=gpu34">
-<link rel="stylesheet" href="css/01-arena-cards.css?v=gpu34">
-<link rel="stylesheet" href="css/02-board-vfx.css?v=gpu34">
-<link rel="stylesheet" href="css/03-lobby-meta.css?v=gpu34">
-<link rel="stylesheet" href="css/04-vfx-gpu.css?v=gpu34">
-<link rel="stylesheet" href="css/05-mo-bai.css?v=gpu34">
-<link rel="stylesheet" href="css/06-cai-dat.css?v=gpu34">
-<link rel="stylesheet" href="css/07-nen-the.css?v=gpu34">
-<link rel="stylesheet" href="css/08-dau-hieu.css?v=gpu34">
+<link rel="stylesheet" href="css/00-fonts.css?v=gpu35">
+<link rel="stylesheet" href="css/01-arena-cards.css?v=gpu35">
+<link rel="stylesheet" href="css/02-board-vfx.css?v=gpu35">
+<link rel="stylesheet" href="css/03-lobby-meta.css?v=gpu35">
+<link rel="stylesheet" href="css/04-vfx-gpu.css?v=gpu35">
+<link rel="stylesheet" href="css/05-mo-bai.css?v=gpu35">
+<link rel="stylesheet" href="css/06-cai-dat.css?v=gpu35">
+<link rel="stylesheet" href="css/07-nen-the.css?v=gpu35">
+<link rel="stylesheet" href="css/08-dau-hieu.css?v=gpu35">
 </head>
 <body>
 <div id="ldr12" role="status" aria-live="polite"><div class="lb12"><b>LINH THÚ TAM ĐỊA</b><div class="bar12"><i id="ldrBar"></i></div><span id="ldrTxt">Đang tải hình… 0%</span><button type="button" id="ldrSkip" hidden>Vào luôn</button></div></div>
@@ -320,23 +320,35 @@
 </div></div>
 
 
-<script src="js/11-nen-the.js?v=gpu34"></script>
-<script src="js/01-engine.js?v=gpu34"></script>
-<script src="js/03-data-store.js?v=gpu34"></script>
-<script src="js/04a-sfx-fam.js?v=gpu34"></script>
-<script src="js/04-audio.js?v=gpu34"></script>
-<script src="js/05-vfx-core.js?v=gpu34"></script>
-<script src="js/06-ui-match.js?v=gpu34"></script>
-<script src="js/07-meta-modes.js?v=gpu34"></script>
-<script src="js/08-vfx-webgl.js?v=gpu34"></script>
-<script src="js/09-card-choreo.js?v=gpu34"></script>
-<script src="js/10-online-cf.js?v=gpu34"></script>
-<script src="js/12-dau-hieu.js?v=gpu34"></script>
+<script src="js/11-nen-the.js?v=gpu35"></script>
+<script src="js/01-engine.js?v=gpu35"></script>
+<script src="js/03-data-store.js?v=gpu35"></script>
+<script src="js/04a-sfx-fam.js?v=gpu35"></script>
+<script src="js/04-audio.js?v=gpu35"></script>
+<script src="js/05-vfx-core.js?v=gpu35"></script>
+<script src="js/06-ui-match.js?v=gpu35"></script>
+<script src="js/07-meta-modes.js?v=gpu35"></script>
+<script src="js/08-vfx-webgl.js?v=gpu35"></script>
+<script src="js/09-card-choreo.js?v=gpu35"></script>
+<script src="js/10-online-cf.js?v=gpu35"></script>
+<script src="js/12-dau-hieu.js?v=gpu35"></script>
 <script>
 /* gpu22: service worker (chỉ khi chạy qua http/https, không đăng ký trong vỏ Capacitor/APK vì ảnh đã nằm sẵn trong app) */
 (function(){var C=window.Capacitor,nat=C&&C.isNativePlatform&&C.isNativePlatform();
 if(!("serviceWorker" in navigator)||!/^https?:$/.test(location.protocol)||nat)return;
-addEventListener("load",function(){try{navigator.serviceWorker.register(new URL("sw.js?v=gpu34",document.baseURI).href).then(function(){
+var SWU="sw.js?v=gpu35",V=SWU.split("v=")[1];
+/* gpu35: trang mở lâu (ứng dụng để nền rồi mở lại) vẫn nhận bản mới: khi quay lại trang (tối đa 1 lần/10 phút) đọc index.html mới nhất,
+   thấy số phiên bản khác -> đang ở sảnh thì tải lại ngay (1 lần cho mỗi bản), đang chơi thì hiện nút "Có bản mới — chạm để cập nhật". */
+var lastChk=0;function chk(){var now=Date.now();if(now-lastChk<600000||!navigator.onLine)return;lastChk=now;
+fetch(new URL("index.html",document.baseURI).href,{cache:"no-store"}).then(function(r){return r.ok?r.text():"";}).then(function(t){var m=/sw\.js\?v=([\w.-]+)/.exec(t||"");if(!m||m[1]===V)return;
+var lb=document.getElementById("lobby"),idle=lb&&lb.classList.contains("on")&&!document.querySelector(".ov.on")&&!(window.G&&G.online&&G.phase==="play");
+var k="ltd.upd."+m[1],tried=false;try{tried=sessionStorage.getItem(k)==="1";sessionStorage.setItem(k,"1");}catch(e){}
+if(idle&&!tried){location.reload();return;}
+if(document.getElementById("updBar"))return;var b=document.createElement("button");b.id="updBar";b.type="button";b.textContent="Có bản mới — chạm để cập nhật";
+b.style.cssText="position:fixed;left:50%;bottom:calc(10px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:9999;padding:9px 16px;border-radius:20px;border:1px solid #ffd65a;background:#1b1446;color:#ffe9a0;font:800 13px system-ui,sans-serif;box-shadow:0 4px 18px rgba(0,0,0,.5)";
+b.onclick=function(){location.reload();};document.body.appendChild(b);}).catch(function(){});}
+document.addEventListener("visibilitychange",function(){if(document.visibilityState==="visible")chk();});setInterval(function(){if(document.visibilityState==="visible")chk();},3600000);
+addEventListener("load",function(){try{navigator.serviceWorker.register(new URL(SWU,document.baseURI).href).then(function(){
 return navigator.serviceWorker.ready;}).then(function(r){setTimeout(function(){try{var w=r.active;if(!w)return;var o=location.origin,L=performance.getEntriesByType("resource").map(function(e){return e.name;}).filter(function(n){return n.indexOf(o)===0;});L.push(location.href);w.postMessage({type:"warm",urls:L});}catch(e){}},4000);}).catch(function(){});}catch(e){}});})();
 </script>
 </body>

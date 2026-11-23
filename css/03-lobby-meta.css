@@ -648,7 +648,7 @@ body.rm .stfx{display:none}
 #ovDeck .qf.q6>.art:not(.pic){will-change:auto}
 #ovDeck .spk{display:none}
 /* khi mở bảng phủ (có làm mờ nền), dừng hoạt ảnh của màn phía sau để trình duyệt khỏi làm mờ lại mỗi khung hình */
-body:has(.ov.on) #scene,body:has(.ov.on) #scene *,body:has(.ov.on) #scene::before,body:has(.ov.on) #scene::after,body:has(.ov.on) #scene *::before,body:has(.ov.on) #scene *::after,body:has(.ov.on) #amb,body:has(.ov.on) #amb *,body:has(.ov.on) #amb::before,body:has(.ov.on) #amb::after,body:has(.ov.on) #amb *::before,body:has(.ov.on) #amb *::after,body:has(.ov.on) #app,body:has(.ov.on) #app *,body:has(.ov.on) #app::before,body:has(.ov.on) #app::after,body:has(.ov.on) #app *::before,body:has(.ov.on) #app *::after,body:has(.ov.on) #lobby,body:has(.ov.on) #lobby *,body:has(.ov.on) #lobby::before,body:has(.ov.on) #lobby::after,body:has(.ov.on) #lobby *::before,body:has(.ov.on) #lobby *::after{animation-play-state:paused!important}
+body.ovon #scene,body.ovon #scene *,body.ovon #scene::before,body.ovon #scene::after,body.ovon #scene *::before,body.ovon #scene *::after,body.ovon #amb,body.ovon #amb *,body.ovon #amb::before,body.ovon #amb::after,body.ovon #amb *::before,body.ovon #amb *::after,body.ovon #app,body.ovon #app *,body.ovon #app::before,body.ovon #app::after,body.ovon #app *::before,body.ovon #app *::after,body.ovon #lobby,body.ovon #lobby *,body.ovon #lobby::before,body.ovon #lobby::after,body.ovon #lobby *::before,body.ovon #lobby *::after{animation-play-state:paused!important}
 #board .mc.flip,#board .mc.land,#board .mc.gpu-slam{animation-play-state:running!important}
 /* lấp lánh của thẻ cấp cao rất nặng khi có nhiều thẻ: chỉ giữ ở màn xem thẻ lớn */
 .spk{display:none}.bigc .spk,.rvz .spk{display:block}

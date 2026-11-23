@@ -67,7 +67,7 @@ Conn.prototype.start=function(){
 Conn.prototype._open=function(first){
   var self=this;this.opening=true;
   return new Promise(function(res,rej){
-    var ws;try{ws=new WebSocket(wsUrl(self.q),["ltd1","tk."+CF.token]);}catch(e){self.opening=false;rej(e);return;}
+    var ws;try{ws=new WebSocket(wsUrl(self.q),["ltd1","tk."+CF.token]);}catch(e){self.opening=false;rej(e);if(!first)self._retry();return;}
     var got=false,to=setTimeout(function(){if(!got){try{ws.close();}catch(e){}}},10000);self.ws=ws;
     ws.onmessage=function(ev){
       self.lastRx=Date.now();var m;try{m=JSON.parse(ev.data);}catch(e){return;}

@@ -188,11 +188,14 @@
     const oppLeft = br.left + br.width * 0.5;
     const oppW = Math.min(window.innerWidth * 0.95, Math.max(270, br.width));
 
-    root.style.setProperty("--opp-left", oppLeft.toFixed(1) + "px");
-    root.style.setProperty("--opp-top", Math.max(46, oppTop).toFixed(1) + "px");
-    root.style.setProperty("--opp-cy", Math.max(92, oppCy).toFixed(1) + "px");
-    root.style.setProperty("--opp-w", oppW.toFixed(1) + "px");
+    /* gpu35: chỉ ghi khi đổi — đổi biến CSS ở :root làm tính lại style toàn trang */
+    const v = [oppLeft.toFixed(1), Math.max(46, oppTop).toFixed(1), Math.max(92, oppCy).toFixed(1), oppW.toFixed(1)];
+    ["--opp-left", "--opp-top", "--opp-cy", "--opp-w"].forEach((k, i) => { if (oppVals[i] !== v[i]) { oppVals[i] = v[i]; root.style.setProperty(k, v[i] + "px"); } });
   }
+  const oppVals = [];
+  /* gom các lần đo về 1 lần mỗi khung hình (render() gọi rất dày; đo ngay sau khi ghi DOM buộc tính lại bố cục) */
+  let oppRaf = 0;
+  function schedOppMetrics() { if (oppRaf) return; oppRaf = requestAnimationFrame(() => { oppRaf = 0; try { syncOppCourtMetrics(); } catch (e) {} }); }
 
   window.addEventListener("resize", syncOppCourtMetrics, { passive: true });
 
@@ -2386,27 +2389,34 @@
     const host = ensureBoardFieldHost();
     const lobbyOn = $id("lobby") && $id("lobby").classList.contains("on");
     if (reduced || lobbyOn || !G || !G.locs) {
-      host.style.display = "none";
+      if (host.style.display !== "none") host.style.display = "none";
       window._gpuLaneRects = null;
       return;
     }
-    host.style.display = "block";
-    const lrs = [null, null, null];
+    /* gpu35: đọc hết kích thước trước rồi mới ghi (trước đây ghi data-lfx/style xen giữa các lần đo -> tính lại bố cục nhiều lần mỗi khung) */
+    const lrs = [null, null, null], kinds = [], lanes = [], sideR = [];
     for (let li = 0; li < 3; li++) {
       const L = G.locs[li];
-      const kind = L && L.rvl && !L.gone ? classifyLocField(L.id) : "";
-      const ln = document.querySelector(`#board [data-lane="${li}"]`);
-      if (ln) {
-        ln.dataset.lfx = kind || "";
-        lrs[li] = ln.getBoundingClientRect();
+      kinds[li] = L && L.rvl && !L.gone ? classifyLocField(L.id) : "";
+      const ln = lanes[li] = document.querySelector(`#board [data-lane="${li}"]`);
+      if (ln) lrs[li] = ln.getBoundingClientRect();
+      for (let si = 0; si < 2; si++) {
+        const sideEl = ln && kinds[li] ? ln.querySelector(`.side.${si === 0 ? "opp" : "me"}`) : null;
+        sideR[li * 2 + si] = sideEl ? sideEl.getBoundingClientRect() : null;
       }
+    }
+    if (host.style.display !== "block") host.style.display = "block";
+    const set = (box, k, v) => { const c = "_s" + k; if (box[c] !== v) { box[c] = v; box.style[k] = v; } };
+    for (let li = 0; li < 3; li++) {
+      const kind = kinds[li], ln = lanes[li];
+      if (ln && ln.dataset.lfx !== (kind || "")) ln.dataset.lfx = kind || "";
       for (let si = 0; si < 2; si++) {
         const sd = si === 0 ? "opp" : "me";
         const box = bfxBoxes[li * 2 + si];
         if (!box) continue;
-        const sideEl = ln ? ln.querySelector(`.side.${sd}`) : null;
-        if (!kind || !sideEl) {
-          box.style.display = "none";
+        const r = sideR[li * 2 + si];
+        if (!kind || !r) {
+          set(box, "display", "none");
           if (box.dataset.kind !== "") {
             box.dataset.kind = "";
             box.className = `bfx-box bfx-${sd}`;
@@ -2421,16 +2431,12 @@
           box.style.setProperty("--fc", meta.col);
           box.innerHTML = buildBfxInner(kind);
         }
-        const r = sideEl.getBoundingClientRect();
-        if (r.width < 10 || r.height < 10) {
-          box.style.display = "none";
-          continue;
-        }
-        box.style.display = "block";
-        box.style.left = (r.left - 2).toFixed(1) + "px";
-        box.style.top = (r.top - 2).toFixed(1) + "px";
-        box.style.width = (r.width + 4).toFixed(1) + "px";
-        box.style.height = (r.height + 4).toFixed(1) + "px";
+        if (r.width < 10 || r.height < 10) { set(box, "display", "none"); continue; }
+        set(box, "display", "block");
+        set(box, "left", (r.left - 2).toFixed(1) + "px");
+        set(box, "top", (r.top - 2).toFixed(1) + "px");
+        set(box, "width", (r.width + 4).toFixed(1) + "px");
+        set(box, "height", (r.height + 4).toFixed(1) + "px");
       }
     }
     window._gpuLaneRects = lrs;
@@ -2529,7 +2535,7 @@
   }
 
   function syncSlamAndHud(prevSet) {
-    syncOppCourtMetrics();
+    schedOppMetrics();
     if (!G) return;
 
     /* Phản hồi gợi ý ngắn gọn lên sân đối thủ khi đang chọn dời thẻ hoặc bước lật bài */
@@ -2901,4 +2907,27 @@
     });
   }
   syncUi();
+})();
+
+/* ==================== gpu35: LỚP TRẠNG THÁI TRÊN BODY (thay cho body:has(...) trong CSS) ====================
+   body.lbon = sảnh đang mở, body.ovon = có bảng phủ .ov đang mở, body.ovfull = có bảng phủ không phải dạng tấm (.sheet),
+   body.mmon = màn ghép trận. Bộ chọn body:has(#lobby.on) X buộc trình duyệt xét lại :has() cho mọi phần tử X
+   mỗi lần tính style (đo: dựng lại sân ~15 ms -> ~8 ms khi bỏ :has). Chỉ theo dõi thuộc tính class của vài phần tử. */
+(function () {
+  "use strict";
+  const b = document.body, lb = document.getElementById("lobby"), mm = document.getElementById("mm");
+  if (!b) return;
+  const on = (el) => !!el && el.classList.contains("on");
+  function sync() {
+    const lbo = on(lb);
+    b.classList.toggle("lbon", lbo);
+    b.classList.toggle("ovon", !!document.querySelector("body > .ov.on"));
+    b.classList.toggle("ovfull", !!document.querySelector("body > .ov.on:not(.sheet)"));
+    b.classList.toggle("mmon", on(mm));
+  }
+  const mo = new MutationObserver(sync), opt = { attributes: true, attributeFilter: ["class"] };
+  const watch = (el) => { if (el && el.nodeType === 1 && !el._st35 && (el === lb || el === mm || el.classList.contains("ov"))) { el._st35 = 1; mo.observe(el, opt); } };
+  watch(lb); watch(mm); document.querySelectorAll("body > .ov").forEach(watch);
+  new MutationObserver((ms) => { for (const m of ms) for (const n of m.addedNodes) watch(n); sync(); }).observe(b, { childList: true });
+  sync();
 })();
