@@ -9,7 +9,7 @@ import { fileURLToPath } from "node:url";
 const SERVER = process.env.SERVER || "http://localhost:8787";
 const GAME_PORT = +(process.env.GAME_PORT || 8795);
 const ADMIN = process.env.ADMIN_TOKEN || "dev-admin-token-123456";
-const WWW = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../www");
+const WWW = process.env.WWW ? path.resolve(process.env.WWW) : path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../www");
 const require = createRequire(import.meta.url);
 const { chromium } = require(process.env.PW_PATH || "playwright");
 const SHOTS = process.env.SHOTS || "/tmp/ltd-shots";
@@ -102,8 +102,19 @@ const auto = () => {
 for (const p of [pa, pb]) await p.evaluate(auto);
 // ngắt kết nối mạng của máy A giữa trận (lượt 2) để thử tự nối lại
 if (!BASE) {
-  await pa.waitForFunction(() => G.turn >= 2, null, { timeout: 120000, polling: 300 });
-  await pa.evaluate(() => { window.__cut = LTD_CF.conns.filter((c) => c.up).length; LTD_CF.conns.forEach((c) => c.ws && c.ws.close(4999)); });
+  if (process.env.CUT_AT_LOCK) {
+    /* ngắt ngay sau khi máy A vừa chốt lượt (lock) mà chưa kịp nhận chốt của máy B -> B diễn trước rồi sang lượt sau,
+       A kết nối lại phải bắt kịp (trước gpu35: kẹt, hai bên cùng báo "đối thủ không ra bài quá 3 phút") */
+    await pa.evaluate(() => { const cr = window.checkResolve; window.checkResolve = function () { const r = cr.apply(this, arguments); if (!window.__cutDone && G.turn >= 2 && OL.locked && !OL.resolving) { window.__cutDone = 1; window.__cut = LTD_CF.conns.filter((c) => c.up).length; LTD_CF.conns.forEach((c) => c.ws && c.ws.close(4999));
+      /* chặn kết nối lại 12 s (đủ lâu để máy B diễn xong lượt và sang lượt sau) */
+      const WS = window.WebSocket; window.WebSocket = function () { const o = { readyState: 3, close() {}, send() {} }; setTimeout(() => o.onclose && o.onclose({ code: 1006 }), 30); return o; }; setTimeout(() => { window.WebSocket = WS; }, 12000); } return r; }; });
+    await pa.waitForFunction(() => window.__cutDone, null, { timeout: 180000, polling: 200 });
+    const st = async (p) => p.evaluate(() => { const o = oppOf(OL.mr.peers()); return { t: G.turn, sub: OL.sub, lock: OL.locked, res: OL.resolving, op: o && { t: o.presence.t, sub: o.presence.sub, lock: o.presence.lock, la: o.presence.la && o.presence.la.t } }; });
+    console.log("lúc ngắt: A", JSON.stringify(await st(pa)), "B", JSON.stringify(await st(pb)));
+    await new Promise((r) => setTimeout(r, 20000));
+    console.log("sau 20 s: A", JSON.stringify(await st(pa)), "B", JSON.stringify(await st(pb)));
+  } else await pa.waitForFunction(() => G.turn >= 2, null, { timeout: 120000, polling: 300 });
+  if (!process.env.CUT_AT_LOCK) await pa.evaluate(() => { window.__cut = LTD_CF.conns.filter((c) => c.up).length; LTD_CF.conns.forEach((c) => c.ws && c.ws.close(4999)); });
   console.log("đã ngắt kết nối máy A ở lượt 2");
 }
 await Promise.all([pa, pb].map((p) => p.waitForFunction(() => G.phase === "over", null, { timeout: 240000, polling: 500 })));
@@ -127,8 +138,15 @@ if (res.some((r) => /đồng bộ/.test(r.note))) fail("báo lỗi đồng bộ"
 // máy chủ phải ghi nhận trận (chờ báo cáo kết quả hai bên)
 await new Promise((r) => setTimeout(r, 2500));
 if (BASE) { await browser.close(); srv.close(); console.log(ok ? "BASELINE ĐẠT" : "BASELINE HỎNG"); process.exit(ok ? 0 : 1); }
-const ul = await admin("GET", "/api/admin/users");
-const mine = ul.json.users.filter((u) => users.includes(u.username));
+/* máy bận có thể gửi báo cáo kết quả chậm hơn: đợi tới 30 s thay vì kết luận sau 2,5 s */
+let mine = [], tRec = Date.now();
+for (;;) {
+  const ul = await admin("GET", "/api/admin/users");
+  mine = ul.json.users.filter((u) => users.includes(u.username));
+  if (mine.every((u) => u.games === 1) || Date.now() - tRec > 30000) break;
+  await new Promise((r) => setTimeout(r, 1000));
+}
+console.log("máy chủ ghi nhận sau thêm", ((Date.now() - tRec) / 1000).toFixed(1), "s");
 console.log("hạng trên máy chủ:", mine.map((u) => `${u.username}=${u.rating}/${u.games} ván`).join(", "));
 if (!mine.every((u) => u.games === 1)) fail("máy chủ chưa ghi nhận trận cho cả hai");
 if (errors.length) { console.log("lỗi console/trang:\n" + errors.slice(0, 10).join("\n")); fail("có lỗi trên trang"); }

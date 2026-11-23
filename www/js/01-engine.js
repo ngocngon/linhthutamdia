@@ -2551,6 +2551,11 @@ function runTurn(G) { const steps = beginReveal(G); for (const st of steps) doSt
 
 /* ---------- máy đối thủ ---------- */
 function clone(G) { return JSON.parse(JSON.stringify(G)); }
+/* bản sao cho máy tính toán: bỏ siêu dữ liệu chỉ để hiển thị (lịch sử sức mạnh, nguồn kỹ năng...) -> bản sao nhỏ hơn, mô phỏng nhanh hơn.
+   Các trường này chỉ được đọc/ghi khi G.evs có (ván thật), còn bản mô phỏng đặt evs = null nên luật không đổi. */
+const AI_SKIP = { hist: 1, _b: 1, _bp: 1, _m: 1, _nb: 1, abBy: 1, tf: 1, silBy: 1, lostTo: 1, msgs: 1, evs: 1 };
+function aiRep(k, v) { return AI_SKIP[k] === 1 ? undefined : v; }
+function cloneAI(G) { const S = JSON.parse(JSON.stringify(G, aiRep)); S.msgs = null; S.evs = null; return S; }
 function sideStats(G, side) {
   let w = 0, l = 0, tot = 0; const ds = [];
   for (let i = 0; i < 3; i++) {
@@ -2586,10 +2591,11 @@ function randomPlan(S, side) {
 function aiPlan(G, side, tries) {
   tries = tries || 300;
   const o = other(side);
-  let base = clone(G); base.msgs = null; base.evs = null; if (!(G.turn === 5 && anyOn(G, side, "vouy"))) base.q[o] = []; base.q[side] = [];
+  let base = cloneAI(G); if (!(G.turn === 5 && anyOn(G, side, "vouy"))) base.q[o] = []; base.q[side] = [];
+  const bs = JSON.stringify(base); /* chuỗi hoá 1 lần, mỗi lần thử chỉ parse lại */
   let best = { score: -1e9, plan: [] };
   for (let t = 0; t <= tries; t++) {
-    const S = clone(base);
+    const S = JSON.parse(bs);
     S.rs = (Math.random() * 4294967296) | 0;
     S.deck[side].sort(() => Math.random() - 0.5);
     const plan = t === 0 ? [] : randomPlan(S, side);

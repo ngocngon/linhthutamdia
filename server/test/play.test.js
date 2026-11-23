@@ -89,6 +89,10 @@ describe("phòng trận", () => {
     ra.send({ type: "pres", patch: { sub: null, junk: "x" } });
     const pb = await rb.wait((m) => m.type === "peers" && m.peers.find((p) => p.peer === "u" + a.id && p.presence.sub === undefined));
     expect(pb.peers.find((p) => p.peer === "u" + a.id).presence.junk).toBeUndefined();
+    // la: hành động lượt vừa chốt (máy kia bắt kịp sau khi mất kết nối) — được chuyển tiếp, lọc gọn
+    ra.send({ type: "pres", patch: { la: { t: 1, acts: [{ t: "p", u: 1, l: 0 }], sn: 7, x: "bỏ" } } });
+    const pl = await rb.wait((m) => m.type === "peers" && m.peers.find((p) => p.peer === "u" + a.id && p.presence.la));
+    expect(pl.peers.find((p) => p.peer === "u" + a.id).presence.la).toEqual({ t: 1, acts: [{ t: "p", u: 1, l: 0 }], sn: 1 });
     // kết quả: bên A (người thứ nhất) thắng
     ra.send({ type: "result", w: "p", kind: "end" });
     rb.send({ type: "result", w: "a", kind: "end" });
