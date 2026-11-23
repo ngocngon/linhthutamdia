@@ -1019,8 +1019,8 @@ body.rm .choreo-afterimage {
   position: fixed;
   pointer-events: none !important;
   z-index: 37;
-  will-change: transform, opacity, filter;
-  filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.88)) drop-shadow(0 0 12px rgba(255, 110, 130, 0.85));
+  will-change: transform, opacity;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.8));
 }
 
 #lbVfxTest {

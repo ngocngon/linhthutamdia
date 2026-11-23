@@ -130,9 +130,9 @@ function v16Activate(root){
   const list=root.classList&&root.classList.contains("v16-sp")?[root]:root.querySelectorAll?root.querySelectorAll(".v16-sp"):[];
   list.forEach(el=>{if(el._v16)return;el._v16=1;v16Bind(el,+el.dataset.dur||480,+el.dataset.f0||0,el.dataset.f1!=null?+el.dataset.f1:15,false,false);});
 }
-function playV16(key,x,y,size,durMs,delayMs,rotDeg){
+function playV16(key,x,y,size,durMs,delayMs,rotDeg,noCap){
   if(reduced||x==null||y==null||document.hidden)return 0;const url=v16Pre(key);if(!url)return 0;
-  const dur=Math.max(220,+durMs||460),dl=Math.max(0,+delayMs||0),sz=Math.max(68,+size||112);
+  const dur=Math.max(220,+durMs||460),dl=Math.max(0,+delayMs||0);let sz=Math.max(68,+size||112);if(!noCap)sz=Math.min(sz,Math.max(68,cw10()*1.6));
   const fireAt=performance.now()+dl*SPD;
   while(V16_RECENT.length&&fireAt-V16_RECENT[0].t>260)V16_RECENT.shift();
   for(const r of V16_RECENT)if(r.k===key&&Math.abs(r.t-fireAt)<135&&Math.hypot(r.x-x,r.y-y)<38)return dl+dur;
@@ -770,7 +770,7 @@ function clone7(fp,tp,html,dl){if(reduced||!fp||!tp)return;const w=fp.w||46,h=fp
 const LOCKSVG=`<svg viewBox="-60 -60 120 120" aria-hidden="true"><g class="ch"><path d="M-58 -40L58 40M-58 40L58 -40" stroke="#5a6478" stroke-width="13" stroke-linecap="round"/><path d="M-58 -40L58 40M-58 40L58 -40" stroke="#c8d2e8" stroke-width="7" stroke-dasharray="11 5" stroke-linecap="round"/></g><g class="pl"><path d="M-14 -6v-12a14 14 0 0 1 28 0v12" fill="none" stroke="#e8c060" stroke-width="7"/><rect x="-22" y="-8" width="44" height="34" rx="6" fill="#d8a838" stroke="#7a5a10" stroke-width="3"/><circle cy="6" r="5" fill="#4a3208"/><rect x="-2" y="8" width="4" height="10" fill="#4a3208"/></g></svg>`;
 function lock7(li,txt,src,R0,R1){if(reduced)return;const ln=document.querySelector(`#board [data-lane="${li}"]`);if(!ln)return;const r=ln.getBoundingClientRect(),q={x:r.left+r.width/2,y:r.top+r.height/2,w:r.width*.6,h:r.height*.3};
   let dl=0;if(src){const sp=where7(src,R0,R1);if(sp){lit7(sp,"#e8c060",src);fxT(()=>FX.comet(sp.x,sp.y,q.x,q.y,"#e8c060"),120);dl=480;}}
-  if(typeof window.playV16==="function")window.playV16("khoa_dia",q.x,q.y,Math.max(122,Math.min(r.width*.95,180)),560,dl);
+  if(typeof window.playV16==="function")window.playV16("khoa_dia",q.x,q.y,Math.max(122,Math.min(r.width*.95,180)),560,dl,0,true);
   fxT(()=>{const d=document.createElement("div"),s=Math.min(r.width*.9,r.height*.6,190);d.className="fx7lock";d.style.cssText=`left:${q.x}px;top:${q.y}px;width:${s}px;height:${s}px`;d.innerHTML=LOCKSVG;document.body.appendChild(d);fxT(()=>d.remove(),1900);
     FX.ring(q.x,q.y,"#e8c060",s*.6,5);FX.sparks(q.x,q.y,"#ffe08a",14,240);FX.shake(3);SFX.play("e_cokhi");},dl);
   say(q.x,r.top+18,txt,"#ffe08a",dl+180);}
@@ -1416,7 +1416,7 @@ function khIn11(inst){const id=(E.ab(inst)&&C[E.ab(inst)])?E.ab(inst):inst.id,k=
   return `<span class="kh12s" style="--kc:${c1}" aria-hidden="true"></span><span class="kh11b" data-k="${k}" style="border-image-source:url('${(P&&P.u)||u}')" aria-hidden="true"></span>`;}
 /* ---- chiêu thức: nhịp bay mượt 60 FPS, đuôi hạt WebGL GPU, ánh đèn sân khấu nhẹ không gây giật ---- */
 T8.FLY=260;T8.REACT=200;
-function osz10(t,w){return Math.max(60,Math.min(240,(w||cw10())*(t==="sword"||t==="saber"||t==="arrow"?2.2:1.7)));}
+function osz10(t,w){return Math.max(44,Math.min(150,(w||cw10())*(t==="sword"||t==="saber"||t==="arrow"?1.7:1.25)));}
 const OBJ12=[];let OBJN12=0;
 {const _o=obj8;obj8=function(type){const d=_o.apply(this,arguments);if(type==="img"){const W=osz10("img");d.style.width=W+"px";d.style.height=W+"px";}v16Activate(d);OBJ12.push(d);OBJN12++;if(OBJ12.length>60)OBJ12.shift();return d;};}
 function burst11(key,p,w,dl){if(reduced||!p)return false;if(IMGS.v16&&IMGS.v16[key]){playV16(key,p.x,p.y,Math.max(92,(w||cw10())*2.2),520,dl||0);return true;}const u=vimg(key);if(!u)return false;fxT(()=>{const d=document.createElement("div"),W=Math.max(70,(w||cw10())*2.2);d.className="vb11";d.style.cssText=`left:${p.x}px;top:${p.y}px;width:${W}px;height:${W}px`;d.innerHTML=`<img src="${u}" alt="">`;document.body.appendChild(d);

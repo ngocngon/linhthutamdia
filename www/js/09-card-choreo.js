@@ -10,14 +10,14 @@
   const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
   const lerp = (a, b, t) => a + (b - a) * t;
 
-  /* Nhịp hoạt cảnh chậm rãi, rõ ràng từng chiêu thức để người chơi kịp quan sát */
+  /* gpu24: nhịp gọn hơn (SPD mặc định đã là 'rất chậm' ×2.0 nên thời gian gốc phải ngắn để vẫn rõ mà không ì) */
   try {
     if (typeof T8 === "object" && T8) {
-      T8.LIFT = 190;
-      T8.FLY = 580;
-      T8.REACT = 470;
-      T8.BACK = 500;
-      T8.GAP = 220;
+      T8.LIFT = 100;
+      T8.FLY = 280;
+      T8.REACT = 220;
+      T8.BACK = 280;
+      T8.GAP = 120;
     }
   } catch (e) {}
 
@@ -361,11 +361,13 @@
   }
 
   /* ==================== 3. BỘ DỰNG SPRITE TRANH VẼ, NỔ ĐA LỚP, TÀN ẢNH 3D & HIT-STOP 45MS ==================== */
+  /* gpu24: cỡ hiệu ứng tính theo cỡ thẻ trên sân (không bao giờ lớn hơn ~1.6x thẻ sau khi phóng) */
+  function cwB() { const m = document.querySelector("#board .mc"); const w = m ? m.getBoundingClientRect().width : 0; return w > 20 ? w : 56; }
+  function capSz(W, H, k) { const m = Math.max(W, H), cap = cwB() * k; if (m <= cap) return [W, H]; const f = cap / m; return [W * f, H * f]; }
   function spawnProp(htmlOrKey, x, y, w, h, glowCol, zIndex, screenBlend) {
     const d = document.createElement("div");
     d.className = "choreo-prop" + (screenBlend ? " choreo-screen" : "");
-    const W = w || 128;
-    const H = h || W;
+    let [W, H] = capSz(w || 128, h || w || 128, screenBlend ? 1.5 : 1.15);
     d.style.cssText = `width:${W.toFixed(0)}px;height:${H.toFixed(0)}px;left:${(x - W / 2).toFixed(1)}px;top:${(y - H / 2).toFixed(1)}px;--cp-glow:${glowCol || "#ffd65a"};z-index:${zIndex || 38}`;
     d.innerHTML = htmlOrKey && htmlOrKey.charAt(0) === "<" ? htmlOrKey : spriteHtml(htmlOrKey, 440, 1, 14);
     document.body.appendChild(d);
@@ -377,8 +379,8 @@
     if (typeof reduced !== "undefined" && reduced) return null;
     const d = document.createElement("div");
     d.className = "choreo-burst";
-    const S = size || 168;
-    const D = durMs || 460;
+    const S = Math.min(size || 168, cwB() * 1.5);
+    const D = Math.min(durMs || 460, 420);
     const hasV16 = typeof IMGS === "object" && IMGS && IMGS.v16 && !!IMGS.v16[key];
     d.style.cssText = `width:${S.toFixed(0)}px;height:${S.toFixed(0)}px;left:${(x - S / 2).toFixed(1)}px;top:${(y - S / 2).toFixed(1)}px;--cb-glow:${glowCol || "#ffb84d"}`;
     d.innerHTML = spriteHtml(key, D, 0, 15);
@@ -395,8 +397,8 @@
       : [
           { transform: `rotate(${r0}deg) scale(0.28)`, opacity: 0.95, easing: "cubic-bezier(0.16, 1, 0.3, 1)" },
           { transform: `rotate(${r0 + 10}deg) scale(1.10)`, opacity: 1, offset: 0.25 },
-          { transform: `rotate(${r0 + 16}deg) scale(1.18)`, opacity: 0.88, offset: 0.62 },
-          { transform: `rotate(${r0 + 24}deg) scale(1.34)`, opacity: 0 }
+          { transform: `rotate(${r0 + 16}deg) scale(1.09)`, opacity: 0.88, offset: 0.62 },
+          { transform: `rotate(${r0 + 24}deg) scale(1.17)`, opacity: 0 }
         ];
     const a = d.animate(kf, { duration: D, easing: "linear", fill: "forwards" });
     a.onfinish = () => d.remove();
@@ -408,8 +410,8 @@
     if (typeof reduced !== "undefined" && reduced) return null;
     const d = document.createElement("div");
     d.className = "choreo-mark" + (screenMode ? " choreo-mark-screen" : "");
-    const S = size || 142;
-    const D = durMs || 560;
+    const S = Math.min(size || 142, cwB() * 1.5);
+    const D = Math.min(durMs || 560, 460);
     d.style.cssText = `width:${S.toFixed(0)}px;height:${S.toFixed(0)}px;left:${(x - S / 2).toFixed(1)}px;top:${(y - S / 2).toFixed(1)}px;--cm-glow:${glowCol || "#ff8a3d"}`;
     d.innerHTML = htmlOrKey && htmlOrKey.charAt(0) === "<" ? htmlOrKey : spriteHtml(htmlOrKey, D, 0, 15);
     document.body.appendChild(d);
@@ -417,7 +419,7 @@
     const r = rotDeg || 0;
     const a = d.animate([
       { transform: `rotate(${r}deg) scale(0.42)`, opacity: 0, easing: "cubic-bezier(0.16, 1, 0.3, 1)" },
-      { transform: `rotate(${r}deg) scale(1.14)`, opacity: 1, offset: 0.18 },
+      { transform: `rotate(${r}deg) scale(1.07)`, opacity: 1, offset: 0.18 },
       { transform: `rotate(${r}deg) scale(1.04)`, opacity: 1, offset: 0.78 },
       { transform: `rotate(${r}deg) scale(1.10)`, opacity: 0 }
     ], { duration: D, easing: "linear", fill: "forwards" });
@@ -520,10 +522,15 @@
     if (typeof reduced !== "undefined" && reduced) return;
     const cvs = document.createElement("canvas");
     cvs.className = "choreo-canvas";
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    const vw = window.innerWidth, vh = window.innerHeight;
+    const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+    /* gpu24: canvas chỉ rộng bằng vùng dây kéo (không phủ cả màn hình) để lọc/ghép lớp rẻ hơn nhiều */
+    const _p = [opts.src, opts.from, opts.to || opts.from].filter(Boolean), PADV = 110;
+    const bx0 = Math.max(0, Math.min(..._p.map((q) => q.x)) - PADV), by0 = Math.max(0, Math.min(..._p.map((q) => q.y)) - PADV);
+    const bx1 = Math.min(window.innerWidth, Math.max(..._p.map((q) => q.x)) + PADV), by1 = Math.min(window.innerHeight, Math.max(..._p.map((q) => q.y)) + PADV);
+    const vw = Math.max(40, bx1 - bx0), vh = Math.max(40, by1 - by0);
     cvs.width = Math.round(vw * dpr);
     cvs.height = Math.round(vh * dpr);
+    cvs.style.cssText = `left:${bx0.toFixed(1)}px;top:${by0.toFixed(1)}px;width:${vw.toFixed(1)}px;height:${vh.toFixed(1)}px`;
     document.body.appendChild(cvs);
     const ctx = cvs.getContext("2d");
 
@@ -569,8 +576,8 @@
       casterProp = spawnProp("tunu", sPt.x + cs * 38, sPt.y + sn * 38, 158, 134, "#5ad8ff", 42);
       casterProp.animate([
         { transform: `rotate(${magAng.toFixed(1)}deg) scale(0.42)`, opacity: 0, easing: "cubic-bezier(0.16, 1, 0.3, 1)" },
-        { transform: `translate(${(cs * 16).toFixed(1)}px, ${(sn * 16).toFixed(1)}px) rotate(${magAng.toFixed(1)}deg) scale(1.22)`, opacity: 1, offset: 0.14 },
-        { transform: `translate(${(cs * 10).toFixed(1)}px, ${(sn * 10).toFixed(1)}px) rotate(${(magAng + 3).toFixed(1)}deg) scale(1.15)`, opacity: 1, offset: 0.88 },
+        { transform: `translate(${(cs * 16).toFixed(1)}px, ${(sn * 16).toFixed(1)}px) rotate(${magAng.toFixed(1)}deg) scale(1.11)`, opacity: 1, offset: 0.14 },
+        { transform: `translate(${(cs * 10).toFixed(1)}px, ${(sn * 10).toFixed(1)}px) rotate(${(magAng + 3).toFixed(1)}deg) scale(1.07)`, opacity: 1, offset: 0.88 },
         { transform: `rotate(${magAng.toFixed(1)}deg) scale(0.75)`, opacity: 0 }
       ], { duration: totalMs, easing: "linear", fill: "forwards" }).onfinish = () => casterProp.remove();
     } else if (kind === "tornado") {
@@ -632,20 +639,20 @@
         snareOverlay.style.opacity = pAll > 0.88 ? ((1 - pAll) / 0.12).toFixed(2) : "0.96";
       }
       if (flyingTalisman && flyingTalisman.isConnected) {
-        flyingTalisman.style.left = `${(tx - 48).toFixed(1)}px`;
-        flyingTalisman.style.top = `${(ty - 56).toFixed(1)}px`;
+        flyingTalisman.style.left = `${(tx - flyingTalisman.offsetWidth / 2).toFixed(1)}px`;
+        flyingTalisman.style.top = `${(ty - flyingTalisman.offsetHeight / 2).toFixed(1)}px`;
         flyingTalisman.style.transform = `rotate(${(Math.sin(el * 0.02) * 14).toFixed(1)}deg) scale(${pAll > 0.88 ? "0.6" : "1.06"})`;
         flyingTalisman.style.opacity = pAll > 0.88 ? ((1 - pAll) / 0.12).toFixed(2) : "1";
       }
       if (swirlingTornado && swirlingTornado.isConnected) {
-        swirlingTornado.style.left = `${(tx - 78).toFixed(1)}px`;
-        swirlingTornado.style.top = `${(ty - 84).toFixed(1)}px`;
+        swirlingTornado.style.left = `${(tx - swirlingTornado.offsetWidth / 2).toFixed(1)}px`;
+        swirlingTornado.style.top = `${(ty - swirlingTornado.offsetHeight / 2).toFixed(1)}px`;
         swirlingTornado.style.transform = `skewX(${(Math.sin(el * 0.025) * 11).toFixed(1)}deg) scale(${(0.95 + 0.18 * Math.sin(el * 0.018)).toFixed(2)})`;
         swirlingTornado.style.opacity = pAll > 0.88 ? ((1 - pAll) / 0.12).toFixed(2) : "0.98";
       }
 
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      ctx.clearRect(0, 0, vw, vh);
+      ctx.setTransform(dpr, 0, 0, dpr, -bx0 * dpr, -by0 * dpr);
+      ctx.clearRect(bx0, by0, vw, vh);
 
       const dx = tx - sPt.x, dy = ty - sPt.y;
       const dist = Math.hypot(dx, dy) || 1;
@@ -843,15 +850,15 @@
     h2.style.clipPath = "polygon(100% 34%, 100% 100%, 0 100%, 0 68%)";
 
     h1.animate([
-      { transform: "translate3d(0,0,0)", opacity: 1, filter: "brightness(2.2)" },
-      { transform: "translate3d(-18px, -15px, 0) rotate(-7deg)", opacity: 1, filter: "brightness(1.15)", offset: 0.52 },
-      { transform: "translate3d(-32px, -24px, 0) rotate(-13deg) scale(0.9)", opacity: 0, filter: "brightness(0.8)" }
+      { transform: "translate3d(0,0,0)", opacity: 1 },
+      { transform: "translate3d(-18px, -15px, 0) rotate(-7deg)", opacity: 1, offset: 0.52 },
+      { transform: "translate3d(-32px, -24px, 0) rotate(-13deg) scale(0.9)", opacity: 0 }
     ], { duration: 340, easing: "cubic-bezier(0.22, 1, 0.36, 1)", fill: "forwards" }).onfinish = () => h1.remove();
 
     h2.animate([
-      { transform: "translate3d(0,0,0)", opacity: 1, filter: "brightness(2.2)" },
-      { transform: "translate3d(18px, 15px, 0) rotate(7deg)", opacity: 1, filter: "brightness(1.15)", offset: 0.52 },
-      { transform: "translate3d(32px, 24px, 0) rotate(13deg) scale(0.9)", opacity: 0, filter: "brightness(0.8)" }
+      { transform: "translate3d(0,0,0)", opacity: 1 },
+      { transform: "translate3d(18px, 15px, 0) rotate(7deg)", opacity: 1, offset: 0.52 },
+      { transform: "translate3d(32px, 24px, 0) rotate(13deg) scale(0.9)", opacity: 0 }
     ], { duration: 340, easing: "cubic-bezier(0.22, 1, 0.36, 1)", fill: "forwards" }).onfinish = () => h2.remove();
 
     if (window.GLFX && GLFX.arc) {
@@ -868,18 +875,18 @@
 
     topJaw.animate([
       { transform: "translateY(-28px) scale(0.75)", opacity: 0, easing: "cubic-bezier(0.16, 1, 0.3, 1)" },
-      { transform: "translateY(-14px) scale(1.22)", opacity: 1, offset: 0.22, easing: "cubic-bezier(0.55, 0, 0.9, 0.45)" },
-      { transform: "translateY(34px) scale(1.12)", opacity: 1, offset: 0.46 },
-      { transform: "translateY(31px) scale(1.16)", opacity: 1, offset: 0.85 },
-      { transform: "translateY(24px) scale(1.22)", opacity: 0 }
+      { transform: "translateY(-14px) scale(1.11)", opacity: 1, offset: 0.22, easing: "cubic-bezier(0.55, 0, 0.9, 0.45)" },
+      { transform: "translateY(34px) scale(1.06)", opacity: 1, offset: 0.46 },
+      { transform: "translateY(31px) scale(1.08)", opacity: 1, offset: 0.85 },
+      { transform: "translateY(24px) scale(1.11)", opacity: 0 }
     ], { duration: 540, easing: "linear", fill: "forwards" }).onfinish = () => topJaw.remove();
 
     botJaw.animate([
       { transform: "translateY(28px) scale(0.75)", opacity: 0, easing: "cubic-bezier(0.16, 1, 0.3, 1)" },
-      { transform: "translateY(14px) scale(1.22)", opacity: 1, offset: 0.22, easing: "cubic-bezier(0.55, 0, 0.9, 0.45)" },
-      { transform: "translateY(-34px) scale(1.12)", opacity: 1, offset: 0.46 },
-      { transform: "translateY(-31px) scale(1.16)", opacity: 1, offset: 0.85 },
-      { transform: "translateY(-24px) scale(1.22)", opacity: 0 }
+      { transform: "translateY(14px) scale(1.11)", opacity: 1, offset: 0.22, easing: "cubic-bezier(0.55, 0, 0.9, 0.45)" },
+      { transform: "translateY(-34px) scale(1.06)", opacity: 1, offset: 0.46 },
+      { transform: "translateY(-31px) scale(1.08)", opacity: 1, offset: 0.85 },
+      { transform: "translateY(-24px) scale(1.11)", opacity: 0 }
     ], { duration: 540, easing: "linear", fill: "forwards" }).onfinish = () => botJaw.remove();
 
     fxT(() => {
@@ -919,11 +926,11 @@
 
       const sel = mcEl9(s.src);
       if (!s.sp || !sel) {
-        if (typeof holdFx === "function") holdFx(1040);
+        if (typeof holdFx === "function") holdFx(700);
         if (dstId === "nhennhan" || dstId === "nhenma" || dstId === "cuduto") {
           SFX.play("web");
           const topAnchor = { x: (r0.x + r1.x) * 0.5, y: Math.max(58, Math.min(r0.y, r1.y) - 125) };
-          runPhysicalTether({ kind: "web", srcId: dstId, src: topAnchor, from: r0, to: r1, extendMs: 220, holdMs: 110, pullMs: 680 });
+          runPhysicalTether({ kind: "web", srcId: dstId, src: topAnchor, from: r0, to: r1, extendMs: 140, holdMs: 60, pullMs: 400 });
         }
         /* Dịch chuyển / Tự dời thẻ: mở cổng gió linh giới ở điểm đi & điểm đến, bay vòng cung 3D rõ nét (760ms) */
         const mvCol = dstId && C[dstId] ? (HC[C[dstId].h] || "#74ffdf") : "#74ffdf";
@@ -936,10 +943,10 @@
           spawnCardAfterimages(r0, mdx, mdy, ph.innerHTML, mvCol);
           const animMv = ph.animate([
             { transform: "perspective(650px) translate3d(0, 0, 0) scale(1)" },
-            { transform: "perspective(650px) translate3d(0, -16px, 36px) scale(1.2)", offset: 0.22 },
-            { transform: `perspective(650px) translate3d(${(mdx * 0.54).toFixed(1)}px, ${(mdy * 0.54 - 44).toFixed(1)}px, 54px) rotateZ(${(mdx >= 0 ? 10 : -10)}deg) scale(1.22)`, offset: 0.62 },
+            { transform: "perspective(650px) translate3d(0, -16px, 18px) scale(1.10)", offset: 0.22 },
+            { transform: `perspective(650px) translate3d(${(mdx * 0.54).toFixed(1)}px, ${(mdy * 0.54 - 44).toFixed(1)}px, 54px) rotateZ(${(mdx >= 0 ? 10 : -10)}deg) scale(1.11)`, offset: 0.62 },
             { transform: `perspective(650px) translate3d(${mdx.toFixed(1)}px, ${mdy.toFixed(1)}px, 0) scale(1)` }
-          ], { duration: 760, easing: "cubic-bezier(0.22, 1, 0.36, 1)", fill: "both" });
+          ], { duration: 480, easing: "cubic-bezier(0.22, 1, 0.36, 1)", fill: "both" });
           let doneMv = false;
           const finMv = () => {
             if (doneMv) return;
@@ -953,7 +960,7 @@
             if (dstName && window.pushOppNotif) window.pushOppNotif(`${dstName} ▸ Dịch chuyển`, mvCol);
           };
           animMv.onfinish = finMv;
-          fxT(finMv, 840);
+          fxT(finMv, 560);
           return;
         }
         return _prevMove10(s);
@@ -965,7 +972,7 @@
       /* 6.1. KÉO THẺ BẰNG ĐẠO CỤ MESH-RIBBON TRANH VẼ (CHẬM RÕ 3 NHỊP: PHÓNG DÂY -> MÓC GIỮ -> LÔI KÉO) */
       if (isPull) {
         const pullKind = getPullKind(srcId);
-        const extendMs = 340, holdMs = 190, flightDur = 720;
+        const extendMs = 200, holdMs = 90, flightDur = 420;
         if (typeof holdFx === "function") holdFx(extendMs + holdMs + flightDur + 220);
         const sfxMap = { web: "web", silk: "web", magnet: "magnet", tentacle: "tentacle", blood_tentacle: "tentacle", tornado: "e_gio", talisman: "e_hon", banyan: "e_moc", hook: "chain" };
         const colMap = { web: "#9ef6ff", silk: "#ffd86b", magnet: "#5ad8ff", tentacle: "#d580ff", blood_tentacle: "#ff4d6d", tornado: "#7ff5e0", talisman: "#ffd65a", banyan: "#7dff70", hook: "#ffb84d" };
@@ -976,8 +983,8 @@
         const ux = dx0 / L0, uy = dy0 / L0;
         sel.animate([
           { transform: "translate3d(0,0,0) scale(1)" },
-          { transform: `perspective(620px) translate3d(${(ux * 14).toFixed(1)}px, ${(uy * 14 - 7).toFixed(1)}px, 28px) scale(1.2)`, offset: 0.28 },
-          { transform: `perspective(620px) translate3d(${(-ux * 18).toFixed(1)}px, ${(-uy * 18).toFixed(1)}px, 32px) rotate(${(ux >= 0 ? -10 : 10)}deg) scale(1.22)`, offset: 0.65 },
+          { transform: `perspective(620px) translate3d(${(ux * 14).toFixed(1)}px, ${(uy * 14 - 7).toFixed(1)}px, 28px) scale(1.10)`, offset: 0.28 },
+          { transform: `perspective(620px) translate3d(${(-ux * 18).toFixed(1)}px, ${(-uy * 18).toFixed(1)}px, 32px) rotate(${(ux >= 0 ? -10 : 10)}deg) scale(1.11)`, offset: 0.65 },
           { transform: "translate3d(0,0,0) scale(1)" }
         ], { duration: extendMs + holdMs + 420, easing: "cubic-bezier(0.22, 1, 0.36, 1)" });
 
@@ -990,7 +997,7 @@
             ph.style.zIndex = "35";
             ph.animate([
               { transform: "perspective(650px) translate3d(0,0,0) scale(1)" },
-              { transform: "perspective(650px) translate3d(0,-10px,28px) rotateZ(-5deg) scale(1.18)" }
+              { transform: "perspective(650px) translate3d(0,-10px,28px) rotateZ(-5deg) scale(1.09)" }
             ], { duration: holdMs, easing: "ease-out", fill: "forwards" });
           }
         }, extendMs);
@@ -1002,8 +1009,8 @@
             const liftY = pullKind === "tornado" ? -58 : -28;
             const rotMid = pullKind === "tornado" ? (mdx >= 0 ? 22 : -22) : (mdx >= 0 ? -9 : 9);
             const animRef = ph.animate([
-              { transform: "perspective(650px) translate3d(0,-10px,28px) scale(1.18)" },
-              { transform: `perspective(650px) translate3d(${(mdx * 0.52).toFixed(1)}px, ${(mdy * 0.52 + liftY).toFixed(1)}px, 48px) rotateZ(${rotMid}deg) scale(1.22)`, offset: 0.54 },
+              { transform: "perspective(650px) translate3d(0,-10px,28px) scale(1.09)" },
+              { transform: `perspective(650px) translate3d(${(mdx * 0.52).toFixed(1)}px, ${(mdy * 0.52 + liftY).toFixed(1)}px, 48px) rotateZ(${rotMid}deg) scale(1.11)`, offset: 0.54 },
               { transform: `perspective(650px) translate3d(${(mdx * 1.03).toFixed(1)}px, ${(mdy * 1.03).toFixed(1)}px, 8px) rotateZ(${(mdx >= 0 ? 3 : -3)}deg) scale(0.96)`, offset: 0.88 },
               { transform: `perspective(650px) translate3d(${mdx.toFixed(1)}px, ${mdy.toFixed(1)}px, 0) scale(1)` }
             ], { duration: flightDur, easing: "cubic-bezier(0.22, 1, 0.36, 1)", fill: "both" });
@@ -1034,8 +1041,8 @@
 
       /* 6.2. ĐẨY / HÚC NGÀ VOI / THIẾT QUYỀN / QUÂN CỜ TƯỚNG / TÚI GIÓ PHONG THẦN */
       const pushKind = getPushKind(srcId);
-      const flightDur = 680;
-      let launchDelay = 300;
+      const flightDur = 420;
+      let launchDelay = 180;
       if (typeof holdFx === "function") holdFx(launchDelay + flightDur + 220);
       let pCol = "#ffd65a";
       let pushVerb = "HẤT VĂNG SANG CHIẾN ĐỊA";
@@ -1048,8 +1055,8 @@
         const mdx = r1.x - r0.x, mdy = r1.y - r0.y;
         cp.animate([
           { transform: "translate3d(0, -28px, 0) scale(0.45)", opacity: 0, easing: "cubic-bezier(0.16, 1, 0.3, 1)" },
-          { transform: "translate3d(0, 0px, 0) scale(1.18)", opacity: 1, offset: 0.20, easing: "cubic-bezier(0.22, 1, 0.36, 1)" },
-          { transform: `translate3d(${mdx.toFixed(1)}px, ${(mdy - 26).toFixed(1)}px, 0) scale(1.24)`, opacity: 1, offset: 0.84 },
+          { transform: "translate3d(0, 0px, 0) scale(1.09)", opacity: 1, offset: 0.20, easing: "cubic-bezier(0.22, 1, 0.36, 1)" },
+          { transform: `translate3d(${mdx.toFixed(1)}px, ${(mdy - 26).toFixed(1)}px, 0) scale(1.12)`, opacity: 1, offset: 0.84 },
           { transform: `translate3d(${mdx.toFixed(1)}px, ${mdy.toFixed(1)}px, 0) scale(0.92)`, opacity: 0 }
         ], { duration: launchDelay + flightDur + 80, easing: "linear", fill: "forwards" }).onfinish = () => cp.remove();
         fxT(() => cp.remove(), launchDelay + flightDur + 160);
@@ -1064,8 +1071,8 @@
         const gdx = r1.x - s.sp.x, gdy = r1.y - s.sp.y;
         tor.animate([
           { transform: "translate3d(0,0,0) scale(0.45)", opacity: 0, easing: "cubic-bezier(0.16, 1, 0.3, 1)" },
-          { transform: `translate3d(${((r0.x - s.sp.x)).toFixed(1)}px, ${((r0.y - s.sp.y)).toFixed(1)}px, 0) scale(1.24) skewX(-10deg)`, opacity: 1, offset: 0.30 },
-          { transform: `translate3d(${(gdx * 0.85).toFixed(1)}px, ${(gdy * 0.85).toFixed(1)}px, 0) scale(1.18) skewX(6deg)`, opacity: 1, offset: 0.84 },
+          { transform: `translate3d(${((r0.x - s.sp.x)).toFixed(1)}px, ${((r0.y - s.sp.y)).toFixed(1)}px, 0) scale(1.12) skewX(-10deg)`, opacity: 1, offset: 0.30 },
+          { transform: `translate3d(${(gdx * 0.85).toFixed(1)}px, ${(gdy * 0.85).toFixed(1)}px, 0) scale(1.09) skewX(6deg)`, opacity: 1, offset: 0.84 },
           { transform: `translate3d(${gdx.toFixed(1)}px, ${gdy.toFixed(1)}px, 0) scale(1.04) skewX(10deg)`, opacity: 0 }
         ], { duration: launchDelay + flightDur + 60, easing: "linear", fill: "forwards" }).onfinish = () => tor.remove();
         fxT(() => tor.remove(), launchDelay + flightDur + 140);
@@ -1107,7 +1114,7 @@
         gSrc.animate([
           { transform: "perspective(650px) translate3d(0,0,0) scale(1)" },
           { transform: `perspective(650px) translate3d(${(-sdx * 0.18).toFixed(1)}px, 5px, 14px) scale(0.93)`, offset: 0.2 },
-          { transform: `perspective(650px) translate3d(${sdx.toFixed(1)}px, ${sdy.toFixed(1)}px, 52px) rotateZ(${(dirSign * 10)}deg) scale(1.28)`, offset: 0.56 },
+          { transform: `perspective(650px) translate3d(${sdx.toFixed(1)}px, ${sdy.toFixed(1)}px, 52px) rotateZ(${(dirSign * 10)}deg) scale(1.14)`, offset: 0.56 },
           { transform: "perspective(650px) translate3d(0,0,0) scale(1)" }
         ], { duration: 445, easing: "cubic-bezier(0.22, 1, 0.36, 1)", fill: "forwards" }).onfinish = () => {
           gSrc.remove();
@@ -1120,8 +1127,8 @@
           const impactProp = spawnProp(spriteKey, r0.x - dirSign * 18, r0.y, 168, 132, pCol, 42);
           impactProp.animate([
             { transform: `scaleX(${dirSign}) translateX(-28px) scale(0.55)`, opacity: 0, easing: "cubic-bezier(0.16, 1, 0.3, 1)" },
-            { transform: `scaleX(${dirSign}) translateX(10px) scale(1.26)`, opacity: 1, offset: 0.24 },
-            { transform: `scaleX(${dirSign}) translateX(18px) scale(1.20)`, opacity: 1, offset: 0.82 },
+            { transform: `scaleX(${dirSign}) translateX(10px) scale(1.13)`, opacity: 1, offset: 0.24 },
+            { transform: `scaleX(${dirSign}) translateX(18px) scale(1.10)`, opacity: 1, offset: 0.82 },
             { transform: `scaleX(${dirSign}) translateX(30px) scale(1.02)`, opacity: 0 }
           ], { duration: 420, easing: "linear", fill: "forwards" }).onfinish = () => impactProp.remove();
           fxT(() => impactProp.remove(), 470);
@@ -1141,7 +1148,7 @@
         const lift = pushKind === "chess" ? -58 : -32;
         const animRef = ph.animate([
           { transform: "perspective(650px) translate3d(0,0,0) scale(1)" },
-          { transform: `perspective(650px) translate3d(${(mdx * 0.55).toFixed(1)}px, ${(mdy * 0.55 + lift).toFixed(1)}px, 46px) rotateZ(${(mdx >= 0 ? 12 : -12)}deg) scale(1.20)`, offset: 0.54 },
+          { transform: `perspective(650px) translate3d(${(mdx * 0.55).toFixed(1)}px, ${(mdy * 0.55 + lift).toFixed(1)}px, 46px) rotateZ(${(mdx >= 0 ? 12 : -12)}deg) scale(1.10)`, offset: 0.54 },
           { transform: `perspective(650px) translate3d(${(mdx * 1.05).toFixed(1)}px, ${(mdy * 1.05).toFixed(1)}px, 6px) rotateZ(${(mdx >= 0 ? 4 : -4)}deg) scale(0.95)`, offset: 0.86 },
           { transform: `perspective(650px) translate3d(${mdx.toFixed(1)}px, ${mdy.toFixed(1)}px, 0) scale(1)` }
         ], { duration: flightDur, easing: "cubic-bezier(0.22, 1, 0.36, 1)", fill: "both" });
@@ -1219,8 +1226,8 @@
         g.animate([
           { transform: "perspective(650px) translate3d(0,0,0) scale(1)" },
           { transform: `perspective(650px) translate3d(${(-dx / dist * 15).toFixed(1)}px, ${(-dy / dist * 12 + 5).toFixed(1)}px, 18px) rotateX(-10deg) scale(0.92)`, offset: 0.22 },
-          { transform: `perspective(650px) translate3d(${lx.toFixed(1)}px, ${ly.toFixed(1)}px, 58px) rotateZ(${(dirSign * 10)}deg) scale(1.32)`, offset: 0.58 },
-          { transform: `perspective(650px) translate3d(${(lx * 0.90).toFixed(1)}px, ${(ly * 0.90).toFixed(1)}px, 44px) scale(1.22)`, offset: 0.72 },
+          { transform: `perspective(650px) translate3d(${lx.toFixed(1)}px, ${ly.toFixed(1)}px, 58px) rotateZ(${(dirSign * 10)}deg) scale(1.16)`, offset: 0.58 },
+          { transform: `perspective(650px) translate3d(${(lx * 0.90).toFixed(1)}px, ${(ly * 0.90).toFixed(1)}px, 44px) scale(1.11)`, offset: 0.72 },
           { transform: "perspective(650px) translate3d(0,0,0) scale(1)" }
         ], { duration: L0 + flyMs + 240, easing: "cubic-bezier(0.22, 1, 0.36, 1)", fill: "forwards" }).onfinish = () => {
           g.remove();
@@ -1236,10 +1243,10 @@
         const fist = spawnProp(fistKey, sp.x + dx * 0.22, sp.y + dy * 0.22, 184, 142, col, 42);
         fist.animate([
           { transform: `translate3d(0,0,0) rotate(${angDeg.toFixed(1)}deg) scale(0.50)`, opacity: 0, easing: "cubic-bezier(0.16, 1, 0.3, 1)" },
-          { transform: `translate3d(${(dx * 0.42).toFixed(1)}px, ${(dy * 0.42).toFixed(1)}px, 0) rotate(${angDeg.toFixed(1)}deg) scale(1.12)`, opacity: 1, offset: 0.22 },
-          { transform: `translate3d(${(dx * 0.76).toFixed(1)}px, ${(dy * 0.76).toFixed(1)}px, 0) rotate(${angDeg.toFixed(1)}deg) scale(1.34)`, opacity: 1, offset: 0.60 },
-          { transform: `translate3d(${(dx * 0.80).toFixed(1)}px, ${(dy * 0.80).toFixed(1)}px, 0) rotate(${angDeg.toFixed(1)}deg) scale(1.38)`, opacity: 1, offset: 0.86 },
-          { transform: `translate3d(${(dx * 0.84).toFixed(1)}px, ${(dy * 0.84).toFixed(1)}px, 0) rotate(${angDeg.toFixed(1)}deg) scale(1.48)`, opacity: 0 }
+          { transform: `translate3d(${(dx * 0.42).toFixed(1)}px, ${(dy * 0.42).toFixed(1)}px, 0) rotate(${angDeg.toFixed(1)}deg) scale(1.06)`, opacity: 1, offset: 0.22 },
+          { transform: `translate3d(${(dx * 0.76).toFixed(1)}px, ${(dy * 0.76).toFixed(1)}px, 0) rotate(${angDeg.toFixed(1)}deg) scale(1.17)`, opacity: 1, offset: 0.60 },
+          { transform: `translate3d(${(dx * 0.80).toFixed(1)}px, ${(dy * 0.80).toFixed(1)}px, 0) rotate(${angDeg.toFixed(1)}deg) scale(1.19)`, opacity: 1, offset: 0.86 },
+          { transform: `translate3d(${(dx * 0.84).toFixed(1)}px, ${(dy * 0.84).toFixed(1)}px, 0) rotate(${angDeg.toFixed(1)}deg) scale(1.24)`, opacity: 0 }
         ], { duration: flyMs + 170, easing: "linear", fill: "forwards" }).onfinish = () => fist.remove();
         fxT(() => fist.remove(), flyMs + 230);
       }, L0);
@@ -1274,10 +1281,10 @@
         const curveY = -Math.min(58, dist * 0.24);
         projEl.animate([
           { transform: `translate3d(0,0,0) rotate(${angDeg.toFixed(1)}deg) scale(0.45)`, opacity: 0, easing: "cubic-bezier(0.16, 1, 0.3, 1)" },
-          { transform: `translate3d(${(dx * 0.5).toFixed(1)}px, ${(dy * 0.5 + curveY).toFixed(1)}px, 0) rotate(${(angDeg + 360).toFixed(1)}deg) scale(1.22)`, opacity: 1, offset: 0.44 },
-          { transform: `translate3d(${dx.toFixed(1)}px, ${dy.toFixed(1)}px, 0) rotate(${(angDeg + 720).toFixed(1)}deg) scale(1.14)`, opacity: 1, offset: 0.68 },
-          { transform: `translate3d(${dx.toFixed(1)}px, ${(dy - 4).toFixed(1)}px, 0) rotate(${(angDeg + 745).toFixed(1)}deg) scale(1.18)`, opacity: 1, offset: 0.88 },
-          { transform: `translate3d(${dx.toFixed(1)}px, ${dy.toFixed(1)}px, 0) rotate(${(angDeg + 760).toFixed(1)}deg) scale(1.28)`, opacity: 0 }
+          { transform: `translate3d(${(dx * 0.5).toFixed(1)}px, ${(dy * 0.5 + curveY).toFixed(1)}px, 0) rotate(${(angDeg + 360).toFixed(1)}deg) scale(1.11)`, opacity: 1, offset: 0.44 },
+          { transform: `translate3d(${dx.toFixed(1)}px, ${dy.toFixed(1)}px, 0) rotate(${(angDeg + 720).toFixed(1)}deg) scale(1.07)`, opacity: 1, offset: 0.68 },
+          { transform: `translate3d(${dx.toFixed(1)}px, ${(dy - 4).toFixed(1)}px, 0) rotate(${(angDeg + 745).toFixed(1)}deg) scale(1.09)`, opacity: 1, offset: 0.88 },
+          { transform: `translate3d(${dx.toFixed(1)}px, ${dy.toFixed(1)}px, 0) rotate(${(angDeg + 760).toFixed(1)}deg) scale(1.14)`, opacity: 0 }
         ], { duration: flyMs + 150, easing: "linear", fill: "forwards" }).onfinish = () => projEl.remove();
         fxT(() => projEl.remove(), flyMs + 220);
       }, L0);
@@ -1314,10 +1321,10 @@
         const mount = spawnProp(isCannon ? "phao_tre" : "cung_doc", sp.x + cs * 18, sp.y + sn * 18, isCannon ? 178 : 162, isCannon ? 84 : 182, col, 42);
         mount.animate([
           { transform: `rotate(${aimAng.toFixed(1)}deg) scale(0.45)`, opacity: 0, easing: "cubic-bezier(0.16, 1, 0.3, 1)" },
-          { transform: `rotate(${aimAng.toFixed(1)}deg) scale(1.24)`, opacity: 1, offset: 0.14 },
+          { transform: `rotate(${aimAng.toFixed(1)}deg) scale(1.12)`, opacity: 1, offset: 0.14 },
           /* Giật nảy lùi khi buông dây cung / khai hoả pháo rồng! */
-          { transform: `translate(${(-cs * 14).toFixed(1)}px, ${(-sn * 14).toFixed(1)}px) rotate(${aimAng.toFixed(1)}deg) scale(1.16)`, opacity: 1, offset: 0.32 },
-          { transform: `rotate(${aimAng.toFixed(1)}deg) scale(1.14)`, opacity: 1, offset: 0.86 },
+          { transform: `translate(${(-cs * 14).toFixed(1)}px, ${(-sn * 14).toFixed(1)}px) rotate(${aimAng.toFixed(1)}deg) scale(1.08)`, opacity: 1, offset: 0.32 },
+          { transform: `rotate(${aimAng.toFixed(1)}deg) scale(1.07)`, opacity: 1, offset: 0.86 },
           { transform: `rotate(${aimAng.toFixed(1)}deg) scale(0.86)`, opacity: 0 }
         ], { duration: L0 + flyMs + 190, easing: "linear", fill: "forwards" }).onfinish = () => mount.remove();
         fxT(() => mount.remove(), L0 + flyMs + 250);
@@ -1342,7 +1349,7 @@
         const arcLift = isMulti ? -Math.min(105, 44 + dist * 0.26) : -Math.min(38, dist * 0.14);
         ammo.animate([
           { transform: `translate3d(0,0,0) rotate(${(angDeg - 15).toFixed(1)}deg) scale(0.55)`, opacity: 0 },
-          { transform: `translate3d(${(dx * 0.5).toFixed(1)}px, ${(dy * 0.5 + arcLift).toFixed(1)}px, 0) rotate(${angDeg.toFixed(1)}deg) scale(1.18)`, opacity: 1, offset: 0.42 },
+          { transform: `translate3d(${(dx * 0.5).toFixed(1)}px, ${(dy * 0.5 + arcLift).toFixed(1)}px, 0) rotate(${angDeg.toFixed(1)}deg) scale(1.09)`, opacity: 1, offset: 0.42 },
           { transform: `translate3d(${dx.toFixed(1)}px, ${dy.toFixed(1)}px, 0) rotate(${(angDeg + 11).toFixed(1)}deg) scale(1.06)`, opacity: 1, offset: 0.72 },
           /* Cắm ngập rung bần bật đuôi tên trên mặt thẻ! */
           { transform: `translate3d(${dx.toFixed(1)}px, ${dy.toFixed(1)}px, 0) rotate(${(angDeg + 5).toFixed(1)}deg) scale(1.02)`, opacity: 1, offset: 0.90 },
@@ -1386,7 +1393,7 @@
         g.animate([
           { transform: "perspective(650px) translate3d(0,0,0) scale(1)" },
           { transform: `perspective(650px) translate3d(${(-dx / dist * 12).toFixed(1)}px, 4px, 16px) scale(0.94)`, offset: 0.18 },
-          { transform: `perspective(650px) translate3d(${lx.toFixed(1)}px, ${ly.toFixed(1)}px, 54px) rotateZ(${(dirSign * 13)}deg) scale(1.28)`, offset: 0.56 },
+          { transform: `perspective(650px) translate3d(${lx.toFixed(1)}px, ${ly.toFixed(1)}px, 54px) rotateZ(${(dirSign * 13)}deg) scale(1.14)`, offset: 0.56 },
           { transform: "perspective(650px) translate3d(0,0,0) scale(1)" }
         ], { duration: L0 + flyMs + 225, easing: "cubic-bezier(0.22, 1, 0.36, 1)", fill: "forwards" }).onfinish = () => {
           g.remove();
@@ -1401,8 +1408,8 @@
         const blade = spawnProp(bladeKey, tp.x, tp.y, 184, 104, col, 42);
         blade.animate([
           { transform: `scaleX(${dirSign}) translate(-42px, -48px) rotate(-68deg) scale(0.68)`, opacity: 0, easing: "cubic-bezier(0.16, 1, 0.3, 1)" },
-          { transform: `scaleX(${dirSign}) translate(-12px, -14px) rotate(-28deg) scale(1.30)`, opacity: 1, offset: 0.22 },
-          { transform: `scaleX(${dirSign}) translate(22px, 26px) rotate(38deg) scale(1.24)`, opacity: 1, offset: 0.80 },
+          { transform: `scaleX(${dirSign}) translate(-12px, -14px) rotate(-28deg) scale(1.15)`, opacity: 1, offset: 0.22 },
+          { transform: `scaleX(${dirSign}) translate(22px, 26px) rotate(38deg) scale(1.12)`, opacity: 1, offset: 0.80 },
           { transform: `scaleX(${dirSign}) translate(36px, 40px) rotate(56deg) scale(0.95)`, opacity: 0 }
         ], { duration: 380, easing: "linear", fill: "forwards" }).onfinish = () => blade.remove();
         fxT(() => blade.remove(), 430);
@@ -1433,7 +1440,7 @@
       if (isFirstInGrp && srcEl) {
         srcEl.animate([
           { transform: "scale(1)" },
-          { transform: "perspective(600px) translate3d(0, -16px, 42px) scale(1.28)", offset: 0.42 },
+          { transform: "perspective(600px) translate3d(0, -16px, 21px) scale(1.14)", offset: 0.42 },
           { transform: "scale(1)" }
         ], { duration: 440 });
       }
@@ -1444,8 +1451,8 @@
           const beast = spawnProp(pickCardSpriteKey(srcId, srcId), sp.x, sp.y, 168, 136, "#ffd65a", 42);
           beast.animate([
             { transform: `translate3d(0,0,0) scaleX(${dirSign}) scale(0.5)`, opacity: 0, easing: "cubic-bezier(0.16, 1, 0.3, 1)" },
-            { transform: `translate3d(${(dx * 0.6).toFixed(1)}px, ${(dy * 0.6 - 32).toFixed(1)}px, 0) scaleX(${dirSign}) scale(1.26)`, opacity: 1, offset: 0.45 },
-            { transform: `translate3d(${dx.toFixed(1)}px, ${dy.toFixed(1)}px, 0) scaleX(${dirSign}) scale(1.16)`, opacity: 1, offset: 0.85 },
+            { transform: `translate3d(${(dx * 0.6).toFixed(1)}px, ${(dy * 0.6 - 32).toFixed(1)}px, 0) scaleX(${dirSign}) scale(1.13)`, opacity: 1, offset: 0.45 },
+            { transform: `translate3d(${dx.toFixed(1)}px, ${dy.toFixed(1)}px, 0) scaleX(${dirSign}) scale(1.08)`, opacity: 1, offset: 0.85 },
             { transform: `translate3d(${dx.toFixed(1)}px, ${dy.toFixed(1)}px, 0) scaleX(${dirSign}) scale(1.06)`, opacity: 0 }
           ], { duration: flyMs + 60, easing: "linear", fill: "forwards" }).onfinish = () => beast.remove();
           fxT(() => beast.remove(), flyMs + 120);
@@ -1459,8 +1466,8 @@
           const claws = spawnProp(clawKey, tp.x, tp.y, 172, 160, col, 42);
           claws.animate([
             { transform: "translate(-22px, -26px) scale(0.62)", opacity: 0, easing: "cubic-bezier(0.16, 1, 0.3, 1)" },
-            { transform: "translate(0px, 0px) scale(1.26)", opacity: 1, offset: 0.22 },
-            { transform: "translate(10px, 12px) scale(1.18)", opacity: 1, offset: 0.84 },
+            { transform: "translate(0px, 0px) scale(1.13)", opacity: 1, offset: 0.22 },
+            { transform: "translate(10px, 12px) scale(1.09)", opacity: 1, offset: 0.84 },
             { transform: "translate(18px, 20px) scale(1.06)", opacity: 0 }
           ], { duration: 410, easing: "linear", fill: "forwards" }).onfinish = () => claws.remove();
           fxT(() => claws.remove(), 460);
@@ -1498,7 +1505,7 @@
       if (isFirstInGrp && srcEl) {
         srcEl.animate([
           { transform: "scale(1)" },
-          { transform: "perspective(600px) translate3d(0, -14px, 38px) scale(1.26)", offset: 0.45 },
+          { transform: "perspective(600px) translate3d(0, -14px, 19px) scale(1.13)", offset: 0.45 },
           { transform: "scale(1)" }
         ], { duration: 430 });
       }
@@ -1509,10 +1516,10 @@
         const prop = spawnProp(skyKey, tp.x, tp.y - dropH, 164, 168, col, 42);
         prop.animate([
           { transform: "translateY(0px) rotate(-16deg) scale(0.62)", opacity: 0, easing: "cubic-bezier(0.16, 1, 0.3, 1)" },
-          { transform: `translateY(${(dropH * 0.28).toFixed(0)}px) rotate(-8deg) scale(1.22)`, opacity: 1, offset: 0.20, easing: "cubic-bezier(0.55, 0, 0.9, 0.5)" },
-          { transform: `translateY(${dropH}px) rotate(2deg) scale(1.22)`, opacity: 1, offset: 0.56 },
-          { transform: `translateY(${(dropH - 4)}px) rotate(0deg) scale(1.26)`, opacity: 1, offset: 0.86 },
-          { transform: `translateY(${(dropH - 8)}px) rotate(0deg) scale(1.32)`, opacity: 0 }
+          { transform: `translateY(${(dropH * 0.28).toFixed(0)}px) rotate(-8deg) scale(1.11)`, opacity: 1, offset: 0.20, easing: "cubic-bezier(0.55, 0, 0.9, 0.5)" },
+          { transform: `translateY(${dropH}px) rotate(2deg) scale(1.11)`, opacity: 1, offset: 0.56 },
+          { transform: `translateY(${(dropH - 4)}px) rotate(0deg) scale(1.13)`, opacity: 1, offset: 0.86 },
+          { transform: `translateY(${(dropH - 8)}px) rotate(0deg) scale(1.16)`, opacity: 0 }
         ], { duration: 400, easing: "linear", fill: "forwards" }).onfinish = () => prop.remove();
         fxT(() => prop.remove(), 460);
 
@@ -1546,9 +1553,9 @@
         const p = spawnProp(hexKey, sp.x, sp.y, 136, 136, col, 42);
         p.animate([
           { transform: "translate3d(0,0,0) scale(0.45)", opacity: 0, easing: "cubic-bezier(0.16, 1, 0.3, 1)" },
-          { transform: `translate3d(${(dx * 0.5).toFixed(1)}px, ${(dy * 0.5 - 36).toFixed(1)}px, 0) rotate(${(isVenom ? 180 : -12)}deg) scale(1.22)`, opacity: 1, offset: 0.45 },
-          { transform: `translate3d(${dx.toFixed(1)}px, ${dy.toFixed(1)}px, 0) scale(1.16)`, opacity: 1, offset: 0.86 },
-          { transform: `translate3d(${dx.toFixed(1)}px, ${dy.toFixed(1)}px, 0) scale(1.32)`, opacity: 0 }
+          { transform: `translate3d(${(dx * 0.5).toFixed(1)}px, ${(dy * 0.5 - 36).toFixed(1)}px, 0) rotate(${(isVenom ? 180 : -12)}deg) scale(1.11)`, opacity: 1, offset: 0.45 },
+          { transform: `translate3d(${dx.toFixed(1)}px, ${dy.toFixed(1)}px, 0) scale(1.08)`, opacity: 1, offset: 0.86 },
+          { transform: `translate3d(${dx.toFixed(1)}px, ${dy.toFixed(1)}px, 0) scale(1.16)`, opacity: 0 }
         ], { duration: flyMs + 130, easing: "linear", fill: "forwards" }).onfinish = () => p.remove();
         fxT(() => p.remove(), flyMs + 190);
       }, L0);
@@ -1581,15 +1588,15 @@
         if (isFeather) {
           p.animate([
             { transform: `translate3d(0,0,0) rotate(${angDeg.toFixed(1)}deg) scale(0.45)`, opacity: 0 },
-            { transform: `translate3d(${(dx * 0.5).toFixed(1)}px, ${(dy * 0.5 - 42).toFixed(1)}px, 0) rotate(${(angDeg + 14).toFixed(1)}deg) scale(1.22)`, opacity: 1, offset: 0.48 },
-            { transform: `translate3d(${dx.toFixed(1)}px, ${dy.toFixed(1)}px, 0) rotate(${angDeg.toFixed(1)}deg) scale(1.12)`, opacity: 1, offset: 0.86 },
+            { transform: `translate3d(${(dx * 0.5).toFixed(1)}px, ${(dy * 0.5 - 42).toFixed(1)}px, 0) rotate(${(angDeg + 14).toFixed(1)}deg) scale(1.11)`, opacity: 1, offset: 0.48 },
+            { transform: `translate3d(${dx.toFixed(1)}px, ${dy.toFixed(1)}px, 0) rotate(${angDeg.toFixed(1)}deg) scale(1.06)`, opacity: 1, offset: 0.86 },
             { transform: `translate3d(${dx.toFixed(1)}px, ${dy.toFixed(1)}px, 0) rotate(${angDeg.toFixed(1)}deg) scale(1.0)`, opacity: 0 }
           ], { duration: flyMs + 120, easing: "linear", fill: "forwards" }).onfinish = () => p.remove();
         } else {
           p.animate([
             { transform: "perspective(520px) rotateY(-82deg) scale(0.5)", opacity: 0, easing: "cubic-bezier(0.16, 1, 0.3, 1)" },
-            { transform: "perspective(520px) rotateY(0deg) scale(1.24)", opacity: 1, offset: 0.26 },
-            { transform: "perspective(520px) rotateY(14deg) scale(1.16)", opacity: 1, offset: 0.84 },
+            { transform: "perspective(520px) rotateY(0deg) scale(1.12)", opacity: 1, offset: 0.26 },
+            { transform: "perspective(520px) rotateY(14deg) scale(1.08)", opacity: 1, offset: 0.84 },
             { transform: "perspective(520px) rotateY(75deg) scale(0.75)", opacity: 0 }
           ], { duration: 480, easing: "linear", fill: "forwards" }).onfinish = () => p.remove();
         }
@@ -1616,10 +1623,10 @@
       const p = spawnProp(propKey, sp.x, sp.y, isForge ? 164 : 140, isForge ? 152 : 140, col, 42);
       p.animate([
         { transform: `translate3d(0,0,0) rotate(${(isForge ? 44 : 0)}deg) scale(0.50)`, opacity: 0, easing: "cubic-bezier(0.16, 1, 0.3, 1)" },
-        { transform: `translate3d(${(dx * 0.5).toFixed(1)}px, ${(dy * 0.5 - 52).toFixed(1)}px, 0) rotate(${(isForge ? 32 : 12)}deg) scale(1.28)`, opacity: 1, offset: 0.38, easing: "cubic-bezier(0.55, 0, 0.9, 0.5)" },
-        { transform: `translate3d(${dx.toFixed(1)}px, ${(dy - 8).toFixed(1)}px, 0) rotate(${(isForge ? -14 : 0)}deg) scale(1.22)`, opacity: 1, offset: 0.66 },
-        { transform: `translate3d(${dx.toFixed(1)}px, ${(dy - 6).toFixed(1)}px, 0) rotate(${(isForge ? -10 : 0)}deg) scale(1.26)`, opacity: 1, offset: 0.88 },
-        { transform: `translate3d(${dx.toFixed(1)}px, ${dy.toFixed(1)}px, 0) scale(1.32)`, opacity: 0 }
+        { transform: `translate3d(${(dx * 0.5).toFixed(1)}px, ${(dy * 0.5 - 52).toFixed(1)}px, 0) rotate(${(isForge ? 32 : 12)}deg) scale(1.14)`, opacity: 1, offset: 0.38, easing: "cubic-bezier(0.55, 0, 0.9, 0.5)" },
+        { transform: `translate3d(${dx.toFixed(1)}px, ${(dy - 8).toFixed(1)}px, 0) rotate(${(isForge ? -14 : 0)}deg) scale(1.11)`, opacity: 1, offset: 0.66 },
+        { transform: `translate3d(${dx.toFixed(1)}px, ${(dy - 6).toFixed(1)}px, 0) rotate(${(isForge ? -10 : 0)}deg) scale(1.13)`, opacity: 1, offset: 0.88 },
+        { transform: `translate3d(${dx.toFixed(1)}px, ${dy.toFixed(1)}px, 0) scale(1.16)`, opacity: 0 }
       ], { duration: flyMs + 160, easing: "linear", fill: "forwards" }).onfinish = () => p.remove();
       fxT(() => p.remove(), flyMs + 220);
     }, L0);
@@ -1648,30 +1655,30 @@
       /* Bạch Tuộc Tinh (batty) phóng 2 xúc tu tranh vẽ uốn lượn lôi thẻ từ tay đối thủ xuống bàn */
       if (s.k === "summon" && srcId === "batty") {
         try { if (typeof dimStep12 === "function") dimStep12(s); } catch (e) {}
-        if (typeof holdFx === "function") holdFx(1420);
+        if (typeof holdFx === "function") holdFx(860);
         const foeHand = (typeof HANDZ === "function" && HANDZ(srcInst.side === "p" ? "a" : "p")) || { x: window.innerWidth * 0.72, y: 36 };
         SFX.play("tentacle");
-        runPhysicalTether({ kind: "tentacle", srcId: "batty", src: s.sp, from: foeHand, to: s.tp, extendMs: 340, holdMs: 180, pullMs: 700 });
+        runPhysicalTether({ kind: "tentacle", srcId: "batty", src: s.sp, from: foeHand, to: s.tp, extendMs: 200, holdMs: 90, pullMs: 420 });
         fxT(() => {
           hit8(s);
           spawnPaintedBurst("no_toi", s.tp.x, s.tp.y, 162, "#d580ff", 460);
           spawnPaintedBurst("song_xung", s.tp.x, s.tp.y, 170, "#d580ff", 440);
           if (window.pushOppNotif) pushOppNotif("Bạch Tuộc Tinh ▸ Lôi thẻ xuống sân", "#e09eff");
-        }, 1150);
+        }, 700);
         return;
       }
 
       /* Lôi Đài Chủ (giacdausi) quăng dây móc đồng Đông Sơn kéo thẻ từ bộ bài địch xuống sàn */
       if (s.k === "summon" && srcId === "giacdausi") {
         try { if (typeof dimStep12 === "function") dimStep12(s); } catch (e) {}
-        if (typeof holdFx === "function") holdFx(1380);
+        if (typeof holdFx === "function") holdFx(840);
         const foeDeck = (typeof DECKZ === "function" && DECKZ(srcInst.side === "p" ? "a" : "p")) || { x: window.innerWidth * 0.75, y: 36 };
         SFX.play("chain");
-        runPhysicalTether({ kind: "hook", srcId: "giacdausi", src: s.sp, from: foeDeck, to: s.tp, extendMs: 320, holdMs: 165, pullMs: 680 });
+        runPhysicalTether({ kind: "hook", srcId: "giacdausi", src: s.sp, from: foeDeck, to: s.tp, extendMs: 190, holdMs: 80, pullMs: 400 });
         fxT(() => {
           hit8(s);
           if (window.pushOppNotif) pushOppNotif("Lôi Đài Chủ ▸ Lôi thẻ xuống sân", "#ffb84d");
-        }, 1100);
+        }, 670);
         return;
       }
 
@@ -1722,14 +1729,14 @@
             if (typeof window.playV16 === "function") window.playV16("sao_chep", s.tp.x, s.tp.y, 132, 540, 0);
             const mir = document.createElement("div");
             mir.className = "choreo-mirror-fx";
-            mir.style.cssText = `left:${s.tp.x}px;top:${s.tp.y}px;width:136px;height:136px;--gc:#8cf4ff`;
+            mir.style.cssText = `left:${s.tp.x}px;top:${s.tp.y}px;width:${Math.min(136, cwB() * 1.4).toFixed(0)}px;height:${Math.min(136, cwB() * 1.4).toFixed(0)}px;--gc:#8cf4ff`;
             mir.innerHTML = spriteHtml("guong", 640, 0, 15);
             document.body.appendChild(mir);
             if (typeof window.v16Activate === "function") window.v16Activate(mir);
             mir.animate([
               { transform: "translate(-50%,-50%) scale(0.35) rotate(-25deg)", opacity: 0 },
-              { transform: "translate(-50%,-50%) scale(1.15) rotate(0deg)", opacity: 1, offset: 0.35 },
-              { transform: "translate(-50%,-50%) scale(1.25) rotate(12deg)", opacity: 0 }
+              { transform: "translate(-50%,-50%) scale(1.07) rotate(0deg)", opacity: 1, offset: 0.35 },
+              { transform: "translate(-50%,-50%) scale(1.12) rotate(12deg)", opacity: 0 }
             ], { duration: 680, easing: "ease-out", fill: "forwards" }).onfinish = () => mir.remove();
             fxT(() => mir.remove(), 760);
 
@@ -1739,9 +1746,9 @@
               soul.style.zIndex = "38";
               const rdx = cur.x - s.tp.x, rdy = cur.y - s.tp.y;
               soul.animate([
-                { transform: "perspective(650px) translate3d(0, 0, 10px) scale(0.85)", opacity: 0.9 },
-                { transform: "perspective(650px) translate3d(0, -18px, 42px) scale(1.24)", opacity: 1, offset: 0.32 },
-                { transform: `perspective(650px) translate3d(${(rdx * 0.55).toFixed(1)}px, ${(rdy * 0.55 - 32).toFixed(1)}px, 48px) scale(1.16)`, opacity: 1, offset: 0.68 },
+                { transform: "perspective(650px) translate3d(0, 0, 5px) scale(0.85)", opacity: 0.9 },
+                { transform: "perspective(650px) translate3d(0, -18px, 21px) scale(1.12)", opacity: 1, offset: 0.32 },
+                { transform: `perspective(650px) translate3d(${(rdx * 0.55).toFixed(1)}px, ${(rdy * 0.55 - 32).toFixed(1)}px, 48px) scale(1.08)`, opacity: 1, offset: 0.68 },
                 { transform: `perspective(650px) translate3d(${rdx.toFixed(1)}px, ${rdy.toFixed(1)}px, 0) scale(0.75)`, opacity: 0.2 }
               ], { duration: 720, easing: "cubic-bezier(0.22, 1, 0.36, 1)", fill: "forwards" }).onfinish = () => soul.remove();
               fxT(() => soul.remove(), 800);
@@ -1792,8 +1799,8 @@
         }
         if (!sid || !sp || !tp) return;
         const st = resolveStyle(sid, "kill");
-        const stDelay = idx * 860;
-        if (typeof holdFx === "function") holdFx(stDelay + 880);
+        const stDelay = idx * 560;
+        if (typeof holdFx === "function") holdFx(stDelay + 560);
         fxT(() => {
           const gDisc = tp.html ? ghost({ x: tp.x, y: tp.y, w: tp.w || 50, h: tp.h || 70 }, tp.html, "g9") : null;
           if (gDisc) gDisc.style.zIndex = "34";
@@ -1831,11 +1838,11 @@
           const fromBox = (typeof DECKZ === "function" && DECKZ(st.fromSide)) || { x: window.innerWidth * 0.74, y: 34 };
           const toBox = st.toSide === "p" ? ((typeof zpt === "function" && zpt("hand")) || { x: window.innerWidth * 0.5, y: window.innerHeight - 90 }) : fromBox;
           const k = getPullKind(sid);
-          const stDelay = idx * 900;
-          if (typeof holdFx === "function") holdFx(stDelay + 880);
+          const stDelay = idx * 580;
+          if (typeof holdFx === "function") holdFx(stDelay + 560);
           fxT(() => {
             SFX.play(k === "banyan" ? "e_moc" : "chain");
-            runPhysicalTether({ kind: k, srcId: sid, src: sp, from: fromBox, to: toBox, extendMs: 240, holdMs: 110, pullMs: 500 });
+            runPhysicalTether({ kind: k, srcId: sid, src: sp, from: fromBox, to: toBox, extendMs: 150, holdMs: 60, pullMs: 320 });
           }, stDelay);
         });
       }
@@ -1857,8 +1864,8 @@
         const html = pub
           ? ((dstDom && typeof cleanCloneHTML === "function" && cleanCloneHTML(dstDom)) || (srcDom && typeof cleanCloneHTML === "function" && cleanCloneHTML(srcDom)) || (typeof liteId === "function" ? liteId(c.id) : ""))
           : (typeof BACK7 === "function" ? BACK7() : "");
-        const stDelay = idx * 880;
-        const mirMs = 240, showMs = 190, flyMs = 420;
+        const stDelay = idx * 560;
+        const mirMs = 170, showMs = 120, flyMs = 300;
         if (typeof holdFx === "function") holdFx(stDelay + mirMs + showMs + flyMs + 60);
         if (dstDom) dstDom.style.opacity = "0";
 
@@ -1867,15 +1874,15 @@
           if (typeof window.playV16 === "function") window.playV16("sao_chep", fp.x, fp.y, 136, 540, 0);
           const mir = document.createElement("div");
           mir.className = "choreo-mirror-fx";
-          mir.style.cssText = `left:${fp.x}px;top:${fp.y}px;width:146px;height:146px;--gc:#7fe8ff`;
+          mir.style.cssText = `left:${fp.x}px;top:${fp.y}px;width:${Math.min(146, cwB() * 1.4).toFixed(0)}px;height:${Math.min(146, cwB() * 1.4).toFixed(0)}px;--gc:#7fe8ff`;
           mir.innerHTML = `<img src="img/v/v_an_mat.webp?v=gpu19" alt="">` + spriteHtml("guong", mirMs + showMs + 100, 0, 15);
           document.body.appendChild(mir);
           if (typeof window.v16Activate === "function") window.v16Activate(mir);
           mir.animate([
             { transform: "translate(-50%,-50%) scale(0.28) rotate(-35deg)", opacity: 0 },
-            { transform: "translate(-50%,-50%) scale(1.18) rotate(0deg)", opacity: 1, offset: 0.36 },
+            { transform: "translate(-50%,-50%) scale(1.09) rotate(0deg)", opacity: 1, offset: 0.36 },
             { transform: "translate(-50%,-50%) scale(1.08) rotate(8deg)", opacity: 0.92, offset: 0.72 },
-            { transform: "translate(-50%,-50%) scale(1.34) rotate(22deg)", opacity: 0 }
+            { transform: "translate(-50%,-50%) scale(1.17) rotate(22deg)", opacity: 0 }
           ], { duration: mirMs + showMs + 120, easing: "cubic-bezier(0.22, 1, 0.36, 1)", fill: "forwards" }).onfinish = () => mir.remove();
           fxT(() => mir.remove(), mirMs + showMs + 180);
 
@@ -1887,11 +1894,11 @@
           const scEnd = clamp((tp.w || w0) / w0, 0.65, 1.25);
 
           const animTwin = twin.animate([
-            { transform: "perspective(680px) translate3d(0, 0, 10px) scale(0.65)", opacity: 0, filter: "brightness(2.2)" },
-            { transform: `perspective(680px) translate3d(${splitX}px, -20px, 44px) rotateY(-12deg) scale(1.24)`, opacity: 1, filter: "brightness(1.25)", offset: 0.26 },
-            { transform: `perspective(680px) translate3d(${splitX}px, -22px, 48px) rotateY(0deg) scale(1.24)`, opacity: 1, filter: "brightness(1.05)", offset: 0.50 },
-            { transform: `perspective(680px) translate3d(${(dx * 0.56).toFixed(1)}px, ${(dy * 0.56 - 38).toFixed(1)}px, 42px) rotateZ(${(dx >= 0 ? 8 : -8)}deg) scale(1.16)`, opacity: 1, filter: "none", offset: 0.78 },
-            { transform: `perspective(680px) translate3d(${dx.toFixed(1)}px, ${dy.toFixed(1)}px, 0) scale(${scEnd.toFixed(2)})`, opacity: 1, filter: "none" }
+            { transform: "perspective(680px) translate3d(0, 0, 5px) scale(0.65)", opacity: 0 },
+            { transform: `perspective(680px) translate3d(${splitX}px, -20px, 22px) rotateY(-12deg) scale(1.12)`, opacity: 1, offset: 0.26 },
+            { transform: `perspective(680px) translate3d(${splitX}px, -22px, 24px) rotateY(0deg) scale(1.12)`, opacity: 1, offset: 0.50 },
+            { transform: `perspective(680px) translate3d(${(dx * 0.56).toFixed(1)}px, ${(dy * 0.56 - 38).toFixed(1)}px, 42px) rotateZ(${(dx >= 0 ? 8 : -8)}deg) scale(1.08)`, opacity: 1, offset: 0.78 },
+            { transform: `perspective(680px) translate3d(${dx.toFixed(1)}px, ${dy.toFixed(1)}px, 0) scale(${scEnd.toFixed(2)})`, opacity: 1 }
           ], { duration: mirMs + showMs + flyMs, easing: "cubic-bezier(0.22, 1, 0.36, 1)", fill: "forwards" });
 
           let doneCl = false;
@@ -1902,8 +1909,8 @@
             if (dstDom && dstDom.isConnected) {
               dstDom.style.opacity = "";
               dstDom.animate([
-                { transform: "scale(1.18)", filter: "brightness(1.5)" },
-                { transform: "scale(1)", filter: "none" }
+                { transform: "scale(1.09)" },
+                { transform: "scale(1)" }
               ], { duration: 240, easing: "ease-out" });
             }
             spawnPaintedBurst("song_xung", tp.x, tp.y, 138, "#7fe8ff", 340);
@@ -1927,7 +1934,7 @@
         if (!tp || !dom) return;
         const c = anyC(e.uid);
         const col = c && C[c.id] ? (HC[C[c.id].h] || "#86ff8a") : "#86ff8a";
-        const stDelay = idx * 620;
+        const stDelay = idx * 440;
         if (typeof holdFx === "function") holdFx(stDelay + 600);
         dom.style.opacity = "0";
         fxT(() => {
@@ -1941,9 +1948,9 @@
           if (typeof window.v16Activate === "function") window.v16Activate(gate);
           gate.animate([
             { transform: "translate(-50%,-50%) scale(0.25) rotate(-90deg)", opacity: 0 },
-            { transform: "translate(-50%,-50%) scale(1.14) rotate(25deg)", opacity: 1, offset: 0.30 },
+            { transform: "translate(-50%,-50%) scale(1.07) rotate(25deg)", opacity: 1, offset: 0.30 },
             { transform: "translate(-50%,-50%) scale(1.04) rotate(120deg)", opacity: 0.85, offset: 0.72 },
-            { transform: "translate(-50%,-50%) scale(1.32) rotate(210deg)", opacity: 0 }
+            { transform: "translate(-50%,-50%) scale(1.16) rotate(210deg)", opacity: 0 }
           ], { duration: 540, easing: "cubic-bezier(0.22, 1, 0.36, 1)", fill: "forwards" }).onfinish = () => gate.remove();
           fxT(() => gate.remove(), 580);
 
@@ -1952,7 +1959,7 @@
             dom.style.opacity = "";
             dom.animate([
               { opacity: 0, transform: "perspective(650px) translate3d(0, 24px, -30px) rotateX(32deg) scale(0.42)" },
-              { opacity: 1, transform: "perspective(650px) translate3d(0, -8px, 24px) rotateX(-6deg) scale(1.15)", offset: 0.56 },
+              { opacity: 1, transform: "perspective(650px) translate3d(0, -8px, 12px) rotateX(-6deg) scale(1.07)", offset: 0.56 },
               { opacity: 1, transform: "perspective(650px) translate3d(0, 0, 0) scale(1)" }
             ], { duration: 360, easing: "cubic-bezier(0.22, 1, 0.36, 1)" });
             spawnPaintedBurst("song_xung", tp.x, tp.y, 136, col, 320);
@@ -2042,8 +2049,8 @@
             const hm = spawnProp("bua_ren", sp.x + 14, sp.y - 24, 138, 128, "#ffd65a", 40);
             hm.animate([
               { transform: "rotate(38deg) scale(0.6)", opacity: 0 },
-              { transform: "rotate(46deg) scale(1.18)", opacity: 1, offset: 0.3 },
-              { transform: "translate(-12px, 20px) rotate(-6deg) scale(1.22)", opacity: 1, offset: 0.62 },
+              { transform: "rotate(46deg) scale(1.09)", opacity: 1, offset: 0.3 },
+              { transform: "translate(-12px, 20px) rotate(-6deg) scale(1.11)", opacity: 1, offset: 0.62 },
               { transform: "translate(-8px, 16px) rotate(-2deg) scale(1.0)", opacity: 0 }
             ], { duration: 400, easing: "ease-out", fill: "forwards" }).onfinish = () => hm.remove();
             fxT(() => hm.remove(), 460);
@@ -2056,7 +2063,7 @@
             const cn = spawnProp("phao_tre", sp.x, sp.y - 8, 154, 68, "#ff7a2b", 40);
             cn.animate([
               { transform: "rotate(-28deg) scale(0.5)", opacity: 0 },
-              { transform: "rotate(-35deg) scale(1.18)", opacity: 1, offset: 0.35 },
+              { transform: "rotate(-35deg) scale(1.09)", opacity: 1, offset: 0.35 },
               { transform: "translate(-8px, 8px) rotate(-25deg) scale(1.08)", opacity: 1, offset: 0.65 },
               { transform: "rotate(-25deg) scale(0.8)", opacity: 0 }
             ], { duration: 420, fill: "forwards" }).onfinish = () => cn.remove();
@@ -2069,7 +2076,7 @@
             const bw = spawnProp("cung_doc", sp.x, sp.y, 128, 146, "#ffd65a", 40);
             bw.animate([
               { transform: "rotate(-90deg) scale(0.5)", opacity: 0 },
-              { transform: "rotate(-90deg) scale(1.18)", opacity: 1, offset: 0.45 },
+              { transform: "rotate(-90deg) scale(1.09)", opacity: 1, offset: 0.45 },
               { transform: "rotate(-90deg) scale(0.85)", opacity: 0 }
             ], { duration: 400, fill: "forwards" }).onfinish = () => bw.remove();
             fxT(() => bw.remove(), 460);
