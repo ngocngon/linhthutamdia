@@ -118,6 +118,68 @@ try {
   if (!chk.dn || chk.dn[1] !== "a" || !chk.dn[2]) throw new Error("Bát Tý không kéo thẻ đối thủ về phía họ");
   if (!chk.so2 || !chk.so2[1]) throw new Error("Ma Tốc không hồi sinh");
   if (!chk.top || !chk.top[1]) throw new Error("Pháo Hoa Nữ không đưa thẻ bộ bài vào");
+
+  /* (a) Hồi sinh: Phượng Hoả ở chiến địa ĐẦY + Vô Thường được Quan Thượng Thư tạo ra -> thẻ hồi sinh lên bàn, có diễn "revive" */
+  step("hồi sinh: Phượng Hoả (chiến địa đầy) + Vô Thường (thẻ được tạo ra) trên giao diện");
+  await page.waitForFunction(() => G.phase === "play", null, { timeout: 30000 });
+  await page.evaluate(() => { window.__fxk = []; if (!window.__fxw) { window.__fxw = 1; const o = window.playFx; window.playFx = function (evs) { try { for (const e of evs || []) window.__fxk.push(e.k + ":" + e.uid); } catch (x) { } return o.apply(this, arguments); }; } });
+  const rv = await page.evaluate(() => {
+    const mk = (s, id) => E.mk(G, id, s), put = (s, id, li) => { const c = mk(s, id); c.rev = true; c.turn = 1; c.played = true; G.locs[li].cards[s].push(c); return c; };
+    for (const s of ["p", "a"]) { G.hand[s] = []; for (const L of G.locs) L.cards[s] = []; G.disc[s] = []; G.dead[s] = []; }
+    G.locs.forEach(L => { L.rvl = true; L.id = "meadow"; }); G.energy.p = 30; G.energy.a = 0;
+    const dead = ["thachquai", "chanthu", "docnhan"].map(id => { const c = put("p", id, 2); E.destroy(G, c, 2); return c; });
+    for (let k = 0; k < 3; k++) put("p", "ongnu", 0);
+    const ph = mk("p", "phuonghoa"), vt = mk("p", "tuthanmienvien"); vt.cr = true; vt.by = "dacvutruong";
+    G.hand.p.push(ph, vt);
+    const okq = [E.queuePlay(G, "p", ph.uid, 0), E.queuePlay(G, "p", vt.uid, 1)]; render();
+    return { turn0: G.turn, okq, dead: dead.map(c => c.uid), ph: ph.uid, nDead: G.dead.p.length };
+  });
+  if (rv.okq.some(x => !x) || rv.nDead !== 3) throw new Error("không dàn được cảnh hồi sinh: " + JSON.stringify(rv));
+  await page.evaluate(() => document.getElementById("btnEnd").click());
+  await page.waitForFunction(t => G.phase === "over" || (G.phase === "play" && G.turn > t), rv.turn0, { timeout: 120000 });
+  await page.waitForTimeout(1200); await shot("09-hoi-sinh");
+  const rvc = await page.evaluate(u => ({
+    on: u.dead.map(x => { const f = E.find(G, x); const el = document.querySelector(`#board [data-mc="${x}"]`); return f ? [f.li, f.inst.rev, !!el && getComputedStyle(el).opacity !== "0"] : null; }),
+    ph: !!E.find(G, u.ph), dead: G.dead.p.length, fx: window.__fxk.filter(k => k.startsWith("revive:")),
+  }), rv);
+  console.log("  kết quả: " + JSON.stringify(rvc));
+  if (rvc.on.some(x => !x || !x[1] || !x[2])) throw new Error("thẻ bị tiêu huỷ không được hồi sinh lên bàn / không hiện");
+  if (rvc.ph) throw new Error("Phượng Hoả phải hợp thể (rời bàn)");
+  if (rvc.dead !== 0) throw new Error("đống tiêu huỷ phải trống");
+  for (const x of rv.dead) if (!rvc.fx.includes("revive:" + x)) throw new Error("thiếu diễn hoạt hồi sinh cho uid " + x);
+
+  /* (b) Hoàn tác theo ngăn xếp: đặt 3 thẻ, kéo thẻ 1 -> bị chặn; chạm rút 3, 2, 1 lần lượt -> được */
+  step("hoàn tác theo ngăn xếp: đặt 3 thẻ, kéo thẻ đầu bị chặn, rút 3-2-1");
+  await page.waitForFunction(() => G.phase === "play", null, { timeout: 30000 });
+  const ud = await page.evaluate(() => {
+    for (const L of G.locs) { L.cards.p = []; L.cards.a = []; L.id = "meadow"; L.rvl = true; }
+    G.q.p = []; G.hand.p = []; G.energy.p = 10;
+    const cs = ["taymaynu", "chanthu", "docnhan"].map(id => { const c = E.mk(G, id, "p"); G.hand.p.push(c); return c; });
+    const okq = cs.map((c, i) => E.queuePlay(G, "p", c.uid, i)); render();
+    return { okq, u: cs.map(c => c.uid) };
+  });
+  if (ud.okq.some(x => !x)) throw new Error("không đặt được 3 thẻ: " + JSON.stringify(ud.okq));
+  await page.waitForTimeout(700);
+  const qst = () => page.evaluate(() => ({ q: G.q.p.map(a => a.uid), hand: G.hand.p.map(c => c.uid), lock: G.q.p.map(a => { const e = document.querySelector(`#board [data-mc="${a.uid}"]`); return e ? e.classList.contains("qlock") : null; }), undo: !document.getElementById("btnUndo").hidden, toast: (document.getElementById("toastX") || {}).textContent || "" }));
+  let s0 = await qst();
+  if (JSON.stringify(s0.lock) !== "[true,true,false]") throw new Error("thẻ đặt trước phải có dấu khoá, thẻ cuối thì không: " + JSON.stringify(s0.lock));
+  if (!s0.undo) throw new Error("thiếu nút Hoàn tác khi có hành động");
+  const b1 = await page.locator(`#board [data-mc="${ud.u[0]}"]`).boundingBox();
+  await page.mouse.move(b1.x + b1.width / 2, b1.y + b1.height / 2); await page.mouse.down();
+  await page.mouse.move(b1.x + b1.width / 2 + 30, b1.y + b1.height / 2 + 80, { steps: 6 }); await page.mouse.up(); await page.waitForTimeout(250);
+  let s1 = await qst();
+  if (s1.q.length !== 3 || !/Rút lại thẻ đặt sau trước/.test(s1.toast)) throw new Error("kéo thẻ đặt đầu tiên phải bị chặn + nhắc: " + JSON.stringify(s1));
+  await page.locator(`#board [data-mc="${ud.u[0]}"]`).click(); await page.waitForTimeout(150);
+  if ((await qst()).q.length !== 3) throw new Error("chạm thẻ đặt đầu tiên không được rút");
+  for (const k of [2, 1, 0]) {
+    await page.locator(`#board [data-mc="${ud.u[k]}"]`).click(); await page.waitForTimeout(200);
+    const s = await qst();
+    if (s.q.length !== k || !s.hand.includes(ud.u[k])) throw new Error(`rút thẻ ${k + 1} thất bại: ` + JSON.stringify(s));
+  }
+  const s2 = await qst(); if (s2.undo) throw new Error("hết hành động thì ẩn nút Hoàn tác");
+  if (await page.evaluate(() => G.energy.p) !== 10) throw new Error("năng lượng không trả đủ");
+  await shot("10-hoan-tac");
+  console.log("  hoàn tác: OK");
 } catch (e) { failed = true; console.error("THẤT BẠI: " + e.message); await shot("99-failure"); }
 await browser.close(); server.close();
 const uniq = [...new Set(errors)];

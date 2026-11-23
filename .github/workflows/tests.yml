@@ -20,6 +20,10 @@ jobs:
       - run: node tests/engine-sim.mjs
       - name: Luật kéo thẻ xuống chiến địa
         run: node tests/rules-pulled.mjs
+      - name: Hồi sinh / trả về từ đống thẻ bị tiêu huỷ & vứt bỏ
+        run: node tests/rules-revive.mjs
+      - name: Hoàn tác trong lượt theo ngăn xếp
+        run: node tests/rules-undo.mjs
 
   ui-smoke:
     runs-on: ubuntu-latest
