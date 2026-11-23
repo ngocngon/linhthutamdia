@@ -1,0 +1,57 @@
+/* Module 12 (CSS): dấu hiệu trên bàn — hiệu ứng chờ lượt sau (Lật) & hào quang Duy Trì
+   Chỉ dùng transform/opacity cho hoạt ảnh. Màu: xanh = của bạn, đỏ = của đối thủ, tím nhạt = trung lập. */
+.dhc{--t:#ffd36a;--tb:#fff2c0;position:relative;display:inline-flex;align-items:center;justify-content:center;gap:2px;box-sizing:border-box;height:14px;min-width:0;max-width:100%;margin:0;padding:0 3px 0 2px;border-radius:7px;border:1px solid var(--t);
+  background:linear-gradient(180deg,color-mix(in srgb,var(--t) 30%,#10153f),#0a0d2e);color:#fff;font:800 8.5px/1 var(--f-body,system-ui,sans-serif);letter-spacing:0;white-space:nowrap;cursor:pointer;
+  box-shadow:0 1px 3px rgba(0,0,0,.65),0 0 5px color-mix(in srgb,var(--t) 45%,transparent);-webkit-tap-highlight-color:transparent;touch-action:manipulation;text-shadow:0 1px 0 #000}
+.dhc.dme{--t:#4db0ff;--tb:#b9e0ff}.dhc.dop{--t:#ff5d7e;--tb:#ffc0cc}.dhc.dne{--t:#c4a6ff;--tb:#e6dbff}
+.dhc svg{flex:none;width:10px;height:10px;color:var(--tb);fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;pointer-events:none}
+.dhc b{font-weight:800;font-variant-numeric:tabular-nums;pointer-events:none;min-width:0}
+/* chờ lượt sau: nền ngả vàng + chấm đồng hồ cát */
+.dhc.dpd{background:linear-gradient(180deg,color-mix(in srgb,#ffd36a 26%,#141040),#0a0d2e);color:#fff3c8}
+.dhc.dpd::after{content:"";position:absolute;right:-2px;top:-2px;width:5px;height:5px;border-radius:50%;background:#ffd36a;box-shadow:0 0 0 1px #0a0d2e,0 0 5px #ffd36a}
+.dhc .dhn{position:absolute;left:-3px;top:-4px;min-width:8px;height:8px;border-radius:4px;background:#fff;color:#10153f;font:900 7px/8px var(--f-body,sans-serif);text-align:center;text-shadow:none;padding:0 1px;box-sizing:border-box;pointer-events:none}
+.dhc.dmo{padding:0 4px;font-size:9px;color:#dfe6ff;border-color:#8d97d8}
+.dhc.dmo b{letter-spacing:.02em}
+/* khung góc quanh ô chiến địa: hai bên hào quang, tối đa 2 chip mỗi cột */
+.dh-f{position:absolute;z-index:4;display:flex;width:calc(50% - 23px);gap:1px;pointer-events:none}
+.dh-f>*{pointer-events:auto}
+.dh-f.ft{top:-16px;flex-direction:column}.dh-f.fb{bottom:-16px;flex-direction:column-reverse}
+.dh-f.fl{left:2px;align-items:flex-start}.dh-f.fr{right:2px;align-items:flex-end}
+@media (min-width:400px){.dhc{height:15px;font-size:9.5px}.dhc svg{width:11px;height:11px}.dh-f.ft{top:-17px}.dh-f.fb{bottom:-17px}}
+@media (max-width:380px){.dh-f{width:calc(50% - 22px)}.dhc{padding:0 2px 0 1.5px;font-size:8px}.dhc svg{width:9px;height:9px}}
+/* hào quang nền hàng thẻ: nằm DƯỚI thẻ (nền + viền trong của chính .side), không che nghệ thuật/số */
+.lane:not(.ok):not(.okx)[data-dhp="b"] .side.me,.lane:not(.ok):not(.okx)[data-dha="b"] .side.opp{background-image:linear-gradient(180deg,rgba(70,160,255,.15),rgba(70,160,255,.05));box-shadow:inset 0 0 0 1px rgba(110,190,255,.38)}
+.lane:not(.ok):not(.okx)[data-dhp="r"] .side.me,.lane:not(.ok):not(.okx)[data-dha="r"] .side.opp{background-image:linear-gradient(180deg,rgba(255,80,110,.15),rgba(255,80,110,.05));box-shadow:inset 0 0 0 1px rgba(255,120,145,.38)}
+.lane:not(.ok):not(.okx)[data-dhp="m"] .side.me,.lane:not(.ok):not(.okx)[data-dha="m"] .side.opp{background-image:linear-gradient(135deg,rgba(70,160,255,.15),rgba(255,80,110,.15));box-shadow:inset 0 0 0 1px rgba(200,160,255,.38)}
+.lane:not(.ok):not(.okx)[data-dhp="n"] .side.me,.lane:not(.ok):not(.okx)[data-dha="n"] .side.opp{background-image:linear-gradient(180deg,rgba(196,166,255,.13),rgba(196,166,255,.04));box-shadow:inset 0 0 0 1px rgba(210,190,255,.32)}
+/* dải toàn bàn trong hàng công cụ (giữa Sảnh/Mộ và Tiếng) */
+#dhGlob{flex:1 1 0;min-width:0;height:20px;display:flex;align-items:center;justify-content:center;gap:3px;overflow:visible}
+#dhGlob .dhc{height:18px;border-radius:9px;padding:0 5px 0 3px;font-size:9.5px;gap:3px}
+#dhGlob .dhc svg{width:12px;height:12px}
+#dhGlob .dhc.dpd::after{right:-1px;top:-2px}
+@media (max-width:380px){#dhGlob{gap:2px}#dhGlob .dhc{padding:0 4px 0 2.5px;font-size:9px}}
+/* vào/ra */
+.dhc.dnw{animation:dhIn .28s cubic-bezier(.2,1.5,.4,1) both}
+.dhc.dpd::after{animation:dhBlink 1.8s ease-in-out infinite}
+@keyframes dhIn{from{opacity:0;transform:scale(.4)}to{opacity:1;transform:scale(1)}}
+@keyframes dhBlink{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.45;transform:scale(.7)}}
+body.dh-lo .dhc.dpd::after,body.rm .dhc.dpd::after,body.rm .dhc.dnw,body.dh-lo .dhc.dnw{animation:none}
+.dhc.dh-ghost{position:fixed;z-index:60;margin:0;pointer-events:none;transform-origin:50% 50%}
+/* bảng chi tiết khi chạm chip */
+#dhPop{position:fixed;z-index:32;left:50%;top:96px;transform:translateX(-50%);width:min(94vw,372px);max-height:min(62vh,420px);overflow:auto;overscroll-behavior:contain;box-sizing:border-box;padding:10px 12px 12px;border-radius:16px;
+  background:linear-gradient(180deg,#1b2160,#0b0f36);border:1.5px solid #6a78e8;box-shadow:0 14px 40px rgba(0,0,0,.7),0 0 22px rgba(90,120,255,.35);color:#eef;display:none}
+#dhPop.on{display:block}
+#dhPop h4{margin:0 22px 8px 0;font:900 13px/1.2 var(--f-display,var(--f-body,sans-serif));font-style:italic;letter-spacing:.03em;color:#ffe9a8;text-transform:uppercase}
+#dhPop .dhx{position:absolute;right:6px;top:6px;width:28px;height:28px;border-radius:50%;border:0;background:rgba(255,255,255,.1);color:#fff;font-size:14px;line-height:28px;cursor:pointer;padding:0}
+#dhPop .dit{display:grid;grid-template-columns:auto 1fr;gap:8px;padding:7px 0;border-top:1px solid rgba(160,175,255,.2)}
+#dhPop .dit:first-of-type{border-top:0}
+#dhPop .dit .dhc{height:20px;border-radius:10px;padding:0 6px 0 4px;font-size:11px;gap:3px;cursor:default;align-self:start}
+#dhPop .dit .dhc svg{width:13px;height:13px}
+#dhPop .dit .dhc.dpd::after{width:6px;height:6px}
+#dhPop .dit.hl{background:linear-gradient(90deg,rgba(255,211,106,.14),transparent);margin:0 -6px;padding-left:6px;padding-right:6px;border-radius:8px}
+#dhPop .dhd{font:800 12.5px/1.25 var(--f-body,sans-serif);color:#fff}
+#dhPop .dmt{font:600 10.5px/1.3 var(--f-body,sans-serif);color:#9fb0ff;margin-top:1px}
+#dhPop .dmt b{color:#ffd36a;font-weight:800}
+#dhPop .dtx{font:500 11px/1.35 var(--f-body,sans-serif);color:#cbd3ff;margin-top:3px}
+#dhPop .dsc{font:700 10px/1 var(--f-body,sans-serif);color:#8c98e0;text-transform:uppercase;letter-spacing:.06em;margin:8px 0 0}
+body.rm #dhPop{transition:none}
