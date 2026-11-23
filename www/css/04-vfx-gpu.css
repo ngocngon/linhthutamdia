@@ -92,8 +92,8 @@ body.rm .v16-sp {
 }
 body.rm #board .mc > .kh16,
 body.rm .fxg .mc > .kh16,
-body:has(.ov.on) #board .mc > .kh16,
-body:has(#lobby.on) #board .mc > .kh16 {
+body.ovon #board .mc > .kh16,
+body.lbon #board .mc > .kh16 {
   animation-play-state: paused !important;
 }
 
@@ -445,12 +445,12 @@ body.rm #oppNotifHost {
   font-size: 52px !important;
 }
 
-body:has(#lobby:not(.on)) #toastX {
+body:not(.lbon) #toastX {
   top: calc(var(--opp-top, 88px) + 6px) !important;
   bottom: auto !important;
   transform: translate(-50%, -14px);
 }
-body:has(#lobby:not(.on)) #toastX.on {
+body:not(.lbon) #toastX.on {
   transform: translate(-50%, 0);
 }
 
@@ -1085,8 +1085,8 @@ body.rm .choreo-afterimage {
   contain: strict;
 }
 body.rm #boardFieldVfx,
-body:has(.ov.on) #boardFieldVfx,
-body:has(#lobby.on) #boardFieldVfx {
+body.ovon #boardFieldVfx,
+body.lbon #boardFieldVfx {
   display: none !important;
 }
 .bfx-box {
@@ -1331,7 +1331,7 @@ body:has(#lobby.on) #boardFieldVfx {
 
 /* ==================== gpu20: HẠT BAY NỀN CHIẾN ĐỊA (lớp CSS nhẹ, chỉ transform/opacity) ==================== */
 #ambFx{position:fixed;inset:0;pointer-events:none;z-index:28;overflow:hidden;contain:strict}
-body.rm #ambFx,body:has(.ov.on) #ambFx,body:has(#lobby.on) #ambFx{display:none}
+body.rm #ambFx,body.ovon #ambFx,body.lbon #ambFx{display:none}
 #ambFx .amb{position:absolute;display:block;border-radius:50%;opacity:0;will-change:transform,opacity;
   background:radial-gradient(circle,rgba(255,253,240,.95) 0,rgba(255,253,240,.7) 9%,var(--c) 24%,color-mix(in srgb,var(--c) 38%,transparent) 46%,transparent 70%);
   animation:ambFly 1.4s cubic-bezier(.22,.7,.35,1) forwards}
@@ -1550,15 +1550,15 @@ body.rm .fxg.hero5 { display: none !important; }
 /* gpu35: khi sân bị che kín (đang ở sảnh) hoặc có bảng phủ (.ov) đang mở -> dừng hoạt ảnh CSS lặp phía sau
    (nền thẻ động, viền, hào quang, nền chiến địa, bụi sảnh). Hoạt ảnh WAAPI (element.animate) không bị ảnh hưởng.
    Đo: sảnh sau 1 ván còn ~51 hoạt ảnh CSS chạy ngầm (sân phía sau) -> chỉ còn hoạt ảnh của chính sảnh. */
-body:has(#lobby.on) #app *, body:has(#lobby.on) #app *::before, body:has(#lobby.on) #app *::after,
-body:has(.ov.on:not(.sheet)) #app *, body:has(.ov.on:not(.sheet)) #app *::before, body:has(.ov.on:not(.sheet)) #app *::after,
-body:has(.ov.on:not(.sheet)) #lobby *, body:has(.ov.on:not(.sheet)) #lobby *::before, body:has(.ov.on:not(.sheet)) #lobby *::after,
-body:has(#mm.on) #app *, body:has(#mm.on) #lobby * {
+body.lbon #app *, body.lbon #app *::before, body.lbon #app *::after,
+body.ovfull #app *, body.ovfull #app *::before, body.ovfull #app *::after,
+body.ovfull #lobby *, body.ovfull #lobby *::before, body.ovfull #lobby *::after,
+body.mmon #app *, body.mmon #lobby * {
   animation-play-state: paused !important;
 }
 /* bụi/đèn lồng nền sàn (#amb) và cảnh nền (#scene) nằm dưới sảnh (sảnh có nền đặc, rộng tối đa 520px) */
 @media (max-width: 540px) {
-  body:has(#lobby.on) #amb *, body:has(#lobby.on) #scene * { animation-play-state: paused !important; }
+  body.lbon #amb *, body.lbon #scene * { animation-play-state: paused !important; }
 }
 /* vệt sáng nút (sheen): chạy bằng transform thay vì "left" -> không tính lại bố cục mỗi khung hình (cùng quãng đường: -60% -> 130% bề rộng nút = 475% bề rộng vệt) */
 @keyframes sheen{0%,60%{transform:translateX(0) skewX(-20deg)}100%{transform:translateX(475%) skewX(-20deg)}}
