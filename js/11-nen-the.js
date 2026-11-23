@@ -58,7 +58,7 @@
   const KEM = new Set(["datamtri", "lucthan", "matoc", "maydotam", "mieunuot", "phiung"]); // thẻ chưa hỗ trợ nền (xem tools/tach_nen_nhan_vat.py)
   try { fetch("img/cut/_kem.json").then(r => r.json()).then(j => { for (const k in j) KEM.add(k); }).catch(() => { }); } catch (e) { }
 
-  let NS = null, cnt = 0;
+  let NS = null, cnt = 0, NBLO = false;
   function st() { // store.nen: {eq:{idThẻ:idNền}, own:{idNền:1}, all:1(bản thử mở khoá hết)}
     if (NS && NS === store.nen) return NS;
     let n = store.nen; if (!n || typeof n !== "object") n = store.nen = { eq: {}, own: {}, all: 1 };
@@ -76,13 +76,15 @@
   const nbUrl = id => NBURL[id] || (NBURL[id] = (() => { try { return new URL("img/nen/" + id + ".webp?v=1", document.baseURI).href; } catch (e) { return "img/nen/" + id + ".webp"; } })());
   function bgHTML(id) {
     const im = IMG.has(id), b = BY[id], k = im && b && (b.a || b.f); // nền động/ánh kim: giữ lớp hiệu ứng chồng lên tranh vẽ
-    return `<nb-l class="nth nth-${id}${im ? " nbi" : ""}${k ? " nbfx" : ""}" data-nth="${id}"${im ? ` style="--nbimg:url(${nbUrl(id)})"` : ""} aria-hidden="true"></nb-l><b class="nbm" aria-hidden="true"></b>`;
+    // nbfx: tranh vẽ nằm ở <i class="nbk"> (zoom/pan chậm), ::before/::after + 3 <i class="nbx"> là lớp hiệu ứng (xem css/07-nen-the.css)
+    return `<nb-l class="nth nth-${id}${im ? " nbi" : ""}${k ? " nbfx" : ""}" data-nth="${id}"${im ? ` style="--nbimg:url(${nbUrl(id)})"` : ""} aria-hidden="true">${k ? `<i class="nbk"></i><i class="nbx nbx1"></i><i class="nbx nbx2"></i><i class="nbx nbx3"></i>` : ""}</nb-l><b class="nbm" aria-hidden="true"></b>`;
   }
   /* gọi trước ${art(id)} ở mọi nơi vẽ thẻ. Không trang bị -> "" (không tốn gì) */
   function layer(k) {
     try {
       if (!NS || NS !== store.nen) st();
       if (!cnt) return "";
+      const lo = window.FXLV === 0; if (lo !== NBLO) { NBLO = lo; document.body.classList.toggle("nblow", lo); } // giảm hiệu ứng giữa trận -> nền động đứng yên
       const id = NS.eq[k]; if (!id || KEM.has(k) || !BY[id] || !owned(id)) return "";
       return bgHTML(id);
     } catch (e) { return ""; }
