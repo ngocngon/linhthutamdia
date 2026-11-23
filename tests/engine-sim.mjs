@@ -1,5 +1,8 @@
 // Mô phỏng engine: chạy nhiều ván ngẫu nhiên (có hạt giống) + ép từng thẻ vào bộ bài.
 // Chạy: node tests/engine-sim.mjs   (SIM_GAMES=500 mặc định, SIM_FORCE=3 ván/thẻ)
+// Tái hiện đúng 1 ván: SIM_SEED=<seed> [SIM_CARD=<id thẻ ép>] node tests/engine-sim.mjs  (dòng LỖI in sẵn lệnh)
+//   (aiPlan/aiWantsSnap trong engine dùng Math.random -> trong TEST thay bằng PRNG có hạt giống theo từng ván,
+//    nên cùng seed luôn cho cùng ván; game thật không bị đụng tới)
 import { createRequire } from "node:module";
 import { readFileSync, existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
@@ -37,7 +40,15 @@ function check(G) {
   return errs;
 }
 
-function play(deckP, deckA, seed) {
+const ONLY = process.env.SIM_SEED != null && process.env.SIM_SEED !== "" ? +process.env.SIM_SEED : null;
+const ONLY_CARD = process.env.SIM_CARD || null;
+const RAND0 = Math.random;
+/* Math.random có hạt giống riêng cho từng ván (khác dãy với hạt giống bộ bài) */
+function withSeededRandom(seed, fn) { Math.random = mulberry((seed ^ 0x5EED1234) >>> 0); try { return fn(); } finally { Math.random = RAND0; } }
+function fingerprint(G) { return JSON.stringify([G.turn, G.rs, G.result && G.result.winner, G.locs.map(L => [L.id, L.cards.p.map(c => c.id + ":" + c.bonus), L.cards.a.map(c => c.id + ":" + c.bonus)])]); }
+
+function play(deckP, deckA, seed) { return withSeededRandom(seed, () => play0(deckP, deckA, seed)); }
+function play0(deckP, deckA, seed) {
   const G = LT.newGame(deckP, deckA, { seed });
   const used = new Set();
   let guard = 0;
@@ -56,6 +67,7 @@ function play(deckP, deckA, seed) {
 
 const stats = { games: 0, p: 0, a: 0, draw: 0, slow: 0, slowSeed: null }, exercised = new Set(), failures = [];
 function run(label, deckP, deckA, seed, forced) {
+  if (ONLY != null && (seed !== ONLY || (ONLY_CARD && forced !== ONLY_CARD))) return;
   const t0 = performance.now();
   try {
     const { G, used } = play(deckP, deckA, seed);
@@ -69,6 +81,11 @@ function run(label, deckP, deckA, seed, forced) {
 }
 
 const t0 = Date.now();
+{ /* tự kiểm tính tái hiện: cùng seed chạy 2 lần phải ra cùng một ván */
+  const seed = 1000, r1 = mulberry(seed), dp = LT.randomDeck(r1), da = LT.randomDeck(r1);
+  const a = fingerprint(play(dp, da, seed).G), b = fingerprint(play(dp, da, seed).G);
+  if (a !== b) { console.error("LỖI: cùng seed nhưng ván khác nhau -> mô phỏng không tái hiện được"); process.exit(1); }
+}
 for (let i = 0; i < N; i++) { const seed = 1000 + i, r = mulberry(seed); run("random", LT.randomDeck(r), LT.randomDeck(r), seed); }
 const nRandom = stats.games;
 for (const id of LT.COLLECT) {
@@ -82,8 +99,9 @@ const isKnown = f => (known.cards || []).includes(f.card) || (known.messages || 
 const real = failures.filter(f => !isKnown(f)), allowed = failures.filter(isKnown);
 console.log(`Ván: ${stats.games} (ngẫu nhiên ${nRandom}, ép thẻ ${stats.games - nRandom}) | thắng p=${stats.p} a=${stats.a} hòa=${stats.draw}`);
 console.log(`Ván chậm nhất: ${stats.slow.toFixed(0)}ms (seed ${stats.slowSeed}) | thẻ đã xuất hiện trên bàn: ${LT.COLLECT.filter(x => exercised.has(x)).length}/${LT.COLLECT.length} | tổng ${((Date.now() - t0) / 1000).toFixed(1)}s`);
-const unseen = LT.COLLECT.filter(x => !exercised.has(x)); if (unseen.length) console.log("Thẻ chưa từng ra bàn (" + unseen.length + "): " + unseen.slice(0, 40).join(", "));
+if (ONLY != null) console.log("(chỉ chạy seed " + ONLY + ")");
+const unseen = ONLY != null ? [] : LT.COLLECT.filter(x => !exercised.has(x)); if (unseen.length) console.log("Thẻ chưa từng ra bàn (" + unseen.length + "): " + unseen.slice(0, 40).join(", "));
 for (const f of allowed) console.log(`[đã biết] ${f.label} seed=${f.seed}: ${f.msg}`);
-for (const f of real) console.error(`LỖI ${f.label} card=${f.card} seed=${f.seed}\n  deckP=${f.deckP.join(",")}\n  deckA=${f.deckA.join(",")}\n  ${f.msg}\n${f.stack}`);
+for (const f of real) console.error(`LỖI ${f.label} card=${f.card} seed=${f.seed}  (tái hiện: SIM_SEED=${f.seed}${f.card ? " SIM_CARD=" + f.card : ""} node tests/engine-sim.mjs)\n  deckP=${f.deckP.join(",")}\n  deckA=${f.deckA.join(",")}\n  ${f.msg}\n${f.stack}`);
 if (real.length) { console.error(`${real.length} ván lỗi`); process.exit(1); }
 console.log("OK");

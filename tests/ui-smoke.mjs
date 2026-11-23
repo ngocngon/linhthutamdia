@@ -80,6 +80,43 @@ try {
       await page.waitForTimeout(2500);
     }
   }
+
+  /* Luật kéo thẻ: thẻ được kéo/đưa vào chiến địa bằng hiệu ứng phải lật + chạy kỹ năng, giao diện diễn được (không lỗi) */
+  step("luật kéo thẻ: dàn cảnh Long Chủ / Bát Tý / Ma Tốc / Pháo Hoa Nữ rồi chạy lượt trên giao diện");
+  await page.evaluate(() => document.getElementById("btnEnd").click());
+  await page.waitForFunction(() => G.phase === "play", null, { timeout: 30000 }).catch(async () => { await click("btnEnd"); });
+  await page.waitForFunction(() => G.phase === "play", null, { timeout: 30000 });
+  await page.waitForTimeout(2000);
+  const sc = await page.evaluate(() => {
+    const mk = (s, id) => E.mk(G, id, s);
+    for (const s of ["p", "a"]) { G.hand[s] = []; for (const L of G.locs) L.cards[s] = []; G.disc[s] = []; }
+    G.locs.forEach(L => { L.rvl = true; L.id = "meadow"; });
+    G.locs[2].id = "watch";
+    G.energy.p = 30;
+    const lc = mk("p", "longchu"), so = mk("p", "soinu"), bt = mk("p", "batty"), mt = mk("p", "matoc"), ph = mk("p", "phaohoanu");
+    const dn = mk("a", "dichnu"); G.hand.a.push(dn);
+    const so2 = mk("p", "soinu"); G.disc.p.push(so2);
+    const top = mk("p", "dichnu"); G.deck.p.push(top);
+    G.hand.p.push(lc, so, bt, mt, ph);
+    const q = (c, li) => E.queuePlay(G, "p", c.uid, li);
+    const okq = [q(lc, 0), q(bt, 0), q(mt, 1), q(ph, 1)];
+    render();
+    return { okq, uids: { so: so.uid, dn: dn.uid, so2: so2.uid, top: top.uid } };
+  });
+  if (sc.okq.some(x => !x)) throw new Error("không dàn được cảnh luật kéo thẻ: " + JSON.stringify(sc.okq));
+  await page.evaluate(() => document.getElementById("btnEnd").click());
+  await page.waitForFunction(() => G.phase === "play" || G.phase === "over", null, { timeout: 120000 });
+  await page.waitForTimeout(1500); await shot("08-luat-keo-the");
+  const chk = await page.evaluate(u => {
+    const f = id => E.find(G, id);
+    const so = f(u.so), dn = f(u.dn), so2 = f(u.so2), top = f(u.top);
+    return { so: so && [so.li, so.inst.rev, so.inst.bonus], dn: dn && [dn.li, dn.inst.side, dn.inst.rev], so2: so2 && [so2.li, so2.inst.rev, so2.inst.bonus], top: top && [top.li, top.inst.rev] };
+  }, sc.uids);
+  console.log("  kết quả: " + JSON.stringify(chk));
+  if (!chk.so || !chk.so[1]) throw new Error("Sói Nữ được Long Chủ kéo không lên bàn/không lật");
+  if (!chk.dn || chk.dn[1] !== "a" || !chk.dn[2]) throw new Error("Bát Tý không kéo thẻ đối thủ về phía họ");
+  if (!chk.so2 || !chk.so2[1]) throw new Error("Ma Tốc không hồi sinh");
+  if (!chk.top || !chk.top[1]) throw new Error("Pháo Hoa Nữ không đưa thẻ bộ bài vào");
 } catch (e) { failed = true; console.error("THẤT BẠI: " + e.message); await shot("99-failure"); }
 await browser.close(); server.close();
 const uniq = [...new Set(errors)];

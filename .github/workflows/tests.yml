@@ -18,6 +18,8 @@ jobs:
         with:
           node-version: 22
       - run: node tests/engine-sim.mjs
+      - name: Luật kéo thẻ xuống chiến địa
+        run: node tests/rules-pulled.mjs
 
   ui-smoke:
     runs-on: ubuntu-latest
