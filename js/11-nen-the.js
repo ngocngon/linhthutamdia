@@ -40,7 +40,7 @@
   add("rongvang", "Rồng Vàng Mây Ngũ Sắc", "tt", 5, "Cửa hàng"); add("phuonghoang", "Phượng Hoàng Lửa", "tt", 5, "Cửa hàng"); add("daisen", "Đài Sen Hào Quang", "tt", 6, "Cửa hàng");
   // [Ánh kim] — phản chiếu theo độ nghiêng (chạm/rê, con quay)
   add("vangdat", "Vàng Dát", "ak", 3, "Cửa hàng", { f: 1 }); add("bac", "Bạc Trăng", "ak", 3, "Cửa hàng", { f: 1 }); add("cauvong", "Cầu Vồng Holo", "ak", 4, "Cửa hàng", { f: 1 });
-  // [Nền động] — chỉ chạy ở thẻ lớn
+  // [Nền động] — chạy ở mọi cỡ thẻ (thẻ nhỏ ít lớp hơn)
   add("maytroi", "Mây Trôi", "dg", 5, "Cửa hàng", { a: 1 }); add("dentroi", "Đèn Trời", "dg", 5, "Cửa hàng", { a: 1 });
   add("songnuoc", "Sóng Nước", "dg", 5, "Thẻ tháng", { a: 1 }); add("lua", "Lửa Thiêng", "dg", 6, "Cửa hàng", { a: 1 });
   // [Lễ hội] — giới hạn
@@ -76,8 +76,8 @@
   const nbUrl = id => NBURL[id] || (NBURL[id] = (() => { try { return new URL("img/nen/" + id + ".webp?v=1", document.baseURI).href; } catch (e) { return "img/nen/" + id + ".webp"; } })());
   function bgHTML(id) {
     const im = IMG.has(id), b = BY[id], k = im && b && (b.a || b.f); // nền động/ánh kim: giữ lớp hiệu ứng chồng lên tranh vẽ
-    // nbfx: tranh vẽ nằm ở <i class="nbk"> (zoom/pan chậm), ::before/::after + 3 <i class="nbx"> là lớp hiệu ứng (xem css/07-nen-the.css)
-    return `<nb-l class="nth nth-${id}${im ? " nbi" : ""}${k ? " nbfx" : ""}" data-nth="${id}"${im ? ` style="--nbimg:url(${nbUrl(id)})"` : ""} aria-hidden="true">${k ? `<i class="nbk"></i><i class="nbx nbx1"></i><i class="nbx nbx2"></i><i class="nbx nbx3"></i>` : ""}</nb-l><b class="nbm" aria-hidden="true"></b>`;
+    // nbfx: tranh vẽ nằm ở <i class="nbim"> (zoom/pan chậm), ::before/::after + 3 <i class="nbx"> là lớp hiệu ứng (xem css/07-nen-the.css)
+    return `<nb-l class="nth nth-${id}${im ? " nbi" : ""}${k ? " nbfx" : ""}" data-nth="${id}"${im ? ` style="--nbimg:url(${nbUrl(id)})"` : ""} aria-hidden="true">${k ? `<i class="nbim"></i><i class="nbx nbx1"></i><i class="nbx nbx2"></i><i class="nbx nbx3"></i>` : ""}</nb-l><b class="nbm" aria-hidden="true"></b>`;
   }
   /* gọi trước ${art(id)} ở mọi nơi vẽ thẻ. Không trang bị -> "" (không tốn gì) */
   function layer(k) {
@@ -232,7 +232,7 @@
     let h = `<button type="button" class="nbtest${s.all ? " on" : ""}" data-nbt="1" aria-pressed="${!!s.all}"><i></i><span>Bản thử: mở khoá mọi nền. Tắt để thử luồng mua bằng vàng và token.</span></button>`;
     for (const [g, gn] of GR) {
       const L = CAT.filter(b => b.g === g);
-      h += `<section class="ssec" id="ss-${g}"><div class="shh"><span class="sht"><b>${gn}</b><small>${L.length} nền${g === "mv" ? " · giới hạn theo sự kiện" : g === "dg" ? " · chuyển động ở thẻ lớn" : g === "ak" ? " · ánh kim theo độ nghiêng" : ""}</small></span></div><div class="shg">${L.map(shopItem).join("")}</div></section>`;
+      h += `<section class="ssec" id="ss-${g}"><div class="shh"><span class="sht"><b>${gn}</b><small>${L.length} nền${g === "mv" ? " · giới hạn theo sự kiện" : g === "dg" ? " · chuyển động cả trên tay và trên bàn" : g === "ak" ? " · ánh kim theo độ nghiêng" : ""}</small></span></div><div class="shg">${L.map(shopItem).join("")}</div></section>`;
     }
     return h + `<div class="shn">Chọn nền ở Sưu tập: mở thẻ, bấm tab "Nền thẻ". Mỗi thẻ có thể dùng một nền riêng.</div>`;
   }
