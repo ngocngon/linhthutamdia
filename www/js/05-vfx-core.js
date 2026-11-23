@@ -249,10 +249,15 @@ function heroUp(evA,R0,R1,P0,P1){
     if(e.k==="loc"||e.k==="locfx"){if(e.src===SRC&&e.li!=null&&pts.length<8){const pl=plate8(e.li);if(pl)pts.push(pl);}continue;}
     if(e.uid!=null)addU(e.uid);}
   for(const [u,v] of P1)if(P0.has(u)&&P0.get(u)!==v&&!ONG29.has(u))addU(u);
-  const s5=isUlt(d),S=s5?1.75:1.6,[c,c2]=ucCol(d.id),has=pts.length>0;
+  /* gpu35: cỡ nhấc tối đa ~34% bề ngang màn; giữ trong bề ngang làn của mình (không che biển chiến địa bên cạnh) và né số điểm chiến địa */
+  const s5=isUlt(d),S=Math.max(1.15,Math.min(s5?1.75:1.6,innerWidth*.34/r.w)),[c,c2]=ucCol(d.id),has=pts.length>0;
   let tx=0,ty=0;for(const p of pts){tx+=p.x/pts.length;ty+=p.y/pts.length;}
   const vx=has?tx-r.x:0,vy=has?ty-r.y:0,L=Math.hypot(vx,vy)||1,lean=has?Math.min(14,L*.12):0;
-  const hw=r.w*S/2,hh=r.h*S/2,nx=Math.min(innerWidth-hw-4,Math.max(hw+4,r.x+vx/L*lean)),ny=Math.min(innerHeight-hh-4,Math.max(hh+4,r.y+vy/L*lean-Math.max(8,r.h*.14)));
+  const hw=r.w*S/2,hh=r.h*S/2;let nx=Math.min(innerWidth-hw-4,Math.max(hw+4,r.x+vx/L*lean)),ny=Math.min(innerHeight-hh-4,Math.max(hh+4,r.y+vy/L*lean-Math.max(8,r.h*.14)));
+  try{const ln=el.closest("[data-lane]"),lr=ln&&ln.getBoundingClientRect();if(lr&&lr.width>=hw*2+2)nx=Math.min(lr.right-hw-1,Math.max(lr.left+hw+1,nx));
+    const top=f.inst.side!=="p",ob=ln?[...ln.querySelectorAll(".pw,.mx")].map(e=>e.getBoundingClientRect()).filter(q=>q.width):[];
+    for(const q of ob)if(nx+hw>q.left&&nx-hw<q.right&&ny+hh>q.top&&ny-hh<q.bottom)ny=top?Math.min(ny,q.top-hh-2):Math.max(ny,q.bottom+hh+2);
+    ny=Math.min(innerHeight-hh-4,Math.max(hh+4,ny));}catch(e){}
   const ox=nx-r.x,oy=ny-r.y,rot=has&&Math.abs(vx)>8?(vx>0?5:-5):0;
   const g=document.createElement("div");g.className="fxg hero5 "+(s5?"s5":"s4");
   g.style.cssText=`left:${(r.x-r.w/2).toFixed(1)}px;top:${(r.y-r.h/2).toFixed(1)}px;width:${r.w.toFixed(1)}px;height:${r.h.toFixed(1)}px;--c:${c};--c2:${c2}`;
@@ -272,7 +277,8 @@ function heroUp(evA,R0,R1,P0,P1){
   if(!has)fxT(()=>{FX.ring(nx,ny,c2,Math.min(56,r.w*1.2),3);FX.rise(nx,ny+hh*.5,c,10);},UP);
   holdFx(UP+380);}
 /* hạ thẻ khi mọi đòn của bước đã xong (có trần) */
-function heroSched(){const H=HERO;if(!H.uid||H.tm)return;const now=performance.now(),minEnd=H.t0+(H.up+(H.self?560:420))*SPD,cap=H.t0+2600*SPD;
+/* gpu35: trần giữ thẻ nhấc 1,0 s gốc (≈2,2 s thật ở SPD 2,0 kể cả lúc hạ) — đòn còn lại vẫn bay từ ô thẻ trên bàn */
+function heroSched(){const H=HERO;if(!H.uid||H.tm)return;const now=performance.now(),minEnd=H.t0+(H.up+(H.self?560:420))*SPD,cap=H.t0+1000*SPD;
   /* có lịch đòn (plan8) -> hạ ngay sau đòn cuối trúng; không có -> theo thời gian giữ hiệu ứng, tối đa 1,4 s gốc */
   const fx=Math.max(FX_UNTIL,now+Math.min(4800,FXHOLD)*SPD),plan=H.t8>0?H.t0+(H.t8+120)*SPD:Math.min(fx,H.t0+1400*SPD);
   const end=Math.min(cap,fx,Math.max(minEnd,plan)),DOWN=(window.FFTURN&&FFTURN.on)?100:220,at=Math.max(now,end-DOWN*SPD*.5);
@@ -322,13 +328,17 @@ let GV=null,PVQ=0,PWH=0,PWHT=0,ONG29=new Set();
 /* gpu29(c): sức mạnh đổi do Duy Trì / hào quang chiến địa / điều kiện = đổi mà bonus & bp của thẻ KHÔNG đổi (sức mạnh tính động).
    Kỹ năng Lật/Kích Hoạt/Cuối Lượt cộng/trừ thật thì luôn ghi vào bonus/bp -> vẫn có đòn bay từ thẻ nguồn. */
 function ong29(P0,P1){const S=SNX,o=new Set();if(!S||!S.bn||S.G!==G)return o;for(const [u,v] of P1){if(!P0.has(u)||P0.get(u)===v||!S.bn.has(u))continue;const c=anyC(u);if(!c)continue;if(S.bn.get(u)===c.bonus&&S.bp.get(u)===c.bp)o.add(u);}return o;}
-function pvSnap(){if(reduced||!G)return null;try{return E.clone(G);}catch(e){return null;}}
-function pvApply(){if(!PVQ)return;PVQ=0;GV=null;try{render();}catch(e){console.error(e);}}
+/* gpu35: chụp xong là GIỮ LUÔN khung trước bước (GV) — kể cả bước không lật (Kích Hoạt / Cuối Lượt): mọi lần vẽ lại xen giữa
+   (chờ tải ảnh, chạm màn hình…) vẫn ra trạng thái cũ cho tới nhịp kỹ năng; có chốt an toàn tự nhả sau 6 s */
+let PVWD=0;
+function pvSnap(){if(reduced||!G)return null;try{hold29Rel();const c=E.clone(G);GV=c;PVQ=1;clearTimeout(PVWD);PVWD=setTimeout(()=>{if(GV===c)pvApply();},6000);return c;}catch(e){return null;}}
+function pvApply(){clearTimeout(PVWD);if(!PVQ)return;PVQ=0;GV=null;try{render();}catch(e){console.error(e);}}
 /* vẽ khung trước bước; trả P0 tính trên khung đó (để số trên bàn và mốc so sánh khớp nhau) */
-function pvShow(G0,evs,R0,P0){PVQ=0;GV=null;
+function pvShow(G0,evs,R0,P0){clearTimeout(PVWD);PVQ=0;GV=null;
   if(!G0||reduced||!G0.locs){render();return P0;}
   const fl=evs.filter(flip1);let hero=false;try{hero=ultsOf(evs).length>0;}catch(e){}
-  if(!fl.length&&!hero){PVQ=1;return P0;}
+  /* bước không lật: bàn đang hiện đúng khung trước bước (GV giữ từ pvSnap) -> giữ nguyên tới nhịp kỹ năng, không vẽ lại */
+  if(!fl.length&&!hero){GV=G0;PVQ=1;return P0;}
   for(const e of fl){const f=E.find(G0,e.uid);if(!f)continue;const c=f.inst;c.rev=true;c.ab="da";c.xab=null;}
   GV=G0;PVQ=1;let P=P0;
   try{render();const g=G;G=GV;try{P=powers();}finally{G=g;}}catch(e){console.error(e);pvApply();return P0;}
@@ -354,11 +364,11 @@ function chip(fr,to,html,cb,delay){if(reduced||!fr||!to||!html||CHIPN>=5){if(cb)
   const a=g.animate([{transform:"translate(0,0) scale(1)",opacity:1},{transform:`translate(${dx*.5}px,${dy*.5+lift}px) scale(.62) rotate(${dx>0?8:-8}deg)`,opacity:1,offset:.55},{transform:`translate(${dx}px,${dy}px) scale(.34)`,opacity:.9}],{duration:420,delay:delay||0,easing:"cubic-bezier(.45,.05,.55,1)",fill:"both"});
   let done=false;const fin=()=>{if(done)return;done=true;CHIPN--;g.remove();if(cb)cb();};a.onfinish=fin;fxT(fin,(delay||0)+700);}
 function playFxCore(evs,R0,P0,part){
-  if(part!==1){PWH=performance.now()+5000;pvApply();}
+  if(part!==1){PWH=performance.now()+5000;try{hold29Start();}catch(e){console.error(e);}pvApply();}
   const evA=evs;if(part===1)evs=evs.filter(flip1);else if(part===2)evs=evs.filter(e=>!flip1(e));
   const R1=rects(),P1=powers();const snd=new Set();
   if(part!==1){try{ONG29=ong29(P0,P1);}catch(e){ONG29=new Set();}try{heroUp(evA,R0,R1,P0,P1);}catch(e){console.error(e);}}
-  if(part!==1){let t8=0;try{t8=plan8(evA,R0,R1,P0,P1);if(HERO.uid)HERO.t8=+t8||0;}catch(e){console.error(e);S8=new Set();}try{pwHold(PWL);}catch(e){}try{post9(evA);}catch(e){}}
+  if(part!==1){let t8=0;PWL=0;HIT29=0;PEND35=new Set();HOLD35={p:0,i:0};try{t8=plan8(evA,R0,R1,P0,P1);if(HERO.uid)HERO.t8=+t8||0;}catch(e){console.error(e);S8=new Set();}try{pwHold(PWL+(HOLD35.p?700:0));}catch(e){}try{hold29Info(HIT29+(HOLD35.i?700:0));}catch(e){}try{post9(evA);}catch(e){}}
   const at=uid=>R1.get(uid)||R0.get(uid);
   let imp=0,ix=0,iy=0,nDes=0;const hit=(k,x,y)=>{if(k>imp){imp=k;ix=x;iy=y;}};
   /* thẻ nguồn của bước này (thẻ vừa dùng kỹ năng) */
@@ -509,10 +519,15 @@ function cardFx(evs,R0,P0){
 function P1now(){return powers();}
 
 let PWV={};
-function tickPw(){const nv={},hold=PWH>performance.now();document.querySelectorAll("#board [data-lane]").forEach(ln=>{const li=ln.dataset.lane;ln.querySelectorAll(".pw").forEach(el=>{const k=li+(el.classList.contains("a")?"a":"p"),to=el.dataset.to!=null?+el.dataset.to:parseInt(el.textContent,10);const fr=PWV[k];
-  if(hold&&fr!=null&&!isNaN(to)&&fr!==to&&!reduced){el.dataset.to=to;el.textContent=fr;nv[k]=fr;return;}delete el.dataset.to;nv[k]=to;
-  if(fr==null||fr===to||isNaN(to)||reduced)return;el.classList.add("tick");const t0=performance.now(),D=Math.min(700,250+Math.abs(to-fr)*40);el.textContent=fr;
-  const st=t=>{const q=Math.min(1,(t-t0)/D),v=Math.round(fr+(to-fr)*(1-Math.pow(1-q,3)));if(el.isConnected)el.textContent=v;if(q<1&&el.isConnected)requestAnimationFrame(st);};requestAnimationFrame(st);});});PWV=nv;}
+function tickPw(){const nv={},hold=PWH>performance.now();document.querySelectorAll("#board [data-lane]").forEach(ln=>{const li=ln.dataset.lane;ln.querySelectorAll(".pw").forEach(el=>{
+  /* gpu35: đích thật lưu ở data-v -> lần gọi sau (khi ô không bị vẽ lại) không đọc nhầm số đang chạy dở làm đích (lỗi tổng điểm kẹt số sai/âm) */
+  const k=li+(el.classList.contains("a")?"a":"p"),to=el.dataset.to!=null?+el.dataset.to:el.dataset.v!=null?+el.dataset.v:parseInt(el.textContent,10);const fr=PWV[k];
+  if(!isNaN(to))el.dataset.v=to;
+  if(hold&&fr!=null&&!isNaN(to)&&fr!==to&&!reduced){el._tk=0;el.dataset.to=to;el.textContent=fr;nv[k]=fr;return;}delete el.dataset.to;nv[k]=to;
+  if(fr==null||fr===to||isNaN(to)||reduced){if(!isNaN(to)&&!el._tk&&el.textContent!==String(to))el.textContent=to;return;}el.classList.add("tick");const t0=performance.now(),D=Math.min(700,250+Math.abs(to-fr)*40),tk=el._tk=(el._tk|0)+1;el.textContent=fr;
+  const st=t=>{if(el._tk!==tk)return;const q=Math.max(0,Math.min(1,(t-t0)/D)),v=Math.round(fr+(to-fr)*(1-Math.pow(1-q,3)));if(el.isConnected)el.textContent=v;if(q<1&&el.isConnected)requestAnimationFrame(st);else el._tk=0;};requestAnimationFrame(st);});});PWV=nv;
+  /* gpu35: màu/viền bên dẫn + nhãn ×/± và số Bài/Tay giữ như cũ cùng lúc với tổng điểm */
+  try{if(hold&&!reduced)hold29Lanes();else hold29LanesRel();hold29Subs();}catch(e){console.error(e);}}
 function snapFx(c,txt){if(reduced)return;FXBIG=true;try{snapFx0(c,txt);}finally{FXBIG=false;}}function snapFx0(c,txt){{const sw=document.createElement("div");sw.className="sweep";document.body.appendChild(sw);fxT(()=>sw.remove(),950);const q=ctr($("btnSnap"));playV16("cuoc_x2",q.x,q.y,138,680,0);playV16("cuoc_x2",innerWidth/2,innerHeight*.42,220,780,40);FX.holo(q.x,q.y,c);FX.wave(q.x,q.y,c,110);FX.flash(c,.22);}const d=document.createElement("div");d.className="snapfx";d.style.setProperty("--c",c);d.innerHTML=`<b>${txt}</b>`;document.body.appendChild(d);fxT(()=>d.remove(),1150);FX.shake(6);}
 function endFinale(){if(reduced)return 0;let any=false;for(let i=0;i<3;i++){const ln=document.querySelector(`[data-lane="${i}"]`);if(!ln)continue;const w=E.lead(G,i);if(!w)continue;any=true;ln.classList.add(w==="p"?"won":"lost");
   const lw=ln.querySelector(".locw"),q=ctr(lw),av=$(w==="p"?"avMe":"avFoe"),t=ctr(av),c=w==="p"?"#ffd65a":"#ff6b8a";
@@ -898,15 +913,16 @@ function discardBeat(list,hMap,srcUid){
   document.body.appendChild(ov);
   const S=()=>SPD,cards=[];let done=false,out=false,tmr=0;
   const IN=220,HOLD=ff?240:lo?560:820,OUT=360;
-  const ea=ov.animate([{opacity:0},{opacity:1}],{duration:IN*S()*.8,fill:"both"});
+  /* gpu35: Element.animate đã tự nhân SPD (bản vá toàn cục) -> thời lượng hoạt ảnh dùng ms gốc, chỉ hẹn giờ setTimeout mới nhân S() */
+  const ea=ov.animate([{opacity:0},{opacity:1}],{duration:IN*.8,fill:"both"});
   show.forEach((e,i)=>{
     const k=i-(n-1)/2,x=cx0+k*gap,rot=k*(n>3?5:7),mine=e.side==="p";
     const g=ghost({x,y:cy,w:W,h:H},liteId(e.id),"fxchip dcc");g.style.zIndex="47";
     const cap=document.createElement("div");cap.className="dcw "+(mine?"me":"foe");cap.textContent=mine?"Bạn":"Đối thủ";cap.style.left=x+"px";cap.style.top=(cy+H/2+10)+"px";ov.appendChild(cap);
     let fr=mine&&hMap?hMap.get(e.uid):null;if(!fr)fr=mine?zpt("hand"):(zpt("oppSub")||zpt("avFoe"));
     const f0=fr?{dx:fr.x-x,dy:fr.y-cy,sc:Math.min(.7,(fr.w||50)/W)}:{dx:0,dy:70,sc:.5};
-    g.animate([{transform:`translate(${f0.dx}px,${f0.dy}px) scale(${f0.sc}) rotate(0deg)`,opacity:.2},{transform:`translate(0,0) scale(1.06) rotate(${rot}deg)`,opacity:1,offset:.7},{transform:`translate(0,0) scale(1) rotate(${rot}deg)`,opacity:1}],{duration:IN*S(),delay:i*40*S(),easing:"cubic-bezier(.2,.8,.3,1)",fill:"both"});
-    cap.animate([{opacity:0},{opacity:1}],{duration:IN*S(),delay:(i*40+120)*S(),fill:"both"});
+    g.animate([{transform:`translate(${f0.dx}px,${f0.dy}px) scale(${f0.sc}) rotate(0deg)`,opacity:.2},{transform:`translate(0,0) scale(1.06) rotate(${rot}deg)`,opacity:1,offset:.7},{transform:`translate(0,0) scale(1) rotate(${rot}deg)`,opacity:1}],{duration:IN,delay:i*40,easing:"cubic-bezier(.2,.8,.3,1)",fill:"both"});
+    cap.animate([{opacity:0},{opacity:1}],{duration:IN,delay:i*40+120,fill:"both"});
     cards.push({g,cap,x,rot});
   });
   if(extra>0){const ex=document.createElement("div");ex.className="dcw foe";ex.textContent="+"+extra+" thẻ nữa";ex.style.left=cx0+"px";ex.style.top=(cy+H/2+34)+"px";ov.appendChild(ex);}
@@ -915,15 +931,15 @@ function discardBeat(list,hMap,srcUid){
   const finish=()=>{if(done)return;done=true;cards.forEach(c=>{c.g.remove();c.cap.remove();});ov.remove();if(DCB&&DCB.id===id)DCB=null;};
   const fly=(quick)=>{
     if(out)return;out=true;clearTimeout(tmr);
-    const d=OUT*S()*(quick?.6:1);
+    const d=OUT*(quick?.6:1);
     ov.animate([{opacity:1},{opacity:0}],{duration:d,delay:d*.3,fill:"both"});
     cards.forEach((c,i)=>{
       const dx=pile.x-c.x,dy=pile.y-cy;
       c.cap.animate([{opacity:1},{opacity:0}],{duration:d*.3,fill:"both"});
-      const a=c.g.animate([{transform:`translate(0,0) scale(1) rotate(${c.rot}deg)`,opacity:1},{transform:`translate(${dx*.55}px,${dy*.5-30}px) scale(.55) rotate(${c.rot+10}deg)`,opacity:1,offset:.55},{transform:`translate(${dx}px,${dy}px) scale(.18) rotate(${c.rot+24}deg)`,opacity:0}],{duration:d,delay:i*50*S()*(quick?.5:1),easing:"cubic-bezier(.5,0,.8,.6)",fill:"both"});
+      const a=c.g.animate([{transform:`translate(0,0) scale(1) rotate(${c.rot}deg)`,opacity:1},{transform:`translate(${dx*.55}px,${dy*.5-30}px) scale(.55) rotate(${c.rot+10}deg)`,opacity:1,offset:.55},{transform:`translate(${dx}px,${dy}px) scale(.18) rotate(${c.rot+24}deg)`,opacity:0}],{duration:d,delay:i*50*(quick?.5:1),easing:"cubic-bezier(.5,0,.8,.6)",fill:"both"});
       a.onfinish=()=>{if(!lo&&i===cards.length-1){FX.sparks(pile.x,pile.y,"#ff9a4d",10,140);FX.glow(pile.x,pile.y,"#ff9a4d",44,.4);}try{pulse("#btnPiles",[{transform:"scale(1)"},{transform:"scale(1.25)",offset:.4},{transform:"scale(1)"}],300);}catch(x){}};
     });
-    setTimeout(finish,d+(n*50+80)*S());
+    setTimeout(finish,(d+n*50+80)*S());
   };
   const id=(DCB&&DCB.id||0)+1;
   DCB={id,skip:q=>fly(q)};
@@ -1095,9 +1111,15 @@ function plan8(evA,R0,R1,P0,P1){S8=new Set();if(reduced||!G)return 0;const X=evA
   const locs=steps.filter(s=>s.k==="loc"),rest=steps.filter(s=>s.k!=="loc");let t=0,T=0;
   const gk=s=>(s.k==="move"||s.k==="swap"||s.k==="lshield"||s.k==="top"||s.k==="ult29"||s.self29)?null:s.ong?"ong|"+s.k:(s.src>0?"u"+s.src:(s.li!=null?"L"+s.li:"x"))+"|"+(s.k==="lminus"?"lplus":s.k);
   const groups=[];for(const s of rest){const k=gk(s),g=groups[groups.length-1];if(k&&g&&g.k===k)g.s.push(s);else groups.push({k,s:[s]});}
+  /* gpu35: các đòn đơn của CÙNG một thẻ nguồn (kể cả khác loại: +1 phe mình rồi −1 phe địch) đánh dồn một chuỗi, nhịp nhanh dần
+     (240 -> 192 -> 154 -> … tối thiểu 110 ms gốc), không chờ đòn trước bay xong -> thẻ nhấc nhiều mục tiêu ≈ 1 s gốc thay vì 2–3 s */
+  const simple=s=>s.src>0&&!s.ong&&!s.self29&&!bk(s)&&!/^(move|swap|top|ult29|lshield|loc|reset)$/.test(s.k),bGap=k=>Math.max(110,Math.round(240*Math.pow(.8,k-1)));let bSrc=0,bT=0,bK=0;
   for(const g of groups){const n=g.s.length,c={x:0,y:0,top:1e9};for(const s of g.s){c.x+=s.tp.x/n;c.y+=s.tp.y/n;c.top=Math.min(c.top,s.tp.y);}
-    const stepGap=g.s[0].ong?70:n<=4?380:230;
-    g.s.forEach((s,i)=>{s.t0=t+i*stepGap;if(n>1)s.grp={n,i,c,list:g.s};T=Math.max(T,s.t0+dur(s));});t=Math.max(...g.s.map(s=>s.t0))+stg(g.s[0]);}
+    const s0=g.s[0];
+    if(simple(s0)){if(bSrc!==s0.src){bSrc=s0.src;bK=0;}
+      g.s.forEach((s,i)=>{s.t0=bK?bT+bGap(bK):t;bT=s.t0;bK++;if(n>1)s.grp={n,i,c,list:g.s};T=Math.max(T,s.t0+dur(s));});t=bT+stg(s0);continue;}
+    bSrc=0;const stepGap=s0.ong?70:n<=4?380:230;
+    g.s.forEach((s,i)=>{s.t0=t+i*stepGap;if(n>1)s.grp={n,i,c,list:g.s};T=Math.max(T,s.t0+dur(s));});t=Math.max(...g.s.map(s=>s.t0))+stg(s0);}
   t=rest.length?T+T8.GAP:0;
   for(const s of locs){s.t0=t;t+=dur(s)+T8.GAP;T=Math.max(T,s.t0+dur(s));}
   if(locs.length)T+=1200;
@@ -1704,9 +1726,10 @@ function unmask29(s){if(s.vh29){const h=s.vh29;s.vh29=null;fxT(()=>{h.style.visi
   try{if(s.k==="cost"&&s.fb){const d=s.fb,up=s.d>0;anim(d,[{transform:"none"},{transform:"scale(1.22) translateY(-6px)",offset:.4},{transform:"none"}],{duration:480,fill:"none"});
     const b=document.createElement("b");b.className="c29b"+(up?" up":"");b.textContent=(up?"+":"−")+Math.abs(s.d);d.appendChild(b);}}catch(e){}return r;};}
 /* (8) lá trên cùng bộ bài: lật ra từ bộ bài, hiện mặt đủ lâu để đọc, trúng đòn rồi chịu đúng hành động */
-const TOPT={RISE:300,HOLD:440,OUT:260,PLACE:520};
+/* gpu35: rút gọn — lá hiện ≈0,45 s gốc (≈0,9 s thật ở SPD 2,0) từ lúc lật xong tới lúc thu về; tua nhanh (FFTURN) ×0,6; chạm để bỏ qua */
+const TOPT0={RISE:200,HOLD:210,OUT:200,PLACE:420,LIFT:40,FLY:200},TOPT={};for(const k in TOPT0)Object.defineProperty(TOPT,k,{get(){return Math.round(TOPT0[k]*((window.FFTURN&&FFTURN.on)?.6:1));}});
 const TOPLB={buff:"",steal:"",set:"",cost:"",fix6:"NĂNG LƯỢNG 6 ĐẾN LƯỢT 6",exile:"TRỤC XUẤT",destroy:"TIÊU HUỶ",discard:"VỨT BỎ",place:"LÊN CHIẾN ĐỊA",peek:"LỘ THẺ TRÊN CÙNG"};
-function topHit29(s){return TOPT.RISE+(s.sp2&&!s.ns?T8.LIFT+T8.FLY:140);}
+function topHit29(s){return TOPT.RISE+(s.sp2&&!s.ns?TOPT.LIFT+TOPT.FLY:100);}
 function topDur29(s){const h=topHit29(s);return h+(s.a==="place"?TOPT.PLACE+120:TOPT.HOLD+TOPT.OUT)+(s.extra||0);}
 function topStg29(s){return s.ns?TOPT.RISE+60:s.a==="place"?topHit29(s)+TOPT.PLACE+60:topDur29(s)-TOPT.OUT+T8.GAP;}
 /* chỗ hiện thẻ: ngay dưới cụm bộ bài, xếp vào phía trong màn hình */
@@ -1718,7 +1741,7 @@ function topSteps29(evA,steps,W){TP29.clear();if(reduced)return;const tops=evA.f
   /* cùng một kỹ năng tác động cả hai bộ bài (vd Thuỷ Thân) -> diễn đồng thời ở hai cụm bộ bài */
   const gs=new Map();for(const e of tops){const k=e.a+"|"+(e.src||0);if(!gs.has(k))gs.set(k,[]);gs.get(k).push(e);}
   const out=[];for(const [,es] of gs){const e0=es[0],src=e0.src>0?e0.src:0,sp2=src?W(src):null;
-    const si={p:0,a:0},two=es.some(e=>e.side==="p")&&es.some(e=>e.side==="a");es.forEach(e=>{e.sp=topSpot29(e.side,e.n!=null?e.n:si[e.side]++,two&&e.side==="a");});
+    topLay29(es,src&&sp2?heroRect35(src,sp2):null);
     const s={k:"top",a:e0.a,side:e0.side,src,dst:e0.uid,sp:null,sp2,tp:es[0].sp,es};
     if(e0.a==="place"){for(const e of es){TP29.add(e.uid);S8.add("u"+e.uid);for(let j=steps.length-1;j>=0;j--)if(steps[j].k==="summon"&&steps[j].dst===e.uid)steps.splice(j,1);}}
     /* Thiết Thiếu Niên: đòn "chép kỹ năng" bay tới chính lá vừa lật ra, lá chờ tới lúc chép xong mới về bộ bài */
@@ -1744,22 +1767,31 @@ function runTop29(s){const c=s.a==="exile"?"#c49bff":s.a==="steal"||s.a==="destr
     const dx=(dz.x-t.x).toFixed(1),dy=(dz.y-t.y).toFixed(1),s0=Math.max(.2,(dz.w||44)/t.w).toFixed(3),R=TOPT.RISE;
     anim(bk,[{transform:`translate(${dx}px,${dy}px) scale(${s0}) rotateY(0deg)`,opacity:.3},{transform:`translate(${(dx*.4).toFixed(1)}px,${(dy*.4).toFixed(1)}px) scale(.7) rotateY(90deg)`,opacity:1}],{duration:R*.5,delay:dl,easing:"cubic-bezier(.3,.6,.4,1)",fill:"both"});
     anim(fc,[{transform:`translate(${(dx*.4).toFixed(1)}px,${(dy*.4).toFixed(1)}px) scale(.7) rotateY(-90deg)`,opacity:0},{transform:`translate(${(dx*.4).toFixed(1)}px,${(dy*.4).toFixed(1)}px) scale(.7) rotateY(-90deg)`,opacity:1,offset:.01},{transform:"translateY(-6px) scale(1.06) rotateY(0deg)",opacity:1,offset:.8},{transform:"none",opacity:1}],{duration:R*.5,delay:dl+R*.5,easing:"cubic-bezier(.2,.8,.3,1)",fill:"both"});
-    fxT(()=>bk.remove(),R*.5+dl+40);e.g=fc;s.gs.push(fc);
-    if(!e.n)cap29(fc,e.side==="p"?"THẺ TRÊN CÙNG BỘ BÀI":"BỘ BÀI ĐỐI THỦ","#fff3c4");
+    fxT(()=>bk.remove(),R*.5+dl+40);e.g=fc;s.gs.push(fc);if(e.cdx)fc.dataset.cdx=e.cdx;
+    if(e.cap)cap29(fc,e.side==="p"?"THẺ TRÊN CÙNG BỘ BÀI":"BỘ BÀI ĐỐI THỦ","#fff3c4");
     fxT(()=>FX.glow(t.x,t.y,c,Math.min(70,t.w*.8),.45),R+dl);});
   try{SFX.play("place");}catch(e){}
   /* (2) đòn từ thẻ nguồn bay tới lá vừa lật */
   const tH=topHit29(s);
-  if(s.sp2&&!s.ns){fxT(()=>{lift8(s.src,s.sp2,c);const im=sigImg9(s.src);for(const e of s.es.slice(0,3))fly8(s.sp2,e.sp,im?"img":"bolt",c,T8.FLY,T8.LIFT,null,im||undefined);},TOPT.RISE);}
+  if(s.sp2&&!s.ns){fxT(()=>{lift8(s.src,s.sp2,c);const im=sigImg9(s.src);for(const e of s.es.slice(0,3))fly8(s.sp2,e.sp,im?"img":"bolt",c,TOPT.FLY,TOPT.LIFT,null,im||undefined);},TOPT.RISE);}
   /* (3) trúng: hành động đúng theo kỹ năng */
-  fxT(()=>{for(const e of s.es)try{topAct29(s,e,c);}catch(x){console.error(x);}},tH);
+  let acted=0,outd=0;const act=()=>{if(acted)return;acted=1;for(const e of s.es)try{topAct29(s,e,c);}catch(x){console.error(x);}};
+  const tA=fxT(act,tH);
   /* (4) lá còn ở bộ bài thu nhỏ bay về cụm bộ bài */
-  if(s.a!=="place"&&!/^(exile|destroy|discard)$/.test(s.a))fxT(()=>{for(const e of s.es){const g=e.g,t=e.sp;if(!g||!g.isConnected)continue;const dz=t.dz;
-      const a=anim(g,[{transform:"none",opacity:1},{transform:`translate(${(dz.x-t.x).toFixed(1)}px,${(dz.y-t.y).toFixed(1)}px) scale(${Math.max(.2,(dz.w||44)/t.w).toFixed(3)})`,opacity:.15}],{duration:TOPT.OUT,easing:"cubic-bezier(.5,0,.6,1)",fill:"forwards"});if(a)a.onfinish=()=>g.remove();fxT(()=>g.remove(),TOPT.OUT+80);
-      fxT(()=>pulse("#"+(e.side==="p"?"meSub":"oppSub"),[{transform:"scale(1)"},{transform:"scale(1.25)",offset:.4},{transform:"scale(1)"}],420),TOPT.OUT-40);}},tH+TOPT.HOLD+(s.extra||0));
-  holdFx(topDur29(s)+80);}
+  const back=!(s.a==="place"||/^(exile|destroy|discard)$/.test(s.a)),out=q=>{if(outd)return;outd=1;for(const e of s.es){const g=e.g,t=e.sp;if(!g||!g.isConnected)continue;const dz=t.dz;
+      const a=anim(g,[{transform:"none",opacity:1},{transform:`translate(${(dz.x-t.x).toFixed(1)}px,${(dz.y-t.y).toFixed(1)}px) scale(${Math.max(.2,(dz.w||44)/t.w).toFixed(3)})`,opacity:.15}],{duration:q,easing:"cubic-bezier(.5,0,.6,1)",fill:"forwards"});if(a)a.onfinish=()=>g.remove();fxT(()=>g.remove(),q+80);
+      fxT(()=>pulse("#"+(e.side==="p"?"meSub":"oppSub"),[{transform:"scale(1)"},{transform:"scale(1.25)",offset:.4},{transform:"scale(1)"}],420),q-40);}};
+  const tO=back?fxT(()=>out(TOPT.OUT),tH+TOPT.HOLD+(s.extra||0)):0;
+  holdFx(topDur29(s)+80);
+  /* gpu35: chạm màn hình khi lá đang hiện -> trúng/thu về ngay (lá chép kỹ năng của Thiết Thiếu Niên chờ đòn chép nên không bỏ qua) */
+  if(!s.ns){const t0=performance.now();s.skip=()=>{clearTimeout(tA);clearTimeout(tO);act();if(back)fxT(()=>out(120),s.a==="peek"?160:60);
+      try{const left=topDur29(s)-(performance.now()-t0)/SPD,rest=STEPS12.some(x=>x!==s&&(x.t0||0)>(s.t0||0));if(!rest){hold29InfoRel();if(left>300)FX_UNTIL=Math.min(FX_UNTIL,performance.now()+300*SPD);}}catch(e){}};
+    TOPSK.add(s);fxT(()=>TOPSK.delete(s),topDur29(s));}}
+const TOPSK=new Set();
+document.addEventListener("pointerdown",()=>{if(!TOPSK.size)return;const L=[...TOPSK];TOPSK.clear();for(const s of L)try{s.skip();}catch(e){console.error(e);}try{noClick=Date.now()+450;}catch(e){}},true);
 /* chú thích ngay dưới lá thẻ (đi theo lá, không phải thông báo nửa trên sân) */
-function cap29(g,t,c){if(!g||!t)return;let d=g.querySelector(".t29cap");if(!d){d=document.createElement("div");d.className="t29cap";g.appendChild(d);}d.textContent=t;d.style.color=c||"#fff";anim(d,[{opacity:.2,transform:"translateX(-50%) scale(.8)"},{opacity:1,transform:"translateX(-50%) scale(1)"}],{duration:200,fill:"none"});}
+/* gpu35: chú thích gắn vào lá nằm trên cùng (lá cuối) của nhóm, dịch về giữa nhóm (data-cdx) để không bị lá sau đè */
+function cap29(g,t,c){if(!g||!t)return;let d=g.querySelector(".t29cap");if(!d){d=document.createElement("div");d.className="t29cap";const dx=+(g.dataset.cdx||0);if(dx)d.style.left=`calc(50% + ${dx}px)`;g.appendChild(d);}d.textContent=t;d.style.color=c||"#fff";anim(d,[{opacity:.2,transform:"translateX(-50%) scale(.8)"},{opacity:1,transform:"translateX(-50%) scale(1)"}],{duration:200,fill:"none"});}
 function topNum29(g,sel,v,up){const b=g&&g.querySelector(sel);if(!b||v==null)return;b.textContent=v;b.classList.add(up?"t29u":"t29d");anim(b,[{transform:"scale(1)"},{transform:"scale(1.9)",offset:.35},{transform:"scale(1)"}],{duration:520,fill:"none"});}
 function topAct29(s,e,c){const g=e.g,t=e.sp,pub=topPub29(e);if(!g)return;const r={x:t.x,y:t.y,w:t.w,h:t.h,html:topFace29(e,pub)},ly=t.y-t.h/2-12;
   FX.glow(t.x,t.y,c,Math.min(64,t.w*.7),.5);
@@ -1772,7 +1804,7 @@ function topAct29(s,e,c){const g=e.g,t=e.sp,pub=topPub29(e);if(!g)return;const r
       try{playV16(e.a==="steal"?"giam_suc":dp&&e.p1>e.p0?"tang_suc":"nang_luong",t.x,t.y,Math.max(96,t.w*1.6),480,0);}catch(x){}
       if(e.a==="steal"&&e.to){const to=where7(e.to,null,rects());if(to)fly8(t,to,"bolt","#ff9aa8",T8.FLY,120,()=>{FX.glow(to.x,to.y,"#7dffb0",40,.5);pulse(`#board [data-mc="${e.to}"]`,[{transform:"scale(1)"},{transform:"scale(1.15)",offset:.4},{transform:"scale(1)"}],420);});}
       SFX.fam(e.a==="steal"?"dn1":dp&&e.p1>e.p0?"up1":"costdn",{el:elU(s.src)});break;}
-    case "peek":{anim(g,[{transform:"none"},{transform:"scale(1.08)",offset:.4},{transform:"none"}],{duration:420,fill:"none"});if(e.sum!=null){if(e.n===0)cap29(g,"TỔNG "+e.sum,"#ffe08a");}else cap29(g,TOPLB.peek,"#ffe08a");break;}
+    case "peek":{anim(g,[{transform:"none"},{transform:"scale(1.08)",offset:.4},{transform:"none"}],{duration:420,fill:"none"});if(e.sum!=null){if(e.cap)cap29(g,"TỔNG "+e.sum,"#ffe08a");}else cap29(g,TOPLB.peek,"#ffe08a");break;}
     case "exile":{g.style.zIndex="47";const a=anim(g,[{transform:"none",opacity:1,filter:"none"},{transform:"scale(1.08)",opacity:1,filter:"brightness(1.8) saturate(.4)",offset:.25},{transform:"translateY(-34px) scale(.86)",opacity:0,filter:"blur(6px) brightness(2.2) saturate(0)"}],{duration:720,easing:"ease-in",fill:"forwards"});if(a)a.onfinish=()=>g.remove();fxT(()=>g.remove(),900);
       FX.rise(t.x,t.y,"#c49bff",22);FX.rise(t.x,t.y-t.h*.2,"#efe0ff",12);cap29(g,TOPLB.exile,"#d9c2ff");SFX.fam("exile",{el:elU(s.src)});break;}
     case "destroy":{g.remove();CFX.destroy(r);cap29(g,TOPLB.destroy,"#ff9aa8");SFX.fam("destroy",{el:elU(s.src)});break;}
@@ -1792,3 +1824,66 @@ LBL12.top="Bộ bài";
   try{for(const s of STEPS12){if(s.k==="ult29")PULLD29=Math.max(PULLD29,(s.t0||0)+s.T);else if(s.k==="top"&&s.a==="place")PULLD29=Math.max(PULLD29,(s.t0||0)+topHit29(s)+TOPT.PLACE);}}catch(e){}
   try{for(const s of STEPS12){if(s.k==="loc"||s.k==="lshield")continue;let t;if(s.k==="move"||s.k==="swap")t=(s.t0||0)+mvDur9(s)*.85;else if(s.k==="top")t=(s.t0||0)+topHit29(s);else t=(s.t0||0)+(s.sp?(s.nl?0:T8.LIFT)+T8.FLY:0)+60;PWL=Math.max(PWL,t);}}catch(e){}
   return T;};}
+
+/* ===== gpu35: giữ phần hiển thị phụ tới lúc đòn trúng =====
+   Màu/viền bên dẫn của chiến địa + nhãn ×/± tổng giữ cùng nhịp với tổng điểm (PWH, tới đòn đổi sức mạnh cuối cùng);
+   số "Bài N"/"Tay N" và lời nhắn khung thông tin (G.msg) giữ tới đòn trúng cuối cùng của bước (HIT29). */
+let HIT29=0;
+const H29={L:null,lon:0,ion:0,tm:0,me:null,op:null,meN:null,opN:null,m0:null,mN:null};
+function hold29Start(){hold29Rel();if(reduced)return;const L=[];
+  document.querySelectorAll("#board [data-lane]").forEach(ln=>{const pw=s=>{const e=ln.querySelector(".pw."+s);return !!(e&&e.classList.contains("lead"));};
+    L[+ln.dataset.lane]={ld:ln.classList.contains("lp")?"lp":ln.classList.contains("la")?"la":"",pw:{a:pw("a"),p:pw("p")},mx:[...ln.querySelectorAll(".mx")].filter(e=>e.style.display!=="none").map(e=>e.outerHTML)};});
+  const me=$("meSub"),op=$("oppSub");H29.L=L;H29.lon=1;H29.ion=1;H29.me=me?me.innerHTML:null;H29.op=op?op.textContent:null;H29.meN=H29.opN=null;H29.m0=H29.mN=null;
+  if(GV&&G&&typeof GV.msg==="string"&&G.msg!==GV.msg){H29.m0=GV.msg;H29.mN=G.msg;G.msg=GV.msg;}
+  clearTimeout(H29.tm);H29.tm=setTimeout(hold29Rel,5000*SPD);}
+function hold29Lanes(){if(!H29.lon||!H29.L)return;
+  document.querySelectorAll("#board [data-lane]").forEach(ln=>{const o=H29.L[+ln.dataset.lane];if(!o)return;
+    ln.classList.toggle("lp",o.ld==="lp");ln.classList.toggle("la",o.ld==="la");
+    for(const s of ["a","p"]){const e=ln.querySelector(".pw."+s);if(e){e.classList.toggle("lead",o.pw[s]);e.classList.remove("lchg");}}
+    const lw=ln.querySelector(".locw");if(!lw)return;
+    lw.querySelectorAll(".mx:not(.mx29o)").forEach(e=>{if(!e.dataset.h29){e.dataset.h29="1";e.style.display="none";}});
+    if(!lw.querySelector(".mx29o"))for(const m of o.mx){const t=document.createElement("template");t.innerHTML=m;const e=t.content.firstElementChild;if(!e)continue;e.classList.add("mx29o");delete e.dataset.h29;e.style.display="";
+      const pw=lw.querySelector(".pw."+(e.classList.contains("a")?"a":"p"));if(pw)pw.after(e);else lw.appendChild(e);}});}
+function hold29LanesRel(){if(!H29.lon)return;H29.lon=0;const L=H29.L||[],g=GV||G;
+  document.querySelectorAll("#board [data-lane]").forEach(ln=>{const li=+ln.dataset.lane,o=L[li];let ld="";try{ld=(g&&E.lead(g,li))||"";}catch(e){}
+    ln.classList.toggle("lp",ld==="p");ln.classList.toggle("la",ld==="a");
+    for(const s of ["a","p"]){const e=ln.querySelector(".pw."+s);if(!e)continue;e.classList.toggle("lead",ld===s);if(o&&ld===s&&o.ld!=="l"+s){e.classList.remove("lchg");void e.offsetWidth;e.classList.add("lchg");}}
+    ln.querySelectorAll(".mx29o").forEach(e=>e.remove());ln.querySelectorAll(".mx[data-h29]").forEach(e=>{e.style.display="";delete e.dataset.h29;});});}
+function hold29Subs(){if(!H29.ion)return;const me=$("meSub"),op=$("oppSub");
+  if(me&&H29.me!=null&&me.innerHTML!==H29.me){H29.meN=me.innerHTML;me.innerHTML=H29.me;}
+  if(op&&H29.op!=null&&op.textContent!==H29.op){H29.opN=op.textContent;op.textContent=H29.op;}}
+function hold29InfoRel(){if(!H29.ion)return;H29.ion=0;const me=$("meSub"),op=$("oppSub");if(me&&H29.meN!=null)me.innerHTML=H29.meN;if(op&&H29.opN!=null)op.textContent=H29.opN;H29.meN=H29.opN=null;
+  if(H29.m0!=null&&G&&G.msg===H29.m0){G.msg=H29.mN;try{if(!sel&&!look&&!moveSel&&!GV){const it=$("infoText");if(it)it.innerHTML=G.msg||"";}}catch(e){}}H29.m0=H29.mN=null;}
+function hold29Info(ms){clearTimeout(H29.tm);if(!(ms>0)||reduced){hold29InfoRel();H29.tm=setTimeout(hold29Rel,5000*SPD);return;}H29.tm=setTimeout(()=>{hold29InfoRel();H29.tm=setTimeout(hold29Rel,3000*SPD);},ms*SPD+20);}
+function hold29Rel(){clearTimeout(H29.tm);try{hold29LanesRel();}catch(e){console.error(e);}try{hold29InfoRel();}catch(e){console.error(e);}}
+/* mốc đòn trúng cuối cùng của bước (mọi loại đòn, kể cả đổi chiến địa / lá trên cùng bộ bài / màn ra mắt kéo xuống) */
+{const _p=plan8;plan8=function(evA,R0,R1,P0,P1){const T=_p(evA,R0,R1,P0,P1);let h=Math.max(PWL||0,PULLD29||0);
+  try{for(const s of STEPS12){const t0=s.t0||0;let t;if(s.k==="loc")t=t0+T8.LIFT+620;else if(s.k==="lshield")t=t0+120;else if(s.k==="ult29")t=t0+s.T;else if(s.k==="top")t=t0+topHit29(s)+(s.a==="place"?TOPT.PLACE:0);else if(s.k==="move"||s.k==="swap")t=t0+mvDur9(s)*.85;else t=t0+(s.sp?(s.nl?0:T8.LIFT)+T8.FLY:0)+60;h=Math.max(h,t);}}catch(e){}
+  HIT29=h;
+  /* nhả theo đòn trúng THẬT (hit8) thay vì chỉ theo đồng hồ: máy chậm/khựng thì số & màu dẫn vẫn đổi đúng lúc trúng.
+     Chỉ khi đòn trúng cuối cùng thuộc loại gọi hit8 (bước khác như dời/lá bộ bài/đổi chiến địa vẫn theo đồng hồ). */
+  PEND35=new Set();HOLD35={p:0,i:0};
+  try{let hp=0,op=0,hi=0,oi=PULLD29||0;for(const s of STEPS12){const t0=s.t0||0,isH=HK35.test(s.k)&&!/^(move|swap|top|ult29|loc|lshield)$/.test(s.k);
+      const tp=s.k==="loc"||s.k==="lshield"?0:(s.k==="move"||s.k==="swap")?t0+mvDur9(s)*.85:s.k==="top"?t0+topHit29(s):t0+(s.sp?(s.nl?0:T8.LIFT)+T8.FLY:0)+60;
+      const ti=s.k==="loc"?t0+T8.LIFT+620:s.k==="lshield"?t0+120:s.k==="ult29"?t0+s.T:s.k==="top"?t0+topHit29(s)+(s.a==="place"?TOPT.PLACE:0):tp;
+      if(isH){PEND35.add(s);hp=Math.max(hp,tp);hi=Math.max(hi,ti);}else{op=Math.max(op,tp);oi=Math.max(oi,ti);}}
+    if(PEND35.size){HOLD35.p=op<=hp?1:0;HOLD35.i=oi<=hi?1:0;}}catch(e){PEND35=new Set();}
+  return T;};}
+let PEND35=new Set(),HOLD35={p:0,i:0};const HK35=/^(kill|up|down|lplus|lminus|steal|sil|copy|summon|bounce|reset|cost)$/;
+{const _h=hit8;hit8=function(s){const r=_h(s);try{if(PEND35.has(s)){PEND35.delete(s);if(!PEND35.size){if(HOLD35.p&&PWH>performance.now()){clearTimeout(PWHT);PWH=0;tickPw();}if(HOLD35.i&&H29.ion)hold29Info(0);}}}catch(e){console.error(e);}return r;};}
+/* gpu35 (3): xếp lá trên cùng bộ bài. Cả hai bộ bài -> MỘT hàng, mỗi bên nửa màn phía cụm bộ bài của mình, lá nhỏ xếp chồng quạt;
+   không che lá thẻ đang nhấc (đặt xuống dưới thẻ nhấc nếu còn chỗ, không thì thu nhỏ cho vừa khoảng trống phía trên) */
+function heroRect35(src,sp){if(!HERO.uid||HERO.uid!==src||!HERO.r)return null;const w=HERO.r.w*HERO.s,h=HERO.r.h*HERO.s;return {l:sp.x-w/2,r:sp.x+w/2,t:sp.y-h/2,b:sp.y+h/2};}
+function topLay29(es,hr){const VW=innerWidth,VH=innerHeight,by={p:[],a:[]};for(const e of es)(by[e.side]||(by[e.side]=[])).push(e);
+  for(const k in by)by[k].sort((x,y)=>(x.n!=null?x.n:0)-(y.n!=null?y.n:0));
+  const two=by.p.length>0&&by.a.length>0,m=Math.max(by.p.length,by.a.length),CAP=24;
+  const dzOf=s=>DECKZ(s)||{x:s==="p"?VW*.25:VW*.75,y:30,w:44,h:62};
+  let W=two?Math.min(92,VW*.2):Math.max(64,Math.min(118,VW*.27,(VW-12)/(1+.86*Math.max(0,m-1))));
+  const top0=Math.max(...[...(by.p.length?["p"]:[]),...(by.a.length?["a"]:[])].map(s=>{const d=dzOf(s);return d.y+(d.h||40)/2;}))+10;
+  const place=(W,y)=>{const H=Math.round(W*1.36);for(const s of ["p","a"]){const L=by[s];if(!L.length)continue;const dz=dzOf(s),gap=two?W*.56:W*.86,GW=W+(L.length-1)*gap;
+      let lo=6,hi=VW-6;if(two){if(dz.x<VW/2)hi=VW/2-3;else lo=VW/2+3;}const cx=Math.min(hi-GW/2,Math.max(lo+GW/2,dz.x)),mid=Math.floor((L.length-1)/2);
+      L.forEach((e,i)=>{const x=Math.round(cx-GW/2+W/2+i*gap);e.sp={x,y:Math.round(y+(two&&L.length>2&&i===mid?-5:0)),w:Math.round(W),h:H,dz};e.cap=i===L.length-1;e.cdx=Math.round(cx-x);});}return H;};
+  let H=Math.round(W*1.36),y=top0+H/2;
+  if(hr){const hit=(y,H)=>y+H/2+CAP>hr.t&&y-H/2<hr.b;
+    if(hit(y,H)){const yb=hr.b+8+H/2;if(yb+H/2+CAP<=VH-96)y=yb;else{const av=hr.t-top0-CAP;if(av>=56){H=Math.min(H,av);W=Math.max(40,H/1.36);H=Math.round(W*1.36);y=top0+H/2;}}}}
+  place(W,y);}
