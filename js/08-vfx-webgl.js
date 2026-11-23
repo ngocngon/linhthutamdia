@@ -1697,7 +1697,7 @@
                   ], { duration: 420 });
                   const nm = id && C[id] ? C[id].n : "";
                   pushOppNotif((s.k === "steal" ? "CƯỚP KỸ NĂNG" : "SAO CHÉP KỸ NĂNG") + (nm ? `: ${nm}` : ""), col);
-                  if (s.k === "steal") SFX.play("steal", 0.9); else SFX.play("e_hon");
+                  SFX.fam(s.k === "steal" ? "steal" : "copy", { el: typeof elU === "function" ? elU(s.src) : null });
                 }
               });
             }
@@ -2496,7 +2496,6 @@
       const hw = lr.width * 0.5, hh = lr.height * 0.45;
 
       if (typeof holdFx === "function") holdFx(940);
-      SFX.play("loc");
       lw.classList.remove("gpu-loc-rev");
       void lw.offsetWidth;
       lw.classList.add("gpu-loc-rev");

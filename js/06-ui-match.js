@@ -162,7 +162,7 @@ async function endTurnRun(auto){
   /* (0) Nếu vừa đặt/rút thẻ tức thì, chờ hoạt ảnh đặt thẻ (165ms) đáp xuống hoàn tất trước khi úp bài */
   if(!reduced&&window._placeLockUntil){
     const rem=window._placeLockUntil-performance.now();
-    if(rem>8)await new Promise(r=>setTimeout(r,rem));
+    if(rem>8){const g0=G;await new Promise(r=>setTimeout(r,rem));if(G!==g0||!playing())return;} /* ván đã đổi/kết thúc trong lúc chờ -> bỏ lệnh cũ */
     window._placeLockUntil=0;
   }
   if(E.aiWantsRetreat(G,"a")){E.finish(G,"retreatA");showEnd();return;}
