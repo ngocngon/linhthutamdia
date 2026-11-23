@@ -89,7 +89,8 @@ const AUIDX = AU.map(a => a[0]);
 
 /* ---------- gom dấu hiệu từ trạng thái ---------- */
 function compute() {
-  const G0 = typeof G !== "undefined" ? G : null;
+  /* gpu29: trong lúc diễn một bước, bàn đang vẽ "khung trước bước" GV (05) -> dấu hiệu cũng đọc khung đó, không lộ kết quả trước đòn */
+  const G0 = typeof GV !== "undefined" && GV ? GV : typeof G !== "undefined" ? G : null;
   if (!G0 || !G0.locs || G0.phase === "over") return [];
   const T = G0.turn, out = [], agg = new Map();
   const when = t => (t > T ? "Lượt sau" : "Lượt này");
