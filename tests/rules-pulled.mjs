@@ -216,5 +216,36 @@ test("(8) tất định: cùng seed -> cùng kết quả (lockstep online)", () 
   eq(run(), run());
 });
 
+console.log("\nNăng lượng thẻ trên tay / thẻ trên cùng bộ bài (gpu29):");
+
+test("(9) Lãnh Diện Cự Nhân: MỖI người chơi giảm 1 năng lượng ngẫu nhiên, lặp lại theo số mức năng lượng khác nhau trên bàn", () => {
+  let multi = 0;
+  for (let seed = 1; seed <= 12; seed++) {
+    const G = setup(null, seed); G.evs = [];
+    for (const s of ["p", "a"]) { for (const id of ["vohannhan", "cuthubien", "tuvuong", "conhan"]) inHand(G, s, id); onBoard(G, s, "soc", 0); onBoard(G, s, "conhan", 0); onBoard(G, s, "thuyvuong", 2); }
+    const base = new Map(); for (const s of ["p", "a"]) for (const c of G.hand[s]) base.set(c.uid, LT.cost(G, c));
+    const cx = inHand(G, "p", "cuongnhanxam"); play(G, "p", cx, 1);
+    // bên p: bàn có các mức 1,3,4,5 (Lãnh Diện Cự Nhân) = 4 mức; bên a: 1,3,4 = 3 mức
+    for (const [s, n] of [["p", 4], ["a", 3]]) {
+      let tot = 0, hit = 0; for (const c of G.hand[s]) { if (!base.has(c.uid)) continue; const d = base.get(c.uid) - LT.cost(G, c); ok(d >= 0, "không được tăng năng lượng"); tot += d; if (d) hit++; }
+      eq(tot, n, "tổng năng lượng giảm của bên " + s);
+      eq(hit, Math.min(n, 4), "mỗi lần giảm rơi vào một thẻ khác nhau (tay có 4 thẻ) — bên " + s);
+      if (hit > 1) multi++;
+    }
+  }
+  ok(multi > 0, "phải có lượt giảm rơi vào nhiều thẻ khác nhau (không dồn hết vào 1 thẻ)");
+});
+
+test("(10) thẻ tác động lá trên cùng bộ bài phát sự kiện 'top' đúng lá (Bạch Thể / Xạ Thủ Nỏ / Nàng Tấm / Thuỷ Thân)", () => {
+  { const G = setup(); G.evs = []; inDeckTop(G, "p", "ho"); const t = inDeckTop(G, "p", "vohannhan"); const b = inHand(G, "p", "bachdich"); play(G, "p", b, 0);
+    const e = G.evs.find(x => x.k === "top"); ok(e, "Bạch Thể phải phát sự kiện top"); eq(e.uid, t.uid); eq(e.a, "set"); eq(e.c0, 6); eq(e.c1, 0); eq(e.p1, 0); eq(LT.cost(G, t), 0); }
+  { const G = setup(); G.evs = []; const t = inDeckTop(G, "p", "vohannhan"); const b = inHand(G, "p", "tieuthu"); play(G, "p", b, 0);
+    const e = G.evs.find(x => x.k === "top"); ok(e && e.a === "exile" && e.uid === t.uid && e.c1 === null, "Xạ Thủ Nỏ trục xuất đúng lá trên cùng"); ok(!G.deck.p.includes(t)); }
+  { const G = setup(); G.evs = []; const t = inDeckTop(G, "p", "ho"); const b = inHand(G, "p", "tinhquyennu"); play(G, "p", b, 0);
+    const e = G.evs.find(x => x.k === "top"); ok(e && e.a === "buff" && e.p1 - e.p0 === 3, "Nàng Tấm +3 lá trên cùng"); eq(t.bonus, 3); }
+  { const G = setup(); G.evs = []; const tp = inDeckTop(G, "p", "ho"), ta = inDeckTop(G, "a", "vohannhan"); const b = inHand(G, "p", "thuynhan"); play(G, "p", b, 0);
+    const es = G.evs.filter(x => x.k === "top"); eq(es.length, 2, "Thuỷ Thân tác động lá trên cùng của CẢ HAI bộ bài"); eq(LT.cost(G, tp), 1); eq(LT.cost(G, ta), 1); }
+});
+
 console.log(`\n${pass} đạt, ${fails.length} lỗi`);
 if (fails.length) process.exit(1);
