@@ -1863,7 +1863,7 @@
         if (dstDom) dstDom.style.opacity = "0";
 
         fxT(() => {
-          SFX.play("e_hon");
+          SFX.fam("create", { el: null });
           if (typeof window.playV16 === "function") window.playV16("sao_chep", fp.x, fp.y, 136, 540, 0);
           const mir = document.createElement("div");
           mir.className = "choreo-mirror-fx";
@@ -1931,7 +1931,7 @@
         if (typeof holdFx === "function") holdFx(stDelay + 600);
         dom.style.opacity = "0";
         fxT(() => {
-          SFX.play("summon");
+          SFX.fam("create", { el: null });
           if (typeof window.playV16 === "function") window.playV16("tao_the", tp.x, tp.y, Math.max(108, (tp.w || 54) * 1.95), 520, 0);
           const gate = document.createElement("div");
           gate.className = "gpu-summon-gate";
