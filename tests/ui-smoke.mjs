@@ -92,7 +92,7 @@ try {
     for (const s of ["p", "a"]) { G.hand[s] = []; for (const L of G.locs) L.cards[s] = []; G.disc[s] = []; }
     G.locs.forEach(L => { L.rvl = true; L.id = "meadow"; });
     G.locs[2].id = "watch";
-    G.energy.p = 30;
+    G.energy.p = 30; G.energy.a = 0; /* đối thủ không đánh thẻ -> kết quả không phụ thuộc AI ngẫu nhiên */
     const lc = mk("p", "longchu"), so = mk("p", "soinu"), bt = mk("p", "batty"), mt = mk("p", "matoc"), ph = mk("p", "phaohoanu");
     const dn = mk("a", "dichnu"); G.hand.a.push(dn);
     const so2 = mk("p", "soinu"); G.disc.p.push(so2);
@@ -101,11 +101,12 @@ try {
     const q = (c, li) => E.queuePlay(G, "p", c.uid, li);
     const okq = [q(lc, 0), q(bt, 0), q(mt, 1), q(ph, 1)];
     render();
-    return { okq, uids: { so: so.uid, dn: dn.uid, so2: so2.uid, top: top.uid } };
+    return { turn0: G.turn, okq, uids: { so: so.uid, dn: dn.uid, so2: so2.uid, top: top.uid } };
   });
   if (sc.okq.some(x => !x)) throw new Error("không dàn được cảnh luật kéo thẻ: " + JSON.stringify(sc.okq));
   await page.evaluate(() => document.getElementById("btnEnd").click());
-  await page.waitForFunction(() => G.phase === "play" || G.phase === "over", null, { timeout: 120000 });
+  /* bấm Kết thúc lượt có thể chờ hoạt ảnh đặt thẻ trước khi chạy lượt -> chờ lượt thật sự bắt đầu rồi mới chờ xong */
+  await page.waitForFunction(t => G.phase === "over" || (G.phase === "play" && G.turn > t), sc.turn0, { timeout: 120000 });
   await page.waitForTimeout(1500); await shot("08-luat-keo-the");
   const chk = await page.evaluate(u => {
     const f = id => E.find(G, id);
