@@ -622,7 +622,7 @@ function onMatchPeers(peers){const o=oppOf(peers);
   checkResolve();}
 function startOnlineGame(seed){const op=OL.oppPr,hostDk=OL.role==="host"?store.deck.slice(0,12):op.dk,guestDk=OL.role==="host"?op.dk:store.deck.slice(0,12);
   BC=null;TN0=0;LOCID=[];seenRev.clear();prevPow.clear();seenLoc.clear();seenStg.clear();prevLd=[];PWV={};sel=look=moveSel=null;armRetreat=0;
-  const CG=E.newGame(hostDk,guestDk,{seed});CG.mode={k:"online",diff:"thuong",lbl:"Đấu online"};CG.online=1;OL.dk={h:hostDk,g:guestDk};OL.log=[];OL.goneAt=0;OL.offAt=0;OL.seedUsed=seed;
+  const CG=E.newGame(hostDk,guestDk,{seed});CG.mode={k:"online",diff:"thuong",lbl:"Đấu online"};CG.online=1;OL.dk={h:hostDk,g:guestDk};OL.log=[];OL.la=null;OL.goneAt=0;OL.offAt=0;OL.seedUsed=seed;
   OL.CG=CG;G=OL.role==="host"?CG:mirrorG(CG);OL.st="play";OL.sub=OL.locked=OL.resolving=false;OL.myH=null;OL.note="";
   foeAv=C[op.av]?op.av:op.dk[11];$("avFoe").innerHTML=artFace(foeAv);$("avMe").innerHTML=meAv();$("foeName").textContent=olName(op.nm);foeBack=Object.keys(BACKS)[Math.floor(Math.random()*Object.keys(BACKS).length)];
   gameDeck=store.deck.join();missNote="";resetTimer(false);tArmed=true;tLast=0;
@@ -641,10 +641,13 @@ function onlineEnd(){if(!G||G.phase!=="play")return;
   checkResolve();}
 function checkResolve(){if(!OL.mr||!OL.sub||OL.resolving||!G||G.phase!=="play")return;const o=oppOf(OL.mr.peers());if(!o)return;const op=o.presence;
   if(!OL.locked&&op.t===G.turn&&op.sub){OL.locked=true;try{OL.mr.presence({lock:G.turn});}catch(e){}render();}
-  if(OL.locked&&op.lock===G.turn&&op.sub)onlineResolve(op);}
+  if(OL.locked&&op.lock===G.turn&&op.sub)onlineResolve(op);
+  /* gpu35: đối thủ đã chốt + diễn xong lượt này (đã sang lượt sau) trong lúc mình mất kết nối -> lấy lại hành động lượt trước họ để lại (la) mà diễn theo, tránh kẹt 2 bên chờ nhau */
+  else if(OL.locked&&op.t===G.turn+1&&op.la&&op.la.t===G.turn)onlineResolve({acts:op.la.acts,snap:op.la.sn});}
 async function onlineResolve(op){FFTURN.start();try{return await onlineResolveRun(op);}finally{FFTURN.stop();}}
 async function onlineResolveRun(op){OL.resolving=true;clearTimeout(OL.waitT);const host=OL.role==="host";
-  {const mine=OL.acts||[],theirs=Array.isArray(op.acts)?op.acts:[];OL.log=OL.log||[];OL.log.push({ha:host?mine:theirs,ga:host?theirs:mine,hs:host?!!G.snap.p:!!op.snap,gs:host?!!op.snap:!!OL.sn});olSave();}
+  {const mine=OL.acts||[],theirs=Array.isArray(op.acts)?op.acts:[];OL.log=OL.log||[];OL.log.push({ha:host?mine:theirs,ga:host?theirs:mine,hs:host?!!G.snap.p:!!op.snap,gs:host?!!op.snap:!!OL.sn});olSave();
+   OL.la={t:G.turn,acts:mine,sn:(host?G.snap.p:OL.sn)?1:0};try{OL.mr.presence({la:OL.la});}catch(e){}}
   let CG;if(host){CG=G;if(!applyActs(CG,"a",op.acts))OL.bad=1;}else{CG=OL.CG;if(!applyActs(CG,"p",op.acts))OL.bad=1;if(!applyActs(CG,"a",OL.acts))OL.bad=1;}
   const hs=host?G.snap.p:!!op.snap,gs=host?!!op.snap:!!(OL.sn);
   if(hs&&!CG.snap.p){CG.snap.p=true;CG.pendingDouble++;}if(gs&&!CG.snap.a){CG.snap.a=true;CG.pendingDouble++;}
@@ -676,7 +679,7 @@ function olNet(){const el=$("olNet");if(!el)return;const now=Date.now();
     el.innerHTML=OL.offAt?`<i class="dot"></i><span><b>Mất kết nối</b> · đang kết nối lại</span><b class="t">${olFmt(OL_WAIT-(now-OL.offAt))}</b>`:`<i class="dot"></i><span><b>Đối thủ mất kết nối</b> · chờ kết nối lại</span><b class="t">${olFmt(OL_WAIT-(now-OL.goneAt))}</b>`;
     if(!OL.netIv)OL.netIv=setInterval(olNet,1000);
   }else{el.hidden=true;clearInterval(OL.netIv);OL.netIv=0;}}
-function olFullPres(){const host=OL.role==="host",CG=host?G:OL.CG;return Object.assign(myPres(),{mid:OL.mid,role:OL.role,seed:host?OL.seedUsed:0,t:CG?CG.turn:1,sub:OL.sub?1:0,acts:OL.sub?(OL.acts||[]):[],lock:OL.locked&&G?G.turn:0,snap:OL.sub&&OL.sn?1:0,rt:0,emo:null,h:OL.myH||null});}
+function olFullPres(){const host=OL.role==="host",CG=host?G:OL.CG;return Object.assign(myPres(),{mid:OL.mid,role:OL.role,seed:host?OL.seedUsed:0,t:CG?CG.turn:1,sub:OL.sub?1:0,acts:OL.sub?(OL.acts||[]):[],lock:OL.locked&&G?G.turn:0,snap:OL.sub&&OL.sn?1:0,rt:0,emo:null,h:OL.myH||null,la:OL.la||null});}
 function olConn(r){try{OL.unC&&OL.unC();}catch(e){}OL.unC=null;if(!r||typeof r.onConnection!=="function")return;
   OL.unC=r.onConnection(c=>{if(!G||!G.online||G.phase==="over")return;
     if(!c){if(!OL.offT)OL.offT=setTimeout(()=>{OL.offT=0;if(OL.mr&&typeof OL.mr.connected==="function"&&!OL.mr.connected()&&!OL.offAt){OL.offAt=Date.now()-2000;olNet();}},2000);}
@@ -695,7 +698,7 @@ async function olResume(){let sv=null;try{sv=JSON.parse(localStorage.getItem(OLK
   const CG=E.newGame(sv.dk.h,sv.dk.g,{seed:sv.seed});CG.mode={k:"online",diff:"thuong",lbl:"Đấu online"};CG.online=1;
   try{for(const e of (sv.log||[])){applyActs(CG,"p",e.ha);applyActs(CG,"a",e.ga);if(e.hs&&!CG.snap.p){CG.snap.p=true;CG.pendingDouble++;}if(e.gs&&!CG.snap.a){CG.snap.a=true;CG.pendingDouble++;}for(const st of E.beginReveal(CG))E.doStep(CG,st);E.endTurn(CG);if(CG.turn>=E.turns(CG)){E.finish(CG,"end");break;}E.startTurn(CG);}}catch(e){CG.phase="over";}
   if(CG.phase==="over"){try{r.leave();}catch(e){}mmHide();olClear();toast("Trận online trước đã kết thúc");return;}
-  OL.room=room;OL.mr=r;OL.mid=sv.mid;OL.role=sv.role;OL.seedUsed=sv.seed;OL.seed=sv.role==="host"?sv.seed:0;OL.oppPeer=sv.oppPeer;OL.oppPid=sv.oppPid||"";OL.oppPr=sv.op||{};OL.dk=sv.dk;OL.log=sv.log||[];
+  OL.room=room;OL.mr=r;OL.mid=sv.mid;OL.role=sv.role;OL.seedUsed=sv.seed;OL.seed=sv.role==="host"?sv.seed:0;OL.oppPeer=sv.oppPeer;OL.oppPid=sv.oppPid||"";OL.oppPr=sv.op||{};OL.dk=sv.dk;OL.log=sv.log||[];{const L=OL.log[OL.log.length-1],h=sv.role==="host";OL.la=L?{t:CG.turn-1,acts:h?L.ha:L.ga,sn:(h?L.hs:L.gs)?1:0}:null;}
   BC=null;TN0=0;LOCID=[];seenRev.clear();prevPow.clear();seenLoc.clear();seenStg.clear();prevLd=[];PWV={};sel=look=moveSel=null;armRetreat=0;
   OL.CG=CG;G=OL.role==="host"?CG:mirrorG(CG);OL.st="play";OL.sub=OL.locked=OL.resolving=false;OL.acts=[];OL.sn=0;OL.note="";OL.goneAt=0;OL.offAt=0;OL.myH={t:CG.turn*2,v:hashSt(CG)};
   const op=OL.oppPr;foeAv=C[op.av]?op.av:(Array.isArray(op.dk)&&C[op.dk[11]]?op.dk[11]:E.COLLECT[0]);$("avFoe").innerHTML=artFace(foeAv);$("avMe").innerHTML=meAv();$("foeName").textContent=olName(op.nm);foeBack=sv.fb&&BACKS[sv.fb]?sv.fb:"b0";

@@ -11,7 +11,7 @@ export const LIMITS = {
   reportMs: 45000,       // chờ báo cáo kết quả của người còn lại
   keepMs: 10 * 60 * 1000 // giữ trận đã xong để người chơi xem kết quả
 };
-const PRES_KEYS = new Set(["v", "nm", "av", "rk", "dk", "mid", "role", "seed", "t", "sub", "acts", "lock", "snap", "rt", "emo", "h", "mm"]);
+const PRES_KEYS = new Set(["v", "nm", "av", "rk", "dk", "mid", "role", "seed", "t", "sub", "acts", "lock", "snap", "rt", "emo", "h", "mm", "la"]);
 
 export class Match extends DurableObject {
   constructor(ctx, env) {
@@ -105,6 +105,7 @@ export class Match extends DurableObject {
       if (v === null) delete cur[k];
       else if (k === "acts") { if (Array.isArray(v) && v.length <= LIMITS.acts) cur.acts = v; }
       else if (k === "nm") cur.nm = cleanName(v);
+      else if (k === "la") { if (typeof v === "object" && typeof v.t === "number" && Array.isArray(v.acts) && v.acts.length <= LIMITS.acts) cur.la = { t: v.t, acts: v.acts, sn: v.sn ? 1 : 0 }; } // hành động lượt vừa chốt (cho máy kia bắt kịp sau khi mất kết nối)
       else cur[k] = v;
     }
     const me = this.meta.players.find((p) => p.uid === uid);
