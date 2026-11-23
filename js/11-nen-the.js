@@ -9,7 +9,7 @@
 (function () {
   "use strict";
   const TQ = [["Thường", "#b9bcc8"], ["Đặc Biệt", "#35d07f"], ["Hiếm", "#3aa0ff"], ["Hùng Tráng", "#c45cff"], ["Huyền Thoại", "#ff9a1f"], ["Siêu Cấp", "#ff4d6d"], ["Vô Cực", "#ffffff"]];
-  const GR = [["nh", "Ngũ hành"], ["vn", "Hoạ tiết Việt"], ["pc", "Phong cảnh"], ["ak", "Ánh kim"], ["dg", "Nền động"], ["mv", "Lễ hội"]];
+  const GR = [["nh", "Ngũ hành"], ["vn", "Hoạ tiết Việt"], ["pc", "Phong cảnh"], ["tt", "Thần thoại"], ["ak", "Ánh kim"], ["dg", "Nền động"], ["mv", "Lễ hội"]];
   const PR = [150, 500, 1000, 250, 450, 800, 1500]; // giá theo bậc: bậc 0-2 trả vàng, bậc 3 trở lên trả token
   const SAMPLE = "ho"; // thẻ mẫu để xem thử trong cửa hàng
   const CAT = [];
@@ -24,11 +24,20 @@
   add("denlong", "Đèn Lồng Hội An", "vn", 2, "Cửa hàng"); add("thocam", "Thổ Cẩm Núi Rừng", "vn", 2, "Cửa hàng");
   add("sonmai", "Sơn Mài Son Vàng", "vn", 3, "Cửa hàng"); add("khamxacu", "Khảm Xà Cừ", "vn", 3, "Cửa hàng"); add("luatheu", "Lụa Thêu Rồng Mây", "vn", 3, "Cửa hàng");
   add("maycungdinh", "Mây Cung Đình Huế", "vn", 3, "Thẻ tháng"); add("phudieucham", "Phù Điêu Chăm Pa", "vn", 3, "Cửa hàng"); add("tranhkinh", "Tranh Kính Hoa Sen", "vn", 3, "Cửa hàng");
-  // [Phong cảnh] — dùng tranh địa điểm sẵn có (img/l)
-  add("hoguom", "Hồ Gươm", "pc", 2, "Cửa hàng"); add("muine", "Đồi Cát Mũi Né", "pc", 2, "Cửa hàng"); add("bangioc", "Thác Bản Giốc", "pc", 2, "Cửa hàng");
+  // [Phong cảnh] — 16 tranh vẽ ChatGPT (img/nen) + 6 cảnh dùng tranh chiến địa sẵn có (img/l)
+  add("hoguom", "Cầu Thê Húc Đêm", "pc", 2, "Cửa hàng"); add("muine", "Đồi Cát Mũi Né", "pc", 2, "Cửa hàng"); add("bangioc", "Thác Bản Giốc", "pc", 2, "Cửa hàng");
+  add("dalat", "Rừng Thông Đà Lạt", "pc", 2, "Cửa hàng"); add("chonoi", "Chợ Nổi Bình Minh", "pc", 2, "Nhiệm vụ"); add("trangan", "Bến Thuyền Tràng An", "pc", 2, "Cửa hàng");
   add("thapcham", "Tháp Chàm", "pc", 2, "Cửa hàng"); add("ngocson", "Đền Ngọc Sơn", "pc", 2, "Cửa hàng"); add("vanmieu", "Văn Miếu", "pc", 2, "Cửa hàng");
-  add("halong", "Vịnh Hạ Long", "pc", 3, "Cửa hàng"); add("bacthang", "Ruộng Bậc Thang", "pc", 3, "Cửa hàng"); add("hoian", "Phố Cổ Hội An", "pc", 3, "Cửa hàng");
-  add("sapa", "Sa Pa Mây Phủ", "pc", 3, "Thẻ tháng"); add("phongnha", "Động Phong Nha", "pc", 3, "Cửa hàng"); add("hue", "Kinh Thành Huế", "pc", 3, "Cửa hàng");
+  add("halong", "Vịnh Hạ Long Sương Sớm", "pc", 3, "Cửa hàng"); add("bacthang", "Ruộng Bậc Thang Mùa Vàng", "pc", 3, "Cửa hàng"); add("hue", "Ngọ Môn Hoàng Hôn", "pc", 3, "Cửa hàng");
+  add("fansipan", "Fansipan Biển Mây", "pc", 3, "Cửa hàng"); add("bienchieu", "Biển Đảo Hoàng Hôn", "pc", 3, "Cửa hàng"); add("ructrang", "Rừng Trúc Đêm Trăng", "pc", 3, "Cửa hàng");
+  add("hoian", "Phố Cổ Hội An", "pc", 3, "Cửa hàng"); add("sapa", "Sa Pa Mây Phủ", "pc", 3, "Thẻ tháng"); add("phongnha", "Động Phong Nha", "pc", 3, "Cửa hàng");
+  add("sondoong", "Cột Sáng Sơn Đoòng", "pc", 4, "Cửa hàng"); add("nuilua", "Núi Lửa Thần Thoại", "pc", 4, "Cửa hàng");
+  add("thuyte", "Cung Điện Thuỷ Tề", "pc", 4, "Thẻ tháng"); add("tanvien", "Tản Viên Mây Ngũ Sắc", "pc", 4, "Cửa hàng");
+  // [Thần thoại] — tranh vẽ ChatGPT (img/nen)
+  add("rungnam", "Rừng Nấm Linh Thú", "tt", 3, "Cửa hàng"); add("bangtuyet", "Băng Tuyết Pha Lê", "tt", 3, "Cửa hàng"); add("giongbao", "Giông Bão Sấm Tím", "tt", 3, "Nhiệm vụ");
+  add("nganha", "Dải Ngân Hà", "tt", 4, "Cửa hàng"); add("dungnham", "Dung Nham Rực Cháy", "tt", 4, "Cửa hàng"); add("amphu", "Âm Phủ Lửa Xanh", "tt", 4, "Cửa hàng");
+  add("cungtrang", "Cung Trăng Chị Hằng", "tt", 4, "Thẻ tháng"); add("thiendinh", "Thiên Đình Mây Ngọc", "tt", 5, "Cửa hàng");
+  add("rongvang", "Rồng Vàng Mây Ngũ Sắc", "tt", 5, "Cửa hàng"); add("phuonghoang", "Phượng Hoàng Lửa", "tt", 5, "Cửa hàng"); add("daisen", "Đài Sen Hào Quang", "tt", 6, "Cửa hàng");
   // [Ánh kim] — phản chiếu theo độ nghiêng (chạm/rê, con quay)
   add("vangdat", "Vàng Dát", "ak", 3, "Cửa hàng", { f: 1 }); add("bac", "Bạc Trăng", "ak", 3, "Cửa hàng", { f: 1 }); add("cauvong", "Cầu Vồng Holo", "ak", 4, "Cửa hàng", { f: 1 });
   // [Nền động] — chỉ chạy ở thẻ lớn
@@ -40,7 +49,11 @@
   const BY = {}; for (const b of CAT) BY[b.id] = b;
   const IMG = new Set([                 // id có tranh vẽ img/nen/<id>.webp (ghi đè bản CSS)
     "donghoo", "gomlam", "gachbong", "maingoi", "ruonglua", "trongdong", "chamgo", "senthuymac", "denlong", "thocam",
-    "sonmai", "khamxacu", "luatheu", "maycungdinh", "phudieucham", "tranhkinh"]);
+    "sonmai", "khamxacu", "luatheu", "maycungdinh", "phudieucham", "tranhkinh",
+    "halong", "bacthang", "fansipan", "sondoong", "trangan", "hoguom", "hue", "muine", "bangioc", "dalat", "chonoi", "bienchieu",
+    "nuilua", "thuyte", "tanvien", "ructrang",
+    "tet", "trungthu", "dentroi", "rongvang", "phuonghoang", "thiendinh", "amphu", "rungnam", "nganha", "giongbao", "bangtuyet",
+    "dungnham", "cungtrang", "vangdat", "cauvong", "daisen"]);
   const KEM = new Set(["datamtri", "lucthan", "matoc", "maydotam", "mieunuot", "phiung"]); // thẻ chưa hỗ trợ nền (xem tools/tach_nen_nhan_vat.py)
   try { fetch("img/cut/_kem.json").then(r => r.json()).then(j => { for (const k in j) KEM.add(k); }).catch(() => { }); } catch (e) { }
 
@@ -61,8 +74,8 @@
   const NBURL = {};
   const nbUrl = id => NBURL[id] || (NBURL[id] = (() => { try { return new URL("img/nen/" + id + ".webp?v=1", document.baseURI).href; } catch (e) { return "img/nen/" + id + ".webp"; } })());
   function bgHTML(id) {
-    const im = IMG.has(id);
-    return `<nb-l class="nth nth-${id}${im ? " nbi" : ""}" data-nth="${id}"${im ? ` style="--nbimg:url(${nbUrl(id)})"` : ""} aria-hidden="true"></nb-l><b class="nbm" aria-hidden="true"></b>`;
+    const im = IMG.has(id), b = BY[id], k = im && b && (b.a || b.f); // nền động/ánh kim: giữ lớp hiệu ứng chồng lên tranh vẽ
+    return `<nb-l class="nth nth-${id}${im ? " nbi" : ""}${k ? " nbfx" : ""}" data-nth="${id}"${im ? ` style="--nbimg:url(${nbUrl(id)})"` : ""} aria-hidden="true"></nb-l><b class="nbm" aria-hidden="true"></b>`;
   }
   /* gọi trước ${art(id)} ở mọi nơi vẽ thẻ. Không trang bị -> "" (không tốn gì) */
   function layer(k) {
