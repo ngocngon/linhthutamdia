@@ -389,18 +389,18 @@ $("cardBody").addEventListener("click",ev=>{const b=ev.target.closest("button");
   if(b.dataset.fan){const n=1+(LINKS[k]||[]).length;cardAlt=(cardAlt+ +b.dataset.fan+n)%n;renderCard();return;}
   if(b.dataset.rn){const v=b.dataset.rn==="1"?cleanName($("cardName").value):"";if(b.dataset.rn==="1"&&(!v||v===C[k].n))return;
     if(v){applyNames({[k]:v});store.names[k]=v;}else{applyNames({[k]:BASEN[k]});delete store.names[k];}
-    for(const x in LGC)delete LGC[x];cardRen=false;save();renderCard();renderDeck(true);if(G)render();return;}
+    for(const x in LGC)delete LGC[x];cardRen=false;save();renderCard();if(F.col||draft)renderDeck(true);if(G)render();return;}
   if(b.dataset.tg==="fav"){toggleFav(k);}
   else if(lvl(k)===6){const c=store.cards[k];if(b.dataset.bc!==undefined)c.bc=b.dataset.bc;else if(b.dataset.tg)c[b.dataset.tg]=!c[b.dataset.tg];cardPrev=6;save();}
-  renderCard();renderDeck(true);});
+  renderCard();if(F.col||draft)renderDeck(true);});
 $("cardQ").addEventListener("click",ev=>{const b=ev.target.closest("[data-qv]");if(!b)return;SFX.play("tap");cardPrev=(cardPrev+ +b.dataset.qv+7)%7;renderCard();});
 $("ovCard").addEventListener("click",ev=>{const n=ev.target.closest("[data-cn]");if(n){const L=cardList(),i=L.indexOf(cardId);if(i<0||L.length<2)return;SFX.play("tap");openCard(L[(i+ +n.dataset.cn+L.length)%L.length]);return;}
-  if(ev.target.closest("#cardFav")){SFX.play("tap");toggleFav(cardId);renderCard();renderDeck(true);return;}
+  if(ev.target.closest("#cardFav")){SFX.play("tap");toggleFav(cardId);renderCard();if(F.col||draft)renderDeck(true);return;}
   if(ev.target.closest("#cardRen")){SFX.play("tap");cardRen=!cardRen;renderCard();if(cardRen)setTimeout(()=>{const x=$("cardName");if(x){x.focus();x.select();}},30);}});
 $("btnUp").addEventListener("click",()=>{const k=cardId,b=$("btnUp");
   if(b.dataset.m==="buy"){const pr=PRICE[C[k].h]||500;if(store.tok<pr){SFX.play("ui_error",.6);return;}store.tok-=pr;grant(k);save();SFX.play("ui_buy",.9);}
   else if(b.dataset.m==="up"){const l=lvl(k);if(l>=6)return;if(store.up<UPC[l]){SFX.play("ui_error",.6);return;}store.up-=UPC[l];store.cards[k]=Object.assign({l:0,bc:"",au:false,an:false},store.cards[k]);store.cards[k].l=l+1;cardPrev=l+1;save();SFX.play("win");try{const r=document.querySelector(".bigc").getBoundingClientRect();FX.ring(r.left+r.width/2,r.top+r.height/2,QN[l+1][1],120,6);FX.burst(r.left+r.width/2,r.top+r.height/2,QN[l+1][1],26,220);}catch(e){}}
-  renderCard();renderDeck(true);renderLobby();});
+  renderCard();if(F.col||draft)renderDeck(true);renderLobby();}); /* gpu35: mở thẻ từ sảnh (lbShow) khi chưa vào Sưu tập/Bộ bài thì draft=null -> renderDeck lỗi */
 function claimCL(){if(!clPending())return;const i=store.clc++;const m=i%4;
   if(m===0){const k=randNew();if(k)gainCard(k,"Mốc sưu tập "+(i+1)*5);else gainRes("gold",200,"Mốc sưu tập "+(i+1)*5);}
   else if(m===1)gainRes("gold",150,"Mốc sưu tập "+(i+1)*5);else if(m===2)gainRes("tok",100,"Mốc sưu tập "+(i+1)*5);else gainRes("up",100,"Mốc sưu tập "+(i+1)*5);
