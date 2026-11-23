@@ -157,3 +157,6 @@ body.rm .hand .hc .hda{box-shadow:none}
 @media (max-width:380px){.dhc{font-size:9px}}
 /* (9) màn chi tiết thẻ: nút đóng luôn thấy (dính đáy vùng cuộn), không phải cuộn hết mới thấy */
 #zoom .zcl{position:sticky;bottom:10px;z-index:6;flex:none;box-shadow:0 4px 14px rgba(0,0,0,.75),0 0 0 3px rgba(6,8,36,.55)}
+
+/* gpu38: bảng phân tích gọn */
+.brk.v2 h5 small{font-weight:600;font-size:.82em;letter-spacing:0;text-transform:none;opacity:.72;margin-left:6px}
