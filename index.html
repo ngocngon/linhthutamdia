@@ -5,14 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <title>Linh Thú Tam Địa — Bản Nâng Cấp WebGL GPU</title>
 <link rel="icon" href="data:,">
-<link rel="stylesheet" href="css/00-fonts.css?v=gpu23">
-<link rel="stylesheet" href="css/01-arena-cards.css?v=gpu23">
-<link rel="stylesheet" href="css/02-board-vfx.css?v=gpu23">
-<link rel="stylesheet" href="css/03-lobby-meta.css?v=gpu23">
-<link rel="stylesheet" href="css/04-vfx-gpu.css?v=gpu23">
-<link rel="stylesheet" href="css/05-mo-bai.css?v=gpu23">
-<link rel="stylesheet" href="css/06-cai-dat.css?v=gpu23">
-<link rel="stylesheet" href="css/07-nen-the.css?v=gpu23">
+<link rel="stylesheet" href="css/00-fonts.css?v=gpu24">
+<link rel="stylesheet" href="css/01-arena-cards.css?v=gpu24">
+<link rel="stylesheet" href="css/02-board-vfx.css?v=gpu24">
+<link rel="stylesheet" href="css/03-lobby-meta.css?v=gpu24">
+<link rel="stylesheet" href="css/04-vfx-gpu.css?v=gpu24">
+<link rel="stylesheet" href="css/05-mo-bai.css?v=gpu24">
+<link rel="stylesheet" href="css/06-cai-dat.css?v=gpu24">
+<link rel="stylesheet" href="css/07-nen-the.css?v=gpu24">
 </head>
 <body>
 <div id="ldr12" role="status" aria-live="polite"><div class="lb12"><b>LINH THÚ TAM ĐỊA</b><div class="bar12"><i id="ldrBar"></i></div><span id="ldrTxt">Đang tải hình… 0%</span><button type="button" id="ldrSkip" hidden>Vào luôn</button></div></div>
@@ -105,6 +105,7 @@
     <p><b>Đồng hồ.</b> Mỗi lượt có 90 giây (có cộng bù giây khi bạn đang ra bài sát giờ). Hết giờ thì lượt tự kết thúc với những thẻ đã đặt và bị tính là bỏ lượt. Bỏ 3 lượt liên tiếp thì bị xử thua. Đồng hồ dừng khi bạn mở bảng Luật, Bài hoặc Mộ.</p>
     <h3>Cơ chế của thẻ</h3>
     <p><b>Lật.</b> Chạy một lần ngay khi thẻ được lật. Thẻ có tia điện xanh là đang chạy kỹ năng Lật.</p>
+    <p><b>Thẻ được kéo xuống chiến địa.</b> Thẻ được kéo từ tay hoặc bộ bài, được hồi sinh, triệu hồi, sao chép hay được chiến địa đặt vào vẫn lật và chạy kỹ năng của nó như thẻ lật thường: Lật chạy, Duy Trì có hiệu lực, cho phe đang giữ thẻ. Kỹ năng đó chạy ngay khi thẻ chạm chiến địa, rồi kỹ năng đã kéo nó mới chạy tiếp. Trừ khi có hiệu ứng cấm: chiến địa cấm Lật (Chòi Canh), Chó Đá, Kính Ảnh (xoá kỹ năng thẻ Duy Trì đối thủ được đưa vào chỗ nó), thẻ đã mất kỹ năng. Thẻ được kéo không tính là thẻ bạn đặt: không ăn hiệu ứng “thẻ tiếp theo bạn đặt”, không kích hoạt “sau khi bạn đặt một thẻ” và hiệu ứng “thẻ đặt vào đây” của chiến địa. Thẻ được kéo xuống úp thì vẫn úp đến cuối ván.</p>
     <p><b>Duy Trì.</b> Có hiệu lực suốt thời gian thẻ nằm ngửa trên bàn và mất ngay khi thẻ rời bàn hoặc bị xoá kỹ năng. Thẻ Duy Trì có viền sáng nhấp nháy.</p>
     <p><b>Kích Hoạt.</b> Thẻ có nhãn KH. Từ lượt sau khi đặt, chạm thẻ rồi bấm Kích Hoạt; kỹ năng chạy trong pha lật của lượt đó, mỗi thẻ một lần mỗi ván.</p>
     <p><b>Cuối Lượt, Đầu Lượt.</b> Tự chạy sau khi mọi thẻ đã lật, hoặc ngay đầu lượt mới.</p>
@@ -317,22 +318,22 @@
 </div></div>
 
 
-<script src="js/11-nen-the.js?v=gpu23"></script>
-<script src="js/01-engine.js?v=gpu23"></script>
-<script src="js/03-data-store.js?v=gpu23"></script>
-<script src="js/04-audio.js?v=gpu23"></script>
-<script src="js/05-vfx-core.js?v=gpu23"></script>
-<script src="js/06-ui-match.js?v=gpu23"></script>
-<script src="js/07-meta-modes.js?v=gpu23"></script>
-<script src="js/08-vfx-webgl.js?v=gpu23"></script>
-<script src="js/09-card-choreo.js?v=gpu23"></script>
-<script src="js/10-online-cf.js?v=gpu23"></script>
+<script src="js/11-nen-the.js?v=gpu24"></script>
+<script src="js/01-engine.js?v=gpu24"></script>
+<script src="js/03-data-store.js?v=gpu24"></script>
+<script src="js/04-audio.js?v=gpu24"></script>
+<script src="js/05-vfx-core.js?v=gpu24"></script>
+<script src="js/06-ui-match.js?v=gpu24"></script>
+<script src="js/07-meta-modes.js?v=gpu24"></script>
+<script src="js/08-vfx-webgl.js?v=gpu24"></script>
+<script src="js/09-card-choreo.js?v=gpu24"></script>
+<script src="js/10-online-cf.js?v=gpu24"></script>
 <script>
 /* gpu22: service worker (chỉ khi chạy qua http/https, không đăng ký trong vỏ Capacitor/APK vì ảnh đã nằm sẵn trong app) */
 (function(){var C=window.Capacitor,nat=C&&C.isNativePlatform&&C.isNativePlatform();
 if(!("serviceWorker" in navigator)||!/^https?:$/.test(location.protocol)||nat)return;
-addEventListener("load",function(){navigator.serviceWorker.register(new URL("sw.js?v=gpu23",document.baseURI).href).then(function(){
-return navigator.serviceWorker.ready;}).then(function(r){setTimeout(function(){try{var w=r.active;if(!w)return;var o=location.origin,L=performance.getEntriesByType("resource").map(function(e){return e.name;}).filter(function(n){return n.indexOf(o)===0;});L.push(location.href);w.postMessage({type:"warm",urls:L});}catch(e){}},4000);}).catch(function(){});});})();
+addEventListener("load",function(){try{navigator.serviceWorker.register(new URL("sw.js?v=gpu24",document.baseURI).href).then(function(){
+return navigator.serviceWorker.ready;}).then(function(r){setTimeout(function(){try{var w=r.active;if(!w)return;var o=location.origin,L=performance.getEntriesByType("resource").map(function(e){return e.name;}).filter(function(n){return n.indexOf(o)===0;});L.push(location.href);w.postMessage({type:"warm",urls:L});}catch(e){}},4000);}).catch(function(){});}catch(e){}});})();
 </script>
 </body>
 </html>
