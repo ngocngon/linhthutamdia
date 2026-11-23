@@ -5,15 +5,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <title>Linh Thú Tam Địa — Bản Nâng Cấp WebGL GPU</title>
 <link rel="icon" href="data:,">
-<link rel="stylesheet" href="css/00-fonts.css?v=gpu29">
-<link rel="stylesheet" href="css/01-arena-cards.css?v=gpu29">
-<link rel="stylesheet" href="css/02-board-vfx.css?v=gpu29">
-<link rel="stylesheet" href="css/03-lobby-meta.css?v=gpu29">
-<link rel="stylesheet" href="css/04-vfx-gpu.css?v=gpu29">
-<link rel="stylesheet" href="css/05-mo-bai.css?v=gpu29">
-<link rel="stylesheet" href="css/06-cai-dat.css?v=gpu29">
-<link rel="stylesheet" href="css/07-nen-the.css?v=gpu29">
-<link rel="stylesheet" href="css/08-dau-hieu.css?v=gpu29">
+<link rel="stylesheet" href="css/00-fonts.css?v=gpu30">
+<link rel="stylesheet" href="css/01-arena-cards.css?v=gpu30">
+<link rel="stylesheet" href="css/02-board-vfx.css?v=gpu30">
+<link rel="stylesheet" href="css/03-lobby-meta.css?v=gpu30">
+<link rel="stylesheet" href="css/04-vfx-gpu.css?v=gpu30">
+<link rel="stylesheet" href="css/05-mo-bai.css?v=gpu30">
+<link rel="stylesheet" href="css/06-cai-dat.css?v=gpu30">
+<link rel="stylesheet" href="css/07-nen-the.css?v=gpu30">
+<link rel="stylesheet" href="css/08-dau-hieu.css?v=gpu30">
 </head>
 <body>
 <div id="ldr12" role="status" aria-live="polite"><div class="lb12"><b>LINH THÚ TAM ĐỊA</b><div class="bar12"><i id="ldrBar"></i></div><span id="ldrTxt">Đang tải hình… 0%</span><button type="button" id="ldrSkip" hidden>Vào luôn</button></div></div>
@@ -319,23 +319,23 @@
 </div></div>
 
 
-<script src="js/11-nen-the.js?v=gpu29"></script>
-<script src="js/01-engine.js?v=gpu29"></script>
-<script src="js/03-data-store.js?v=gpu29"></script>
-<script src="js/04a-sfx-fam.js?v=gpu29"></script>
-<script src="js/04-audio.js?v=gpu29"></script>
-<script src="js/05-vfx-core.js?v=gpu29"></script>
-<script src="js/06-ui-match.js?v=gpu29"></script>
-<script src="js/07-meta-modes.js?v=gpu29"></script>
-<script src="js/08-vfx-webgl.js?v=gpu29"></script>
-<script src="js/09-card-choreo.js?v=gpu29"></script>
-<script src="js/10-online-cf.js?v=gpu29"></script>
-<script src="js/12-dau-hieu.js?v=gpu29"></script>
+<script src="js/11-nen-the.js?v=gpu30"></script>
+<script src="js/01-engine.js?v=gpu30"></script>
+<script src="js/03-data-store.js?v=gpu30"></script>
+<script src="js/04a-sfx-fam.js?v=gpu30"></script>
+<script src="js/04-audio.js?v=gpu30"></script>
+<script src="js/05-vfx-core.js?v=gpu30"></script>
+<script src="js/06-ui-match.js?v=gpu30"></script>
+<script src="js/07-meta-modes.js?v=gpu30"></script>
+<script src="js/08-vfx-webgl.js?v=gpu30"></script>
+<script src="js/09-card-choreo.js?v=gpu30"></script>
+<script src="js/10-online-cf.js?v=gpu30"></script>
+<script src="js/12-dau-hieu.js?v=gpu30"></script>
 <script>
 /* gpu22: service worker (chỉ khi chạy qua http/https, không đăng ký trong vỏ Capacitor/APK vì ảnh đã nằm sẵn trong app) */
 (function(){var C=window.Capacitor,nat=C&&C.isNativePlatform&&C.isNativePlatform();
 if(!("serviceWorker" in navigator)||!/^https?:$/.test(location.protocol)||nat)return;
-addEventListener("load",function(){try{navigator.serviceWorker.register(new URL("sw.js?v=gpu29",document.baseURI).href).then(function(){
+addEventListener("load",function(){try{navigator.serviceWorker.register(new URL("sw.js?v=gpu30",document.baseURI).href).then(function(){
 return navigator.serviceWorker.ready;}).then(function(r){setTimeout(function(){try{var w=r.active;if(!w)return;var o=location.origin,L=performance.getEntriesByType("resource").map(function(e){return e.name;}).filter(function(n){return n.indexOf(o)===0;});L.push(location.href);w.postMessage({type:"warm",urls:L});}catch(e){}},4000);}).catch(function(){});}catch(e){}});})();
 </script>
 </body>
