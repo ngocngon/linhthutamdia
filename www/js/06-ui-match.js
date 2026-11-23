@@ -41,8 +41,8 @@ function render0(){
     if(play&&mvF&&mvF.li!==li&&E.space(G,li,"p"))ok=true;
     const pa=E.locPower(G,li,"a"),pp=E.locPower(G,li,"p"),ld=E.lead(G,li);
     const mxb=(sd,tot)=>{let sum=0;for(const c of L.cards[sd])if(c.rev)sum+=E.power(G,c,li);if(tot===sum)return "";const r=sum>0?tot/sum:0;return `<i class="mx ${sd} ${tot>sum?"up":"down"}">${r>1&&Number.isInteger(r)?"×"+r:(tot>sum?"+":"−")+Math.abs(tot-sum)}</i>`;};
-    const mine=L.cards.p.map(c=>mcHTML(c,li,false)).concat(G.q.p.filter(a=>a.t==="play"&&a.li===li&&a.row==="p").map(a=>mcHTML(a.inst,li,true)));
-    const theirs=L.cards.a.map(c=>mcHTML(c,li,false)).concat(G.q.p.filter(a=>a.t==="play"&&a.li===li&&a.row==="a").map(a=>mcHTML(a.inst,li,true)));
+    const mine=L.cards.p.map(c=>mcHTML(c,li,false)).concat(G.q.p.filter(a=>a.t==="play"&&a.li===li&&a.row==="p").map(stgHTML));
+    const theirs=L.cards.a.map(c=>mcHTML(c,li,false)).concat(G.q.p.filter(a=>a.t==="play"&&a.li===li&&a.row==="a").map(stgHTML));
     const order=[2,3,0,1],top=["","","",""];theirs.forEach((h,i)=>{if(i<4)top[order[i]]=h;});
     const cp=E.cap(G,li),def=LOC[L.id];
     let lc="locw";if(!L.rvl)lc+=" hid";
@@ -104,7 +104,7 @@ function render0(){
   else{$("endMain").textContent="KẾT THÚC LƯỢT";end.disabled=false;}
   end.classList.toggle("wait",!!(G.online&&OL.sub));end.classList.toggle("can",!!(G.online&&OL.sub&&!OL.locked));
   if(G.online&&OL.sub&&G.phase==="play"){$("endMain").textContent=OL.locked?"ĐANG LẬT BÀI":"ĐANG CHỜ ĐỐI THỦ";end.disabled=!!OL.locked;}
-  paintTimer();
+  paintTimer();paintUndo();
   const rt=$("btnRetreat");rt.disabled=!play;
   const armed=play&&armRetreat>Date.now();
   rt.classList.toggle("arm",armed);rt.innerHTML=armed?`MẤT ${G.stake} ${icn("gems")}?`:"RÚT LUI";
@@ -664,7 +664,7 @@ $("board").addEventListener("click",ev=>{
   const placeable=lane.classList.contains("ok")||lane.classList.contains("okx");
   if(mc){
     const uid=+mc.dataset.mc;
-    if(playing()&&pendingPlay(uid)){recordBoardOrigin(mc,uid);E.unqueue(G,"p",uid,"play");look=null;sel=null;SFX.play("unplay");render();return;}
+    if(playing()&&pendingPlay(uid)){if(tryUnqueue(uid,"play",mc)){look=null;sel=null;render();}return;}
     if(!(sel&&placeable)){look=look&&look.kind==="card"&&look.uid===uid?null:{kind:"card",uid};sel=null;SFX.play("tap");render();if(look&&look.uid===uid){const ci=anyC(uid);if(ci&&ci.rev&&!ci.sil&&C[E.ab(ci)]&&C[E.ab(ci)].t==="on")threads9(uid,40);}return;}
   }
   if(sel&&playing()){
@@ -677,9 +677,33 @@ $("board").addEventListener("click",ev=>{
 });
 let drag=null,noClick=0;
 function killGhost(){document.querySelectorAll("#ghost").forEach(e=>e.remove());document.body.classList.remove("dragging");document.querySelectorAll(".lane.dhov").forEach(e=>e.classList.remove("dhov"));document.querySelectorAll(".hc.dsrc").forEach(e=>e.classList.remove("dsrc"));}
+/* ===== (b) HOÀN TÁC THEO NGĂN XẾP: chỉ hành động mới nhất (đặt / dời / kích hoạt) rút lại được; thẻ đặt trước bị khoá ===== */
+function stgHTML(a){const h=mcHTML(a.inst,a.li,true);return E.canUnqueue(G,"p",a.uid,"play")?h.replace('class="mc','class="mc qtop'):h.replace('class="mc','class="mc qlock');}
+function undoName(a){const c=a.t==="play"?a.inst:(E.find(G,a.uid)||{}).inst;return c?C[c.id].n:"";}
+function undoNudge(uid){const a=E.lastQueued(G,"p");if(!a)return;
+  const el=document.querySelector(`#board [data-mc="${uid}"]`);if(el){el.classList.remove("qnudge");void el.offsetWidth;el.classList.add("qnudge");setTimeout(()=>el.classList.remove("qnudge"),520);}
+  const top=a.t==="play"?document.querySelector(`#board [data-mc="${a.uid}"]`):null;if(top){top.classList.remove("qhint");void top.offsetWidth;top.classList.add("qhint");setTimeout(()=>top.classList.remove("qhint"),1300);}
+  toast(a.t==="play"?`Rút lại thẻ đặt sau trước (${undoName(a)})`:a.t==="move"?`Huỷ lần dời thẻ sau trước (${undoName(a)})`:`Huỷ kích hoạt sau trước (${undoName(a)})`);
+  SFX.play("tap");if(navigator.vibrate&&!reduced)try{navigator.vibrate(30);}catch(e){}}
+/* rút lại 1 hành động nếu nó là hành động cuối; ngược lại rung + nhắc. Không cho sửa sau khi đã nộp lượt online. */
+function tryUnqueue(uid,t,mc){if(!playing()||(G.online&&OL.sub))return false;
+  if(!E.canUnqueue(G,"p",uid,t)){undoNudge(uid);return false;}
+  if(t==="play")recordBoardOrigin(mc||null,uid);E.unqueue(G,"p",uid,t);SFX.play(t==="play"?"unplay":"tap");return true;}
+function undoLastUI(){if(!G||!playing()||(G.online&&OL.sub))return;const a=E.lastQueued(G,"p");if(!a)return;if(tryUnqueue(a.uid,a.t)){sel=look=moveSel=null;render();}}
+function paintUndo(){const b=$("btnUndo");if(!b)return;const n=G&&playing()&&!(G.online&&OL.sub)?G.q.p.length:0;b.hidden=!n;b.disabled=!n;}
+/* thẻ đang kéo từ bàn: bóng kéo dùng đúng mẫu thẻ trên tay */
+function hcLikeHTML(uid,el){const c=G.q.p.find(a=>a.uid===uid);if(!c)return el?el.outerHTML:"";const d=C[c.inst.id];return `<button type="button" class="hc${qCls(d.id)}" style="--hc:${HC[d.h]}${qSt(d.id)}">${nbL(d.id)}${art(d.id)}<span class="cst">${c.c}</span><span class="pwh">${handPow(c.inst)}</span><span class="n">${logo(d.id)}</span></button>`;}
+/* kéo thẻ đã đặt (chưa lật) trong lượt: chỉ thẻ đặt SAU CÙNG kéo được (đổi chiến địa / thả ra ngoài = rút về tay) */
+$("board").addEventListener("pointerdown",ev=>{const mc=ev.target.closest(".mc.staged[data-mc]");if(!mc||!playing()||(G.online&&OL.sub))return;const uid=+mc.dataset.mc;if(!pendingPlay(uid))return;
+  killGhost();drag={uid,x:ev.clientX,y:ev.clientY,on:false,el:mc,pid:ev.pointerId,fromQ:true};});
+$("btnUndo")&&$("btnUndo").addEventListener("click",ev=>{ev.stopPropagation();undoLastUI();});
 $("hand").addEventListener("pointerdown",ev=>{killGhost();drag=null;const hc=ev.target.closest("[data-hc]");if(!hc||!playing()||hc.classList.contains("no"))return;const r=hc.getBoundingClientRect();drag={uid:+hc.dataset.hc,x:ev.clientX,y:ev.clientY,on:false,html:hc.outerHTML,w:r.width,h:r.height,el:hc,pid:ev.pointerId};});
 document.addEventListener("pointermove",ev=>{if(!drag||(drag.pid!=null&&ev.pointerId!==drag.pid))return;const dx=ev.clientX-drag.x,dy=ev.clientY-drag.y;
-  if(!drag.on){if(dx*dx+dy*dy<16)return;drag.on=true;clearTimeout(lpT);lpT=0;sel=drag.uid;look=null;moveSel=null;SFX.play("pick");render();const curHc=document.querySelector(`#hand [data-hc="${drag.uid}"]`)||drag.el;drag.el=curHc;curHc.classList.add("dsrc");const g=document.createElement("div");g.id="ghost";g.innerHTML=drag.html;g.style.width=drag.w+"px";g.style.height=drag.h+"px";document.body.appendChild(g);drag.g=g;document.body.classList.add("dragging");}
+  if(!drag.on){if(dx*dx+dy*dy<16)return;
+    if(drag.fromQ){const u=drag.uid,el=drag.el;drag=null;if(!playing()||!pendingPlay(u))return;if(!E.canUnqueue(G,"p",u,"play")){undoNudge(u);noClick=Date.now()+240;return;}
+      drag={uid:u,x:ev.clientX-dx,y:ev.clientY-dy,on:false,html:hcLikeHTML(u,el),w:el.getBoundingClientRect().width,h:el.getBoundingClientRect().height,el,pid:ev.pointerId};
+      recordBoardOrigin(el,u);E.unqueue(G,"p",u,"play");SFX.play("unplay");}
+    drag.on=true;clearTimeout(lpT);lpT=0;sel=drag.uid;look=null;moveSel=null;SFX.play("pick");render();const curHc=document.querySelector(`#hand [data-hc="${drag.uid}"]`)||drag.el;drag.el=curHc;curHc.classList.add("dsrc");const g=document.createElement("div");g.id="ghost";g.innerHTML=drag.html;g.style.width=drag.w+"px";g.style.height=drag.h+"px";document.body.appendChild(g);drag.g=g;document.body.classList.add("dragging");}
   const vx=ev.clientX-(drag.lx??ev.clientX),vy=ev.clientY-(drag.ly??ev.clientY);drag.lx=ev.clientX;drag.ly=ev.clientY;drag.ry=((drag.ry||0)*.62+Math.max(-24,Math.min(24,vx*2.0))*.38);drag.rx=((drag.rx||0)*.62+Math.max(-24,Math.min(24,-vy*2.0))*.38);
   drag.g.style.transform=`translate3d(${(ev.clientX-drag.w/2).toFixed(1)}px,${(ev.clientY-drag.h*.68).toFixed(1)}px,0) perspective(600px) scale(1.24) rotateX(${drag.rx.toFixed(1)}deg) rotateY(${drag.ry.toFixed(1)}deg) rotate(${Math.max(-7,Math.min(7,dx*.045)).toFixed(1)}deg)`;
   const el=document.elementFromPoint(ev.clientX,ev.clientY),ln=el&&el.closest("[data-lane]");
@@ -703,7 +727,7 @@ $("hand").addEventListener("pointerdown",ev=>{const hc=ev.target.closest("[data-
   lpT=setTimeout(()=>{if(drag&&drag.on)return;drag=null;hc.classList.remove("press");look={kind:"card",uid};sel=null;noClick=Date.now()+520;SFX.play("tap");render();},380);});
 document.addEventListener("pointerup",()=>clearTimeout(lpT));document.addEventListener("pointercancel",()=>clearTimeout(lpT));
 document.addEventListener("pointermove",ev=>{if(lpT&&(ev.clientX-lpX)**2+(ev.clientY-lpY)**2>25){clearTimeout(lpT);lpT=0;}});
-$("zoom").addEventListener("click",ev=>{const zb=ev.target.closest("[data-zdo]");if(zb&&look){const u=look.uid;look=null;if(zb.dataset.zdo==="pick"){sel=u;SFX.play("pick");}else if(zb.dataset.zdo==="unplay"&&playing()){recordBoardOrigin(null,u);E.unqueue(G,"p",u,"play");SFX.play("unplay");}render();return;}const b=ev.target.closest("[data-do]");if(!b){if(ev.target.closest(".zt,.zname,.zmeta,.zhint,.znot,.zq"))return;look=null;render();return;}const t=$("infoAct").querySelector(`[data-do="${b.dataset.do}"]`);if(t)t.click();});
+$("zoom").addEventListener("click",ev=>{const zb=ev.target.closest("[data-zdo]");if(zb&&look){const u=look.uid;look=null;if(zb.dataset.zdo==="pick"){sel=u;SFX.play("pick");}else if(zb.dataset.zdo==="unplay"&&playing()){tryUnqueue(u,"play");}render();return;}const b=ev.target.closest("[data-do]");if(!b){if(ev.target.closest(".zt,.zname,.zmeta,.zhint,.znot,.zq"))return;look=null;render();return;}const t=$("infoAct").querySelector(`[data-do="${b.dataset.do}"]`);if(t)t.click();});
 document.querySelector(".who.foe").addEventListener("click",ev=>{ev.stopPropagation();foeInfo();});
 document.addEventListener("click",ev=>{const p=$("foeInfo");if(p&&p.classList.contains("on")&&!ev.target.closest("#foeInfo"))p.classList.remove("on");});
 $("hand").addEventListener("pointermove",ev=>{const hc=ev.target.closest(".hc.press");if(!hc)return;const r=hc.getBoundingClientRect(),x=(ev.clientX-r.left)/r.width-.5,y=(ev.clientY-r.top)/r.height-.5;hc.style.setProperty("--ry",(x*26).toFixed(1)+"deg");hc.style.setProperty("--rx",(-y*26).toFixed(1)+"deg");});
@@ -749,8 +773,8 @@ $("infoAct").addEventListener("click",ev=>{
   if(act==="cancelmove")moveSel=null;
   else if(uid==null)return;
   else if(act==="act")E.queueAct(G,"p",uid);
-  else if(act==="unact")E.unqueue(G,"p",uid,"act");
-  else if(act==="unmove")E.unqueue(G,"p",uid,"move");
+  else if(act==="unact"){if(!tryUnqueue(uid,"act"))return;}
+  else if(act==="unmove"){if(!tryUnqueue(uid,"move"))return;}
   else if(act==="move"){moveSel=uid;sel=null;}
   SFX.play("tap");render();
 });
