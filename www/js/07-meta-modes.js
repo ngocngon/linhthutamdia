@@ -326,10 +326,11 @@ $("poolSort").addEventListener("click",ev=>{const b=ev.target.closest("[data-ps]
 $("poolGrid").addEventListener("click",ev=>{const b=ev.target.closest("[data-zk]");if(b){SFX.play("tap");openPZ(b.dataset.zk);}});
 /* ---- phóng to thẻ ---- */
 let pzK=null,pzAlt=0;
-function openPZ(k,alt){pzK=k;pzAlt=alt||0;const LK=[k,...(LINKS[k]||[])],ai=pzAlt%LK.length,sid=LK[ai],d=C[sid],kw=kwfx;
-  $("pzBody").innerHTML=`<div class="fanw">${fanSides(LK,ai)}<span class="gc${qCls(sid)}" style="--hc:${HC[d.h]};--bk:${backBg()}${qSt(sid)};display:block">${nbL(sid)}${art(sid,1)}<span class="cst">${d.c}</span><span class="pwh">${d.p}</span><span class="n">${logo(sid)}</span>${bacTag(d)}${lkBtn(ai,LK.length)}${flipBtn()}</span></div><div class="pkt">${sid!==k?"Thẻ liên quan của "+esc(C[k].n):esc(HE[d.h]||"")+" · "+esc(DANG[d.t]||"")+(OWN.has(k)?" · đã có":"")}</div><div class="zt">${kw(skillText(d))}</div>${NEN.slot(sid)}<button type="button" class="zcl" data-pzx="1" aria-label="Đóng">✕</button>`;
+let pzI=null;
+function openPZ(k,alt,inst){pzK=k;pzAlt=alt||0;pzI=inst&&inst.id===k?inst:null;const LK=[k,...(LINKS[k]||[])],ai=pzAlt%LK.length,sid=LK[ai],d=C[sid],kw=kwfx;
+  $("pzBody").innerHTML=`<div class="fanw">${fanSides(LK,ai)}<span class="gc${qCls(sid)}" style="--hc:${HC[d.h]};--bk:${backBg()}${qSt(sid)};display:block">${nbL(sid)}${art(sid,1)}<span class="cst">${d.c}</span><span class="pwh">${d.p}</span><span class="n">${logo(sid)}</span>${bacTag(d)}${lkBtn(ai,LK.length)}${flipBtn()}</span></div><div class="pkt">${sid!==k?"Thẻ liên quan của "+esc(C[k].n):esc(HE[d.h]||"")+" · "+esc(DANG[d.t]||"")+(OWN.has(k)?" · đã có":"")}</div><div class="zt">${pzI&&sid===k&&typeof pileInfoHTML==="function"?pileInfoHTML(pzI):kw(skillText(d))}</div>${NEN.slot(sid)}<button type="button" class="zcl" data-pzx="1" aria-label="Đóng">✕</button>`;
   $("ovPZ").classList.add("on");}
-$("pzBody").addEventListener("click",ev=>{if(ev.target.closest("[data-lk]")){SFX.play("tap");openPZ(pzK,pzAlt+1);return;}const fz=ev.target.closest("[data-fan]");if(fz){SFX.play("tap");const n=1+(LINKS[pzK]||[]).length;openPZ(pzK,(pzAlt+ +fz.dataset.fan+n)%n);return;}if(ev.target.closest("[data-pzx]"))$("ovPZ").classList.remove("on");});
+$("pzBody").addEventListener("click",ev=>{if(ev.target.closest("[data-lk]")){SFX.play("tap");openPZ(pzK,pzAlt+1,pzI);return;}const fz=ev.target.closest("[data-fan]");if(fz){SFX.play("tap");const n=1+(LINKS[pzK]||[]).length;openPZ(pzK,(pzAlt+ +fz.dataset.fan+n)%n,pzI);return;}if(ev.target.closest("[data-pzx]"))$("ovPZ").classList.remove("on");});
 $("ovPZ").addEventListener("click",ev=>{if(ev.target.id==="ovPZ")$("ovPZ").classList.remove("on");});
 $("shopBody").addEventListener("click",ev=>{const b=ev.target.closest("button");if(!b||b.disabled)return;const ds=b.dataset,S=SH();SFX.play("tap");
   if(NEN.shopClick(ds))return;
