@@ -410,9 +410,9 @@ function abState(inst){
 function abHTML(inst,skTxt,where){const s=abState(inst),kw=kwfx;let h="";
   if(s.tf)h+=`<div class="zab tf"><i>⇄</i><div>${s.tf}</div></div>`;
   if(s.lost)h+=`<div class="zsk lost">${kw(skTxt)}</div><div class="zab lost"><i>${s.lost.includes("cướp")?"✂":"⊘"}</i><div>${s.lost}</div></div>`;
-  else if(s.cur)h+=`<div class="zsk old"><small>Kỹ năng gốc (đã bị thay):</small> ${kw(skTxt)}</div><div class="zab cp"><i>${BOOK}</i><div><div class="zh">${s.head}</div><div class="zx">${kw(skillText(C[s.cur]))}</div></div></div>`;
+  else if(s.cur)h+=`<div class="zab cp"><i>${BOOK}</i><div><div class="zh">${s.head}</div><div class="zx">${kw(skillText(C[s.cur]))}</div></div></div>`;
   else h+=`<div class="zsk">${kw(skTxt)}</div>`;
-  if(s.extra.length)h+=`<div class="zab cp"><i>${BOOK}</i><div><div class="zh">${s.dyn==="sieudihinh"?"Đang có kỹ năng Duy Trì của thẻ đối thủ":s.dyn==="nguyetthach"?"Đang có kỹ năng Duy Trì của thẻ ≤3 năng lượng tại đây":"Đang có thêm kỹ năng Duy Trì"}:</div>${s.extra.map(([x])=>`<div class="zx"><b>${esc(cnm(x))}:</b> ${kw(skillText(C[x]).replace(/^Duy Trì:\s*/,""))}</div>`).join("")}</div></div>`;
+  if(s.extra.length)h+=`<div class="zab cp"><i>${BOOK}</i><div><div class="zh">${s.dyn?"Đang có":"Có thêm"}:</div>${s.extra.map(([x])=>`<div class="zx"><b>${esc(cnm(x))}:</b> ${kw(skillText(C[x]).replace(/^Duy Trì:\s*/,""))}</div>`).join("")}</div></div>`;
   else if(s.dyn&&where==="board"&&inst.rev)h+=`<div class="zab cp dim"><i>${BOOK}</i><div class="zh">${s.dyn==="sieudihinh"?"Hiện chưa có kỹ năng Duy Trì nào từ thẻ đối thủ.":"Hiện chưa có thẻ Duy Trì ≤3 năng lượng nào của bạn tại đây."}</div></div>`;
   if(s.use)h+=`<div class="zab cp"><i>${BOOK}</i><div><div class="zh">Đã dùng kỹ năng Lật của <b>${esc(cnm(s.use.f))}</b> <small>lượt ${s.use.t}</small></div><div class="zx">${kw(skillText(C[s.use.a]))}</div></div></div>`;
   return h;}
@@ -428,8 +428,7 @@ function brk(inst,li,where){const d=C[inst.id],bp=E.basePow(inst);
   /* sức mạnh */
   const hp=histRows(inst,"p"),bpH=(inst.hist||[]).filter(h=>h.k==="bp").pop();
   let P="",cur=bp+inst.bonus;
-  P+=bkRow(String(d.p),"Sức mạnh gốc"+(inst.tf&&inst.tf.o!==inst.id?" ("+d.n+")":""),"","base");
-  if(inst.bp!=null&&inst.bp!==d.p)P+=bkRow("="+inst.bp,"Sức mạnh gốc bị đặt thành "+inst.bp,bpH?srcN(bpH.by)+" · lượt "+bpH.t:"","set");
+  if(inst.bp!=null&&inst.bp!==d.p)P+=bkRow("="+inst.bp,"Đặt gốc thành "+inst.bp,bpH?srcN(bpH.by)+" · lượt "+bpH.t:"","set");
   for(const r of hp.rows)P+=bkRow(r.d,r.lb,"lượt "+r.ts.join(", ")+(r.n>1?" · ×"+r.n:""));
   if(hp.sum!==inst.bonus)P+=bkRow(inst.bonus-hp.sum,"Khác","cộng/trừ không ghi được nguồn");
   const live=(where==="board"&&inst.rev)||where==="hand";
@@ -443,17 +442,18 @@ function brk(inst,li,where){const d=C[inst.id],bp=E.basePow(inst);
   /* năng lượng */
   const hc=histRows(inst,"c");let Cc="",cc=d.c+inst.cm;
   if(where==="hand"){const fc=()=>E.cost(G,inst);try{cc=fc();}catch(e){}
-    Cc+=bkRow(String(d.c),"Năng lượng gốc","","base");for(const r of hc.rows)Cc+=bkRow(r.d,r.lb,"lượt "+r.ts.join(", ")+(r.n>1?" · ×"+r.n:""));
+    for(const r of hc.rows)Cc+=bkRow(r.d,r.lb,"lượt "+r.ts.join(", ")+(r.n>1?" · ×"+r.n:""));
     if(hc.sum!==inst.cm)Cc+=bkRow(inst.cm-hc.sum,"Khác","không ghi được nguồn");
     let rest=cc-(d.c+inst.cm);for(const a of ablate(fc,inst,costFlags(inst))){const [lb,sub]=ablLabel(a);Cc+=bkRow(a[2],lb,sub,"dyn");rest-=a[2];}
     if(rest)Cc+=bkRow(rest,"Khác","giới hạn tối thiểu/tối đa hoặc hiệu ứng cộng dồn","oth");}
-  else if(hc.rows.length){Cc+=bkRow(String(d.c),"Năng lượng gốc","","base");for(const r of hc.rows)Cc+=bkRow(r.d,r.lb,"lượt "+r.ts.join(", "));}
+  else if(hc.rows.length){for(const r of hc.rows)Cc+=bkRow(r.d,r.lb,"lượt "+r.ts.join(", "));}
   const cChanged=where==="hand"?(cc!==d.c||hc.rows.length):hc.rows.length;
   const notes=[];if(inst.cr)notes.push(`✦ Được tạo ra bởi <b>${esc(srcN(inst.by))}</b>.`);
   if(!pChanged&&!cChanged&&!notes.length)return "";
   const tot=(v,base,good)=>`<b class="${v===base?"":good(v,base)?"up":"down"}">${v}</b>`;
-  const secP=pChanged?`<div class="bkp"><h5>Sức mạnh ${tot(cur,d.p,(a,b)=>a>b)}</h5><ul>${P}<li class="sum"><b>=${cur}</b><span>Đang hiện${where==="hand"?" <small>(giá trị giữa của 3 chiến địa)</small>":""}</span></li></ul></div>`:"";
-  const secC=cChanged?`<div class="bkc"><h5>Năng lượng ${tot(cc,d.c,(a,b)=>a<b)}</h5><ul>${Cc}${where==="hand"?`<li class="sum"><b>=${cc}</b><span>Đang hiện</span></li>`:""}</ul></div>`:"";
+  /* gpu38: gọn — số đang hiện đã có trên thẻ nên không lặp lại; chỉ ghi gốc + từng nguồn cộng/trừ */
+  const secP=pChanged&&P?`<div class="bkp"><h5>Sức mạnh <small>gốc ${d.p}${where==="hand"?" · tính theo chiến địa giữa":""}</small></h5><ul>${P}</ul></div>`:"";
+  const secC=cChanged&&Cc?`<div class="bkc"><h5>Năng lượng <small>gốc ${d.c}</small></h5><ul>${Cc}</ul></div>`:"";
   return `<div class="brk v2">${where==="hand"?secC+secP:secP+secC}${notes.length?`<p>${notes.join("<br>")}</p>`:""}</div>`;}
 const NICO_SPELLS=[
   ["😈","#ff5a7a","Phép lượt này: Biến thẻ tiếp theo bạn đặt thành Tiểu Quỷ (6 sức mạnh)."],
@@ -779,7 +779,7 @@ function paintZoom(){const z=$("zoom");let id=null;
   if(qd&&playing()&&!OL.sub)act=`<button type="button" class="ib alt" data-zdo="unplay">Rút lại thẻ này</button>`;
   let skTxt=skillText(d);
   if(bi){const qp=questProg(bi);if(qp)skTxt=skTxt.replace(/\(\d+\/\d+\)/,qp[2]?"(Hoàn thành ✓)":`(${qp[0]}/${qp[1]})`);}
-  z.innerHTML=`${lv?`<div class="zq" style="--qc:${qn[1]}">${esc(qn[0])} · Cấp ${lv}</div>`:""}<span class="gc${qCls(id)}" style="--hc:${HC[d.h]}${qSt(id)};display:block">${nbL(id)}${art(id,1)}<span class="cst${cs<d.c?" up":cs>d.c?" down":""}">${cs}</span><span class="pwh ${pw>d.p?"up":pw<d.p?"down":""}">${pw}</span><span class="n">${logo(id)}</span>${bi?markBadges(bi,zWhere):""}</span>
+  z.innerHTML=`<span class="gc${qCls(id)}" style="--hc:${HC[d.h]}${qSt(id)};display:block">${nbL(id)}${art(id,1)}<span class="cst${cs<d.c?" up":cs>d.c?" down":""}">${cs}</span><span class="pwh ${pw>d.p?"up":pw<d.p?"down":""}">${pw}</span><span class="n">${logo(id)}</span>${bi?markBadges(bi,zWhere):""}</span>
   <div class="zt">${bi?abHTML(bi,skTxt,zWhere):kw(skTxt)}${mkNotes}${br}</div>${hc?`<div class="zhint">Kéo thẻ hoặc chạm chiến địa để đặt ngay.</div>`:""}<div class="zact">${act}</div><button type="button" class="zcl" aria-label="Đóng">✕</button>`;z.classList.add("on");}
 $("hand").addEventListener("click",ev=>{
   const hc=ev.target.closest("[data-hc]");if(!hc)return;
