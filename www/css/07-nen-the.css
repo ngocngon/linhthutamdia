@@ -4,7 +4,8 @@ nb-l{display:block}
 .nth::before,.nth::after{content:"";position:absolute;pointer-events:none;will-change:auto}
 .nth .nbm{display:none}
 .nth.nbi{background-image:var(--nbimg)!important;background-size:cover!important;background-position:center!important}
-.nth.nbi::before,.nth.nbi::after{display:none}
+.nth.nbi:not(.nbfx)::before,.nth.nbi:not(.nbfx)::after{display:none}
+.nth.nbfx::before,.nth.nbfx::after{opacity:.55;mix-blend-mode:screen}
 /* hoạt ảnh chỉ chạy ở thẻ lớn (xem thẻ, cửa hàng, xem thử); thẻ trong trận, tay bài, lưới sưu tập đứng yên ở khung hình đầu */
 .nth[data-nth]::before,.nth[data-nth]::after{animation-play-state:paused}
 .bigc>.nth[data-nth]::before,.bigc>.nth[data-nth]::after,#ovPZ .gc>.nth[data-nth]::before,#ovPZ .gc>.nth[data-nth]::after,#zoom .gc>.nth[data-nth]::before,#zoom .gc>.nth[data-nth]::after,.nbpv>.nth[data-nth]::before,.nbpv>.nth[data-nth]::after{animation-play-state:running}
