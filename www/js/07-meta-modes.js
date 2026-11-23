@@ -40,7 +40,7 @@ const BACKS={
 if(typeof TEST_MAX!=="undefined"&&TEST_MAX){for(const bk of Object.keys(BACKS))if(!store.backs.includes(bk))store.backs.push(bk);}
 let sceneFor="";
 function arImg(a,small){const x=IMGS.a[a]||{};return (small?x.t:x.b)||"";}
-function applyArena(){const a=store.arena,A=ARENAS[a];document.body.className="ar ar-"+a;const st=document.documentElement.style;st.setProperty("--ac",A[1]);st.setProperty("--ac2",A[2]);
+function applyArena(){const a=store.arena,A=ARENAS[a];{const cl=document.body.classList;for(const c of [...cl])if(c.startsWith("ar-"))cl.remove(c);cl.add("ar","ar-"+a);} /* gpu35: không ghi đè className (trước đây xoá mất rm/gpu/dh-lo... -> "Tắt hiệu ứng" mất tác dụng sau ván đầu) */const st=document.documentElement.style;st.setProperty("--ac",A[1]);st.setProperty("--ac2",A[2]);
   if(sceneFor===a)return;sceneFor=a;const sc=$("scene");sc.classList.add("pic");sc.style.backgroundImage=`url("${arImg(a)}")`;$("lobby").style.setProperty("--lbbg",`url("${arImg(a)}")`);
   const kind=A[3],n={dust:16,twinkle:22,ember:18,lantern:10,bubble:16,firefly:16,leaf:12,petal:16}[kind]||0;let h="";
   for(let i=0;i<n;i++){const x=(i*61+17)%100,y=(i*37+11)%100,d=(i%5),dl=-(i*1.37%9).toFixed(2);
