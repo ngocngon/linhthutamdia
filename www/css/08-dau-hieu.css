@@ -110,3 +110,50 @@ body.rm #dhPop{transition:none}
 .hand .hc.hnf{outline:2px solid rgba(255,90,130,.7);outline-offset:-2px}
 .hand .hc.hbf.hnf{outline-color:rgba(255,200,90,.75)}
 body.rm .hand .hc .hda{box-shadow:none}
+
+/* ===== gpu35 CHỮ/SỐ TRÊN THẺ & SÂN ĐẤU: rõ, không tràn/cắt/chồng (màn 360px) =====
+   Chỉ CSS tĩnh, không hoạt ảnh mới. cqw = bề ngang chính thẻ (.mc/.hc là container inline-size). */
+/* (1) tên thẻ trên bàn & tay: nmFit (06) chia ≤2 dòng ở dấu cách + co ngang --nsx; cỡ chữ 29cqw (thẻ 35–36px, trong viền ~31px -> 9px) */
+#board .mc>.mn,.hand .hc>.n,#ghost .hc>.n{font-size:min(29cqw,11.5px)!important;padding:5px 0 2px!important;min-height:0!important;line-height:1!important;overflow:visible!important}
+.hand .hc>.n,#ghost .hc>.n{font-size:min(29cqw,13px)!important;display:block!important}
+.lg.nf{--nsx:1;--nf:1;display:block!important;font-size:calc(1em * var(--nf))!important;white-space:pre-line!important;overflow-wrap:normal!important;word-break:keep-all;line-height:1.04!important;padding:0!important;
+  width:calc(100% / var(--nsx))!important;max-width:none!important;margin-left:calc(50% - 50% / var(--nsx))!important;transform:scaleX(var(--nsx))!important;transform-origin:50% 100%;letter-spacing:.015em}
+.lg.nf::before{left:0!important;right:0!important;white-space:pre-line}
+/* thẻ Duy Trì: ấn ký tròn nhô ở góc dưới-trái -> nâng tên lên trên phần ấn ký nằm trong thẻ (thay cho đệm trái 44% làm tên bị ép 3–4 dòng) */
+#board .slot>.ak9~.mc>.mn{padding-left:0!important;padding-right:0!important;padding-bottom:clamp(7px,18cqw,13px)!important}
+/* (2) huy hiệu trái: in sẵn ≤4 + nhãn +N; thẻ nhỏ hiện 1, vừa 2, lớn 4 */
+.hmk>b.mo{display:none;position:relative;align-items:center;justify-content:center;min-width:12px;height:11px;padding:0 2.5px;box-sizing:border-box;border-radius:999px;background:#0b0a26;color:#fff;font:900 9px/1 system-ui,-apple-system,sans-serif;letter-spacing:-.02em;box-shadow:0 0 0 1.2px rgba(220,230,255,.8),0 1px 3px rgba(0,0,0,.85);pointer-events:none}
+#board .mc>.hmk.bmk i{font-size:clamp(9px,12cqw,12px)!important}
+@container (max-width:49.9px){
+  .hmk>i:nth-of-type(n+2){display:none!important}
+  .hmk>b.m1{display:inline-flex;position:absolute;left:7px;top:7px;height:10px;min-width:0;padding:0 1.5px;letter-spacing:-.06em} /* đếm góc dưới-phải của huy hiệu */
+  #board .mc>.hmk.bmk{top:25%!important}
+  #board .mc>.hmk.bmk i{min-width:12px!important;height:12px!important;padding:0 2px!important}
+  #board .mc>.hmk.bmk i.sv svg{width:9px!important;height:9px!important}
+  .hand .hc>.hmk{top:calc(max(14px,22cqw) - 3.5cqw)!important;left:1px!important}
+  .hand .hc>.hmk i{min-width:13px!important;height:13px!important;font-size:9px!important;padding:0 2px!important}
+}
+@container (min-width:50px) and (max-width:119.9px){.hmk>i:nth-of-type(n+3){display:none!important}.hmk>b.m2{display:inline-flex}}
+@container (min-width:120px){.hmk>b.m4{display:inline-flex;height:18px;min-width:20px;font-size:12px}}
+/* (3) nhãn KH / ➜ / ✕ góc trên-trái: tối thiểu 9px */
+#board .mc>.tg{font-size:clamp(9px,10.5cqw,13px)!important}
+/* (4) chênh lệch sức mạnh (+N/−N): luôn nằm TRONG thẻ dưới số sức mạnh (trước: thẻ ≤46px đẩy ra ngoài, đè thẻ bên cạnh / bị cắt ở mép màn), ≥9px */
+#board .mc>.dl{font-size:clamp(9px,12cqw,14px)!important;line-height:1.12!important}
+@container (max-width:46px){#board .slot>.mc.mc>.dl,#board .mc.mc.mc>.dl{left:auto!important;right:-1px!important;top:calc(max(14px,22cqw) - 3.5cqw)!important;font-size:9px!important;padding:0 .22em!important}}
+/* (5) tay bài: mũi tên ▲▼ nằm CẠNH vòng số (trước đè nửa dưới số), ≥9px */
+.hand .hc .hda{top:calc(max(14px,22cqw) / 2 - 3.5cqw - 1px - .75em)!important;font-size:clamp(9px,11cqw,12px)!important;line-height:1.3!important;padding:0 2px!important}
+.hand .hc .hda.c{left:calc(max(14px,22cqw) - 3.5cqw + 2px)!important}
+.hand .hc .hda.p{right:calc(max(14px,22cqw) - 3.5cqw + 2px)!important;left:auto!important}
+@container (max-width:49.9px){.hand .hc .hda{padding:0!important;background:none!important;box-shadow:none!important;font-size:9px!important;text-shadow:0 0 2px #000,0 0 2px #000,0 1px 0 #000}
+  .hand .hc .hda.c{left:calc(max(14px,22cqw) - 3.5cqw - .5px)!important}.hand .hc .hda.p{right:1px!important;top:calc(max(14px,22cqw) - 3.5cqw - 1px)!important}}
+/* (6) tổng điểm chiến địa 3–4 chữ số: nhãn ×2/+N và cột chip dấu hiệu lùi ra khỏi lục giác */
+.mx.d3{left:calc(50% + 27px)}.mx.d4{left:calc(50% + 32px)}
+.dh-f{width:calc(50% - 27px)}.dh-f.w3{width:calc(50% - 33px)}.dh-f.w4{width:calc(50% - 38px)}
+/* (7) thẻ úp đến cuối ván: chữ ≥9px, phông hẹp */
+#board .mc.back.hidc>.hidb{font:italic 800 min(29cqw,11px)/1.04 "LTName","Barlow Condensed",sans-serif;letter-spacing:0;padding:2px 2px;transform:scaleX(.9)}
+/* (8) mô tả chiến địa: không nhỏ hơn 9px trên màn hẹp */
+@media (max-width:380px){.loc .lt{font-size:9.3px}}
+.cube .ch{font-size:9.5px}
+@media (max-width:380px){.dhc{font-size:9px}}
+/* (9) màn chi tiết thẻ: nút đóng luôn thấy (dính đáy vùng cuộn), không phải cuộn hết mới thấy */
+#zoom .zcl{position:sticky;bottom:10px;z-index:6;flex:none;box-shadow:0 4px 14px rgba(0,0,0,.75),0 0 0 3px rgba(6,8,36,.55)}
