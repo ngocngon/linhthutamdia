@@ -108,3 +108,7 @@ const sleep=async ms=>{const h=Math.min(4800,Math.max(0,FXHOLD));FXHOLD=0;if(h>0
 let reduced=store.fx==="off";document.body.classList.toggle("rm",reduced);
 const playing=()=>G.phase==="play";
 
+
+/* gpu34: số phiên bản trên màn hình chính + Cài đặt (lấy từ ?v= của chính tệp script nên luôn khớp bản đang chạy) */
+(function(){try{var m=null;for(var i=0;i<document.scripts.length;i++){var x=/03-data-store\.js\?v=([\w.-]+)/.exec(document.scripts[i].src||"");if(x){m=x[1];break;}}
+  var v=m?m.replace(/^gpu/,""):"?";window.LTD_VER=v;var a=document.getElementById("lbVer");if(a)a.textContent="Phiên bản "+v;var b=document.getElementById("setVer");if(b)b.textContent="· bản "+v;}catch(e){}})();

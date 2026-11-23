@@ -1010,3 +1010,7 @@ body.rm .kh11b{animation:none!important}
 @keyframes spk2{0%,100%{opacity:0;transform:scale(.4) rotate(0deg)}50%{opacity:.8;transform:scale(.8) rotate(45deg)}}
 body.rm .bigc.qf.q6 .qrg b,body.rm .bigc.qf.q6::before,body.rm .bigc.qf.q6 .spk i,body.rm .bigc.qf.q6>.art,body.nblow .bigc.qf.q6 .qrg b,body.nblow .bigc.qf.q6::before,body.nblow .bigc.qf.q6 .spk i,body.nblow .bigc.qf.q6>.art{animation:none!important}
 @media (prefers-reduced-motion:reduce){.bigc.qf.q6 .qrg b,.bigc.qf.q6::before,.bigc.qf.q6 .spk i,.bigc.qf.q6>.art{animation:none!important}}
+
+/* gpu34: số phiên bản */
+.lbver{position:absolute;left:50%;top:calc(env(safe-area-inset-top,0px) + 1px);transform:translateX(-50%);z-index:6;font:700 9.5px/1 "Be Vietnam Pro",system-ui,sans-serif;letter-spacing:.04em;color:rgba(255,255,255,.62);text-shadow:0 1px 2px #000;pointer-events:none;white-space:nowrap}
+.setver{font-size:11px;font-weight:600;color:#9fa9da;letter-spacing:.02em}
