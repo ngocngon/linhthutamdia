@@ -2044,7 +2044,7 @@
     };
   }
 
-  /* 6.6. Đuôi hạt GPU & Quỹ đạo mượt cho đòn phóng kỹ năng (fly8 & hit8 & ult) */
+  /* 6.6. Đuôi hạt GPU & Quỹ đạo mượt cho đòn phóng kỹ năng (fly8 & hit8) */
   if (typeof fly8 === "function" && GLFX.ok) {
     const _fly8Orig = fly8;
     fly8 = function (a, b, type, c, dur, dl, cb, html) {
@@ -2099,40 +2099,7 @@
     };
   }
 
-  if (typeof ult === "function" && GLFX.ok) {
-    const _ultOrig = ult;
-    ult = function (inst) {
-      syncOppCourtMetrics();
-      _ultOrig(inst);
-      if (reduced || !inst) return;
-      const d = C[inst.id];
-      const col = (d && HC[d.h]) || "#ffd65a";
-      const cx = window.innerWidth / 2, cy = window.innerHeight * 0.26;
-      FX.rays(cx, cy, col, 200);
-      FX.wave(cx, cy, col, 220);
-      FX.holo(cx, cy, col, 58);
-      FX.bolts(cx, cy, col, 8, 130);
-      gpuFlash(col, 0.3, 380);
-      GLFX.impulseShake(9);
-    };
-  }
-
-  if (typeof ultS4 === "function" && GLFX.ok) {
-    const _ultS4Orig = ultS4;
-    ultS4 = function (inst) {
-      syncOppCourtMetrics();
-      _ultS4Orig(inst);
-      if (reduced || !inst) return;
-      const d = C[inst.id];
-      const col = (d && HC[d.h]) || "#ff7ae6";
-      const cx = window.innerWidth / 2, cy = window.innerHeight * 0.25;
-      FX.rays(cx, cy, col, 130);
-      FX.wave(cx, cy, col, 155);
-      FX.sparks(cx, cy, col, 18, 220);
-      gpuFlash(col, 0.14, 260);
-      GLFX.impulseShake(5.5);
-    };
-  }
+  /* gpu26: màn tuyệt kỹ S5/S4 cũ (dải băng) đã thay bằng màn ra mắt lá thẻ ở 05 (ultShow) — bỏ lớp phủ GPU cũ */
 
   /* 6.7. Đặt Bài Siêu Nhanh (148ms), Rút Lại Về Tay (155ms), Đối Thủ Úp Bài & Mở Chiến Địa 3D Kiểu Marvel Snap */
   let knownQueued = new Set();
