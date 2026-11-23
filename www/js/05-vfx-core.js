@@ -1511,7 +1511,7 @@ function mcHTML(inst,li,staged){
   if(inst.sil)tags.push(`<i class="x">✕</i>`);
   const pc=pw>d.p?"up":pw<d.p?"down":"";
   const bmk=typeof markBadges==="function"?markBadges(inst,live?"board":"staged"):"";
-  return (cls.includes(" ong")?aura(inst):"")+`<button type="button" class="${cls}" style="--hc:${HC[d.h]}${inst.own==="p"?qSt(inst.id):""}" data-mc="${inst.uid}" aria-label="${d.n}, sức mạnh ${pw}">${inst.own==="p"?nbL(inst.id):""}${art(inst.id)}${cls.includes(" ong")?khIn11(inst):""}<span class="mn">${logo(d.id)}</span>${inst.own==="p"?spk(d.id):""}<span class="pwh ${pc}">${pw}</span>${pw!==d.p?`<span class="dl ${pc}">${pw>d.p?"+":"−"}${Math.abs(pw-d.p)}</span>`:""}${bmk}${tags.length?`<span class="tg">${tags.join("")}</span>`:""}${inst.ug&&inst.own==="p"?`<span class="ugb">⬆${inst.ug}</span>`:inst.ug?`<span class="ugb">⬆${inst.ug}</span>`:""}</button>`;
+  return (cls.includes(" ong")?aura(inst):"")+`<button type="button" class="${cls}" style="--hc:${HC[d.h]}${inst.own==="p"?qSt(inst.id):""}" data-mc="${inst.uid}" aria-label="${d.n}, sức mạnh ${pw}">${inst.own==="p"?nbL(inst.id):""}${art(inst.id)}${cls.includes(" ong")?khIn11(inst):""}<span class="mn">${nmFit(d.id)}</span>${inst.own==="p"?spk(d.id):""}<span class="pwh ${pc}">${pw}</span>${pw!==d.p?`<span class="dl ${pc}">${pw>d.p?"+":"−"}${Math.abs(pw-d.p)}</span>`:""}${bmk}${tags.length?`<span class="tg">${tags.join("")}</span>`:""}</button>`;
 }
 /* ===== v12: tải ảnh có thử lại + màn hình tải; giải mã trước sprite; chiêu thức nổi bật hơn; hào quang đặc ===== */
 const IMGRT={ok:{},bad:new Set(),keep:[]},SPK12={},SPKEEP=[];

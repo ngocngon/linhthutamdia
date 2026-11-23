@@ -208,7 +208,8 @@ function railsHTML(lane, ms, locw) {
     if (hid) chips.push(moreHTML(hid, lane));
     chips.forEach((h, i) => { (mx || i % 2 === 0 ? left : right).push(h); });
     // thứ tự điền: trái-trên, phải-trên, trái-dưới, phải-dưới -> cột trái nhận chip 0,2 và cột phải chip 1,3
-    const pos = r === "a" ? "ft" : "fb";
+    /* gpu35: tổng điểm 3–4 chữ số làm lục giác rộng hơn -> thu hẹp cột chip để không đè số */
+    const pwe = locw.querySelector(".pw." + r), pos = (r === "a" ? "ft" : "fb") + (pwe && /\bd4\b/.test(pwe.className) ? " w4" : pwe && /\bd3\b/.test(pwe.className) ? " w3" : "");
     if (left.length) html += '<div class="dh-f ' + pos + ' fl">' + left.join("") + "</div>";
     if (right.length) html += '<div class="dh-f ' + pos + ' fr">' + right.join("") + "</div>";
   }
@@ -259,7 +260,7 @@ function paint() {
     if ((lane.dataset.dhp || "") !== lp) { if (lp) lane.dataset.dhp = lp; else delete lane.dataset.dhp; }
     if ((lane.dataset.dha || "") !== la) { if (la) lane.dataset.dha = la; else delete lane.dataset.dha; }
     const locw = lane.querySelector(".locw"); if (!locw) return;
-    const key = ln.filter(m => m.lane === li).map(m => m.k + m.v + m.n).join(";") + "|" + !!locw.querySelector(".mx.a") + !!locw.querySelector(".mx.p");
+    const key = ln.filter(m => m.lane === li).map(m => m.k + m.v + m.n).join(";") + "|" + !!locw.querySelector(".mx.a") + !!locw.querySelector(".mx.p") + [...locw.querySelectorAll(".pw")].map(e => /\bd[34]\b/.exec(e.className) || "").join("");
     if (locw.dataset.dhs === key && (key.length < 4 || locw.querySelector(".dh-f"))) return;
     locw.querySelectorAll(".dh-f").forEach(e => e.remove());
     const h = railsHTML(li, ln, locw);
