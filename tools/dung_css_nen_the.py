@@ -224,8 +224,8 @@ css.append('''@keyframes nbSlide{to{transform:translate3d(-50%,0,0)}}
 @keyframes nbPulse{0%,100%{opacity:.55}50%{opacity:1}}
 ''')
 # ---------------- NỀN ĐỘNG / ÁNH KIM trên tranh vẽ (lớp hiệu ứng nhẹ: chỉ transform/opacity) ----------------
-# DOM (js/11-nen-the.js bgHTML): <nb-l class="nth nth-ID nbi nbfx"><i class="nbk"></i><i class="nbx nbx1"></i><i class="nbx nbx2"></i><i class="nbx nbx3"></i></nb-l>
-#   .nbk = tranh vẽ (chuyển động zoom/pan chậm kiểu Ken Burns ở thẻ lớn); ::before = lớp hiệu ứng CHÍNH (chạy cả ở thẻ nhỏ);
+# DOM (js/11-nen-the.js bgHTML): <nb-l class="nth nth-ID nbi nbfx"><i class="nbim"></i><i class="nbx nbx1"></i><i class="nbx nbx2"></i><i class="nbx nbx3"></i></nb-l>
+#   .nbim = tranh vẽ (chuyển động zoom/pan chậm kiểu Ken Burns ở thẻ lớn); ::before = lớp hiệu ứng CHÍNH (chạy cả ở thẻ nhỏ);
 #   ::after và .nbx* = lớp phụ (chỉ thẻ lớn). Thẻ nhỏ chạy: tay bài (.hc), bàn (.mc), ô xem thử cửa hàng (.nbmini). Lưới sưu tập, khay bộ bài: đứng yên.
 BIGP=['.bigc>','#ovPZ .gc>','#zoom .gc>','.nbpv>']
 RUNP=BIGP+['.hc>','.mc>','.nbmini>']
@@ -238,7 +238,7 @@ def wrapx(f_,x):  # vẽ thêm bản sao ở x±100 để lát ngang liền mạ
     return f_(x)+f_(x-100)+f_(x+100)
 css.append('''/* ---- lớp hiệu ứng trên tranh vẽ: nền động + ánh kim ---- */
 .nth.nbfx{background-image:none!important}
-.nth .nbk{position:absolute;z-index:-1;left:0;top:0;right:0;bottom:0;display:block;background:var(--nbimg) center/cover no-repeat;transform-origin:50% 50%}
+.nth .nbim{position:absolute;z-index:-1;left:0;top:0;right:0;bottom:0;display:block;background:var(--nbimg) center/cover no-repeat;transform-origin:50% 50%}
 .nth .nbx{display:none;position:absolute;pointer-events:none}
 .nth.nbfx::before,.nth.nbfx::after{opacity:1;mix-blend-mode:normal;filter:none;background-repeat:repeat}
 .nth.nbfx::after{display:none}
@@ -257,12 +257,12 @@ css.append('''/* ---- lớp hiệu ứng trên tranh vẽ: nền động + ánh 
 # hiện lớp phụ ở thẻ lớn
 css.append(Bs(['.nth.nbfx::after'])+'{display:block}')
 css.append(Bs(['.nth.nbfx .nbx'])+'{display:block}')
-css.append(Bs(['.nth.nbfx .nbk'])+'{animation:nbKB 18s ease-in-out infinite alternate}')
+css.append(Bs(['.nth.nbfx .nbim'])+'{animation:nbKB 18s ease-in-out infinite alternate}')
 # chạy / dừng
-css.append('.nth[data-nth]::before,.nth[data-nth]::after,.nth[data-nth] .nbk,.nth[data-nth] .nbx{animation-play-state:paused}')
-css.append(Bs(['.nth[data-nth]::before','.nth[data-nth]::after','.nth[data-nth] .nbk','.nth[data-nth] .nbx'],RUNP)+'{animation-play-state:running}')
-css.append('body.rm .nth .nbk,body.rm .nth .nbx,body.nblow .nth .nbk,body.nblow .nth .nbx{animation:none!important}')
-css.append('@media (prefers-reduced-motion:reduce){.nth .nbk,.nth .nbx{animation:none!important}}')
+css.append('.nth[data-nth]::before,.nth[data-nth]::after,.nth[data-nth] .nbim,.nth[data-nth] .nbx{animation-play-state:paused}')
+css.append(Bs(['.nth[data-nth]::before','.nth[data-nth]::after','.nth[data-nth] .nbim','.nth[data-nth] .nbx'],RUNP)+'{animation-play-state:running}')
+css.append('body.rm .nth .nbim,body.rm .nth .nbx,body.nblow .nth .nbim,body.nblow .nth .nbx{animation:none!important}')
+css.append('@media (prefers-reduced-motion:reduce){.nth .nbim,.nth .nbx{animation:none!important}}')
 
 def lay(i,which,css_body):  # which: before/after
     R(f'{NB(i)}::{which}',"right:auto;bottom:auto;transform:none;opacity:1;"+css_body)
