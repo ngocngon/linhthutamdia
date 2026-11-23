@@ -360,13 +360,16 @@ $("shopBody").addEventListener("click",ev=>{const b=ev.target.closest("button");
   save();renderShop();renderLobby();});
 /* thẻ lớn */
 let cardRen=false,cardAlt=0;
+/* viền Vô Cực (màn xem thẻ lớn): giữ pha hoạt ảnh qua các lần renderCard để viền không giật về đầu mỗi lần làm mới (đổi màu, yêu thích, lật thẻ...) */
+const QR_T0=performance.now();
+function qrDelay(){return "-"+(((performance.now()-QR_T0)/1000)%120).toFixed(2)+"s";}
 function cardList(){return [...document.querySelectorAll('#ovDeck [data-pick]')].map(e=>e.dataset.pick).filter(k=>C[k]);}
 function renderCard(){const k=cardId,d=C[k],o=OWN.has(k),l=lvl(k),pv=cardPrev,c=store.cards[k]||{},cu=pv===6&&l===6;
   $("cardRes").innerHTML=resHTML(["up","tok","gold"]);
   const LK=[k,...(LINKS[k]||[])],ai=cardAlt%LK.length,sid=LK[ai],sd=C[sid];
   $("cardHead").textContent=sid!==k?`Thẻ liên quan · ${d.n}`:`Thẻ nhân vật${DANG[d.t]?" · "+DANG[d.t]:""}${o?"":" · chưa sở hữu"}`;
   const qc=cu&&c.bc?c.bc:QN[pv][1],cls=pv?` qf q${pv}${cu&&c.bc?" qcc":""}${cu&&c.au?" qau":""}${cu&&c.an?" qan":""}`:"";
-  $("cardBody").innerHTML=`<div class="fanw">${fanSides(LK,ai)}<div class="bigc${cls}" style="--hc:${HC[d.h]};--bk:${backBg()};${cu&&c.bc?"--qc:"+c.bc:""}">${nbL(sid)}${art(sid,1)}<span class="cst">${sd.c}</span><span class="pwh">${sd.p}</span><span class="n">${logo(sid)}</span>${sid===k?spk(k):""}${bacTag(sd)}${lkBtn(ai,LK.length)}${flipBtn()}</div></div>
+  $("cardBody").innerHTML=`<div class="fanw">${fanSides(LK,ai)}<div class="bigc${cls}" style="--hc:${HC[d.h]};--bk:${backBg()};${cu&&c.bc?"--qc:"+c.bc:""}${pv===6?";--qd:"+qrDelay():""}">${pv===6?`<i class="qrg" aria-hidden="true"><b></b></i>`:""}${nbL(sid)}${art(sid,1)}<span class="cst">${sd.c}</span><span class="pwh">${sd.p}</span><span class="n">${logo(sid)}</span>${sid===k?spk(k):""}${bacTag(sd)}${lkBtn(ai,LK.length)}${flipBtn()}</div></div>
   <div class="cvscroll"><div class="cinfo cvtx">${kwfx(skillText(sd))}</div>${NEN.slot(sid)}
   ${cardRen?`<div class="frow cvren"><input id="cardName" type="text" maxlength="16" value="${esc(d.n)}" autocomplete="off" aria-label="Tên thẻ"><button type="button" class="sortb" data-rn="1">Lưu</button>${store.names[k]?`<button type="button" class="sortb" data-rn="0">Tên gốc</button>`:""}</div>`:""}
   ${o&&l===6?`<div class="cust"><div class="sw">${SWATCH.map(x=>`<button type="button" data-bc="${x}" class="${c.bc===x?"on":""}" style="--c:${x}" aria-label="Màu viền ${x}"></button>`).join("")}<button type="button" data-bc="" class="${!c.bc?"on":""}" style="--c:conic-gradient(#ff4d6d,#ffd65a,#7dff8a,#3fe0ff,#c45cff,#ff4d6d)" aria-label="Viền cầu vồng"></button></div><div class="tg2"><button type="button" class="tgb${c.au?" on":""}" data-tg="au">Hào quang</button><button type="button" class="tgb${c.an?" on":""}" data-tg="an">Thẻ động</button></div></div>`:""}</div>`;
