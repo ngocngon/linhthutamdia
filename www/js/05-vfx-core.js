@@ -168,7 +168,7 @@ function ultsOf(evs,P0){const out=[],seen=new Set();for(const ev of evs.filter(f
   /* gpu40: thẻ Bậc 1–3 ra chiêu thật sự trong bước (Lật có hiệu lực, Kích Hoạt, Cuối Lượt, Phản Ứng) -> màn ra mắt bản gọn (mini) */
   try{const m=mini40(evs,P0);if(m&&!out.some(x=>x.uid===m.uid))out.push(m);}catch(e){}
   return out;}
-const isMini40=d=>!!d&&/^S[123]$/.test(d.h);
+const isMini40=d=>!!d&&!isUlt(d)&&!isUltS4(d); /* mọi bậc dưới S4 (S1–S3, khởi đầu, thẻ tạo ra) */
 /* bước có kết quả thật (không chỉ thẻ lật + dòng "kỹ năng chạy"): sự kiện khác, hoặc sức mạnh / năng lượng đổi */
 function eff40(evs,P0){if(evs.some(e=>!/^(flip|skill|act)$/.test(e.k)))return true;
   try{if(P0&&G){for(const [u,v] of powers())if(P0.has(u)&&P0.get(u)!==v)return true;}if(G&&EN0&&(G.energy.p!==EN0.p||G.energy.a!==EN0.a))return true;}catch(e){}return false;}
