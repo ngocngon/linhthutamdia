@@ -1555,7 +1555,9 @@ document.addEventListener("error",e=>{const t=e.target;if(!t||t.tagName!=="IMG")
 /* gpu22: mỗi thẻ có file riêng: img/ct/<id>.webp (thumbnail 256) và img/c/<id>.webp (đầy đủ 512). Khoá "id" = thumbnail, "id@f" = bản đầy đủ.
    gpu23: bỏ đường dự phòng cắt sprite tờ img/s (thư mục này không còn trong www/, mọi id trong IMGS.c đều có img/c + img/ct). */
 const CV12="gpu22";
-function cardUrl12(id,f){return new URL("img/"+(f?"c":"ct")+"/"+id+".webp?v="+CV12,document.baseURI||location.href).href;}
+/* ảnh thẻ vẽ lại: phiên bản riêng theo thẻ để máy người chơi tải ảnh mới mà không phải tải lại toàn bộ */
+const CV12X={};for(const k of "nguyetthach thietgiap yeutinhluc thuantuong nguumamienvien lucsi taythep linhgacmay thepnhan yeutinhcam bachho quyensu naomay khoithit phuthan".split(" "))CV12X[k]="a40";
+function cardUrl12(id,f){return new URL("img/"+(f?"c":"ct")+"/"+id+".webp?v="+(CV12X[id]||CV12),document.baseURI||location.href).href;}
 function spKey12(k){const f=k.slice(-2)==="@f";return {f:f,id:f?k.slice(0,-2):k};}
 function spLoad(k){if(SP.c[k]||SP.k[k])return;const q=spKey12(k);if(!IMGS.c[q.id])return;
   SP.k[k]=1;const cu=cardUrl12(q.id,q.f);
