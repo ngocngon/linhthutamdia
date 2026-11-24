@@ -29,6 +29,8 @@ def the_score(raw_x, s):
 
 TARGET = {"the5": -17.0, "the4": -18.0}
 # các lần thử hậu kỳ tăng dần: (bộ lọc tiền xử lý trên bản thô, thêm đuôi vang nếu quá ngắn)
+CMP = "acompressor=threshold=0.03:ratio=8:attack=2:release=120:makeup=6"
+TAIL = "apad=pad_dur=0.8,aecho=0.8:0.7:80|160|240|320:0.5|0.35|0.25|0.12"
 ATT = [("", False),
        ("equalizer=f=3600:t=o:w=1.4:g=-4,lowpass=f=8000", False),
        ("equalizer=f=3200:t=o:w=1.6:g=-7,lowpass=f=6000,acompressor=threshold=0.08:ratio=3:attack=3:release=80:makeup=2", False),
@@ -36,15 +38,81 @@ ATT = [("", False),
        ("equalizer=f=2800:t=o:w=1.6:g=-8,lowpass=f=5000,equalizer=f=220:t=o:w=1.5:g=3", False),
        # hạ cao độ (và kéo dài nhẹ) -> dồn năng lượng xuống dải trầm-trung, ấm hơn, dài hơn
        ("asetrate=44100*0.82,aresample=44100,equalizer=f=2800:t=o:w=1.6:g=-6,lowpass=f=5500,acompressor=threshold=0.08:ratio=3:attack=3:release=80:makeup=2", False),
-       ("asetrate=44100*0.7,aresample=44100,equalizer=f=2500:t=o:w=1.6:g=-6,lowpass=f=5000,acompressor=threshold=0.08:ratio=3:attack=3:release=80:makeup=2", False)]
+       ("asetrate=44100*0.7,aresample=44100,equalizer=f=2500:t=o:w=1.6:g=-6,lowpass=f=5000,acompressor=threshold=0.08:ratio=3:attack=3:release=80:makeup=2", False),
+       # cứu thẻ gắt/nhỏ/ngắn (đợt sửa 2): lọc thấp mạnh + nén để lên to dưới trần đỉnh -3 dBFS, thêm đuôi vang nếu ngắn
+       ("equalizer=f=3000:t=o:w=1.8:g=-9,lowpass=f=4200,equalizer=f=250:t=o:w=1.5:g=3,acompressor=threshold=0.05:ratio=4:attack=3:release=90:makeup=4", False),
+       ("equalizer=f=3000:t=o:w=1.8:g=-9,lowpass=f=4200,equalizer=f=250:t=o:w=1.5:g=3,acompressor=threshold=0.05:ratio=4:attack=3:release=90:makeup=4,apad=pad_dur=0.5,aecho=0.8:0.6:70|140|210:0.45|0.3|0.15", True),
+       ("asetrate=44100*0.85,aresample=44100,equalizer=f=3000:t=o:w=1.8:g=-9,lowpass=f=4200,acompressor=threshold=0.05:ratio=4:attack=3:release=90:makeup=4,apad=pad_dur=0.5,aecho=0.8:0.6:70|140|210:0.45|0.3|0.15", True),
+       ("asetrate=44100*0.75,aresample=44100,equalizer=f=2600:t=o:w=1.8:g=-9,lowpass=f=3800,acompressor=threshold=0.04:ratio=5:attack=3:release=90:makeup=5,apad=pad_dur=0.5,aecho=0.8:0.6:70|140|210:0.45|0.3|0.15", True),
+       # bước cuối: kéo dài (atempo) + đuôi vang cho thẻ ngắn; lọc thấp 2 tầng cho thẻ gắt; nén mạnh cho thẻ nhỏ
+       ("atempo=0.7,lowpass=f=3000,lowpass=f=3000,equalizer=f=220:t=o:w=1.5:g=3," + CMP + "," + TAIL, True),
+       ("atempo=0.8,equalizer=f=3000:t=o:w=1.8:g=-10,lowpass=f=3400,lowpass=f=3400," + CMP + "," + TAIL, True),
+       ("asetrate=44100*0.8,aresample=44100,atempo=0.85,lowpass=f=2800,lowpass=f=2800,equalizer=f=200:t=o:w=1.5:g=4," + CMP + "," + TAIL, True)]
+MARGIN = dict(h26=29.5, lufs=-18.8, dur_lo=0.64, dur_hi=1.25)   # tiêu chí đạt, đo SAU khi qua mp3 96 kb/s (độ to hụt thêm ~0,2–0,5 dB)
+
+
+def via_mp3(wav_path, tmp):
+    """Đo đúng thứ người chơi nghe: mã hoá mp3 96 kb/s rồi giải mã lại."""
+    mp = os.path.join(tmp, "rt.mp3")
+    subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", wav_path, "-ac", "1", "-ar", str(SR), "-c:a", "libmp3lame", "-b:a", "96k", mp], check=True)
+    return D.stats(D.read(mp))
+
+
+def passes(s):
+    return s["h26"] <= MARGIN["h26"] and s["lufs"] >= MARGIN["lufs"] and MARGIN["dur_lo"] <= s["dur"] <= MARGIN["dur_hi"]
 
 
 def final_score(s, cls):
     sc = D.score(s)
     sc -= 3 * max(0.0, TARGET[cls] - 1.0 - s["lufs"])        # quá nhỏ vì trần đỉnh bóp
     sc -= 1.0 * max(0.0, s["h26"] - 30)                       # còn gắt
-    sc -= 60 * max(0.0, 0.6 - s["dur"])                        # ngắn hơn 0,6 s
+    sc -= 60 * max(0.0, 0.62 - s["dur"])                       # ngắn hơn 0,6 s
+    sc -= 40 * max(0.0, s["dur"] - 1.2)
     return sc
+
+
+def write_wav(path, y):
+    with wave.open(path, "wb") as w:
+        w.setnchannels(1); w.setsampwidth(2); w.setframerate(SR); w.writeframes((np.clip(y, -1, 1) * 32767).astype("<i2").tobytes())
+
+
+def limit(y, peak=-3.0):
+    lim = 10 ** (peak / 20); pk = np.max(np.abs(y))
+    if pk > lim:
+        k = lim * 1.12
+        y = np.where(np.abs(y) > lim * 0.7, np.sign(y) * (lim * 0.7 + (k - lim * 0.7) * np.tanh((np.abs(y) - lim * 0.7) / (k - lim * 0.7))), y)
+        y = y * min(1, lim / np.max(np.abs(y)))
+    return y
+
+
+def rescue(wav_path, cls, tmp, max_dur=1.2):
+    """Sửa bản đã hậu kỳ mà vẫn trượt tiêu chí (đo qua mp3): ngắn -> kéo dài + đuôi vang; gắt -> lọc thấp mạnh dần; nhỏ -> nén + tăng + chặn đỉnh -3 dBFS.
+    Trả về (số bước đã sửa, số đo cuối)."""
+    s = via_mp3(wav_path, tmp); lp = 3200.0; n = 0
+    while not passes(s) and n < 10:
+        n += 1
+        x = D.read(wav_path); t1 = os.path.join(tmp, "r1.wav"); t2 = os.path.join(tmp, "r2.wav")
+        write_wav(t1, x); af = []
+        if s["dur"] < MARGIN["dur_lo"]:
+            f = max(0.5, s["dur"] / 0.7)
+            af.append(f"atempo={f:.3f}")
+            af.append("apad=pad_dur=0.6,aecho=0.8:0.6:70|140|210:0.45|0.3|0.15")
+        if s["h26"] > MARGIN["h26"]:
+            af.append(f"lowpass=f={lp:.0f},lowpass=f={lp:.0f},equalizer=f=3000:t=o:w=1.8:g=-3"); lp *= 0.8
+        if s["lufs"] < MARGIN["lufs"] + 0.3 and not af:
+            af.append("acompressor=threshold=0.05:ratio=5:attack=3:release=90:makeup=2")
+        if af: D.ff(t1, t2, ",".join(af)); x = D.read(t2)
+        # cắt lặng cuối, đặt lại độ to theo lớp (+ bù hao hụt mp3), chặn đỉnh, fade
+        idx = np.where(np.abs(x) > 10 ** (-50 / 20))[0]
+        if len(idx): x = x[: min(len(x), idx[-1] + int(0.02 * SR), int(max_dur * SR))]
+        st = D.stats(x)
+        bonus = min(1.5, 0.6 + 0.3 * n)
+        y = x * 10 ** ((TARGET[cls] + bonus - st["lufs"]) / 20)
+        y = limit(y)
+        m = len(y); fi = int(0.004 * SR); fo = int(min(0.12, 0.25 * m / SR) * SR)
+        y[:fi] *= np.linspace(0, 1, fi); y[m - fo:] *= np.linspace(1, 0, fo) ** 1.5
+        write_wav(wav_path, y); s = via_mp3(wav_path, tmp)
+    return n, s
 
 
 def attempt(raw_f, cls, k, tmp, a):
@@ -55,7 +123,7 @@ def attempt(raw_f, cls, k, tmp, a):
         D.ff(raw_f, src, flt)
     out = os.path.join(tmp, f"o{a}.wav")
     D.process(src, out, cls, 1.2, tmp)
-    return out, D.stats(D.read(out))
+    return out, via_mp3(out, tmp)
 
 
 def main():
@@ -66,11 +134,18 @@ def main():
     wav = os.path.join(work, "wav"); os.makedirs(wav, exist_ok=True)
     tmp = tempfile.mkdtemp()
     rows = []; done = []
+    only = set(os.environ["SFX_ONLY"].split(",")) if os.environ.get("SFX_ONLY") else None
     for x in ds:
+        if only is not None and x["k"] not in only:       # chạy lại một phần: giữ nguyên bản đã hậu kỳ ở lần trước
+            old = os.path.join(wav, x["k"] + ".wav")
+            if os.path.exists(old):
+                n, st = rescue(old, x["c"], tmp); rows.append((x["k"], x["h"], -1, 0, st, -n)); done.append(x); continue
         cand = []
-        for i in range(x.get("n", 1)):
-            f = os.path.join(raw, f"{x['k']}_{i}.mp3")
-            if not os.path.exists(f): continue
+        for i in range(x.get("n", 1) + x.get("them", 0)):
+            dirs = raw.split(":")   # thư mục đầu tiên có bản của thẻ này thắng (bản tạo lại thay hẳn bản cũ, không trộn)
+            dirs = next(([d] for d in dirs if os.path.exists(os.path.join(d, f"{x['k']}_0.mp3"))), dirs)
+            f = next((os.path.join(d, f"{x['k']}_{i}.mp3") for d in dirs if os.path.exists(os.path.join(d, f"{x['k']}_{i}.mp3"))), None)
+            if not f: continue
             r = D.read(f)
             if len(r) < 2000: continue
             s0 = D.stats(r)
@@ -86,11 +161,12 @@ def main():
                 sc = final_score(s, x["c"])
                 if best is None or sc > best[0]:
                     keep = os.path.join(tmp, f"best_{x['k']}.wav"); os.replace(o, keep); best = (sc, i, a, keep, s)
-                if s["h26"] <= 30 and s["lufs"] >= TARGET[x["c"]] - 1.5 and s["dur"] >= 0.6: good = True; break
+                if passes(s): good = True; break
             if good: break    # bản này đã đạt, không cần thử bản kia
         if best is None: print("LẶNG", x["k"]); continue
         out = os.path.join(wav, x["k"] + ".wav"); os.replace(best[3], out)
-        rows.append((x["k"], x["h"], best[1], len(cand), best[4], best[2]))
+        n, st = rescue(out, x["c"], tmp)
+        rows.append((x["k"], x["h"], best[1], len(cand), st, best[2] + (100 * n)))
         done.append(x)
     with open(os.path.join(work, "do.tsv"), "w") as fh:
         fh.write("id\tbậc\tbản\tsố bản\tlần thử\tgiây\tđỉnh dBFS\tLUFS\t%2–6kHz\t%>6kHz\t%300–2k\n")
@@ -99,7 +175,7 @@ def main():
     # xếp: bậc (S5, S4) -> hệ -> id
     done.sort(key=lambda x: (0 if x["h"] == "S5" else 1, HE_ORDER.index(x.get("he", "")) if x.get("he", "") in HE_ORDER else 99, x["k"]))
     per = math.ceil(len(done) / nsp)
-    root = os.path.join(here, "..", "www", "sfx")
+    root = os.environ.get("SFX_OUT") or os.path.join(here, "..", "www", "sfx")
     idx = {}
     for si in range(nsp):
         part = done[si * per:(si + 1) * per]
