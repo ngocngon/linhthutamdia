@@ -5,15 +5,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <title>Linh Thú Tam Địa — Bản Nâng Cấp WebGL GPU</title>
 <link rel="icon" href="data:,">
-<link rel="stylesheet" href="css/00-fonts.css?v=gpu46">
-<link rel="stylesheet" href="css/01-arena-cards.css?v=gpu46">
-<link rel="stylesheet" href="css/02-board-vfx.css?v=gpu46">
-<link rel="stylesheet" href="css/03-lobby-meta.css?v=gpu46">
-<link rel="stylesheet" href="css/04-vfx-gpu.css?v=gpu46">
-<link rel="stylesheet" href="css/05-mo-bai.css?v=gpu46">
-<link rel="stylesheet" href="css/06-cai-dat.css?v=gpu46">
-<link rel="stylesheet" href="css/07-nen-the.css?v=gpu46">
-<link rel="stylesheet" href="css/08-dau-hieu.css?v=gpu46">
+<link rel="stylesheet" href="css/00-fonts.css?v=gpu47">
+<link rel="stylesheet" href="css/01-arena-cards.css?v=gpu47">
+<link rel="stylesheet" href="css/02-board-vfx.css?v=gpu47">
+<link rel="stylesheet" href="css/03-lobby-meta.css?v=gpu47">
+<link rel="stylesheet" href="css/04-vfx-gpu.css?v=gpu47">
+<link rel="stylesheet" href="css/05-mo-bai.css?v=gpu47">
+<link rel="stylesheet" href="css/06-cai-dat.css?v=gpu47">
+<link rel="stylesheet" href="css/07-nen-the.css?v=gpu47">
+<link rel="stylesheet" href="css/08-dau-hieu.css?v=gpu47">
 </head>
 <body>
 <div id="ldr12" role="status" aria-live="polite"><div class="lb12"><b>LINH THÚ TAM ĐỊA</b><div class="bar12"><i id="ldrBar"></i></div><span id="ldrTxt">Đang tải hình… 0%</span><button type="button" id="ldrSkip" hidden>Vào luôn</button></div></div>
@@ -324,23 +324,23 @@
 </div></div>
 
 
-<script src="js/11-nen-the.js?v=gpu46"></script>
-<script src="js/01-engine.js?v=gpu46"></script>
-<script src="js/03-data-store.js?v=gpu46"></script>
-<script src="js/04a-sfx-fam.js?v=gpu46"></script>
-<script src="js/04-audio.js?v=gpu46"></script>
-<script src="js/05-vfx-core.js?v=gpu46"></script>
-<script src="js/06-ui-match.js?v=gpu46"></script>
-<script src="js/07-meta-modes.js?v=gpu46"></script>
-<script src="js/08-vfx-webgl.js?v=gpu46"></script>
-<script src="js/09-card-choreo.js?v=gpu46"></script>
-<script src="js/10-online-cf.js?v=gpu46"></script>
-<script src="js/12-dau-hieu.js?v=gpu46"></script>
+<script src="js/11-nen-the.js?v=gpu47"></script>
+<script src="js/01-engine.js?v=gpu47"></script>
+<script src="js/03-data-store.js?v=gpu47"></script>
+<script src="js/04a-sfx-fam.js?v=gpu47"></script>
+<script src="js/04-audio.js?v=gpu47"></script>
+<script src="js/05-vfx-core.js?v=gpu47"></script>
+<script src="js/06-ui-match.js?v=gpu47"></script>
+<script src="js/07-meta-modes.js?v=gpu47"></script>
+<script src="js/08-vfx-webgl.js?v=gpu47"></script>
+<script src="js/09-card-choreo.js?v=gpu47"></script>
+<script src="js/10-online-cf.js?v=gpu47"></script>
+<script src="js/12-dau-hieu.js?v=gpu47"></script>
 <script>
 /* gpu22: service worker (chỉ khi chạy qua http/https, không đăng ký trong vỏ Capacitor/APK vì ảnh đã nằm sẵn trong app) */
 (function(){var C=window.Capacitor,nat=C&&C.isNativePlatform&&C.isNativePlatform();
 if(!("serviceWorker" in navigator)||!/^https?:$/.test(location.protocol)||nat)return;
-var SWU="sw.js?v=gpu46",V=SWU.split("v=")[1];
+var SWU="sw.js?v=gpu47",V=SWU.split("v=")[1];
 /* gpu35: trang mở lâu (ứng dụng để nền rồi mở lại) vẫn nhận bản mới: khi quay lại trang (tối đa 1 lần/10 phút) đọc index.html mới nhất,
    thấy số phiên bản khác -> đang ở sảnh thì tải lại ngay (1 lần cho mỗi bản), đang chơi thì hiện nút "Có bản mới — chạm để cập nhật". */
 var lastChk=0;function chk(){var now=Date.now();if(now-lastChk<600000||!navigator.onLine)return;lastChk=now;
