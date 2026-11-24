@@ -1,8 +1,8 @@
 /* Module 06: Giao diện bàn đấu, vòng lặp lượt chơi, kéo thả thẻ & bộ đếm giờ */
 /* gpu29: trong lúc diễn một bước, bàn được vẽ theo "khung trước bước" GV (05: pvShow) cho tới khi nhịp kỹ năng bắt đầu */
-function render(){if(typeof GV!=="undefined"&&GV&&GV!==G){const g=G;G=GV;try{render0();paintZoom();}finally{G=g;}return;}veil43(G,()=>{render0();paintZoom();});}
+function render(){if(typeof GV!=="undefined"&&GV&&GV!==G){const g=G,v=locVeiled(g);G=GV;try{veil43(GV,()=>{render0();paintZoom();},v);}finally{G=g;}return;}veil43(G,()=>{render0();paintZoom();});}
 /* gpu43: trước lượt 1 (LVEIL, 03) vẽ bàn như thể cả 3 chiến địa chưa lộ diện — đặt tạm rvl=false rồi trả lại ngay trong finally (không đổi luật, không lọt vào mã băm online) */
-function veil43(g,f){if(!locVeiled(g))return f();const sv=g.locs.map(L=>L.rvl);try{for(const L of g.locs)L.rvl=false;return f();}finally{g.locs.forEach((L,i)=>{L.rvl=sv[i];});}}
+function veil43(g,f,force){if(!(force||locVeiled(g)))return f();const sv=g.locs.map(L=>L.rvl);try{for(const L of g.locs)L.rvl=false;return f();}finally{g.locs.forEach((L,i)=>{L.rvl=sv[i];});}}
 /* vá bàn đấu: so từng ô với lần vẽ trước, chỉ thay ô nào đổi */
 let BC=null;
 function laneKey(ln){const c=ln.children;return {l:c[1].outerHTML,o:[...c[0].children].map(x=>x.className+"|"+x.innerHTML),m:[...c[2].children].map(x=>x.className+"|"+x.innerHTML)};}

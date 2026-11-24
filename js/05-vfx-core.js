@@ -398,7 +398,7 @@ function playFxCore(evs,R0,P0,part){
   const fromSrc=(uid,cb,i)=>{const t=at(uid);if(sH&&uid!==SRC&&t)chip(sR,t,sH,cb,(i||0)*90);else cb();};
   const destroyed=new Set(),gone=new Set();let ci=0;
   const cues=new Map(),cue=(k,weak)=>{if(k&&(!cues.has(k)||!weak))cues.set(k,!!weak);};let upMax=0,dnMax=0;
-  if(part!==1){try{SFX.src(SRC!=null?elU(SRC):null);}catch(e){}}
+  if(part!==1){try{SFX.src(SRC!=null?elU(SRC):null,SRC);}catch(e){}}
   const revN={};for(const e of evs)if(e.k==="skill"&&e.t==="rev")revN[e.uid]=(revN[e.uid]||0)+1;
   for(const ev of evs){
     const p=ev.uid!=null?at(ev.uid):null;
