@@ -87,7 +87,7 @@ function resetF(){F.dang="ALL";F.he="ALL";F.cost=0;F.text="";F.foc=null;$("deckS
 function openCol(){F.col=true;draft=new Set(store.deck);resetF();renderDeck();$("ovDeck").classList.add("on");}
 function openEdit(i){editIdx=i;F.col=false;const dd=store.decks[i];draft=new Set(dd?dd.ids:[]);$("deckName").value=dd?dd.n:"Bộ bài "+(i+1);draftB=dd?dBack(dd):(BACKS[store.back]?store.back:"b0");paintBack();$("bkRow").hidden=true;$("btnBack").setAttribute("aria-expanded","false");resetF();F.dang="OWN";renderDeck();$("ovDecks").classList.remove("on");$("ovDeck").classList.add("on");}
 function newDeck(){if(store.decks.length>=12)return;openEdit(store.decks.length);}
-function renderDecks(){const d=store.decks[pendIdx];$("dkSelName").textContent=d.n;$("dkSelTray").innerHTML=miniTray(d.ids);$("dkSelBk").style.background=BACKS[dBack(d)][1];$("dkCnt").textContent=store.decks.length+"/12";
+function renderDecks(){const d=store.decks[pendIdx];$("dkSelName").textContent=d.n;$("dkSelTray").innerHTML=miniTray(d.ids,"data-dsel");$("dkSelBk").style.background=BACKS[dBack(d)][1];$("dkCnt").textContent=store.decks.length+"/12";
   $("dkGrid").innerHTML=store.decks.map((x,i)=>tileHTML(x,i,i===pendIdx)).join("")+(store.decks.length<12?`<button type="button" class="dkt add" data-dk="new"><span class="dki">＋</span><b>Bộ mới</b></button>`:"");
   const b=$("btnEquip");b.disabled=pendIdx===store.cur;b.textContent=pendIdx===store.cur?"Đã trang bị":"Trang bị";}
 function paintBack(){$("dbkS").style.background=BACKS[draftB][1];
