@@ -462,7 +462,7 @@ function startModeGame0(mode,pDeck,foeDeck,upP,upA,xo){
   foeAv=foeDeck[foeDeck.length-1];$("avFoe").innerHTML=artFace(foeAv);$("avMe").innerHTML=meAv();
   foeBack=Object.keys(BACKS)[Math.floor(Math.random()*Object.keys(BACKS).length)];
   try{$("ovEnd").classList.remove("on");}catch(e){}
-  G=E.newGame(pDeck,foeDeck,Object.assign({upg:{p:upP||{},a:upA||{}}},xo||{}));G.mode=mode;gameDeck=store.deck.join();
+  G=E.newGame(pDeck,foeDeck,Object.assign({upg:{p:upP||{},a:upA||{}}},xo||{}));G.mode=mode;LVEIL=G;gameDeck=store.deck.join();
   missNote="";resetTimer(false);
   G.msg=`<b>${mode.lbl||(mode.k==="draft"?"Tuyển chọn":"Chinh phục")} · máy ${DIFF[mode.diff].n}.</b> `+turnMsg(G.msgs.slice(0,4));
   closeAll();$("lobby").classList.remove("on");if(window.BGM)BGM.syncGame(G);render();$("foeName").textContent="MÁY";}

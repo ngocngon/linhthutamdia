@@ -797,7 +797,7 @@
       for (let li = 0; li < 3; li++) {
         const L = G.locs && G.locs[li];
         const r = lrs[li];
-        if (!L || !L.rvl || L.gone || !r || r.width < 10 || Math.random() > 0.42) continue;
+        if (!L || !L.rvl || L.gone || !r || r.width < 10 || locVeiled(G) || Math.random() > 0.42) continue;
         const th = (typeof LTH !== "undefined" && LTH[L.id]) || "thieng";
         const px = rnd(r.left + 8, r.right - 8);
         const py = rnd(r.top + 14, r.bottom - 14);
@@ -2398,7 +2398,7 @@
     const lrs = [null, null, null], kinds = [], lanes = [], sideR = [];
     for (let li = 0; li < 3; li++) {
       const L = G.locs[li];
-      kinds[li] = L && L.rvl && !L.gone ? classifyLocField(L.id) : "";
+      kinds[li] = L && L.rvl && !L.gone && !locVeiled(G) ? classifyLocField(L.id) : ""; /* gpu43: chưa mở che -> không tô nền theo chiến địa */
       const ln = lanes[li] = document.querySelector(`#board [data-lane="${li}"]`);
       if (ln) lrs[li] = ln.getBoundingClientRect();
       for (let si = 0; si < 2; si++) {
@@ -2451,12 +2451,12 @@
   window.classifyLocField = classifyLocField;
   window.addEventListener("resize", syncBoardFieldVfx, { passive: true });
 
-  /* gpu40: Mở Chiến Địa GỌN — một chuyển động chính: biển chiến địa lật hiện (CSS locrev40) + một vệt sáng nhẹ lướt qua tên.
-     Bỏ: vòng ấn cổ ngữ xoay, tia điện bát giác, dây năng lượng + sóng + hạt sang 2 phần sân, tia toả/sóng/hạt giữa biển,
-     rung màn, sprite "hien_dia", quầng theo nhóm (.lrev + hạt), cổng xoáy, thông báo "▸ Lộ diện" ở nửa sân trên. */
+  /* gpu43: Mở Chiến Địa GỌN (làm lại) — chỉ một lần lật biển chiến địa (CSS locrev40, ~0,26 s gốc) rồi giữ yên để đọc tên;
+     tối đa một vệt sáng nhẹ (bỏ khi FXLV=0 hoặc tắt hiệu ứng). Không rung, không hạt, không chớp trắng, không sprite/quầng.
+     Mọi thời lượng nhân SPD; người gọi chờ LOC_OPEN (03) để tên hiện rõ ≈ 0,9 s ở mức mặc định "Rất chậm". */
   if (typeof locReveal === "function") {
     locReveal = function (li) {
-      if (reduced || !G || !G.locs[li]) return;
+      if (reduced || !G || !G.locs[li] || locVeiled(G)) return;
       const ln = document.querySelector(`#board [data-lane="${li}"]`);
       const lw = ln && ln.querySelector(".locw");
       if (!lw) return;
@@ -2465,14 +2465,13 @@
       const fMeta = kind ? LOC_FIELD_META[kind] : null;
       const th = (typeof LTH !== "undefined" && LTH[L.id]) || "thieng";
       const col = (fMeta && fMeta.col) || (typeof LTC !== "undefined" && LTC[th]) || "#ffd65a";
-      if (typeof holdFx === "function") holdFx(640);
+      const sp = typeof SPD === "number" && SPD > 0 ? SPD : 1;
+      if (typeof holdFx === "function") holdFx(typeof LOC_OPEN === "number" ? LOC_OPEN : 700);
       lw.style.setProperty("--lc", col);
-      lw.classList.remove("gpu-loc-rev");
-      void lw.offsetWidth;
-      lw.classList.add("gpu-loc-rev");
-      fxT(() => lw.classList.remove("gpu-loc-rev"), 660);
+      if (!lw.classList.contains("new")) { lw.classList.remove("gpu-loc-rev"); void lw.offsetWidth; lw.classList.add("gpu-loc-rev"); }
+      fxT(() => lw.classList.remove("gpu-loc-rev"), 320);
       const r = lw.getBoundingClientRect();
-      if (r.width > 0) {
+      if (window.FXLV !== 0 && r.width > 0) {
         const sh = document.createElement("div");
         sh.className = "loc-sheen40";
         sh.style.cssText = `left:${r.left.toFixed(1)}px;top:${r.top.toFixed(1)}px;width:${r.width.toFixed(1)}px;height:${r.height.toFixed(1)}px`;
@@ -2480,11 +2479,11 @@
         document.body.appendChild(sh);
         const a = sh.firstChild.animate([
           { transform: "translateX(-130%) skewX(-16deg)", opacity: 0 },
-          { transform: "translateX(-40%) skewX(-16deg)", opacity: 1, offset: 0.35 },
+          { transform: "translateX(-40%) skewX(-16deg)", opacity: 0.8, offset: 0.35 },
           { transform: "translateX(260%) skewX(-16deg)", opacity: 0 }
-        ], { duration: 380, delay: 220, easing: "ease-in-out", fill: "both" });
+        ], { duration: 300 * sp, delay: 220 * sp, easing: "ease-in-out", fill: "both" });
         a.onfinish = () => sh.remove();
-        fxT(() => sh.remove(), 700);
+        fxT(() => sh.remove(), 600);
       }
       syncBoardFieldVfx();
     };
