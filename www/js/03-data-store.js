@@ -81,8 +81,20 @@ function renderLobby(){misDay();try{const rb=document.querySelector('.lb-nav [da
   $("lbArenaN").textContent=ARENAS[store.arena][0];$("lbDeckIc").innerHTML=artFace(t);$("lbDeckIc").style.setProperty("--hc",HC[C[t].h]);$("lbDeckIc").style.background=BACKS[dBack(d)][1];$("lbDeckName").textContent=d.n;
   $("lbPlay").textContent=live&&(G.turn>1||G.q.p.length)?"Tiếp tục":"Chơi";$("lbStake").innerHTML=`<span class="gmi">${icn("gems")}</span><b>${store.gems}</b><small>Ngọc</small>`;renderBnr();}
 function showLobby(){closeAll();renderLobby();$("lobby").classList.add("on");if(window.BGM)BGM.setMode("lobby");if(typeof syncBoardFieldVfx==="function")syncBoardFieldVfx();}
-async function runMatchIntro(turnLbl,subLbl,revealLane0){dealIn();await sleep(reduced?60:640);await startShow();if(revealLane0&&typeof gpuLocReveal==="function"){gpuLocReveal(0);await sleep(reduced?80:660);}banner(turnLbl||"LƯỢT 1/6",subLbl||"");await sleep(reduced?50:780);}
-function playNow(){if(window.BGM)BGM.stop();const k=store.deck.join();if(!G||G.phase==="over"||G.online||(G.turn===1&&!G.q.p.length&&gameDeck!==k)){closeAll();mmBot(nm=>{newGame();$("foeName").textContent=nm;closeAll();$("lobby").classList.remove("on");if(window.BGM)BGM.syncGame(G);resetTimer(true);render();runMatchIntro("LƯỢT 1/6","",true);});return;}closeAll();$("lobby").classList.remove("on");if(window.BGM)BGM.syncGame(G);resetTimer(true);render();}
+/* gpu43: CHIẾN ĐỊA ĐÓNG TRƯỚC LƯỢT 1 — LVEIL = ván đang "che" chiến địa (màn mở đầu + chia bài). Trong lúc che, render() vẽ cả 3 chiến địa như chưa lộ diện
+   (không tên/ảnh/mô tả/màu, chạm xem cũng chỉ báo "chưa lộ diện", số liệu trên tay không tính hiệu ứng chiến địa). Luật engine không đổi:
+   chiến địa 1 vẫn lộ ở đầu lượt 1 trong E.newGame; chỉ phần trình diễn chờ tới khi băng hiệu "LƯỢT 1" xong mới mở (locOpen43). */
+let LVEIL=null;
+const LOC_OPEN=700; /* ms gốc (nhân SPD): lật ~250 + giữ tên ~450 -> mặc định "Rất chậm" (SPD 2.0) ≈ 1,4 s, tên đọc rõ ≈ 0,9 s */
+function locVeiled(g){return !!g&&LVEIL===g&&g.turn<=1;}
+async function locOpen43(g0,show){if(LVEIL!==g0)return;LVEIL=null;render();const ls=[0,1,2].filter(i=>g0.locs[i].rvl&&!g0.locs[i].gone);if(!show||!ls.length)return;
+  if(typeof gpuLocReveal==="function")for(const li of ls)gpuLocReveal(li);try{SFX.fam("locrev",{vol:.7,el:null});}catch(e){}await sleep(reduced?80:LOC_OPEN);}
+async function runMatchIntro(turnLbl,subLbl,revealLane0){const g0=G;if(!g0)return;LVEIL=g0;try{seenLoc.clear();}catch(e){}
+  try{for(const L of g0.locs)if(L.rvl&&IMGL.has(L.id)){const im=new Image();im.src=IMGS.l[L.id];}}catch(e){} /* tải sẵn ảnh chiến địa để lúc lật không bị trống */
+  render();dealIn();await sleep(reduced?60:640);if(G!==g0)return;await startShow();if(G!==g0)return;
+  banner(turnLbl||"LƯỢT 1/6",subLbl||"");await sleep(reduced?50:780);if(G!==g0)return;
+  await locOpen43(g0,revealLane0!==false);}
+function playNow(){if(window.BGM)BGM.stop();const k=store.deck.join();if(!G||G.phase==="over"||G.online||(G.turn===1&&!G.q.p.length&&gameDeck!==k)){closeAll();mmBot(nm=>{newGame();$("foeName").textContent=nm;closeAll();$("lobby").classList.remove("on");if(window.BGM)BGM.syncGame(G);resetTimer(true);render();runMatchIntro("LƯỢT 1/6","",true);});return;}closeAll();$("lobby").classList.remove("on");if(window.BGM)BGM.syncGame(G);resetTimer(true);render();if(locVeiled(G))runMatchIntro(G.mode?"LƯỢT 1":"LƯỢT 1/"+E.turns(G),(G.mode&&G.mode.lbl)||"",true);}
 function resetF(){F.dang="ALL";F.he="ALL";F.cost=0;F.text="";F.foc=null;$("deckSearch").value="";}
 function openCol(){F.col=true;draft=new Set(store.deck);resetF();renderDeck();$("ovDeck").classList.add("on");}
 function openEdit(i){editIdx=i;F.col=false;const dd=store.decks[i];draft=new Set(dd?dd.ids:[]);$("deckName").value=dd?dd.n:"Bộ bài "+(i+1);draftB=dd?dBack(dd):(BACKS[store.back]?store.back:"b0");paintBack();$("bkRow").hidden=true;$("btnBack").setAttribute("aria-expanded","false");resetF();F.dang="OWN";renderDeck();$("ovDecks").classList.remove("on");$("ovDeck").classList.add("on");}

@@ -307,7 +307,7 @@ function pop(focusKey) {
   const f = ms.find(m => m.k === focusKey);
   const fl = f ? f.lane : (focusKey && /^\d$/.test(String(focusKey)) ? +focusKey : -2);
   const groups = [["Toàn bàn", ms.filter(m => m.lane < 0)]];
-  for (let l = 0; l < 3; l++) { const a = ms.filter(m => m.lane === l); if (a.length) groups.push(["Chiến địa " + (l + 1) + (G.locs[l].rvl ? " · " + E.LOC[G.locs[l].id].n : ""), a, l]); }
+  for (let l = 0; l < 3; l++) { const a = ms.filter(m => m.lane === l); if (a.length) groups.push(["Chiến địa " + (l + 1) + (G.locs[l].rvl && !locVeiled(G) ? " · " + E.LOC[G.locs[l].id].n : ""), a, l]); }
   groups.sort((a, b) => (b[2] === fl ? 1 : 0) - (a[2] === fl ? 1 : 0));
   let h = '<button type="button" class="dhx" aria-label="Đóng">✕</button><h4>Dấu hiệu trên bàn</h4>';
   for (const [t, arr] of groups) {
