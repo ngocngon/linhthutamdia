@@ -192,8 +192,8 @@ body .loc .in {
 }
 .locw.new,
 .locw.gpu-loc-rev {
-  animation: locrev40 0.26s cubic-bezier(0.2, 0.7, 0.3, 1) both !important;
   z-index: 16 !important;
+  animation: none !important; /* gpu47: mở chiến địa dùng lớp phủ .l47 (08-vfx-webgl.js), không còn lật bằng locrev40/locflip */
 }
 
 /* Huy hiệu sức mạnh lục giác kim loại / cam lửa khi dẫn điểm (chuẩn Marvel Snap) */
@@ -1087,7 +1087,7 @@ body.rm .choreo-afterimage {
 }
 .locw.gpu-loc-rev {
   z-index: 16 !important;
-  animation: locrev40 0.26s cubic-bezier(0.2, 0.7, 0.3, 1) both !important;
+  animation: none !important;
 }
 
 /* ==================== VFX CHIẾN ĐỊA TRỰC QUAN TRÊN 2 PHẦN SÂN NGƯỜI CHƠI (#boardFieldVfx) ==================== */
@@ -1599,3 +1599,19 @@ body.rm .locw.new, body.rm .locw.gpu-loc-rev { animation: none !important; }
 .loc-sheen40 { position: fixed; z-index: 17; pointer-events: none; overflow: hidden; border-radius: 10px; }
 .loc-sheen40 i { position: absolute; top: -10%; bottom: -10%; left: 0; width: 38%; background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.42), transparent); }
 body.rm .loc-sheen40 { display: none !important; }
+
+/* gpu47: MỞ CHIẾN ĐỊA 3 nhịp (~2,0 s ở "Rất chậm"): tụ lực -> bung mở -> trình diện. Lớp phủ cố định đè đúng ô chiến địa; chỉ transform/opacity/scale. */
+.l47 { position: fixed; z-index: 40; pointer-events: none; }
+.l47 > *, .l47-cv > * { position: absolute; }
+.l47-g { inset: -2px; clip-path: polygon(9% 0, 91% 0, 100% 16%, 100% 84%, 91% 100%, 9% 100%, 0 84%, 0 16%); box-shadow: inset 0 0 0 2px var(--lc, #ffd65a), inset 0 0 16px var(--lc, #ffd65a); opacity: 0; }
+.l47-cv { inset: 0; }
+.l47-h { inset: 0; display: grid; place-items: center; background: repeating-linear-gradient(135deg, rgba(127, 210, 255, 0.07) 0 6px, rgba(8, 12, 38, 0.07) 6px 12px), radial-gradient(circle at 50% 45%, #232d78 0%, #090d2a 88%); }
+.l47-h.a { clip-path: polygon(9% 0, 50% 0, 50% 100%, 9% 100%, 0 84%, 0 16%); }
+.l47-h.b { clip-path: polygon(50% 0, 91% 0, 100% 16%, 100% 84%, 91% 100%, 50% 100%); }
+.l47-h b { font-family: var(--f-display); font-style: italic; font-weight: 900; font-size: clamp(22px, 5.6vw, 34px); line-height: 1; color: #a8c5ff; text-shadow: 0 0 10px var(--lc, #7fe8ff); }
+.l47-k { left: 50%; top: -2%; bottom: -2%; width: 3px; margin-left: -1.5px; background: linear-gradient(180deg, transparent, #fff 14%, #fff 86%, transparent); box-shadow: 0 0 10px 3px var(--lc, #ffd65a); opacity: 0; transform-origin: 50% 50%; }
+.l47-r { left: 50%; top: 50%; border-radius: 50%; border: 2px solid var(--lc, #ffd65a); box-shadow: 0 0 12px var(--lc, #ffd65a), inset 0 0 10px var(--lc, #ffd65a); opacity: 0; }
+.l47-nb { left: -2%; right: -2%; background: linear-gradient(90deg, transparent, var(--lc, #ffd65a) 22%, var(--lc, #ffd65a) 78%, transparent); opacity: 0; mix-blend-mode: screen; }
+.l47-rim { inset: -1px; clip-path: polygon(9% 0, 91% 0, 100% 16%, 100% 84%, 91% 100%, 9% 100%, 0 84%, 0 16%); box-shadow: inset 0 0 0 2px var(--lc, #ffd65a); opacity: 0; }
+.l47-d { left: 0; top: 0; width: 14px; height: 14px; border-radius: 50%; background: radial-gradient(circle, #fff 0 30%, var(--lc, #ffd65a) 60%, transparent 72%); box-shadow: 0 0 10px 3px var(--lc, #ffd65a); opacity: 0; }
+body.rm .l47 { display: none; }

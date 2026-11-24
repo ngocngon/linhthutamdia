@@ -85,10 +85,14 @@ function showLobby(){closeAll();renderLobby();$("lobby").classList.add("on");if(
    (không tên/ảnh/mô tả/màu, chạm xem cũng chỉ báo "chưa lộ diện", số liệu trên tay không tính hiệu ứng chiến địa). Luật engine không đổi:
    chiến địa 1 vẫn lộ ở đầu lượt 1 trong E.newGame; chỉ phần trình diễn chờ tới khi băng hiệu "LƯỢT 1" xong mới mở (locOpen43). */
 let LVEIL=null;
-const LOC_OPEN=700; /* ms gốc (nhân SPD): lật ~250 + giữ tên ~450 -> mặc định "Rất chậm" (SPD 2.0) ≈ 1,4 s, tên đọc rõ ≈ 0,9 s */
+const LOC_OPEN=965; /* ms gốc (nhân SPD) chờ mở chiến địa 3 nhịp: tụ lực 250 + bung mở 250 + trình diện 500 = 1000 (đã trừ ~35 đuôi của sleep) -> mặc định "Rất chậm" (SPD 2.0) ≈ 2,0 s (gpu47, vẽ ở 08) */
 function locVeiled(g){return !!g&&LVEIL===g&&g.turn<=1;}
-async function locOpen43(g0,show){if(LVEIL!==g0)return;LVEIL=null;render();const ls=[0,1,2].filter(i=>g0.locs[i].rvl&&!g0.locs[i].gone);if(!show||!ls.length)return;
-  if(typeof gpuLocReveal==="function")for(const li of ls)gpuLocReveal(li);try{SFX.fam("locrev",{vol:.7,el:null});}catch(e){}await sleep(reduced?80:LOC_OPEN);}
+async function locOpen43(g0,show){if(LVEIL!==g0)return;const ls=[0,1,2].filter(i=>g0.locs[i].rvl&&!g0.locs[i].gone);
+  const un=()=>{if(LVEIL===g0){LVEIL=null;render();}}; /* lộ diện + vẽ lại bàn; gọi đúng nhịp bung mở */
+  if(!show||!ls.length){un();return;}
+  let n=0;if(!reduced&&typeof gpuLocOpen47==="function")for(const li of ls)if(gpuLocOpen47(li,un))n++;
+  if(n){await sleep(LOC_OPEN);un();return;}
+  un();try{for(const li of ls)SFX.play("loc",.85);}catch(e){}await sleep(reduced?80:300);}
 async function runMatchIntro(turnLbl,subLbl,revealLane0){const g0=G;if(!g0)return;LVEIL=g0;try{seenLoc.clear();}catch(e){}
   try{for(const L of g0.locs)if(L.rvl&&IMGL.has(L.id)){const im=new Image();im.src=IMGS.l[L.id];}}catch(e){} /* tải sẵn ảnh chiến địa để lúc lật không bị trống */
   render();dealIn();await sleep(reduced?60:640);if(G!==g0)return;await startShow();if(G!==g0)return;
