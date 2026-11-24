@@ -7,6 +7,7 @@ function mkImgBack(name,uKey,cropBot){
   const u=UI(uKey)||("img/u/"+uKey+".webp");
   return [name,cropBot?`url('${u}') 50% 0% / 104% 108% no-repeat #0b0a24`:`url('${u}') 50% 50% / 103% 103% no-repeat #0b0a24`];
 }
+/* gpu49: bảng mặt lưng -> ảnh này được sao ở 03 (UBK0) để tải trước mặt lưng đang dùng; đổi ở đây thì đổi cả bên 03 */
 const BACKS={
  b0:mkImgBack("Trống Đồng Lạc Việt","bk_thuong_1"),
  b1:mkImgBack("Hoàng Long Nhả Ngọc","bk_hungtrang_1"),
@@ -894,7 +895,7 @@ $("deckSearch").addEventListener("input",ev=>{F.text=ev.target.value.trim();rend
    Đang ở chế độ đổi thẻ (bộ đủ 12) thì chạm thẻ khác trong lưới = chọn thẻ đó để đổi. */
 $("deckList").addEventListener("click",ev=>{
   const r=ev.target.closest("[data-pick]");if(!r)return;const k=r.dataset.pick;
-  const ctx=()=>({list:domList("#deckList [data-pick]","pick"),src:F.col?"col":"edit"});
+  const ctx=()=>({list:DK.ids.filter(k=>C[k]),src:F.col?"col":"edit"}); /* gpu49: cả danh sách đã lọc/sắp xếp, không chỉ phần đã vẽ */
   if(F.col){SFX.play("tap");openCard(k,ctx());return;}
   const now=Date.now();
   if(tapK===k&&now-tapT<330){clearTimeout(tapTm);tapK="";dkQuick(k,r,ctx);return;}
@@ -1306,13 +1307,13 @@ let edRet=null,swapK=null,colSave=null;
   colSave=fromCol?{F:{dang:F.dang,he:F.he,cost:F.cost,text:F.text,foc:F.foc},y:$("deckList").parentElement.scrollTop}:null;
   swapK=null;clearTimeout(tapTm);tapK="";_oe(i);};}
 function edClose(saved){const r=edRet;edRet=null;swapK=null;clearTimeout(tapTm);tapK="";
-  if(r&&r.to==="col"){const c=colSave||{};colSave=null;F.col=true;draft=new Set(store.deck);if(c.F)Object.assign(F,c.F);$("deckSearch").value=F.text||"";renderDeck();$("deckList").parentElement.scrollTop=c.y||0;$("ovDeck").classList.add("on");return;}
+  if(r&&r.to==="col"){const c=colSave||{};colSave=null;F.col=true;draft=new Set(store.deck);if(c.F)Object.assign(F,c.F);$("deckSearch").value=F.text||"";renderDeck();dkScrollSet(c.y||0);$("ovDeck").classList.add("on");return;}
   $("ovDeck").classList.remove("on");
   if(r&&r.to==="decks"){if(saved)pendIdx=editIdx;if(!store.decks[pendIdx])pendIdx=store.cur;renderDecks();$("ovDecks").classList.add("on");}}
 /* đóng một bảng phủ theo thao tác người dùng (nút ✕/Đóng, chạm nền, nút Back) */
 function closeOv(o){if(!o)return;if(o.id==="ovDeck"&&o.classList.contains("on")&&!F.col){edClose(false);return;}o.classList.remove("on");}
 function dkHintUse(){if((store.dkh|0)<3){store.dkh=(store.dkh|0)+1;save();}}
-function dkScrollTo(k){requestAnimationFrame(()=>{const e=document.querySelector('#deckList [data-pick="'+k+'"]');if(!e)return;const bd=$("deckList").parentElement,r=e.getBoundingClientRect(),br=bd.getBoundingClientRect();bd.scrollTop=Math.max(0,bd.scrollTop+r.top-br.top-(br.height-r.height)/2);});}
+function dkScrollTo(k){requestAnimationFrame(()=>{dkEnsure(k);const e=document.querySelector('#deckList [data-pick="'+k+'"]');if(!e)return;const bd=$("deckList").parentElement,r=e.getBoundingClientRect(),br=bd.getBoundingClientRect();bd.scrollTop=Math.max(0,bd.scrollTop+r.top-br.top-(br.height-r.height)/2);});}
 /* chạm 2 lần trong lưới trình sửa: thêm / bỏ nhanh (bộ đủ 12 hoặc chưa sở hữu -> mở thông tin thẻ để chọn cách khác) */
 function dkQuick(k,el,ctx){
   if(draft.has(k)){draft.delete(k);SFX.play("tap");dkHintUse();renderDeck(true);return;}

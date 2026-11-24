@@ -113,7 +113,7 @@ if (!ONLY || ONLY.test("lien-ket")) {
   /* trình sửa: chạm 1 lần = thông tin, danh sách theo lưới */
   await page.evaluate(() => { const k = [...draft][0]; draft.delete(k); renderDeck(true); }); await W8(200);
   await page.evaluate(() => document.querySelectorAll("#deckList [data-pick]")[1].click()); await W8(600);
-  r = await page.evaluate(() => { const L = [...document.querySelectorAll("#deckList [data-pick]")].map(e => e.dataset.pick); const k0 = cardId; cardNav(1); return { ov: [...document.querySelectorAll(".ov.on")].map(o => o.id).join(","), same: cardList().length === L.length, i0: L.indexOf(k0), i1: L.indexOf(cardId) }; });
+  r = await page.evaluate(() => { const L = DK.ids.slice(), nDom = document.querySelectorAll("#deckList [data-pick]").length; const k0 = cardId; cardNav(1); return { ov: [...document.querySelectorAll(".ov.on")].map(o => o.id).join(","), same: cardList().length === L.length && nDom <= L.length && nDom >= 1 && L.slice(0, nDom).every((k, i) => document.querySelectorAll("#deckList [data-pick]")[i].dataset.pick === k), i0: L.indexOf(k0), i1: L.indexOf(cardId) }; });
   chk(r.ov === "ovDeck,ovCard" && r.same && r.i0 === 1 && r.i1 === 2, `chạm thẻ trong lưới trình sửa mở #ovCard; mũi tên sau đi đúng thẻ kế trong lưới (${JSON.stringify(r)})`);
   r = await page.evaluate(() => { const k = cardId, had = draft.has(k), b = document.querySelector("#cardGo [data-cg]"); const a = b && b.dataset.cg; if (b) b.click(); return { a, had, now: draft.has(k), n: draft.size }; });
   chk((r.a === "add" && !r.had && r.now) || (r.a === "rm" && r.had && !r.now), `nút ${r.a} trong #ovCard thêm/bỏ thẻ (${JSON.stringify(r)})`);
