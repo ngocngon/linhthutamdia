@@ -87,7 +87,7 @@ if __name__ == "__main__":
 
 
 # độ to mục tiêu ("LUFS khi đang kêu" của meter) theo lớp trong tools/sfx_ds.json
-LOP = {"ui": -21.0, "nho": -19.0, "vua": -18.0, "lon": -16.5, "dinh": -16.0}
+LOP = {"ui": -21.0, "nho": -19.0, "vua": -18.0, "lon": -16.5, "dinh": -16.0, "the5": -17.0, "the4": -18.0}  # the5/the4: tiếng kỹ năng riêng từng thẻ (tools/sfx_the_build.py)
 PEAK = -3.0
 # tên phụ: bản thử tốt thứ hai dùng làm biến thể xoay vòng
 ALT = {"ra_s5": "ra_s5b", "ra_s4": "ra_s4b", "ra_mini": "ra_minib"}
@@ -195,6 +195,26 @@ def cmd_page(out_html, sprite_json):
         use = x.get("dung", {"flip": "Lật thẻ (tên cũ, = rv_a)", "rv_soft": "Lá lật thứ 2 trở đi trong 1,8 s (dựng từ rv_c)"}.get(n, ""))
         if n in base: use += " (biến thể 2, xoay vòng)"
         rows.append(f'<tr><td><button class="pl" data-n="{n}">&#9654;</button></td><td><code>{n}</code></td><td>{html.escape(use)}</td><td>{d:.2f}s</td><td class="pr">{html.escape(x.get("t", ""))}</td></tr>')
+    the_html, the_n = "", 0
+    tj, tds = os.path.join(os.path.dirname(sprite_json), "the.json"), os.path.join(here, "sfx_the.json")
+    if os.path.exists(tj) and os.path.exists(tds):
+        ti = json.load(open(tj)); tl = {x["k"]: x for x in json.load(open(tds))["list"]}
+        trs = []
+        for k, (sp, a, d) in sorted(ti.items(), key=lambda kv: (tl[kv[0]]["h"] != "S5", tl[kv[0]]["vn"])):
+            x = tl[k]
+            trs.append(f'<tr data-q="{html.escape((x["vn"] + " " + k).lower())}"><td><button class="tp" data-sp="{sp}" data-a="{a}" data-d="{d}">&#9654;</button></td><td>{html.escape(x["vn"])}</td><td>{x["h"]}</td><td>{x.get("he", "")}</td><td class="pr">{html.escape(x["t"].split(": ", 1)[-1].split("; ")[0])}</td></tr>')
+        the_n = len(ti)
+        the_html = f'''<h2>5. Tiếng riêng từng thẻ ({the_n} thẻ Bậc 5 / Bậc 4)</h2>
+<p class="s">Mỗi thẻ một tiếng kỹ năng riêng (sprite <code>sfx/the-1…6.mp3</code> + chỉ mục <code>sfx/the.json</code>, tải lười trong game). Gõ tên để lọc; bấm &#9654; để nghe (sprite tải lần đầu khi bấm).</p>
+<div><input id="tq" placeholder="Lọc theo tên thẻ..." style="background:#171c27;color:#e6e9f0;border:1px solid #232938;border-radius:6px;padding:7px 10px;width:260px"><span id="tc" style="color:#8c95a8;margin-left:10px"></span></div>
+<table><thead><tr><th></th><th>Thẻ</th><th>Bậc</th><th>Hệ</th><th>Mô tả gửi ElevenLabs</th></tr></thead><tbody id="tb">
+{chr(10).join(trs)}
+</tbody></table>'''
+    the_js = '''
+const TB={},TP={};async function tplay(b){const n=b.dataset.sp;AC.resume();if(!TB[n])TB[n]=fetch("sfx/the-"+n+".mp3").then(r=>r.arrayBuffer()).then(ab=>new Promise((res,rej)=>{const p=AC.decodeAudioData(ab,res,rej);if(p&&p.catch)p.catch(rej);}));const buf=await TB[n];if(cur)try{cur.stop()}catch(e){}const s=AC.createBufferSource();s.buffer=buf;s.connect(AC.destination);s.start(0,+b.dataset.a,+b.dataset.d);cur=s;}
+document.querySelectorAll(".tp").forEach(b=>b.onclick=()=>tplay(b));
+const tq=document.getElementById("tq");if(tq){const f=()=>{const q=tq.value.trim().toLowerCase();let c=0;document.querySelectorAll("#tb tr").forEach(r=>{const ok=!q||r.dataset.q.includes(q);r.style.display=ok?"":"none";if(ok)c++;});document.getElementById("tc").textContent=c+" thẻ";};tq.oninput=f;f();}
+''' if the_n else ""
     page = f'''<!DOCTYPE html>
 <html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Nghe thử âm thanh - Linh Thú Tam Địa</title>
@@ -223,6 +243,7 @@ Bấm nhanh nhiều lần để thử chống trùng (tiếng trước tắt d�
 <table><thead><tr><th></th><th>Tên</th><th>Dùng cho</th><th>Dài</th><th>Mô tả gửi ElevenLabs</th></tr></thead><tbody>
 {chr(10).join(rows)}
 </tbody></table>
+{the_html}
 <script>window.store={{vol:100,vib:false,mute:false}};</script>
 <script src="js/01-engine.js"></script><script src="js/04a-sfx-fam.js"></script><script src="js/04-audio.js"></script>
 <script>
@@ -240,7 +261,7 @@ $("rv4").onclick=()=>{{SFX.wake();["S1","S3","S1","S1","S3"].forEach((h,i)=>setT
 $("fam").innerHTML=Object.keys(SFX_FAMS).filter(k=>k!=="none").map(k=>`<button class="fm" data-k="${{k}}" title="${{SFX_FAMS[k][1]}}">${{SFX_FAMS[k][0]}}</button>`).join("");
 document.querySelectorAll(".fm").forEach(b=>b.onclick=()=>{{SFX.wake();SFX.fam(b.dataset.k,{{el:$("E").value||null}});}});
 $("all").onclick=async()=>{{for(const b of document.querySelectorAll(".pl")){{b.scrollIntoView({{block:"center"}});await play(b.dataset.n);await new Promise(r=>setTimeout(r,250));}}}};
-</script></body></html>
+{the_js}</script></body></html>
 '''
     open(out_html, "w").write(page)
 
