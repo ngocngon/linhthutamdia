@@ -245,13 +245,10 @@
   <div class="foot" id="runFoot"></div>
 </div></div>
 
-<div class="ov" id="ovCard"><div class="panel tall cview">
-  <div class="resbar" id="cardRes" style="padding-top:12px"></div>
-  <div class="cvhead"><span id="cardHead">Thẻ nhân vật</span></div>
-  <div class="body" style="padding:0;flex:1"><div id="cardBody"></div></div>
-  <div class="cvbot"><button type="button" class="cvnav" data-cn="-1" aria-label="Thẻ trước"><b>‹</b></button><div class="cvq" id="cardQ"></div><button type="button" class="cvnav" data-cn="1" aria-label="Thẻ sau"><b>›</b></button></div>
-  <div class="cvact"><button type="button" class="cvb" id="cardFav" aria-label="Yêu thích">★</button><button type="button" class="cvb" id="cardRen" aria-label="Đổi tên">✎</button><button class="btn end" type="button" id="btnUp"></button></div>
-  <button type="button" class="cvx" data-close aria-label="Đóng">✕</button>
+<div class="ov" id="ovCard"><div class="panel tall cview" role="dialog" aria-label="Thông tin thẻ">
+  <div class="resbar" id="cardRes"></div>
+  <div class="body"><div id="cardBody"></div></div>
+  <div class="cvact"><button type="button" class="cvb" id="cardFav" aria-label="Yêu thích" title="Yêu thích">★</button><button type="button" class="cvb" id="cardRen" aria-label="Đổi tên" title="Đổi tên">✎</button><button class="btn end" type="button" id="btnUp"></button><button type="button" class="cvb cvx" data-close aria-label="Đóng" title="Đóng">✕</button></div>
 </div></div>
 
 <div class="ov" id="ovShop"><div class="panel tall shop">
