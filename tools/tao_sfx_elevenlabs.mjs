@@ -4,6 +4,7 @@
 //   node tools/tao_sfx_elevenlabs.mjs <thư_mục_ra> [tên ...] [--du-phong=1000] [--thu]
 //   --ds=sfx_the.json: dùng danh sách khác (mặc định sfx_ds.json); --song=3: tối đa 3 yêu cầu song song; --per-sec=12: credit/giây dùng để ước tính
 //   (với --ds thì chạy lần lượt theo bản thử: bản 0 của mọi thẻ rồi mới tới bản 1, nên hết credit thì mỗi thẻ vẫn có ít nhất 1 bản)
+//   --ngan-sach=1150: tổng credit tối đa được tiêu trong lần chạy này; cộng dồn theo header `character-cost` của mỗi lần POST (khoá không có quyền user_read thì không đọc được GET /v1/user/subscription)
 //   --thu: chỉ in danh sách + ước tính credit, không gọi API.
 // Bỏ qua tệp đã có (chạy lại an toàn). Dừng khi credit còn lại dưới mức dự phòng.
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
@@ -27,22 +28,24 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
 // số credit báo về có độ trễ và endpoint dễ bị giới hạn tần suất (429): đọc thưa, lỗi thì giữ số cũ
 async function credit(old) { for (let k = 0; k < 3; k++) { const r = await fetch("https://api.elevenlabs.io/v1/user/subscription", { headers: H }); if (r.ok) { const j = await r.json(); return j.character_limit - j.character_count; } await sleep(3000 * (k + 1)); } if (old == null) throw new Error("không đọc được credit"); return old; }
 mkdirSync(out, { recursive: true });
-let left = await credit(); console.log("credit còn:", left);
+const BUDGET = flags["ngan-sach"] ? +flags["ngan-sach"] : null; let spent = 0;
+let left; try { left = await credit(); console.log("credit còn:", left); } catch { left = BUDGET ?? 1e9; console.log("không đọc được credit (khoá thiếu quyền user_read); dùng ngân sách", BUDGET); }
 const EST = +(flags.est || 15); // ước tính bảo thủ (đo thực tế ~10 credit/giây) để trừ dần giữa các lần đọc
 let done = 0, stop = false, next = 0;
 async function worker() {
   while (!stop && next < jobs.length) {
     const j = jobs[next++];
     if (existsSync(j.f)) continue;
-    if (left - j.d * PER_SEC * 1.5 < RESERVE) { console.log("dừng: sắp chạm mức dự phòng", Math.round(left)); stop = true; break; }
+    if (BUDGET != null && spent + j.d * PER_SEC > BUDGET) { console.log("dừng: hết ngân sách", Math.round(spent)); stop = true; break; }
+    if (BUDGET == null && left - j.d * PER_SEC * 1.5 < RESERVE) { console.log("dừng: sắp chạm mức dự phòng", Math.round(left)); stop = true; break; }
     let r;
     for (let k = 0; k < 5; k++) { r = await fetch("https://api.elevenlabs.io/v1/sound-generation", { method: "POST", headers: { ...H, "content-type": "application/json" }, body: JSON.stringify({ text: j.t, duration_seconds: j.d, prompt_influence: j.p ?? 0.5 }) }); if (r.status !== 429) break; await sleep(5000 * (k + 1)); }
     if (!r.ok) { console.log("lỗi", j.k, j.i, r.status, (await r.text()).slice(0, 200)); if (r.status === 401 || r.status === 402) stop = true; continue; }
     writeFileSync(j.f, Buffer.from(await r.arrayBuffer()));
-    left -= j.d * EST;
-    if (++done % 25 === 0) left = Math.min(left, await credit(left));
-    console.log(`${j.k}_${j.i}\t${j.d}s\tcòn ~${Math.round(left)}`);
+    const cc = +r.headers.get("character-cost"); spent += cc > 0 ? cc : j.d * PER_SEC; left -= j.d * EST;
+    if (BUDGET == null && ++done % 25 === 0) left = Math.min(left, await credit(left));
+    console.log(`${j.k}_${j.i}\t${j.d}s\tđã tiêu ${Math.round(spent)}`);
   }
 }
 await Promise.all(Array.from({ length: PAR }, worker));
-await sleep(5000); console.log("xong, credit còn (API, có thể trễ):", await credit(left), " ước tính:", Math.round(left));
+if (BUDGET != null) console.log("xong, đã tiêu", Math.round(spent), "credit"); else { await sleep(5000); console.log("xong, credit còn (API, có thể trễ):", await credit(left), " ước tính:", Math.round(left)); }

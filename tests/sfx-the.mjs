@@ -59,7 +59,7 @@ try {
     const L = by[n].sort((a, b) => a[1] - b[1]);
     for (let i = 0; i < L.length; i++) {
       const [, a, d] = L[i];
-      if (d < 0.3 || d > 1.3) fail(`sprite ${n}: độ dài ${d}s ngoài khoảng 0,3–1,3 s`);
+      if (d < 0.6 || d > 1.2) fail(`sprite ${n}: độ dài ${d}s ngoài khoảng 0,6–1,2 s`);
       if (a + d > lens.o[n] + 0.03) fail(`sprite ${n}: vị trí ${a}+${d} vượt độ dài ${lens.o[n].toFixed(2)}s`);
       if (i && a < L[i - 1][1] + L[i - 1][2]) fail(`sprite ${n}: hai thẻ chồng nhau`);
     }
