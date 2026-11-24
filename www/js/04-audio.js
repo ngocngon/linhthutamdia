@@ -336,13 +336,113 @@ const SFX = (() => {
   function loadSamples() {
     if (loadState || !ac) return;
     loadState = 1;
+    loadCardIndex();
     loadSprite("sfx3", false)
       .then(() => { loadState = 2; })
       .catch(() => { loadState = 3; });
   }
 
+
+  /* ===== Tiếng KỸ NĂNG riêng từng thẻ S5/S4 (gpu47) =====
+     Chỉ mục sfx/the.json (id thẻ -> [số sprite, bắt đầu, độ dài]) nhỏ, tải lúc khởi động; các sprite sfx/the-1.mp3 … the-6.mp3 (~50 thẻ/cái)
+     tải LƯỜI: khi có thẻ cần phát mà sprite chưa sẵn sàng thì phát tiếng nhóm như cũ và tải nền cho lần sau.
+     fam(key,o): nếu biết thẻ nguồn (o.id / o.uid, hoặc SFX.src(el, uid), hoặc thẻ S4/S5 đang được nhấc lên màn chiến đấu) và thẻ có tiếng riêng
+     đã sẵn sàng -> phát tiếng riêng THAY cho tiếng nhóm; các tiếng nhóm còn lại của cùng bước đó bị bỏ (không chồng). */
+  const cardBufs = {}; /* id thẻ -> AudioBuffer; tên mẫu khi phát: "the:<id>" */
+  let cardIdx = null, cardIdxState = 0; /* 0 chưa tải, 1 đang tải, 2 xong, 3 lỗi */
+  const spState = {}; /* số sprite -> 1 đang tải, 2 xong, 3 lỗi */
+  const spWait = []; /* lời gọi preloadCards chờ chỉ mục */
+  let stepSeq = 0, srcUid = 0, srcStamp = 0, lastStep = { key: null, cid: null };
+  const lastCard = {}; /* id thẻ -> thời điểm (ac.currentTime) phát tiếng riêng gần nhất */
+  let autoT = 0;
+  function loadCardIndex() {
+    if (cardIdxState) return;
+    cardIdxState = 1;
+    fetch("sfx/the.json").then((r) => { if (!r.ok) throw new Error("the.json"); return r.json(); })
+      .then((j) => { cardIdx = j; cardIdxState = 2; const w = spWait.splice(0); w.forEach((f) => { try { f(); } catch (e) {} }); })
+      .catch(() => { cardIdxState = 3; spWait.length = 0; });
+  }
+  function loadCardSprite(n) {
+    if (spState[n] || !ac || !cardIdx) return Promise.resolve();
+    spState[n] = 1;
+    return fetch("sfx/the-" + n + ".mp3").then((r) => { if (!r.ok) throw new Error("the-" + n); return r.arrayBuffer(); })
+      .then((ab) => new Promise((res, rej) => { const p = ac.decodeAudioData(ab, res, rej); if (p && p.catch) p.catch(rej); }))
+      .then((big) => {
+        const sr = big.sampleRate, src = big.getChannelData(0);
+        for (const id in cardIdx) {
+          const e = cardIdx[id];
+          if (e[0] !== n) continue;
+          const a = Math.floor(e[1] * sr), len = Math.max(1, Math.floor(e[2] * sr)), b = ac.createBuffer(1, len, sr);
+          b.getChannelData(0).set(src.subarray(a, a + len));
+          cardBufs["the:" + id] = b;
+        }
+        spState[n] = 2;
+      })
+      .catch(() => { spState[n] = 3; setTimeout(() => { if (spState[n] === 3) spState[n] = 0; }, 20000); /* thử lại sau 20 giây */ });
+  }
+  /* tải các sprite chứa những thẻ này (id thẻ, mảng); trả về Promise */
+  function preloadCards(ids) {
+    if (!ac && !ctx()) return Promise.resolve();
+    loadCardIndex();
+    return new Promise((res) => {
+      const go = () => {
+        if (!cardIdx) return res();
+        const need = new Set();
+        for (const id of ids || []) { const e = cardIdx[id]; if (e && !cardBufs["the:" + id]) need.add(e[0]); }
+        Promise.all([...need].map(loadCardSprite)).then(() => res());
+      };
+      if (cardIdx || cardIdxState === 3) go(); else spWait.push(go);
+    });
+  }
+  function cardIdByUid(uid) {
+    try {
+      if (!uid || typeof G === "undefined" || !G) return null;
+      let c = typeof cardOf === "function" ? cardOf(uid) : null;
+      if (!c && typeof E !== "undefined" && E.find) { const f = E.find(G, uid); c = f && f.inst; }
+      return (c && c.id) || null;
+    } catch (e) { return null; }
+  }
+  /* thẻ nguồn của tiếng kỹ năng vừa gọi + khoá "bước" (mọi tiếng nhóm trong cùng một bước kỹ năng dùng chung khoá) */
+  function cardSource(o) {
+    if (o.id && cardIdx && cardIdx[o.id]) return { id: o.id, key: null };
+    if (o.uid) { const id = cardIdByUid(o.uid); if (id) return { id, key: null }; }
+    if (srcUid && performance.now() - srcStamp < 1800) { const id = cardIdByUid(srcUid); if (id) return { id, key: "s:" + stepSeq }; }
+    try { /* dự phòng: thẻ S4/S5 đang được nhấc lên (HERO của 05-vfx-core.js) */
+      if (typeof HERO !== "undefined" && HERO && HERO.uid && performance.now() - HERO.t0 < 3000) { const id = cardIdByUid(HERO.uid); if (id) return { id, key: HERO }; }
+    } catch (e) {}
+    return null;
+  }
+  const NOCARD = { locrev: 1 };
+  /* trả true nếu đã xử lý (phát tiếng riêng hoặc bỏ tiếng nhóm trùng bước); false -> để fam() phát tiếng nhóm */
+  function cardSkill(key, o) {
+    if (!cardIdx || NOCARD[key] || !ac) return false;
+    const src = cardSource(o);
+    if (!src || !cardIdx[src.id]) return false;
+    const n = "the:" + src.id;
+    if (!cardBufs[n]) { preloadCards([src.id]); return false; } /* chưa sẵn sàng: tiếng nhóm, tải nền cho lần sau */
+    if (src.key != null && lastStep.cid === src.id && lastStep.key === src.key) return true; /* cùng bước kỹ năng của cùng thẻ: đã có tiếng riêng, bỏ tiếng nhóm */
+    const now = ac.currentTime;
+    if (lastCard[src.id] != null && now - lastCard[src.id] < 0.4 && now >= lastCard[src.id]) return true; /* cùng thẻ phát lại trong 0,4 s */
+    lastStep = { key: src.key, cid: src.id };
+    lastCard[src.id] = now;
+    if (ac.state !== "running") return true;
+    return playSample(n, o.vol == null ? 1 : o.vol, { delay: o.delay, rate: 1 }) !== false;
+  }
+  /* nạp trước (nhẹ, 4 giây/lần) sprite của các thẻ S4/S5 đang cầm trên tay */
+  function autoPre() {
+    const t = performance.now();
+    if (t - autoT < 4000 || !cardIdx) return;
+    autoT = t;
+    try {
+      if (typeof G === "undefined" || !G || !G.hand) return;
+      const ids = [];
+      for (const sd of ["p", "a"]) for (const c of G.hand[sd] || []) if (c && cardIdx[c.id]) ids.push(c.id);
+      if (ids.length) preloadCards(ids);
+    } catch (e) {}
+  }
+
   function playSample(n, vol, o) {
-    const b = bufs[n];
+    const b = bufs[n] || cardBufs[n];
     if (!b || !ac) return false;
     if (ac.state !== "running") return true; /* bộ âm đang tạm dừng: không xếp hàng âm (tránh kẹt bộ đếm), chờ mở khoá */
     o = o || {};
@@ -417,6 +517,8 @@ const SFX = (() => {
       if (loadState === 0) loadSamples();
       const L = FAM[key];
       if (!L) return;
+      autoPre();
+      if (cardSkill(key, o)) return; /* tiếng riêng của thẻ (nếu có và đã sẵn sàng) thay cho tiếng nhóm */
       const i = (famIdx[key] = ((famIdx[key] == null ? -1 : famIdx[key]) + 1) % L.length), n = L[i];
       const el = o.el === undefined ? curEl() : o.el, p = el && EL[el];
       const vol = o.vol == null ? 1 : o.vol;
@@ -442,6 +544,7 @@ const SFX = (() => {
       if (!ctx()) return;
       if (loadState === 0) loadSamples();
       if (!bufs.rv_a) { if (S.flip) S.flip(); return; }
+      autoPre();
       const now = performance.now();
       revTimes = revTimes.filter((t) => now - t < 1800);
       const n = revTimes.length, tier = o.tier || tierOf(o.h), el = o.el, p = el && EL[el];
@@ -478,6 +581,7 @@ const SFX = (() => {
       if (!ctx()) return;
       if (loadState === 0) loadSamples();
       if (ac.state !== "running") return;
+      try { const cid = o.uid && cardIdByUid(o.uid); if (cid && cardIdx && cardIdx[cid]) preloadCards([cid]); } catch (e) {} /* thẻ S4/S5 ra mắt: nạp sprite tiếng kỹ năng riêng trước khi kỹ năng chạy */
       const now = ac.currentTime;
       if (lastL) {
         const dt = now - lastL.t;
@@ -512,7 +616,10 @@ const SFX = (() => {
     fam,
     reveal,
     launch,
-    src(el) { srcEl = el || null; srcT = performance.now(); },
+    src(el, uid) { srcEl = el || null; srcT = performance.now(); srcUid = uid || 0; srcStamp = srcT; stepSeq++; }, /* uid (tuỳ chọn): thẻ đang dùng kỹ năng -> fam() phát tiếng riêng của thẻ đó */
+    preloadCards,
+    cardLoaded(id) { return !!cardBufs["the:" + id]; },
+    cardIds() { return cardIdx ? Object.keys(cardIdx) : []; },
     famOf(id) { try { return typeof sfxFamOf === "function" && C[id] ? sfxFamOf(C[id]) : "none"; } catch (e) { return "none"; } },
     famKeys() { return Object.keys(FAM); },
     play(n, vol) { /* vol: hệ số âm lượng riêng cho mẫu này (mặc định 1) */
