@@ -97,6 +97,83 @@ for (const x of ["S1", "CB", "S5"]) {
 cur = "nang-cap";
 const up = await page.evaluate(() => { closeAll(); const k = store.deck[1]; const l0 = (store.cards[k] || {}).l | 0; openCard(k); const b = document.getElementById("btnUp"); if (!b || b.disabled) return "nút nâng cấp không bấm được (cấp " + l0 + ")"; b.click(); return "cấp " + l0 + " → " + ((store.cards[k] || {}).l | 0); });
 await page.waitForTimeout(1500); console.log("• nâng cấp thẻ: " + up); await page.evaluate(() => closeAll());
+/* gpu43: xem thông tin thẻ trong Bộ bài + lối tắt giữa các màn + nút Back + màn chờ ghép trận */
+if (!ONLY || ONLY.test("lien-ket")) {
+  cur = "lien-ket";
+  const W8 = ms => page.waitForTimeout(ms), ovs = () => page.evaluate(() => [...document.querySelectorAll(".ov.on")].map(o => o.id).join(","));
+  const chk = (ok, msg) => { if (!ok) errs.push(`[lien-ket] ${msg}`); else console.log("  ✓ " + msg); };
+  await page.evaluate(() => { closeAll(); showLobby(); OWN.clear(); for (const k of E.COLLECT) OWN.add(k); store.own = [...OWN]; store.decks = [store.decks[store.cur]]; store.cur = 0; store.deck = store.decks[0].ids; save(); });
+  /* danh sách bộ bài: chạm thẻ trong khay */
+  await page.evaluate(() => { document.getElementById("lbDeck").click(); });await W8(300);
+  await page.evaluate(() => { const d = document.getElementById("vfxLabDrawer"); if (d) d.classList.remove("on"); document.querySelector("#dkSelTray [data-dsel]").click(); }); await W8(500);
+  let r = await page.evaluate(() => ({ ov: [...document.querySelectorAll(".ov.on")].map(o => o.id).join(","), src: cardCtx.src, n: cardList().length, go: $("cardGo").innerText }));
+  chk(r.ov === "ovDecks,ovCard" && r.src === "decks" && r.n === 12, `chạm thẻ ở danh sách bộ bài mở #ovCard, chuyển thẻ theo 12 thẻ của bộ (${r.ov} ${r.src} ${r.n})`);
+  await page.evaluate(() => document.querySelector('#cardGo [data-cg="edit"]').click()); await W8(400);
+  chk(await ovs() === "ovDeck" && await page.evaluate(() => !F.col), "lối tắt ✎ Sửa bộ này mở trình sửa bộ");
+  /* trình sửa: chạm 1 lần = thông tin, danh sách theo lưới */
+  await page.evaluate(() => { const k = [...draft][0]; draft.delete(k); renderDeck(true); }); await W8(200);
+  await page.evaluate(() => document.querySelectorAll("#deckList [data-pick]")[1].click()); await W8(600);
+  r = await page.evaluate(() => { const L = [...document.querySelectorAll("#deckList [data-pick]")].map(e => e.dataset.pick); const k0 = cardId; cardNav(1); return { ov: [...document.querySelectorAll(".ov.on")].map(o => o.id).join(","), same: cardList().length === L.length, i0: L.indexOf(k0), i1: L.indexOf(cardId) }; });
+  chk(r.ov === "ovDeck,ovCard" && r.same && r.i0 === 1 && r.i1 === 2, `chạm thẻ trong lưới trình sửa mở #ovCard; mũi tên sau đi đúng thẻ kế trong lưới (${JSON.stringify(r)})`);
+  r = await page.evaluate(() => { const k = cardId, had = draft.has(k), b = document.querySelector("#cardGo [data-cg]"); const a = b && b.dataset.cg; if (b) b.click(); return { a, had, now: draft.has(k), n: draft.size }; });
+  chk((r.a === "add" && !r.had && r.now) || (r.a === "rm" && r.had && !r.now), `nút ${r.a} trong #ovCard thêm/bỏ thẻ (${JSON.stringify(r)})`);
+  /* khay: chạm = thông tin; chạm 2 lần = bỏ */
+  await page.evaluate(() => closeOv($("ovCard"))); await W8(200);
+  await page.evaluate(() => document.querySelector("#deckTray [data-tray]").click()); await W8(500);
+  r = await page.evaluate(() => ({ ov: [...document.querySelectorAll(".ov.on")].map(o => o.id).join(","), src: cardCtx.src, n: cardList().length, d: draft.size }));
+  chk(r.ov === "ovDeck,ovCard" && r.src === "tray" && r.n === r.d, `chạm thẻ trong khay mở #ovCard theo danh sách khay (${JSON.stringify(r)})`);
+  await page.evaluate(() => closeOv($("ovCard"))); await W8(150);
+  r = await page.evaluate(async () => { const e = document.querySelector("#deckTray [data-tray]"), k = e.dataset.tray, n0 = draft.size; e.click(); await new Promise(z => setTimeout(z, 60)); document.querySelector(`#deckTray [data-tray="${k}"]`).click(); await new Promise(z => setTimeout(z, 400)); return { gone: !draft.has(k), n0, n1: draft.size }; });
+  chk(r.gone && r.n1 === r.n0 - 1, "chạm 2 lần thẻ trong khay bỏ khỏi bộ");
+  r = await page.evaluate(async () => { const k = E.COLLECT.find(x => !draft.has(x) && document.querySelector(`#deckList [data-pick="${x}"]`)); const q = () => document.querySelector(`#deckList [data-pick="${k}"]`); q().click(); await new Promise(z => setTimeout(z, 60)); q().click(); await new Promise(z => setTimeout(z, 400)); return draft.has(k); });
+  chk(r, "chạm 2 lần thẻ trong lưới thêm vào bộ");
+  /* bộ đủ 12: đổi thẻ */
+  await page.evaluate(() => { for (const k of E.COLLECT) { if (draft.size >= 12) break; draft.add(k); } renderDeck(true); });
+  r = await page.evaluate(async () => { const k = E.COLLECT.find(x => !draft.has(x) && document.querySelector(`#deckList [data-pick="${x}"]`)); openCard(k, { list: [k], src: "edit" }); document.querySelector('#cardGo [data-cg="swap"]').click(); await new Promise(z => setTimeout(z, 200)); const t = document.querySelector("#deckTray [data-tray]"), tk = t.dataset.tray; const banner = !$("dkSwap").hidden; t.click(); await new Promise(z => setTimeout(z, 200)); return { banner, ok: draft.has(k) && !draft.has(tk) && draft.size === 12 }; });
+  chk(r.banner && r.ok, "bộ đủ 12: Đổi với thẻ trong bộ → chạm thẻ khay để thay");
+  /* lưu → quay lại danh sách bộ bài, có nút Chơi */
+  await page.evaluate(() => document.getElementById("btnSaveDeck").click()); await W8(400);
+  chk(await ovs() === "ovDecks" && await page.evaluate(() => !$("btnDkPlay").disabled), "Lưu bộ bài quay về danh sách bộ bài (nút Chơi sẵn sàng)");
+  /* Sưu tập → thông tin → Thêm vào bộ đang dùng → đóng: về Sưu tập, giữ bộ lọc + vị trí cuộn */
+  await page.evaluate(() => { closeAll(); openCol(); F.cost = 2; renderDeck(); $("deckList").parentElement.scrollTop = 300; }); await W8(300);
+  const st0 = await page.evaluate(() => ({ he: F.cost, y: $("deckList").parentElement.scrollTop }));
+  await page.evaluate(() => { const k = [...document.querySelectorAll("#deckList [data-pick]")].map(e => e.dataset.pick).find(x => !store.deck.includes(x)); document.querySelector(`#deckList [data-pick="${k}"]`).click(); }); await W8(500);
+  r = await page.evaluate(() => { const b = document.querySelector('#cardGo [data-cg="go"]'); if (!b) return { no: 1, go: $("cardGo").innerText }; b.click(); return { ov: [...document.querySelectorAll(".ov.on")].map(o => o.id).join(","), col: F.col, swap: !!swapK }; });
+  chk(r.ov === "ovDeck" && r.col === false && r.swap, `Sưu tập: + Thêm vào bộ đang dùng mở trình sửa bộ ở chế độ đổi thẻ (${JSON.stringify(r)})`);
+  await page.evaluate(() => document.querySelector("#ovDeck .foot [data-close]").click()); await W8(400);
+  r = await page.evaluate(() => ({ ov: [...document.querySelectorAll(".ov.on")].map(o => o.id).join(","), col: F.col, he: F.cost, y: $("deckList").parentElement.scrollTop }));
+  chk(r.ov === "ovDeck" && r.col && r.he === st0.he && st0.y > 100 && Math.abs(r.y - st0.y) < 4, `đóng trình sửa quay về Sưu tập, giữ bộ lọc + vị trí cuộn (${JSON.stringify(r)} vs ${JSON.stringify(st0)})`);
+  /* nút Back: đóng bảng phủ trên cùng */
+  await page.evaluate(() => document.querySelector("#deckList [data-pick]").click()); await W8(500);
+  await page.goBack().catch(() => {}); await W8(500);
+  chk(await ovs() === "ovDeck", "nút Back đóng #ovCard trước, Sưu tập vẫn mở");
+  await page.goBack().catch(() => {}); await W8(500);
+  chk(await ovs() === "", "nút Back lần nữa đóng Sưu tập");
+  chk(page.url().includes("index.html"), "nút Back không rời trang khi đóng bảng phủ");
+  /* thiếu tài nguyên → Cửa hàng, đóng → về thông tin thẻ */
+  await page.evaluate(() => { store.tok = 5; save(); const k = store.deck[0]; OWN.delete(k); openCard(k); }); await W8(400);
+  await page.evaluate(() => { const b = document.querySelector('#cardGo [data-cg="res:tok"]'); if (b) b.click(); }); await W8(500);
+  chk(await ovs() === "ovCard,ovShop", "thẻ chưa có + thiếu token: Lấy thêm token mở Cửa hàng");
+  await page.evaluate(() => document.querySelector("#ovShop [data-close]").click()); await W8(300);
+  chk(await ovs() === "ovCard", "đóng Cửa hàng quay về thông tin thẻ");
+  await page.evaluate(() => { OWN.add(store.deck[0]); store.tok = 99999; save(); closeAll(); showLobby(); });
+  /* sảnh: sửa nhanh */
+  await page.evaluate(() => document.getElementById("lbDeckEd").click()); await W8(400);
+  r = await page.evaluate(() => ({ ov: [...document.querySelectorAll(".ov.on")].map(o => o.id).join(","), idx: editIdx, cur: store.cur, col: F.col }));
+  chk(r.ov === "ovDeck" && r.idx === r.cur && !r.col, "nút ✎ ở sảnh mở thẳng trình sửa bộ đang dùng");
+  await page.evaluate(() => document.querySelector("#ovDeck .foot [data-close]").click()); await W8(300);
+  chk(await ovs() === "", "đóng trình sửa (mở từ sảnh) về sảnh");
+  /* nhiệm vụ: Chơi ngay */
+  await page.evaluate(() => { store.ms.v = store.ms.v.map(() => 0); document.getElementById("lbMisBtn").click(); }); await W8(300);
+  chk(await page.evaluate(() => !$("misPlay").hidden), "Nhiệm vụ có nút Chơi ngay khi còn nhiệm vụ ngày");
+  await page.evaluate(() => closeAll());
+  /* màn chờ ghép trận (máy) */
+  r = await page.evaluate(async () => { let went = 0; mmBot(() => { went = 1; }); await new Promise(z => setTimeout(z, 200)); const s0 = { on: $("mm").classList.contains("on"), found: $("mm").classList.contains("found"), tip: $("mmTipT").textContent.length, dk: document.querySelectorAll("#mmDk .gc").length }; await new Promise(z => setTimeout(z, 1900)); const s1 = $("mm").classList.contains("found"); await new Promise(z => setTimeout(z, 1600)); return { s0, s1, off: !$("mm").classList.contains("on"), went, rm: !!reduced }; });
+  chk(r.s0.dk === 4 && r.s0.tip > 10 && r.off && r.went && (r.rm || (r.s0.on && !r.s0.found && r.s1)), /* body.rm: ghép máy gần như tức thì */ `màn chờ: đang tìm (mẹo, 4 thẻ tiêu biểu) → tìm thấy → vào trận (${JSON.stringify(r)})`);
+  r = await page.evaluate(async () => { mmBot(() => {}); await new Promise(z => setTimeout(z, 200)); $("mmCancel").click(); await new Promise(z => setTimeout(z, 2500)); return !$("mm").classList.contains("on"); });
+  chk(r, "nút Huỷ ghép trận dừng màn chờ");
+  await page.evaluate(() => { closeAll(); showLobby(); });
+}
 await monkey("the-tu-sanh", ev(() => { document.getElementById("lbShow").click(); }), 40);
 /* trong trận: mộ bài, cài đặt, luật */
 cur = "vao-tran"; await page.evaluate(() => { closeAll(); document.getElementById("lbPlay").click(); });

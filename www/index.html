@@ -62,12 +62,14 @@
 </div>
 
 <div class="olnet" id="olNet" role="status" hidden></div>
-<div class="mm" id="mm" role="dialog" aria-label="Ghép trận"><div class="mmh"><h2>Ghép trận</h2><p id="mmSt">Đang ghép trận…</p></div>
-  <div class="mmc me"><span class="hexav" id="mmAvMe"></span><div><b id="mmNmMe"></b><small id="mmRkMe"></small></div></div>
+<div class="mm" id="mm" role="dialog" aria-label="Ghép trận">
+  <div class="mmhd"><span class="mmpill" id="mmMode">Đấu thường</span><h2>Ghép trận</h2><span class="mmtm" id="mmTime" aria-label="Thời gian chờ">0:00</span></div>
+  <div class="mmc foe" id="mmFoe"><span class="mmring" aria-hidden="true"><i></i><i></i><i></i></span><span class="hexav" id="mmAvFoe"></span><span class="mmq" aria-hidden="true">?</span><div class="mmv"><b id="mmNmFoe"></b><small id="mmRkFoe"></small><em class="mmsk">Đang dò tìm đối thủ…</em></div></div>
   <div class="mmvs" aria-hidden="true"><span>VS</span></div>
-  <div class="mmc foe" id="mmFoe"><span class="hexav" id="mmAvFoe"></span><div><b id="mmNmFoe"></b><small id="mmRkFoe"></small></div></div>
-  <p class="mmbig" id="mmBig">Đang tìm đối thủ…</p>
-  <button class="btn ghost" type="button" id="mmCancel">Huỷ</button></div>
+  <div class="mmc me"><span class="hexav" id="mmAvMe"></span><div class="mmv"><b id="mmNmMe"></b><small id="mmRkMe"></small></div><div class="mmdk" id="mmDk"></div></div>
+  <div class="mmbar"><p class="mmbig" id="mmBig">Đang tìm đối thủ…</p><p class="mmst" id="mmSt">Đang ghép trận…</p></div>
+  <div class="mmtip" id="mmTip" aria-live="polite"><b>Mẹo</b><span id="mmTipT"></span></div>
+  <button class="btn ghost" type="button" id="mmCancel">Huỷ ghép trận</button></div>
 <div id="emoMenu" role="menu" aria-label="Cảm xúc"></div>
 <div id="enPop" role="dialog" aria-label="Năng lượng"><h4>Năng lượng</h4><div class="enb" id="enN">0</div><p>Đặt thẻ sẽ tiêu năng lượng. Mỗi lượt có thể đặt nhiều thẻ.</p><p>Mỗi lượt được thêm 1 năng lượng tối đa. Năng lượng không dùng sẽ mất.</p><button class="btn ghost" type="button" id="enUndo">Hoàn tác tất cả hành động</button></div>
 <div class="ov" id="ovSet"><div class="panel sx"><h2 style="text-align:center">Cài đặt <small id="setVer" class="setver"></small></h2><div class="body">
@@ -129,6 +131,8 @@
   <div class="bkrow" id="bkRow" hidden></div>
   <div class="dkrow" id="deckRow"></div>
   <div class="tray" id="deckTray"></div>
+  <div class="dkswap" id="dkSwap" role="status" hidden></div>
+  <p class="dkhint" id="dkHint">Chạm thẻ: xem thông tin · Chạm 2 lần: thêm / bỏ khỏi bộ</p>
   <div class="dktools" id="deckTools">
     <button class="ib dktb hi" id="btnRecOpen" type="button">✨ Đề xuất</button>
     <button class="ib dktb" id="btnAutoFill" type="button">⚡ Bù đủ 12 thẻ</button>
@@ -166,6 +170,7 @@
   <div hidden><span id="lbGems"></span><button type="button" id="lbCol"></button><button type="button" id="lbArena"><b id="lbArenaN"></b></button><button type="button" id="lbShow"></button></div>
   <div class="lb-play">
     <button class="lb-deck" id="lbDeck" type="button" aria-label="Chọn bộ bài"><span class="dki" id="lbDeckIc"></span><b id="lbDeckName"></b></button>
+    <button type="button" class="lbded" id="lbDeckEd" aria-label="Sửa nhanh bộ bài đang dùng" title="Sửa bộ bài"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg></button>
     <button id="lbPlay" type="button">Chơi</button>
     <div class="lb-gem" id="lbStake"></div>
   </div>
@@ -176,7 +181,7 @@
   <div class="dpk-h"><h2>Bộ bài</h2><span class="dpk-n" id="dkCnt"></span><button class="ib dktb hi" id="btnRecDecks" type="button">✨ Đề xuất</button><button class="ib alt dktb" id="btnPasteOpen" type="button">📥 Dán mã</button><button type="button" class="dpkx" data-close aria-label="Đóng">✕</button></div>
   <div class="body"><div class="dkgrid" id="dkGrid"></div></div>
   <div class="dpk-sel"><div class="dpk-sh"><span class="dpk-bk" id="dkSelBk"></span><b id="dkSelName"></b><button class="ib alt dktb" id="btnCopySel" type="button">📋 Mã</button><button class="ib alt" id="btnEditSel" type="button">✎ Sửa bộ</button></div><div class="tray" id="dkSelTray"></div></div>
-  <div class="foot"><button class="btn ghost" type="button" data-close>Huỷ</button><button class="btn end" type="button" id="btnEquip">Trang bị</button></div>
+  <div class="foot"><button class="btn ghost" type="button" data-close>Huỷ</button><button class="btn ghost" type="button" id="btnEquip">Trang bị</button><button class="btn end dkplay" type="button" id="btnDkPlay">Chơi</button></div>
 </div></div>
 
 <div class="ov" id="ovRec"><div class="panel tall recp">
@@ -248,6 +253,7 @@
 <div class="ov" id="ovCard"><div class="panel tall cview" role="dialog" aria-label="Thông tin thẻ">
   <div class="resbar" id="cardRes"></div>
   <div class="body"><div id="cardBody"></div></div>
+  <div class="cvgo" id="cardGo" hidden></div>
   <div class="cvact"><button type="button" class="cvb" id="cardFav" aria-label="Yêu thích" title="Yêu thích">★</button><button type="button" class="cvb" id="cardRen" aria-label="Đổi tên" title="Đổi tên">✎</button><button class="btn end" type="button" id="btnUp"></button><button type="button" class="cvb cvx" data-close aria-label="Đóng" title="Đóng">✕</button></div>
 </div></div>
 
@@ -271,7 +277,7 @@
 <div class="ov opov" id="ovOpen"><div class="opw" id="openBody" role="dialog" aria-label="Mở gói"></div></div>
 <div class="ov" id="ovPool"><div class="panel tall pool"><div class="shp-h"><h2 id="poolTitle">Thẻ có thể nhận</h2><button type="button" class="dpkx" data-close aria-label="Đóng">✕</button></div><div class="poolbar"><span id="poolCnt"></span><div class="poolsort" id="poolSort"></div></div><div class="body"><div class="poolg" id="poolGrid"></div></div></div></div>
 <div class="ov sheet" id="ovPZ"><div class="pk" id="pzBody" role="dialog" aria-label="Thẻ bài"></div></div>
-<div class="ov" id="ovMis"><div class="panel misp"><div class="shp-h"><h2>Nhiệm vụ</h2><button type="button" class="dpkx" data-close aria-label="Đóng">✕</button></div><div class="body"><div id="misTop"></div><div class="shh"><span class="sht"><b>Hằng ngày</b><small>làm mới lúc 0 giờ, mỗi nhiệm vụ +150 XP thẻ tháng</small></span></div><div id="lbMis" class="misl"></div><div id="misWk"></div><div class="lb-stat" id="lbStat"></div></div></div></div>
+<div class="ov" id="ovMis"><div class="panel misp"><div class="shp-h"><h2>Nhiệm vụ</h2><button type="button" class="dpkx" data-close aria-label="Đóng">✕</button></div><div class="body"><div id="misTop"></div><div class="shh"><span class="sht"><b>Hằng ngày</b><small>làm mới lúc 0 giờ, mỗi nhiệm vụ +150 XP thẻ tháng</small></span><button type="button" class="ib misgo" id="misPlay" hidden>Chơi ngay</button></div><div id="lbMis" class="misl"></div><div id="misWk"></div><div class="lb-stat" id="lbStat"></div></div></div></div>
 <div class="ov" id="ovPass"><div class="panel tall psp">
   <div class="psh"><div class="pst"><small id="psMon"></small><b id="psName"></b></div><button type="button" class="dpkx" data-close aria-label="Đóng">✕</button></div>
   <div class="psx"><span class="pslv" id="psLvB">1</span><span class="psbar"><i id="psFill"></i><em id="psXpT"></em></span><span id="psCd"></span></div>

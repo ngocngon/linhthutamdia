@@ -1086,3 +1086,120 @@ body.rm .bigc.qf.q6 .qrg b,body.rm .bigc.qf.q6::before,body.rm .bigc.qf.q6 .spk 
 @media (min-width:760px) and (min-aspect-ratio:5/4){#ovCard .cvrl{flex-wrap:wrap;overflow:visible}}
 #ovCard .cvc:not(.cvb2){flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis}
 #ovCard .cvc.bac{flex-shrink:0}
+
+/* ===== gpu43: lối tắt trong màn thông tin thẻ (#cardGo) ===== */
+#ovCard .cvgo{flex:none;display:flex;gap:8px;padding:6px 12px 0}
+#ovCard .cvgo[hidden]{display:none}
+#ovCard .cgb{flex:1 1 0;min-width:0;min-height:44px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;padding:4px 10px;border-radius:12px;border:1.5px solid rgba(125,255,170,.7);background:linear-gradient(180deg,rgba(40,170,110,.55),rgba(14,70,52,.75));color:#fff;text-align:center;white-space:normal;overflow-wrap:anywhere;line-height:1.15;cursor:pointer}
+#ovCard .cgb b{font-family:var(--f-display);font-style:italic;font-weight:900;font-size:14px;letter-spacing:.01em}
+#ovCard .cgb small{font-size:11px;font-weight:700;color:rgba(230,240,255,.82)}
+#ovCard .cgb.alt{border-color:rgba(160,190,255,.55);background:rgba(18,28,80,.88)}
+#ovCard .cgb.res{flex:0 1 auto;border-color:rgba(255,200,90,.75);background:rgba(70,44,8,.8)}
+#ovCard .cgb:active{transform:scale(.97)}
+@media (min-width:760px) and (min-aspect-ratio:5/4){#ovCard .cvgo{justify-content:flex-end}#ovCard .cgb{flex:0 1 240px}}
+/* trình sửa bộ: dải đổi thẻ + gợi ý thao tác */
+.dkswap{flex:none;display:flex;align-items:center;gap:10px;margin:2px 12px 4px;padding:6px 8px 6px 6px;border-radius:12px;border:1.5px solid rgba(255,214,90,.75);background:linear-gradient(90deg,rgba(92,64,6,.85),rgba(30,22,60,.85))}
+.dkswap[hidden]{display:none}
+.dkswap .gc.mini{flex:none;display:block;width:34px;aspect-ratio:5/6;border-radius:6px;border:1.5px solid var(--hc);padding:0}
+.dkswt{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;line-height:1.2}
+.dkswt b{font-family:var(--f-display);font-style:italic;font-weight:900;font-size:14px;color:#ffe08a;overflow-wrap:anywhere}
+.dkswt small{font-size:11.5px;color:#e6e0ff}
+.dkswap .ib{flex:none;height:32px}
+#deckTray.swp .gc{outline:2px dashed #ffd65a;outline-offset:1px}
+.dkhint{flex:none;margin:0 12px 2px;font-size:11px;line-height:1.3;color:#aab4e0;text-align:center}
+.dkhint[hidden]{display:none}
+#ovDeck.colmode .dkhint,#ovDeck.colmode .dkswap{display:none}
+/* danh sách bộ bài: khay chạm được, 3 nút chân */
+#dkSelTray .gc{cursor:pointer}
+#ovDecks .foot .btn{min-width:0}
+/* sảnh: nút sửa nhanh bộ đang dùng, đặt ở góc trên phải ô bộ bài (không chiếm ô lưới) */
+.lb-play .lbded{position:absolute;z-index:2;top:2px;left:calc(10px + (100% - 32px) / 3.5 - 34px);width:32px;height:32px;padding:0;border-radius:50%;display:grid;place-items:center;border:1.5px solid rgba(170,205,255,.7);background:rgba(14,22,70,.92);box-shadow:0 2px 8px rgba(0,0,0,.5)}
+.lb-play .lbded svg{width:17px;height:17px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.lb-play .lbded:active{transform:scale(.92)}
+/* nhiệm vụ: Chơi ngay */
+#ovMis .shh .misgo{margin-left:auto;flex:none;height:30px}
+#ovMis .shh .misgo[hidden]{display:none}
+
+/* ===== gpu43: màn chờ ghép trận kiểu VS ===== */
+#mm{padding:max(10px,env(safe-area-inset-top,0px)) 14px max(14px,env(safe-area-inset-bottom,0px));gap:0;justify-content:flex-start;
+  background:linear-gradient(165deg,rgba(150,24,58,.62) 0,rgba(90,14,46,.35) 40%,transparent 40.3%),
+    linear-gradient(165deg,transparent 59.7%,rgba(30,80,210,.4) 60%,rgba(12,30,110,.6) 100%),
+    repeating-linear-gradient(165deg,rgba(255,255,255,.035) 0 2px,transparent 2px 22px),
+    radial-gradient(1px 1px at 20% 30%,#fff,transparent),radial-gradient(1px 1px at 70% 22%,#fff,transparent),radial-gradient(1.5px 1.5px at 40% 78%,#fff,transparent),radial-gradient(1px 1px at 85% 58%,#fff,transparent),
+    #0a0826}
+#mm .mmhd{flex:none;width:100%;max-width:460px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px;padding:2px 0 8px}
+#mm .mmhd h2{margin:0;font-family:var(--f-display);font-style:italic;font-weight:900;font-size:24px;letter-spacing:.03em;text-shadow:0 2px 0 #000,0 0 12px rgba(120,180,255,.6);white-space:nowrap}
+#mm .mmpill{justify-self:start;max-width:100%;padding:3px 10px;border-radius:999px;border:1px solid rgba(160,200,255,.5);background:rgba(10,14,50,.75);font-size:11.5px;font-weight:800;color:#cfe0ff;line-height:1.25;overflow-wrap:anywhere}
+#mm .mmtm{justify-self:end;min-width:54px;padding:3px 10px;border-radius:999px;background:rgba(10,14,50,.75);border:1px solid rgba(255,214,90,.55);color:#ffe08a;font-weight:900;font-size:14px;text-align:center;font-variant-numeric:tabular-nums}
+#mm .mmc{position:relative;flex:none;display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;column-gap:14px;row-gap:10px;width:100%;max-width:460px;margin:0;padding:12px 14px;border-radius:20px;text-align:left;
+  background:linear-gradient(90deg,rgba(40,110,255,.78),rgba(20,40,120,.62));box-shadow:0 0 0 1.5px rgba(140,200,255,.6),0 10px 24px rgba(0,0,0,.45);opacity:1;transform:none;transition:none}
+#mm .mmc .hexav{grid-column:1;grid-row:1;width:clamp(64px,11vh,96px);height:clamp(64px,11vh,96px);border-radius:50%;overflow:hidden;box-shadow:0 0 0 3px #9fd8ff,0 0 18px #3fa8ff;background:#0b1240}
+#mm .mmv{grid-column:2;grid-row:1;min-width:0;display:flex;flex-direction:column;align-items:flex-start;gap:4px}
+#mm .mmv b{display:block;font-family:var(--f-display);font-style:italic;font-weight:900;font-size:21px;line-height:1.1;overflow-wrap:anywhere}
+#mm .mmv small{display:inline-flex;align-items:center;gap:3px;margin:0;padding:2px 12px;border-radius:999px;background:rgba(20,10,60,.7);font-weight:800;color:#ffd65a}
+#mm .mmv small:empty{display:none}
+#mm .mmc.foe{grid-template-columns:minmax(0,1fr) auto;text-align:right;background:linear-gradient(270deg,rgba(225,45,75,.82),rgba(100,18,44,.66));box-shadow:0 0 0 1.5px rgba(255,150,150,.6),0 10px 24px rgba(0,0,0,.45)}
+#mm .mmc.foe .hexav,#mm .mmc.foe .mmring,#mm .mmc.foe .mmq{grid-column:2;grid-row:1;justify-self:center}
+#mm .mmc.foe .hexav{box-shadow:0 0 0 3px #ffb0b0,0 0 18px #ff4d4d}
+#mm .mmc.foe .mmv{grid-column:1;align-items:flex-end}
+#mm .mmring{position:relative;width:clamp(64px,11vh,96px);height:clamp(64px,11vh,96px);pointer-events:none;z-index:1}
+#mm .mmring i{position:absolute;inset:0;border-radius:50%;border:2px solid rgba(255,190,190,.75);opacity:0;animation:mmring 2.1s cubic-bezier(.2,.6,.4,1) infinite}
+#mm .mmring i:nth-child(2){animation-delay:.7s}#mm .mmring i:nth-child(3){animation-delay:1.4s}
+@keyframes mmring{0%{transform:scale(.7);opacity:.85}100%{transform:scale(1.55);opacity:0}}
+#mm .mmq{z-index:2;font-family:var(--f-display);font-style:italic;font-weight:900;font-size:40px;color:rgba(255,220,220,.9);text-shadow:0 0 12px #ff4d6d;pointer-events:none;animation:mmq 1.4s ease-in-out infinite}
+@keyframes mmq{50%{transform:scale(1.12);opacity:.6}}
+#mm .mmsk{font-style:normal;font-size:13px;font-weight:700;color:#ffd9de;animation:mmsk 1.6s ease-in-out infinite}
+@keyframes mmsk{50%{opacity:.45}}
+#mm.found .mmring,#mm.found .mmq,#mm.found .mmsk{display:none}
+#mm.found .mmc.foe{animation:mmin .5s cubic-bezier(.2,1.25,.4,1)}
+#mm.found .mmc.foe .hexav{animation:mmpop .55s cubic-bezier(.2,1.5,.4,1)}
+@keyframes mmin{0%{transform:translateX(36px);opacity:.3}100%{transform:none;opacity:1}}
+@keyframes mmpop{0%{transform:scale(.4);opacity:0}100%{transform:none;opacity:1}}
+#mm .mmvs{flex:none;margin:clamp(6px,2.2vh,18px) 0;width:clamp(58px,9vh,80px);height:clamp(58px,9vh,80px);animation:mmvs 1.8s ease-in-out infinite}
+#mm .mmvs::before{left:-160px;right:-160px}
+#mm .mmvs span{font-size:clamp(26px,4.6vh,36px)}
+@keyframes mmvs{50%{transform:scale(1.07)}}
+#mm.found .mmvs{animation:mmvsf .5s cubic-bezier(.2,1.4,.4,1)}
+@keyframes mmvsf{0%{transform:scale(1.5)}100%{transform:scale(1)}}
+#mm .mmdk{grid-column:1/-1;grid-row:2;display:flex;align-items:center;gap:10px;min-width:0;padding-top:8px;border-top:1px solid rgba(160,200,255,.28)}
+#mm .mmdn{flex:1 1 auto;min-width:0;font-family:var(--f-display);font-style:italic;font-weight:900;font-size:14px;line-height:1.2;color:#dfeaff;overflow-wrap:anywhere}
+#mm .mmcs{flex:none;display:flex;gap:6px}
+#mm .mmcs .gc.mini{display:block;width:clamp(36px,6.4vh,50px);aspect-ratio:5/6;border-radius:7px;border:1.5px solid var(--hc);padding:0;box-shadow:0 3px 8px rgba(0,0,0,.5)}
+#mm .mmbar{flex:none;width:100%;max-width:460px;text-align:center;padding-top:clamp(6px,1.6vh,14px)}
+#mm .mmbig{margin:0;font-size:clamp(20px,3.4vh,26px);min-height:0}
+#mm .mmst{margin:4px 0 0;font-size:13px;color:#cfd8ff;min-height:1.3em}
+#mm .mmtip{flex:none;width:100%;max-width:460px;margin-top:clamp(8px,2vh,16px);display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border-radius:14px;background:rgba(8,10,40,.78);border:1px solid rgba(140,180,255,.35);font-size:13px;line-height:1.4;color:#e8ecff;transition:opacity .24s ease}
+#mm .mmtip>b{flex:none;padding:1px 8px;border-radius:6px;background:#ffd65a;color:#2a1200;font-family:var(--f-display);font-style:italic;font-weight:900;font-size:12px;line-height:1.5}
+#mm .mmtip span{min-width:0}
+#mm .mmtip.mmout{opacity:0}
+#mm #mmCancel{margin-top:auto;min-width:200px;flex:none}
+#mm .mmc.foe{margin-top:auto}
+#mm .mmhd,#mm .mmc,#mm .mmbar,#mm .mmtip,#mm .mmvs{transition:transform .3s ease-in,opacity .3s ease-in}
+#mm.mmgo .mmc.foe{transform:translateX(60px);opacity:0}
+#mm.mmgo .mmc.me{transform:translateX(-60px);opacity:0}
+#mm.mmgo .mmvs{transform:scale(1.8);opacity:0;animation:none}
+#mm.mmgo .mmc.foe,#mm.mmgo .mmc.foe .hexav{animation:none}
+#mm.mmgo .mmhd,#mm.mmgo .mmbar,#mm.mmgo .mmtip{opacity:0}
+.mmfade{position:fixed;inset:0;z-index:39;pointer-events:none;background:#0a0826;animation:mmfade .45s ease-out forwards}
+@keyframes mmfade{to{opacity:0}}
+/* tắt hoạt ảnh: body.rm hoặc FXLV 0 */
+#mm.mmlo *,#mm.mmlo *::before,body.rm #mm *,body.rm #mm *::before{animation:none!important;transition:none!important}
+#mm.mmlo .mmring,body.rm #mm .mmring{display:none}
+/* màn thấp (360×640): thu gọn */
+@media (max-height:680px){#mm .mmc{padding:9px 12px;row-gap:7px}#mm .mmv b{font-size:18px}#mm .mmtip{padding:8px 10px;font-size:12.5px}#mm .mmdk{padding-top:6px}}
+/* ngang rộng: hai bên trái/phải, VS ở giữa */
+@media (min-width:760px) and (min-aspect-ratio:5/4){
+  #mm{display:none;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);grid-template-rows:auto 1fr auto auto auto;column-gap:18px;justify-items:center;align-items:center}
+  #mm.on{display:grid}
+  #mm .mmhd{grid-column:1/-1;grid-row:1;max-width:760px}
+  #mm .mmc.me{grid-column:1;grid-row:2;justify-self:end;max-width:400px}
+  #mm .mmvs{grid-column:2;grid-row:2;margin:0}
+  #mm .mmc.foe{grid-column:3;grid-row:2;justify-self:start;max-width:400px}
+  #mm .mmbar{grid-column:1/-1;grid-row:3;max-width:760px}
+  #mm .mmtip{grid-column:1/-1;grid-row:4;max-width:640px}
+  #mm #mmCancel{grid-column:1/-1;grid-row:5;margin-top:14px}
+  #mm.mmgo .mmc.foe{transform:translateX(60px)}#mm.mmgo .mmc.me{transform:translateX(-60px)}
+}
+@media (min-width:760px) and (min-aspect-ratio:5/4){#mm .mmc.foe{margin-top:0}}
+/* gpu43: nhãn nút thanh phải (Sắp xếp: "Năng lượng", "Có thể nâng cấp"...) xuống dòng thay vì bị cắt "…" */
+#railR .rbtn small{white-space:normal!important;overflow:visible!important;text-overflow:clip!important;overflow-wrap:normal;word-break:normal;text-align:center;max-width:38px;line-height:1.05}
