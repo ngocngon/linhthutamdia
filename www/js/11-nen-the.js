@@ -59,11 +59,14 @@
   try { fetch("img/cut/_kem.json").then(r => r.json()).then(j => { for (const k in j) KEM.add(k); }).catch(() => { }); } catch (e) { }
 
   let NS = null, cnt = 0, NBLO = false;
-  function st() { // store.nen: {eq:{idThẻ:idNền}, own:{idNền:1}, all:1(bản thử mở khoá hết)}
+  /* store.nen: {eq:{idThẻ:idNền}, own:{idNền:1}, all:1(bản thử mở khoá hết)}
+     gpu40 (đặt hàng loạt, lưu gọn): eq["*"] = nền mặc định cho MỌI thẻ (áp một nền cho tất cả chỉ tốn 1 mục);
+     eq[idThẻ] = "0" = thẻ này dùng tranh gốc dù có nền mặc định. Bộ nạp ở 03 chép nguyên eq nên không cần đổi. */
+  function st() {
     if (NS && NS === store.nen) return NS;
     let n = store.nen; if (!n || typeof n !== "object") n = store.nen = { eq: {}, own: {}, all: 1 };
     if (!n.eq || typeof n.eq !== "object") n.eq = {}; if (!n.own || typeof n.own !== "object") n.own = {};
-    for (const k in n.eq) if (!BY[n.eq[k]]) delete n.eq[k];
+    for (const k in n.eq) if (!BY[n.eq[k]] && !(n.eq[k] === "0" && k !== "*")) delete n.eq[k];
     NS = n; cnt = Object.keys(n.eq).length; return n;
   }
   const owned = id => { const s = st(); return !!(s.all || s.own[id]); };
@@ -85,7 +88,7 @@
       if (!NS || NS !== store.nen) st();
       if (!cnt) return "";
       const lo = window.FXLV === 0; if (lo !== NBLO) { NBLO = lo; document.body.classList.toggle("nblow", lo); } // giảm hiệu ứng giữa trận -> nền động đứng yên
-      const id = NS.eq[k]; if (!id || KEM.has(k) || !BY[id] || !owned(id)) return "";
+      const id = rawEq(k); if (!id || KEM.has(k) || !BY[id] || !owned(id)) return "";
       return bgHTML(id);
     } catch (e) { return ""; }
   }
@@ -100,8 +103,11 @@
   function refreshCards(k) {
     for (const el of document.querySelectorAll(`[data-pick="${k}"],[data-zk="${k}"] .gc`)) swap(el, k, eqOf(k));
   }
-  const eqOf = k => { st(); const id = NS.eq[k]; return id && owned(id) ? id : ""; };
-  function setEq(k, id) { const s = st(); if (id) s.eq[k] = id; else delete s.eq[k]; cnt = Object.keys(s.eq).length; save(); }
+  function rawEq(k) { const v = NS.eq[k]; return v === "0" ? "" : v || NS.eq["*"] || ""; }
+  const eqOf = k => { st(); const id = rawEq(k); return id && owned(id) ? id : ""; };
+  const ownEq = k => { st(); const v = NS.eq[k]; return !!(v && v !== "0"); }; // nền đặt riêng cho thẻ (không tính nền mặc định)
+  function put(s, k, id) { const d = s.eq["*"]; if (id) { if (id === d) delete s.eq[k]; else s.eq[k] = id; } else if (d) s.eq[k] = "0"; else delete s.eq[k]; }
+  function setEq(k, id) { const s = st(); put(s, k, id); cnt = Object.keys(s.eq).length; save(); }
 
   /* ---- mua ---- */
   function buy(id) {
@@ -125,6 +131,7 @@
     if (!b) {
       h += `<div class="nbi2"><div class="tx"><b>Tranh gốc</b><small>Thẻ dùng ảnh nền gốc của nhân vật.</small></div></div>`;
       h += `<div class="nbact"><button type="button" class="nbb gh" data-nbx="1" ${eq ? "" : "disabled"}>Bỏ nền</button></div>`;
+      h += `<button type="button" class="nbbulk" data-nbbulk="">${bulkIco}Gỡ nền / đặt nền cho nhiều thẻ…</button>`;
       return h;
     }
     const o = owned(id);
@@ -134,6 +141,7 @@
     if (!o) h += `<button type="button" class="nbb go" data-nbbuy="${id}" ${store[b.c] < b.p || !ok ? "disabled" : ""}>Mua ${icn(b.c)}${b.p}</button>`;
     else h += `<button type="button" class="nbb go" data-nbuse="${id}" ${here || !ok ? "disabled" : ""}>${here ? "Đang dùng" : "Dùng nền này"}</button>`;
     h += `<button type="button" class="nbb gh" data-nbx="1" ${eq ? "" : "disabled"}>Bỏ nền</button></div>`;
+    if (o) h += `<button type="button" class="nbbulk" data-nbbulk="${id}">${bulkIco}Áp nền này cho nhiều thẻ…</button>`;
     return h;
   }
   function panelHTML(k) {
@@ -143,17 +151,22 @@
     const chips = GR.map(([g, gn]) => `<button type="button" data-nbg="${g}" class="${UI.g === g ? "on" : ""}">${gn}</button>`).join("");
     return `<div class="nbp" data-nbk="${k}"><div class="nbchips">${chips}</div><div class="nbstrip">${strip}</div><div class="nbinfo">${infoHTML(k, eq)}</div></div>`;
   }
-  /* Phần chèn vào chi tiết thẻ: thanh tab [Kỹ năng | Nền] + bảng chọn nền. ctx = "card" | "pz" */
-  function slot(k) {
-    if (UI.k !== k) { UI.k = k; UI.mode = UI.mode === "nen" ? "nen" : "info"; UI.sel = eqOf(k); UI.g = ""; UI.sl = 0; }
+  /* Phần chèn vào chi tiết thẻ: thanh tab [Kỹ năng | (tab thêm) | Nền] + (mid: các ô nội dung của tab thêm) + bảng chọn nền.
+     tabs: [[mode, nhãn], ...] các tab đứng trước tab "Nền thẻ" (mặc định chỉ "Kỹ năng"). Ô nội dung của tab nào thì gắn data-pane="<mode>";
+     gốc (#cardBody/#pzBody) mang data-cvm="<mode>" để CSS chỉ hiện ô của tab đang chọn. */
+  function slot(k, tabs, mid) {
+    tabs = tabs || [["info", "Kỹ năng"]];
+    if (UI.mode !== "nen" && !tabs.some(t => t[0] === UI.mode)) UI.mode = "info";
+    if (UI.k !== k) { UI.k = k; UI.sel = eqOf(k); UI.g = ""; UI.sl = 0; }
     document.body.classList.toggle("nblow", window.FXLV === 0);
     bindTilt();
     queueMicrotask(() => { const r = document.querySelector("#ovCard.on #cardBody,#ovPZ.on #pzBody"); if (r && UI.k === k) { applyMode(r); swap(bigOf(r), k, UI.mode === "nen" ? UI.sel : eqOf(k)); } });
-    return `<div class="nbtabs" role="tablist"><button type="button" role="tab" data-nbm="info" class="${UI.mode === "nen" ? "" : "on"}" aria-selected="${UI.mode !== "nen"}">Kỹ năng</button><button type="button" role="tab" data-nbm="nen" class="${UI.mode === "nen" ? "on" : ""}" aria-selected="${UI.mode === "nen"}">Nền thẻ${eqOf(k) ? " ✓" : ""}</button></div>${panelHTML(k)}`;
+    const tb = (m, n) => `<button type="button" role="tab" data-nbm="${m}" class="${UI.mode === m ? "on" : ""}" aria-selected="${UI.mode === m}">${n}</button>`;
+    return `<div class="nbtabs" role="tablist" style="--nt:${tabs.length + 1}">${tabs.map(t => tb(t[0], t[1])).join("")}${tb("nen", "Nền thẻ" + (eqOf(k) ? " ✓" : ""))}</div>${mid || ""}${panelHTML(k)}`;
   }
   function root(el) { return el.closest("#cardBody") || el.closest("#pzBody"); }
   function bigOf(r) { return r.querySelector(".bigc") || r.querySelector(".gc"); }
-  function applyMode(r) { r.classList.toggle("nbmode", UI.mode === "nen"); const o = r.closest("#ovCard"); if (o) o.classList.toggle("nbm-on", UI.mode === "nen"); }
+  function applyMode(r) { r.classList.toggle("nbmode", UI.mode === "nen"); r.dataset.cvm = UI.mode; const o = r.closest("#ovCard"); if (o) o.classList.toggle("nbm-on", UI.mode === "nen"); }
   function repaintPanel(r, keep) {
     const p = r.querySelector(".nbp"); if (!p) return;
     const sl = p.querySelector(".nbstrip"), x = sl ? sl.scrollLeft : 0;
@@ -172,8 +185,9 @@
       else swap(bigOf(r), k, eqOf(k)); // rời tab Nền: thẻ về nền đang dùng
       return;
     }
-    if (d.nbs === undefined && d.nbg === undefined && d.nbuse === undefined && d.nbbuy === undefined && d.nbx === undefined) return;
+    if (d.nbs === undefined && d.nbg === undefined && d.nbuse === undefined && d.nbbuy === undefined && d.nbx === undefined && d.nbbulk === undefined) return;
     ev.stopPropagation(); try { SFX.play("tap"); } catch (e) { }
+    if (d.nbbulk !== undefined) { bulk({ bg: d.nbbulk, act: d.nbbulk ? "one" : "clear", k }); return; }
     if (d.nbg !== undefined) { // nhảy tới nhóm
       UI.g = d.nbg; const g = r.querySelector(`.nbgrp[data-g="${d.nbg}"]`), sp = r.querySelector(".nbstrip");
       if (g && sp) sp.scrollTo({ left: g.offsetLeft - sp.offsetLeft - 2, behavior: window.reduced ? "auto" : "smooth" });
@@ -234,25 +248,166 @@
       const L = CAT.filter(b => b.g === g);
       h += `<section class="ssec" id="ss-${g}"><div class="shh"><span class="sht"><b>${gn}</b><small>${L.length} nền${g === "mv" ? " · giới hạn theo sự kiện" : g === "dg" ? " · chuyển động cả trên tay và trên bàn" : g === "ak" ? " · ánh kim theo độ nghiêng" : ""}</small></span></div><div class="shg">${L.map(shopItem).join("")}</div></section>`;
     }
-    return h + `<div class="shn">Chọn nền ở Sưu tập: mở thẻ, bấm tab "Nền thẻ". Mỗi thẻ có thể dùng một nền riêng.</div>`;
+    return h + `<div class="shn">Chọn nền ở Sưu tập: mở thẻ, bấm tab "Nền thẻ". Mỗi thẻ có thể dùng một nền riêng, hoặc bấm nút "Nền" cạnh bộ lọc để đặt nền hàng loạt.</div>`;
   }
   let ov = null;
   function openPrev(id) {
     const b = BY[id]; if (!b) return;
-    if (!ov) { ov = document.createElement("div"); ov.className = "ov sheet"; ov.id = "ovNen"; ov.innerHTML = `<div class="pk" id="nenBody" role="dialog" aria-label="Xem nền"></div>`; document.body.appendChild(ov); ov.addEventListener("click", e => { if (e.target.id === "ovNen" || e.target.closest("[data-nbclose]")) { ov.classList.remove("on"); return; } const t = e.target.closest("button"); if (!t) return; const d = t.dataset; if (d.nbbuy) { if (buy(d.nbbuy)) { toast("Đã mua nền " + BY[d.nbbuy].n); const bb = BY[d.nbbuy]; paintPrev(d.nbbuy); try { document.getElementById("shopRes").innerHTML = resHTML(["gold", "up", "tok", "evp", "gems"]); renderShop(); renderLobby(); } catch (x) { } } } }); }
+    if (!ov) { ov = document.createElement("div"); ov.className = "ov sheet"; ov.id = "ovNen"; ov.innerHTML = `<div class="pk" id="nenBody" role="dialog" aria-label="Xem nền"></div>`; document.body.appendChild(ov); ov.addEventListener("click", e => { if (e.target.id === "ovNen" || e.target.closest("[data-nbclose]")) { ov.classList.remove("on"); return; } const t = e.target.closest("button"); if (!t) return; const d = t.dataset; if (d.nbbulkp) { try { SFX.play("tap"); } catch (x) { } bulk({ bg: d.nbbulkp, act: "one" }); return; } if (d.nbbuy) { if (buy(d.nbbuy)) { toast("Đã mua nền " + BY[d.nbbuy].n); const bb = BY[d.nbbuy]; paintPrev(d.nbbuy); try { document.getElementById("shopRes").innerHTML = resHTML(["gold", "up", "tok", "evp", "gems"]); renderShop(); renderLobby(); } catch (x) { } } } }); }
     paintPrev(id); bindTilt(); document.body.classList.toggle("nblow", window.FXLV === 0); ov.classList.add("on");
   }
   function paintPrev(id) {
     const b = BY[id], o = owned(id), tc = TQ[b.t][1];
     document.getElementById("nenBody").innerHTML = `<div class="nbbig nbpv" style="--tc:${tc}">${bgHTML(id).replace(/<b class="nbm"[^>]*><\/b>/, "")}${art(SAMPLE)}</div>
       <div class="nbtxt" style="--tc:${tc}"><div class="nbi2"><div class="tx"><b>${esc2(b.n)}</b><small><span class="nbtag">${TQ[b.t][0]}</span>${b.lim ? `<span class="nbtag lim">Giới hạn</span>` : ""}${esc2(GR.find(x => x[0] === b.g)[1])} · ${esc2(b.src)}</small></div>${o ? "" : priceHTML(b)}</div>
-      <p>${o ? "Bạn đã có nền này. Mở Sưu tập, chọn thẻ rồi vào tab Nền thẻ để dùng." : "Mua để dùng cho mọi thẻ. Mỗi thẻ chọn nền riêng."}${KEM.size ? " Vài thẻ ánh sáng mờ chưa hỗ trợ nền." : ""}</p>
-      <div class="nbact">${o ? "" : `<button type="button" class="nbb go" data-nbbuy="${id}" ${store[b.c] < b.p ? "disabled" : ""}>Mua ${icn(b.c)}${b.p}</button>`}<button type="button" class="nbb gh" data-nbclose="1">Đóng</button></div></div>`;
+      <p>${o ? "Bạn đã có nền này. Áp cho nhiều thẻ cùng lúc, hoặc mở một thẻ ở Sưu tập rồi vào tab Nền thẻ." : "Mua để dùng cho mọi thẻ. Mỗi thẻ chọn nền riêng."}${KEM.size ? " Vài thẻ ánh sáng mờ chưa hỗ trợ nền." : ""}</p>
+      <div class="nbact">${o ? `<button type="button" class="nbb go" data-nbbulkp="${id}">Áp cho nhiều thẻ…</button>` : `<button type="button" class="nbb go" data-nbbuy="${id}" ${store[b.c] < b.p ? "disabled" : ""}>Mua ${icn(b.c)}${b.p}</button>`}<button type="button" class="nbb gh" data-nbclose="1">Đóng</button></div></div>`;
   }
   function shopClick(ds) {
     if (ds.nbt) { const s = st(); s.all = s.all ? 0 : 1; save(); renderShop(); return true; }
     if (ds.nbp) { openPrev(ds.nbp); return true; }
     return false;
   }
-  window.NEN = { CAT, BY, GR, TQ, IMG, KEM, slot, shop, sections, shopClick, owned, eqOf, setEq, buy, swap, layer, supported };
+  /* =====================================================================
+     ĐẶT NỀN HÀNG LOẠT — chọn việc (một nền / ngẫu nhiên / gỡ nền) + phạm vi (tất cả, bậc, loại kỹ năng, năng lượng, bộ bài,
+     thẻ đang hiện ở Sưu tập) -> xác nhận trong trang (xem trước 4 thẻ) -> ghi vào store.nen.eq (map idThẻ -> idNền, như đặt từng thẻ).
+     Chỉ áp cho thẻ hỗ trợ nền (bỏ KEM) và nền đang sở hữu. Lưu một lần (save()) sau khi áp.
+     ===================================================================== */
+  const BK = { act: "one", bg: "", sc: "all", v: {}, keep: false, step: "pick", plan: null, k: "" };
+  let bov = null;
+  function ownedList() { return CAT.filter(b => owned(b.id)); }
+  function inCol() { const o = document.getElementById("ovDeck"); return !!(o && o.classList.contains("on")); }
+  function scopes() {
+    const L = [["all", "Tất cả thẻ"], ["he", "Theo bậc"], ["dang", "Loại kỹ năng"], ["cost", "Năng lượng"], ["deck", "Bộ bài"]];
+    if (inCol()) L.push(["view", "Đang hiện ở " + (F.col ? "Sưu tập" : "danh sách")]);
+    return L;
+  }
+  const costOf = k => Math.min(6, Math.max(0, C[k].c | 0));
+  function subVals(sc) { // [[giá trị, nhãn, màu?]]
+    const ALL = E.COLLECT;
+    if (sc === "he") return Object.keys(HE).filter(h => h !== "PH" && ALL.some(k => C[k].h === h)).map(h => [h, /^Thẻ/i.test(HE[h]) ? HE[h] : HE[h], HC[h]]);
+    if (sc === "dang") return Object.keys(DANG).filter(t => ALL.some(k => C[k].t === t)).map(t => [t, DANG[t]]);
+    if (sc === "cost") return [0, 1, 2, 3, 4, 5, 6].filter(c => ALL.some(k => costOf(k) === c)).map(c => [String(c), c === 6 ? "6+" : String(c)]);
+    if (sc === "deck") return (store.decks || []).map((d, i) => [String(i), d.n || "Bộ bài " + (i + 1)]);
+    return [];
+  }
+  function scopeIds(sc, v) {
+    const ALL = E.COLLECT;
+    if (sc === "he") return ALL.filter(k => C[k].h === v);
+    if (sc === "dang") return ALL.filter(k => C[k].t === v);
+    if (sc === "cost") return ALL.filter(k => String(costOf(k)) === v);
+    if (sc === "deck") { const d = (store.decks || [])[+v]; return d ? d.ids.filter(k => C[k]) : []; }
+    if (sc === "view") { try { return sortIds(ALL.filter(deckMatches)); } catch (e) { return []; } }
+    return ALL.slice();
+  }
+  function scopeName(sc, v) {
+    if (sc === "all") return "tất cả thẻ";
+    if (sc === "view") return "các thẻ đang hiện";
+    const x = subVals(sc).find(z => z[0] === v), n = x ? x[1] : "";
+    if (sc === "he") return /^Thẻ/i.test(n) ? n : "thẻ " + n;
+    if (sc === "dang") return "thẻ " + n;
+    if (sc === "cost") return "thẻ " + n + " năng lượng";
+    if (sc === "deck") return "bộ bài “" + n + "”";
+    return "";
+  }
+  function targets() { // -> {ids, skipKem, skipKeep}
+    st(); const raw = [...new Set(scopeIds(BK.sc, BK.v[BK.sc]))];
+    let ids = raw.filter(k => supported(k)); const skipKem = raw.length - ids.length;
+    let skipKeep = 0;
+    if (BK.act === "clear") ids = ids.filter(k => rawEq(k));
+    else if (BK.keep) { const n = ids.length; ids = ids.filter(k => !ownEq(k)); skipKeep = n - ids.length; }
+    return { ids, skipKem, skipKeep, raw: raw.length };
+  }
+  function mkPlan() {
+    const t = targets(), pool = ownedList().map(b => b.id);
+    let plan = [];
+    if (BK.act === "clear") plan = t.ids.map(k => [k, ""]);
+    else if (BK.act === "rand") plan = pool.length ? t.ids.map(k => [k, pool[Math.floor(Math.random() * pool.length)]]) : [];
+    else if (BK.bg && owned(BK.bg)) plan = t.ids.map(k => [k, BK.bg]);
+    return Object.assign(t, { plan });
+  }
+  function miniHTML(k, id) {
+    const d = C[k], im = id ? bgHTML(id).replace(/<b class="nbm"[^>]*><\/b>/, "") : "";
+    return `<span class="nbpc" style="--hc:${HC[d.h] || "#7a86c8"}"><span class="nbpcf">${im}${art(k)}<span class="cst">${d.c}</span><span class="pwh">${d.p}</span></span><em>${esc2(d.n)}</em></span>`;
+  }
+  const bulkIco = `<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="6" width="11" height="14" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8 3h11a2 2 0 012 2v12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>`;
+  function bulkPick() {
+    const P = ownedList(), b = BY[BK.bg], t = targets();
+    const seg = (key, val, lab, on) => `<button type="button" class="${on ? "on" : ""}" data-${key}="${val}" aria-pressed="${!!on}">${lab}</button>`;
+    let h = `<div class="nbdh"><b id="nbdT">Đặt nền hàng loạt</b><button type="button" class="nbdx" data-nbdx="1" aria-label="Đóng">✕</button></div><div class="nbdb">`;
+    h += `<div class="nbdl">Làm gì</div><div class="nbseg" role="group" aria-label="Kiểu đặt nền">${seg("nbda", "one", "Một nền", BK.act === "one")}${seg("nbda", "rand", "Ngẫu nhiên", BK.act === "rand")}${seg("nbda", "clear", "Gỡ nền", BK.act === "clear")}</div>`;
+    if (BK.act === "one") {
+      h += `<div class="nbdl">Nền <span>${b ? esc2(b.n) : "chưa chọn"}</span></div><div class="nbstrip nbdstrip">${P.map(x => `<button type="button" class="nbsw${BK.bg === x.id ? " sel" : ""}" data-nbdbg="${x.id}" style="--tc:${TQ[x.t][1]}" aria-label="${esc2(x.n)}" aria-pressed="${BK.bg === x.id}"><span class="nbsb">${bgHTML(x.id).replace(/<b class="nbm"[^>]*><\/b>/, "")}</span><span class="nbn">${esc2(x.n)}</span></button>`).join("") || `<p class="nbdn">Bạn chưa có nền nào. Mua nền ở Cửa hàng › Nền thẻ.</p>`}</div>`;
+    } else if (BK.act === "rand") h += `<p class="nbdn">Mỗi thẻ nhận ngẫu nhiên một trong <b>${P.length}</b> nền bạn đang có.</p>`;
+    else h += `<p class="nbdn">Thẻ trong phạm vi quay về tranh gốc (bỏ nền đang đặt).</p>`;
+    h += `<div class="nbdl">Áp cho</div><div class="nbchips nbdsc" role="group" aria-label="Phạm vi">${scopes().map(([s, n]) => seg("nbdsc", s, n, BK.sc === s)).join("")}</div>`;
+    const sv = subVals(BK.sc);
+    if (sv.length) h += `<div class="nbchips nbdsv" role="group">${sv.map(([v, n, c]) => `<button type="button" class="${BK.v[BK.sc] === v ? "on" : ""}" data-nbdv="${esc2(v)}"${c ? ` style="--cc:${c}"` : ""} aria-pressed="${BK.v[BK.sc] === v}">${esc2(n)} <small>${scopeIds(BK.sc, v).filter(supported).length}</small></button>`).join("")}</div>`;
+    else if (BK.sc === "deck") h += `<p class="nbdn">Chưa có bộ bài nào.</p>`;
+    if (BK.act !== "clear") h += `<button type="button" class="nbtest nbkeep${BK.keep ? " on" : ""}" data-nbdk="1" aria-pressed="${BK.keep}"><i></i><span>Giữ nguyên thẻ đã có nền riêng</span></button>`;
+    const ok = t.ids.length && (BK.act === "clear" || (BK.act === "rand" ? P.length : b && owned(b.id)));
+    const note = [t.skipKem ? `${t.skipKem} thẻ chưa hỗ trợ nền` : "", t.skipKeep ? `${t.skipKeep} thẻ giữ nền riêng` : ""].filter(Boolean).join(" · ");
+    h += `</div><div class="nbdf"><div class="nbdc"><b>${t.ids.length}</b> thẻ${BK.act === "clear" ? " đang có nền" : ""}${note ? `<small>bỏ qua ${note}</small>` : ""}</div><button type="button" class="nbb go" data-nbdgo="1" ${ok ? "" : "disabled"}>Tiếp tục</button></div>`;
+    return h;
+  }
+  function bulkConfirm() {
+    const p = BK.plan, n = p.plan.length, b = BY[BK.bg], sn = scopeName(BK.sc, BK.v[BK.sc]);
+    const q = BK.act === "clear" ? `Gỡ nền của ${n} thẻ?` : BK.act === "rand" ? `Đặt nền ngẫu nhiên cho ${n} thẻ?` : `Áp nền ${esc2(b.n)} cho ${n} thẻ?`;
+    const pv = p.plan.slice(0, 4).map(([k, id]) => miniHTML(k, id)).join("");
+    return `<div class="nbdh"><b id="nbdT">Xác nhận</b><button type="button" class="nbdx" data-nbdx="1" aria-label="Đóng">✕</button></div><div class="nbdb nbdcf">
+      <p class="nbdq">${q}</p><p class="nbdn">Phạm vi: ${esc2(sn)}${n > 4 ? ` · xem trước 4/${n} thẻ` : ""}${p.skipKem ? ` · bỏ qua ${p.skipKem} thẻ chưa hỗ trợ nền` : ""}${p.skipKeep ? ` · giữ ${p.skipKeep} thẻ có nền riêng` : ""}</p>
+      <div class="nbpvr">${pv}</div></div>
+      <div class="nbdf"><button type="button" class="nbb gh" data-nbdback="1">Quay lại</button><button type="button" class="nbb go" data-nbdok="1">${BK.act === "clear" ? "Gỡ nền" : "Áp dụng"}</button></div>`;
+  }
+  function bulkPaint() { const el = document.getElementById("nbdBody"); if (!el) return; const sx = (el.querySelector(".nbdstrip") || {}).scrollLeft || 0; el.innerHTML = BK.step === "confirm" ? bulkConfirm() : bulkPick(); const ns = el.querySelector(".nbdstrip"); if (ns) ns.scrollLeft = sx; }
+  function bulkApply() {
+    const s = st(), p = BK.plan; if (!p) return;
+    if (BK.sc === "all" && !BK.keep && BK.act !== "rand") s.eq = BK.act === "clear" ? {} : { "*": BK.bg }; // lưu gọn: một luật cho mọi thẻ
+    else for (const [k, id] of p.plan) put(s, k, id);
+    NS = s;
+    cnt = Object.keys(s.eq).length; save();
+    try { SFX.play("ui_reward"); } catch (e) { }
+    toast(BK.act === "clear" ? `Đã gỡ nền ${p.plan.length} thẻ` : `Đã đổi nền ${p.plan.length} thẻ`);
+    bov.classList.remove("on");
+    UI.k = ""; // chi tiết thẻ: chọn lại theo nền mới
+    try { if (inCol()) renderDeck(true); } catch (e) { }
+    try { const oc = document.getElementById("ovCard"); if (oc && oc.classList.contains("on") && typeof renderCard === "function") renderCard(); } catch (e) { }
+    try { const pz = document.getElementById("ovPZ"); if (pz && pz.classList.contains("on") && typeof openPZ === "function" && typeof pzK !== "undefined" && pzK) openPZ(pzK, pzAlt, pzI); } catch (e) { }
+    try { if (document.getElementById("ovShop").classList.contains("on")) renderShop(); renderLobby(); } catch (e) { }
+  }
+  function bulk(o) {
+    o = o || {}; st();
+    if (!bov) {
+      bov = document.createElement("div"); bov.className = "ov"; bov.id = "ovNb";
+      bov.innerHTML = `<div class="nbdlg" id="nbdBody" role="dialog" aria-modal="true" aria-labelledby="nbdT"></div>`; document.body.appendChild(bov);
+      bov.addEventListener("click", e => {
+        if (e.target === bov) { bov.classList.remove("on"); return; }
+        const t = e.target.closest("button"); if (!t || t.disabled) return; const d = t.dataset;
+        if (d.nbdx) { bov.classList.remove("on"); return; }
+        try { SFX.play("tap"); } catch (x) { }
+        if (d.nbda) BK.act = d.nbda;
+        else if (d.nbdbg !== undefined) BK.bg = d.nbdbg;
+        else if (d.nbdsc) { BK.sc = d.nbdsc; const sv = subVals(BK.sc); if (sv.length && !sv.some(z => z[0] === BK.v[BK.sc])) BK.v[BK.sc] = sv[0][0]; }
+        else if (d.nbdv !== undefined) BK.v[BK.sc] = d.nbdv;
+        else if (d.nbdk) BK.keep = !BK.keep;
+        else if (d.nbdgo) { BK.plan = mkPlan(); if (!BK.plan.plan.length) return; BK.step = "confirm"; }
+        else if (d.nbdback) BK.step = "pick";
+        else if (d.nbdok) { bulkApply(); return; }
+        else return;
+        bulkPaint();
+      });
+      document.addEventListener("keydown", e => { if (e.key === "Escape" && bov.classList.contains("on")) { e.stopPropagation(); bov.classList.remove("on"); } }, true);
+    }
+    BK.step = "pick"; BK.plan = null; BK.k = o.k || "";
+    if (o.act) BK.act = o.act;
+    if (o.bg !== undefined && o.bg) BK.bg = o.bg;
+    if (!BK.bg || !owned(BK.bg)) { const f = ownedList()[0]; BK.bg = f ? f.id : ""; }
+    BK.sc = o.sc || (inCol() && !o.k ? "view" : "all");
+    const d = o.k && C[o.k];
+    BK.v = { he: d ? d.h : (subVals("he")[0] || [""])[0], dang: d ? d.t : (subVals("dang")[0] || [""])[0], cost: d ? String(costOf(o.k)) : "1", deck: String(Math.max(0, Math.min((store.decks || []).length - 1, store.cur | 0))) };
+    bulkPaint(); bov.classList.add("on");
+    requestAnimationFrame(() => { const s = bov.querySelector(".nbdstrip .nbsw.sel"), sp = bov.querySelector(".nbdstrip"); if (s && sp) sp.scrollLeft = Math.max(0, s.offsetLeft - sp.offsetLeft - 40); });
+  }
+
+  window.NEN = { CAT, BY, GR, TQ, IMG, KEM, slot, shop, sections, shopClick, owned, eqOf, setEq, buy, swap, layer, supported, bulk, bulkIco };
 })();

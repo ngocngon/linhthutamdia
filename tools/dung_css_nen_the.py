@@ -228,7 +228,7 @@ css.append('''@keyframes nbSlide{to{transform:translate3d(-50%,0,0)}}
 #   .nbim = tranh vẽ (chuyển động zoom/pan chậm kiểu Ken Burns ở thẻ lớn); ::before = lớp hiệu ứng CHÍNH (chạy cả ở thẻ nhỏ);
 #   ::after và .nbx* = lớp phụ (chỉ thẻ lớn). Thẻ nhỏ chạy: tay bài (.hc), bàn (.mc), ô xem thử cửa hàng (.nbmini). Lưới sưu tập, khay bộ bài: đứng yên.
 BIGP=['.bigc>','#ovPZ .gc>','#zoom .gc>','.nbpv>']
-RUNP=BIGP+['.hc>','.mc>','.nbmini>']
+RUNP=BIGP+['.hc>','.mc>','.nbmini>','.nbpcf>']
 def B(sel,P=BIGP):return ','.join(p+sel for p in P)
 def Bs(sels,P=BIGP):return ','.join(B(s,P) for s in sels)
 NB=lambda i:f'.nth.nbfx.nth-{i}'
@@ -344,7 +344,7 @@ for i in ('vangdat','bac','cauvong'):
     R(f'.nth-{i} .nbx1',"left:0;top:0;right:0;bottom:0;background:radial-gradient(circle at var(--mx,50%) var(--my,50%),rgba(255,255,255,.5),transparent 42%)")
 
 
-SMALLP=['.hc>','.mc>','.nbmini>']
+SMALLP=['.hc>','.mc>','.nbmini>','.nbpcf>']
 css.append(','.join(p+'.nth-trungthu.nbfx::after' for p in SMALLP)+'{display:block}')
 css.append(','.join(p+'.nth' for p in SMALLP)+'{--nbs:.45}')
 css.append(','.join(p+'.nth-'+i+'.nbfx .nbx1' for p in SMALLP for i in ('lua','dentroi','songnuoc'))+'{display:block}')
