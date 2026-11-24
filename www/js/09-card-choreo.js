@@ -1770,6 +1770,12 @@
     };
   }
 
+  /* gpu40: lớp ngoài cùng của run8 — bước cộng/trừ sức mạnh / năng lượng đọc mốc T8 (nhấc, bay, phản ứng) ×0,5 */
+  if (typeof run8 === "function" && typeof PQ8 === "function") {
+    const _r40 = run8;
+    run8 = function (s) { const o = T8Q; T8Q = PQ8(s); try { return _r40(s); } finally { T8Q = o; } };
+  }
+
   const _prevFx7 = typeof fx7 === "function" ? fx7 : null;
   if (_prevFx7) {
     fx7 = function (evs, R0, P0) {
