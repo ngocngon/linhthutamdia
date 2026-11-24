@@ -8,7 +8,7 @@
   Khi cần ảnh, trang fetch() đúng gói đó rồi cắt ra Blob URL (không mã hoá lại ảnh).
 - Vá trong BẢN DỰNG (không sửa www/): spLoad dùng gói, bg12 bỏ tải trước ảnh thẻ, boot12 chờ gói hiệu ứng lõi,
   IMGS.v16 thành Proxy: khoá chưa tải -> undefined (mã game tự dùng đường thay thế) và bắt đầu tải gói.
-- In ra số tệp; dừng nếu vượt 500.
+- In ra số tệp; dừng nếu vượt 510.
 """
 import json, os, re, shutil, sys
 
@@ -122,5 +122,5 @@ open(os.path.join(OUT, "index.html"), "w", encoding="utf8").write(s)
 n = sum(len(f) for _, _, f in os.walk(OUT))
 mb = sum(os.path.getsize(os.path.join(d, x)) for d, _, f in os.walk(OUT) for x in f) / 1e6
 print("tệp: %d | gói: %d | dung lượng: %.1f MB | phiên bản %s" % (n, len(paks), mb, ver))
-if n > 500:
+if n > 510:
     sys.exit("QUÁ NHIỀU TỆP (giới hạn artifact 512)")
