@@ -86,7 +86,7 @@ body.rm .nth::before,body.rm .nth::after,body.nblow .nth::before,body.nblow .nth
 .bigc>.nth.nbfx .nbx,#ovPZ .gc>.nth.nbfx .nbx,#zoom .gc>.nth.nbfx .nbx,.nbpv>.nth.nbfx .nbx{display:block}
 .bigc>.nth.nbfx .nbim,#ovPZ .gc>.nth.nbfx .nbim,#zoom .gc>.nth.nbfx .nbim,.nbpv>.nth.nbfx .nbim{animation:nbKB 18s ease-in-out infinite alternate}
 .nth[data-nth]::before,.nth[data-nth]::after,.nth[data-nth] .nbim,.nth[data-nth] .nbx{animation-play-state:paused}
-.bigc>.nth[data-nth]::before,#ovPZ .gc>.nth[data-nth]::before,#zoom .gc>.nth[data-nth]::before,.nbpv>.nth[data-nth]::before,.hc>.nth[data-nth]::before,.mc>.nth[data-nth]::before,.nbmini>.nth[data-nth]::before,.bigc>.nth[data-nth]::after,#ovPZ .gc>.nth[data-nth]::after,#zoom .gc>.nth[data-nth]::after,.nbpv>.nth[data-nth]::after,.hc>.nth[data-nth]::after,.mc>.nth[data-nth]::after,.nbmini>.nth[data-nth]::after,.bigc>.nth[data-nth] .nbim,#ovPZ .gc>.nth[data-nth] .nbim,#zoom .gc>.nth[data-nth] .nbim,.nbpv>.nth[data-nth] .nbim,.hc>.nth[data-nth] .nbim,.mc>.nth[data-nth] .nbim,.nbmini>.nth[data-nth] .nbim,.bigc>.nth[data-nth] .nbx,#ovPZ .gc>.nth[data-nth] .nbx,#zoom .gc>.nth[data-nth] .nbx,.nbpv>.nth[data-nth] .nbx,.hc>.nth[data-nth] .nbx,.mc>.nth[data-nth] .nbx,.nbmini>.nth[data-nth] .nbx{animation-play-state:running}
+.bigc>.nth[data-nth]::before,#ovPZ .gc>.nth[data-nth]::before,#zoom .gc>.nth[data-nth]::before,.nbpv>.nth[data-nth]::before,.hc>.nth[data-nth]::before,.mc>.nth[data-nth]::before,.nbmini>.nth[data-nth]::before,.nbpcf>.nth[data-nth]::before,.bigc>.nth[data-nth]::after,#ovPZ .gc>.nth[data-nth]::after,#zoom .gc>.nth[data-nth]::after,.nbpv>.nth[data-nth]::after,.hc>.nth[data-nth]::after,.mc>.nth[data-nth]::after,.nbmini>.nth[data-nth]::after,.nbpcf>.nth[data-nth]::after,.bigc>.nth[data-nth] .nbim,#ovPZ .gc>.nth[data-nth] .nbim,#zoom .gc>.nth[data-nth] .nbim,.nbpv>.nth[data-nth] .nbim,.hc>.nth[data-nth] .nbim,.mc>.nth[data-nth] .nbim,.nbmini>.nth[data-nth] .nbim,.nbpcf>.nth[data-nth] .nbim,.bigc>.nth[data-nth] .nbx,#ovPZ .gc>.nth[data-nth] .nbx,#zoom .gc>.nth[data-nth] .nbx,.nbpv>.nth[data-nth] .nbx,.hc>.nth[data-nth] .nbx,.mc>.nth[data-nth] .nbx,.nbmini>.nth[data-nth] .nbx,.nbpcf>.nth[data-nth] .nbx{animation-play-state:running}
 body.rm .nth .nbim,body.rm .nth .nbx,body.nblow .nth .nbim,body.nblow .nth .nbx{animation:none!important}
 @media (prefers-reduced-motion:reduce){.nth .nbim,.nth .nbx{animation:none!important}}
 .nth.nbfx.nth-maytroi::before{right:auto;bottom:auto;transform:none;opacity:1;left:0;top:0;width:200%;height:100%;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='128' viewBox='0 0 100 128' preserveAspectRatio='none'%3E%3Cdefs%3E%3CradialGradient id='c'%3E%3Cstop offset='0' stop-color='%23fff' stop-opacity='.95'/%3E%3Cstop offset='.55' stop-color='%23fff' stop-opacity='.6'/%3E%3Cstop offset='1' stop-color='%23fff' stop-opacity='0'/%3E%3C/radialGradient%3E%3C/defs%3E%3Cellipse cx='14' cy='92' rx='24' ry='11' fill='url(%23c)'/%3E%3Cellipse cx='-86' cy='92' rx='24' ry='11' fill='url(%23c)'/%3E%3Cellipse cx='114' cy='92' rx='24' ry='11' fill='url(%23c)'/%3E%3Cellipse cx='30' cy='100' rx='18' ry='8' fill='url(%23c)'/%3E%3Cellipse cx='-70' cy='100' rx='18' ry='8' fill='url(%23c)'/%3E%3Cellipse cx='130' cy='100' rx='18' ry='8' fill='url(%23c)'/%3E%3Cellipse cx='52' cy='84' rx='20' ry='9' fill='url(%23c)'/%3E%3Cellipse cx='-48' cy='84' rx='20' ry='9' fill='url(%23c)'/%3E%3Cellipse cx='152' cy='84' rx='20' ry='9' fill='url(%23c)'/%3E%3Cellipse cx='76' cy='98' rx='26' ry='12' fill='url(%23c)'/%3E%3Cellipse cx='-24' cy='98' rx='26' ry='12' fill='url(%23c)'/%3E%3Cellipse cx='176' cy='98' rx='26' ry='12' fill='url(%23c)'/%3E%3Cellipse cx='90' cy='88' rx='16' ry='8' fill='url(%23c)'/%3E%3Cellipse cx='-10' cy='88' rx='16' ry='8' fill='url(%23c)'/%3E%3Cellipse cx='190' cy='88' rx='16' ry='8' fill='url(%23c)'/%3E%3Cellipse cx='60' cy='110' rx='24' ry='9' fill='url(%23c)'/%3E%3Cellipse cx='-40' cy='110' rx='24' ry='9' fill='url(%23c)'/%3E%3Cellipse cx='160' cy='110' rx='24' ry='9' fill='url(%23c)'/%3E%3C/svg%3E") 0 0/50% 100% repeat-x;opacity:.9;animation:nbSlide calc(34s*var(--nbs,1)) linear infinite}
@@ -119,17 +119,17 @@ body.rm .nth .nbim,body.rm .nth .nbx,body.nblow .nth .nbim,body.nblow .nth .nbx{
 .nth.nbfx.nth-cauvong::before{right:auto;bottom:auto;transform:none;opacity:1;left:-45%;top:-15%;width:55%;height:130%;background:linear-gradient(90deg,rgba(255,255,255,0),rgba(255,120,200,.55) 22%,rgba(255,236,120,.6) 40%,rgba(120,255,200,.6) 58%,rgba(120,170,255,.55) 78%,rgba(255,255,255,0));transform:skewX(-18deg);animation:nbSheen2 calc(3.8s*var(--nbs,1)) ease-in-out infinite}
 .nth.nbfx.nth-cauvong::after{right:auto;bottom:auto;transform:none;opacity:1;left:0;top:0;width:100%;height:100%;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 128' preserveAspectRatio='none'%3E%3Cpath d='M14 11L14.75 13.25L17 14L14.75 14.75L14 17L13.25 14.75L11 14L13.25 13.25z' fill='%23fff'/%3E%3Cpath d='M70 7.6L70.6 9.4L72.4 10L70.6 10.6L70 12.4L69.4 10.6L67.6 10L69.4 9.4z' fill='%23fff'/%3E%3Cpath d='M40 31.4L40.65 33.35L42.6 34L40.65 34.65L40 36.6L39.35 34.65L37.4 34L39.35 33.35z' fill='%23fff'/%3E%3Cpath d='M88 37L88.75 39.25L91 40L88.75 40.75L88 43L87.25 40.75L85 40L87.25 39.25z' fill='%23fff'/%3E%3Cpath d='M22 59.6L22.6 61.4L24.4 62L22.6 62.6L22 64.4L21.4 62.6L19.6 62L21.4 61.4z' fill='%23fff'/%3E%3Cpath d='M60 66.8L60.8 69.2L63.2 70L60.8 70.8L60 73.2L59.2 70.8L56.8 70L59.2 69.2z' fill='%23fff'/%3E%3Cpath d='M82 89.6L82.6 91.4L84.4 92L82.6 92.6L82 94.4L81.4 92.6L79.6 92L81.4 91.4z' fill='%23fff'/%3E%3Cpath d='M12 97L12.75 99.25L15 100L12.75 100.75L12 103L11.25 100.75L9 100L11.25 99.25z' fill='%23fff'/%3E%3Cpath d='M48 109.4L48.65 111.35L50.6 112L48.65 112.65L48 114.6L47.35 112.65L45.4 112L47.35 111.35z' fill='%23fff'/%3E%3Cpath d='M92 117.8L92.55 119.45L94.2 120L92.55 120.55L92 122.2L91.45 120.55L89.8 120L91.45 119.45z' fill='%23fff'/%3E%3C/svg%3E") 0 0/100% 100% no-repeat;opacity:.8;animation:nbTw calc(1.9s*var(--nbs,1)) ease-in-out infinite}
 .nth-cauvong .nbx1{left:0;top:0;right:0;bottom:0;background:radial-gradient(circle at var(--mx,50%) var(--my,50%),rgba(255,255,255,.5),transparent 42%)}
-.hc>.nth-trungthu.nbfx::after,.mc>.nth-trungthu.nbfx::after,.nbmini>.nth-trungthu.nbfx::after{display:block}
-.hc>.nth,.mc>.nth,.nbmini>.nth{--nbs:.45}
-.hc>.nth-lua.nbfx .nbx1,.hc>.nth-dentroi.nbfx .nbx1,.hc>.nth-songnuoc.nbfx .nbx1,.mc>.nth-lua.nbfx .nbx1,.mc>.nth-dentroi.nbfx .nbx1,.mc>.nth-songnuoc.nbfx .nbx1,.nbmini>.nth-lua.nbfx .nbx1,.nbmini>.nth-dentroi.nbfx .nbx1,.nbmini>.nth-songnuoc.nbfx .nbx1{display:block}
+.hc>.nth-trungthu.nbfx::after,.mc>.nth-trungthu.nbfx::after,.nbmini>.nth-trungthu.nbfx::after,.nbpcf>.nth-trungthu.nbfx::after{display:block}
+.hc>.nth,.mc>.nth,.nbmini>.nth,.nbpcf>.nth{--nbs:.45}
+.hc>.nth-lua.nbfx .nbx1,.hc>.nth-dentroi.nbfx .nbx1,.hc>.nth-songnuoc.nbfx .nbx1,.mc>.nth-lua.nbfx .nbx1,.mc>.nth-dentroi.nbfx .nbx1,.mc>.nth-songnuoc.nbfx .nbx1,.nbmini>.nth-lua.nbfx .nbx1,.nbmini>.nth-dentroi.nbfx .nbx1,.nbmini>.nth-songnuoc.nbfx .nbx1,.nbpcf>.nth-lua.nbfx .nbx1,.nbpcf>.nth-dentroi.nbfx .nbx1,.nbpcf>.nth-songnuoc.nbfx .nbx1{display:block}
 /* ---- giao diện chọn nền / cửa hàng nền ---- */
 .nbm{display:none;position:absolute;left:3px;bottom:3px;z-index:9;width:16px;height:16px;border-radius:5px;border:1px solid rgba(255,255,255,.7);background:linear-gradient(135deg,#ffe08a,#e8981c);box-shadow:0 1px 4px rgba(0,0,0,.7);pointer-events:none}
 .nbm::after{content:"";position:absolute;inset:2px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Crect x='.8' y='.8' width='10.4' height='10.4' rx='1.6' fill='none' stroke='%23442200' stroke-width='1.1'/%3E%3Cpath d='M1 9l3.2-4 2.3 2.6 1.6-1.8L11 9z' fill='%23442200'/%3E%3Ccircle cx='8.6' cy='3.6' r='1' fill='%23442200'/%3E%3C/svg%3E") center/contain no-repeat}
 #dkGrid .nbm,.dkc .nbm,[data-pick]>.nbm,.dkg .nbm{display:block}
 .dkc .nbm,[data-pick]>.nbm,.dkg .nbm{left:50%;bottom:auto;top:3px;margin-left:-7px;width:14px;height:14px}
-.nbtabs{display:flex;gap:6px;margin:8px 12px 0;padding:4px;border-radius:14px;background:rgba(6,8,32,.72);border:1px solid rgba(110,150,255,.25)}
-.nbtabs button{flex:1;height:32px;border:0;border-radius:10px;background:none;color:#aab4e0;font-weight:800;font-size:13.5px;font-family:inherit}
-.nbtabs button.on{background:linear-gradient(180deg,#ffe08a,#ff9a2b);color:#2a1200;box-shadow:0 3px 10px rgba(255,160,40,.35)}
+.nbtabs{flex:none;display:flex;gap:2px;margin:8px 12px 0;padding:2px;border-radius:12px;background:rgba(6,8,32,.72);border:1px solid rgba(110,150,255,.25)}
+.nbtabs button{flex:1 1 0;min-width:0;height:40px;border:0;border-radius:10px;background:none;color:#aab4e0;font-weight:800;font-size:13px;font-family:inherit;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 6px}
+.nbtabs button.on{background:linear-gradient(180deg,#3a4fa8,#22307a);color:#fff;box-shadow:inset 0 0 0 1px rgba(170,200,255,.5),0 2px 8px rgba(0,0,0,.35)}
 #cardBody.nbmode .cinfo,#cardBody.nbmode .cust,#cardBody.nbmode .cvren,#pzBody.nbmode .zt,#pzBody.nbmode .pkt{display:none}
 .nbp{display:none;margin:8px 12px 4px;padding:8px 8px 10px;border-radius:14px;border:1px solid rgba(255,214,90,.38);background:linear-gradient(180deg,rgba(28,40,110,.78),rgba(8,10,40,.9));box-shadow:inset 0 1px 0 rgba(180,210,255,.16);text-align:left}
 .nbmode .nbp{display:block}
@@ -188,10 +188,50 @@ body.rm .nth .nbim,body.rm .nth .nbx,body.nblow .nth .nbim,body.nblow .nth .nbx{
 #ovNen .zcl{margin-top:10px}
 @media (max-width:380px){.nbsw,.nbsb{width:54px}.nbsb{height:70px}.nbb{font-size:12.5px}}
 
-/* chế độ Nền: ẩn dòng cấp độ + nút hành động để nhường chỗ cho bảng chọn nền */
-#ovCard.nbm-on .cvbot,#ovCard.nbm-on .cvact{display:none}
-#ovCard.nbm-on .bigc{width:min(62%,230px,calc((100dvh - 520px)*.76));min-width:128px;margin-top:6px;margin-bottom:6px}
-#ovCard.nbm-on .cvhead{padding-bottom:6px}
-#ovCard.nbm-on .body{overflow-y:auto}
+/* gpu40: chi tiết thẻ (#ovCard) không còn ẩn hàng hành động ở tab Nền — bố cục ở css/03-lobby-meta.css (khối "gpu40") */
 #ovPZ .nbtabs,#ovPZ .nbp{width:calc(100vw - 24px);max-width:330px;box-sizing:border-box;margin-left:0;margin-right:0}
+/* nút "Áp nền này cho nhiều thẻ…" trong tab Nền thẻ */
+.nbbulk{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;height:40px;margin-top:8px;border-radius:12px;border:1px dashed rgba(255,214,90,.6);background:rgba(255,214,90,.08);color:#ffe9a8;font-family:inherit;font-weight:800;font-size:13px}
+.nbbulk svg,.rbtn.nbrb svg{width:18px;height:18px;flex:none}
+/* nút "Nền" ở thanh bên Sưu tập */
+#railR .rbtn.nbrb{height:auto;color:#ffe9a8;border-color:rgba(255,214,90,.55)}
+/* hộp đặt nền hàng loạt */
+#ovNb{z-index:60;padding:10px}
+.nbdlg{width:min(100%,440px);max-height:100%;display:flex;flex-direction:column;border-radius:18px;border:1.5px solid rgba(255,214,90,.5);background:linear-gradient(180deg,#18235e,#080b2a 70%);box-shadow:0 14px 40px rgba(0,0,0,.75),inset 0 1px 0 rgba(180,210,255,.2);color:#e6ecff;overflow:hidden;animation:pkin .22s cubic-bezier(.2,1.2,.4,1)}
+body.rm .nbdlg{animation:none}
+.nbdh{flex:none;display:flex;align-items:center;gap:8px;padding:10px 10px 6px 16px}
+.nbdh b{flex:1;min-width:0;font-family:"LTName",var(--f-display);font-style:italic;font-weight:800;font-size:18px;text-transform:uppercase;letter-spacing:.02em}
+.nbdx{flex:none;width:40px;height:40px;border-radius:12px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.07);color:#fff;font-size:17px;font-weight:900}
+.nbdb{flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:2px 14px 10px}
+.nbdl{margin:10px 0 6px;font-size:11px;font-weight:900;letter-spacing:.06em;text-transform:uppercase;color:#ffd65a}
+.nbdl span{margin-left:6px;color:#fff;letter-spacing:0;text-transform:none;font-size:13px}
+.nbseg{display:flex;gap:2px;padding:2px;border-radius:12px;background:rgba(6,8,32,.72);border:1px solid rgba(110,150,255,.25)}
+.nbseg button{flex:1 1 0;min-width:0;height:40px;border:0;border-radius:10px;background:none;color:#aab4e0;font-family:inherit;font-weight:800;font-size:13px;white-space:nowrap}
+.nbseg button.on{background:linear-gradient(180deg,#ffe08a,#ff9a2b);color:#2a1200}
+.nbdstrip{gap:7px}
+.nbdsc,.nbdsv{flex-wrap:wrap;overflow:visible;gap:6px}
+.nbdsc button,.nbdsv button{height:36px;padding:0 12px;font-size:12.5px}
+.nbdsv button{--cc:#8f8ac0;border-color:color-mix(in srgb,var(--cc) 70%,transparent);background:color-mix(in srgb,var(--cc) 14%,transparent)}
+.nbdsv button.on{background:linear-gradient(180deg,color-mix(in srgb,var(--cc) 85%,#fff),color-mix(in srgb,var(--cc) 70%,#000));color:#fff;border-color:#fff}
+.nbdsv small{opacity:.75;font-size:10.5px;margin-left:2px}
+.nbdsv{margin-top:6px}
+.nbdn{margin:6px 0 2px;font-size:12.5px;line-height:1.4;color:#b7c0ee}
+.nbdn b{color:#fff}
+.nbkeep{margin-top:12px;min-height:44px}
+.nbdf{flex:none;display:flex;align-items:center;gap:10px;padding:10px 14px calc(12px + env(safe-area-inset-bottom,0px));border-top:1px solid rgba(120,160,255,.18);background:rgba(4,6,24,.5)}
+.nbdf .nbb{flex:0 1 auto;min-width:112px;height:44px}
+.nbdc{flex:1;min-width:0;font-size:13px;line-height:1.25;color:#cfd8ff}
+.nbdc b{font-size:20px;color:#fff;margin-right:3px}
+.nbdc small{display:block;font-size:11px;color:#9fa9da}
+.nbdcf{text-align:center}
+.nbdq{margin:8px 0 2px;font-size:17px;font-weight:900;color:#fff;line-height:1.3}
+.nbpvr{display:flex;justify-content:center;gap:8px;margin:12px 0 4px}
+.nbpc{flex:0 1 84px;min-width:0;display:flex;flex-direction:column;align-items:center;gap:4px}
+.nbpcf{position:relative;display:block;width:100%;aspect-ratio:5/6.6;border-radius:9px;border:2px solid var(--hc);overflow:hidden;background:#060820;box-shadow:0 4px 12px rgba(0,0,0,.6);container-type:inline-size}
+.nbpcf>.nth{position:absolute;inset:0;z-index:0}
+.nbpcf>.art{position:absolute;left:0;top:0;width:100%;height:100%;object-fit:cover;object-position:50% 14%;z-index:1;pointer-events:none}
+.nbpcf>.cst,.nbpcf>.pwh{position:absolute;top:2px;z-index:2;min-width:20px;height:20px;padding:0 3px;border-radius:50%;display:grid;place-items:center;font:900 12px/1 var(--f-display);font-style:italic;color:#fff;text-shadow:0 1px 0 #000}
+.nbpcf>.cst{left:2px;background:radial-gradient(circle at 35% 30%,#9ff2ff,#1b4fff 60%,#0a1a80)}
+.nbpcf>.pwh{right:2px;background:linear-gradient(180deg,#ffd27a,#d24a0a)}
+.nbpc em{font-style:normal;font-size:10.5px;line-height:1.15;color:#cfd8ff;text-align:center;max-width:100%;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 

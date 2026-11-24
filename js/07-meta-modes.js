@@ -365,38 +365,59 @@ let cardRen=false,cardAlt=0;
 const QR_T0=performance.now();
 function qrDelay(){return "-"+(((performance.now()-QR_T0)/1000)%120).toFixed(2)+"s";}
 function cardList(){return [...document.querySelectorAll('#ovDeck [data-pick]')].map(e=>e.dataset.pick).filter(k=>C[k]);}
+/* gpu40: màn thông tin thẻ bố cục lại — lá thẻ ở giữa (to nhất có thể), dòng chip nhỏ phía trên (Thẻ Bậc N · loại thẻ · lật mặt sau · thẻ liên quan),
+   mũi tên thẻ trước/sau hai bên lá thẻ (vuốt ngang cũng được), tên thẻ trong dải tên ở đáy khung (không đè nhân vật),
+   tab phân đoạn "Kỹ năng · Viền · Nền thẻ" (ô nội dung data-pane, NEN.slot dựng thanh tab), hàng hành động cố định ★ ✎ Nâng cấp ✕ ở đáy (index.html). */
+function cvName(id){const d=C[id],n=String(d.n).trim();let w=4;try{w=nmW(n.toLocaleUpperCase("vi"));}catch(e){w=n.length*.55;}return `<span class="n cvnm" style="--nmw:${w.toFixed(3)}"><b>${esc(n)}</b></span>`;}
+function bacLbl(d){const h=HE[d.h];return h?(/^Thẻ/i.test(h)?h:"Thẻ "+h):"Thẻ";}
 function renderCard(){const k=cardId,d=C[k],o=OWN.has(k),l=lvl(k),pv=cardPrev,c=store.cards[k]||{},cu=pv===6&&l===6;
   $("cardRes").innerHTML=resHTML(["up","tok","gold"]);
   const LK=[k,...(LINKS[k]||[])],ai=cardAlt%LK.length,sid=LK[ai],sd=C[sid];
-  $("cardHead").textContent=sid!==k?`Thẻ liên quan · ${d.n}`:`Thẻ nhân vật${DANG[d.t]?" · "+DANG[d.t]:""}${o?"":" · chưa sở hữu"}`;
   const qc=cu&&c.bc?c.bc:QN[pv][1],cls=pv?` qf q${pv}${cu&&c.bc?" qcc":""}${cu&&c.au?" qau":""}${cu&&c.an?" qan":""}`:"";
-  $("cardBody").innerHTML=`<div class="fanw">${fanSides(LK,ai)}<div class="bigc${cls}" style="--hc:${HC[d.h]};--bk:${backBg()};${cu&&c.bc?"--qc:"+c.bc:""}${pv===6?";--qd:"+qrDelay():""}">${pv===6?`<i class="qrg" aria-hidden="true"><b></b></i>`:""}${nbL(sid)}${art(sid,1)}<span class="cst">${sd.c}</span><span class="pwh">${sd.p}</span><span class="n">${logo(sid)}</span>${sid===k?spk(k):""}${bacTag(sd)}${lkBtn(ai,LK.length)}${flipBtn()}</div></div>
-  <div class="cvscroll"><div class="cinfo cvtx">${kwfx(skillText(sd))}</div>${NEN.slot(sid)}
-  ${cardRen?`<div class="frow cvren"><input id="cardName" type="text" maxlength="16" value="${esc(d.n)}" autocomplete="off" aria-label="Tên thẻ"><button type="button" class="sortb" data-rn="1">Lưu</button>${store.names[k]?`<button type="button" class="sortb" data-rn="0">Tên gốc</button>`:""}</div>`:""}
-  ${o&&l===6?`<div class="cust"><div class="sw">${SWATCH.map(x=>`<button type="button" data-bc="${x}" class="${c.bc===x?"on":""}" style="--c:${x}" aria-label="Màu viền ${x}"></button>`).join("")}<button type="button" data-bc="" class="${!c.bc?"on":""}" style="--c:conic-gradient(#ff4d6d,#ffd65a,#7dff8a,#3fe0ff,#c45cff,#ff4d6d)" aria-label="Viền cầu vồng"></button></div><div class="tg2"><button type="button" class="tgb${c.au?" on":""}" data-tg="au">Hào quang</button><button type="button" class="tgb${c.an?" on":""}" data-tg="an">Thẻ động</button></div></div>`:""}</div>`;
-  $("cardQ").style.setProperty("--qc",qc);
-  $("cardQ").innerHTML=`<button type="button" data-qv="-1" aria-label="Cấp độ thấp hơn">◀</button><div><small>${o&&pv===l?"Thẻ đang ở cấp độ":"Xem thẻ ở cấp độ"}</small><b>${QN[pv][0]}</b></div><button type="button" data-qv="1" aria-label="Cấp độ cao hơn">▶</button>`;
-  const L=cardList(),i=L.indexOf(k);document.querySelectorAll("#ovCard [data-cn]").forEach(x=>x.disabled=i<0||L.length<2);
-  $("cardFav").classList.toggle("on",store.fav.includes(k));$("cardRen").classList.toggle("on",cardRen);
+  const L=cardList(),li=L.indexOf(k),nav=li>=0&&L.length>1;
+  const chips=`<div class="cvchips"><span class="cvc bac" style="--cc:${HC[sd.h]||"#7a86c8"}">${esc(bacLbl(sd))}</span><span class="cvc">${sid!==k?"Thẻ liên quan":"Nhân vật"}${DANG[sd.t]?" · "+esc(DANG[sd.t]):""}</span>${o?"":`<span class="cvc no">Chưa có</span>`}<span class="cvsp"></span>${LK.length>1?`<button type="button" class="cvc cvb2" data-lk="1" aria-label="Xem thẻ liên quan / thẻ tạo ra (${ai+1}/${LK.length})"><i class="cvi lk" aria-hidden="true"></i>${ai+1}/${LK.length}</button>`:""}<button type="button" class="cvc cvb2" data-cvflip="1" aria-label="Lật xem mặt sau thẻ" title="Lật xem mặt sau"><i class="cvi fl" aria-hidden="true">⟲</i></button></div>`;
+  const big=`<div class="bigc${cls}" style="--hc:${HC[sd.h]};--bk:${backBg()};${cu&&c.bc?"--qc:"+c.bc:""}${pv===6?";--qd:"+qrDelay():""}">${pv===6?`<i class="qrg" aria-hidden="true"><b></b></i>`:""}${nbL(sid)}${art(sid,1)}<span class="cst">${sd.c}</span><span class="pwh">${sd.p}</span>${cvName(sid)}${sid===k?spk(k):""}${flipBtn()}</div>`;
+  const stage=`<div class="cvstage">${chips}<div class="cvcard"><button type="button" class="cvn" data-cn="-1" aria-label="Thẻ trước"${nav?"":" disabled"}>‹</button><div class="fanw">${big}</div><button type="button" class="cvn" data-cn="1" aria-label="Thẻ sau"${nav?"":" disabled"}>›</button></div></div>`;
+  const rel=LK.length>1?`<div class="cvrel"><small>${LK.length-1} thẻ liên quan · thẻ tạo ra</small><div class="cvrl">${LK.map((id,i)=>{const x=C[id];return `<button type="button" class="cvri${i===ai?" on":""}" data-alt="${i}" aria-label="Xem ${esc(x.n)}" aria-pressed="${i===ai}"><span class="gc mini" style="--hc:${HC[x.h]}">${nbL(id)}${art(id)}<span class="cst">${x.c}</span><span class="pwh">${x.p}</span></span><em>${i?esc(x.n):"Thẻ gốc"}</em></button>`;}).join("")}</div></div>`:"";
+  const info=`<div class="cvpane" data-pane="info"><div class="cinfo cvtx">${kwfx(skillText(sd))}</div>${rel}</div>`;
+  const vien=`<div class="cvpane" data-pane="vien" style="--qc:${qc}"><div class="cvqh"><b>${QN[pv][0]}</b><small>${o&&pv===l?"viền đang dùng":"xem trước"}${o?"":" · chưa có thẻ"}</small></div>
+    <div class="cvql" role="group" aria-label="Xem trước bậc viền">${QN.map((q,i)=>`<button type="button" data-qset="${i}" class="${i===pv?"on":""}${o&&i<=l?" got":""}" style="--c:${q[1]}" aria-label="Viền ${q[0]}${o&&i===l?" (đang dùng)":""}" aria-pressed="${i===pv}" title="${q[0]}"><i></i></button>`).join("")}</div>
+    ${o&&l===6?`<div class="cust"><div class="sw">${SWATCH.map(x=>`<button type="button" data-bc="${x}" class="${c.bc===x?"on":""}" style="--c:${x}" aria-label="Màu viền ${x}"></button>`).join("")}<button type="button" data-bc="" class="${!c.bc?"on":""}" style="--c:conic-gradient(#ff4d6d,#ffd65a,#7dff8a,#3fe0ff,#c45cff,#ff4d6d)" aria-label="Viền cầu vồng"></button></div><div class="tg2"><button type="button" class="tgb${c.au?" on":""}" data-tg="au" aria-pressed="${!!c.au}">Hào quang</button><button type="button" class="tgb${c.an?" on":""}" data-tg="an" aria-pressed="${!!c.an}">Thẻ động</button></div></div>`
+      :`<p class="cvnote">${o?(l<6?`Nâng thẻ lên <b>Vô Cực</b> để đổi màu viền, bật hào quang và thẻ động.`:""):"Sở hữu thẻ để nâng cấp viền."}</p>`}</div>`;
+  const ren=cardRen?`<div class="frow cvren"><input id="cardName" type="text" maxlength="16" value="${esc(d.n)}" autocomplete="off" aria-label="Tên thẻ"><button type="button" class="sortb" data-rn="1">Lưu</button>${store.names[k]?`<button type="button" class="sortb" data-rn="0">Tên gốc</button>`:""}</div>`:"";
+  $("cardBody").innerHTML=`<div class="cvwrap">${stage}<div class="cvopts">${ren}${NEN.slot(sid,[["info","Kỹ năng"],["vien","Viền"]],info+vien)}</div></div>`;
+  $("cardFav").classList.toggle("on",store.fav.includes(k));$("cardFav").setAttribute("aria-pressed",String(store.fav.includes(k)));$("cardRen").classList.toggle("on",cardRen);
   const b=$("btnUp");
   if(!o){const pr=PRICE[d.h]||500;b.innerHTML=`Mua ${icn("tok")}${pr}`;b.disabled=store.tok<pr;b.dataset.m="buy";}
-  else if(l>=6){b.textContent="Đã tối đa";b.disabled=true;b.dataset.m="";}
-  else{b.innerHTML=`Lên ${QN[l+1][0]} · ${icn("up")}${UPC[l]}`;b.disabled=store.up<UPC[l];b.dataset.m="up";}
+  else if(l>=6){b.innerHTML=`<small>Đã tối đa</small>`;b.disabled=true;b.dataset.m="";}
+  else{b.innerHTML=`Lên ${QN[l+1][0]} <span class="cvpr">${icn("up")}${UPC[l]}</span>`;b.disabled=store.up<UPC[l];b.dataset.m="up";}
+  b.classList.toggle("max",o&&l>=6);
 }
 function openCard(k){cardId=k;cardPrev=lvl(k);cardRen=false;cardAlt=0;renderCard();$("ovCard").classList.add("on");}
-$("cardBody").addEventListener("click",ev=>{const b=ev.target.closest("button");if(!b)return;const k=cardId;SFX.play("tap");
+function cardNav(dir){const L=cardList(),i=L.indexOf(cardId);if(i<0||L.length<2)return;SFX.play("tap");openCard(L[(i+dir+L.length)%L.length]);}
+$("cardBody").addEventListener("click",ev=>{const b=ev.target.closest("button");if(!b)return;const k=cardId;
+  if(b.dataset.cn)return; /* thẻ trước/sau: xử lý ở #ovCard */
+  SFX.play("tap");
+  if(b.dataset.cvflip){const f=document.querySelector("#cardBody .bigc>.flb");if(f){f.click();b.classList.toggle("on");}return;}
   if(b.dataset.lk){cardAlt++;renderCard();return;}
-  if(b.dataset.fan){const n=1+(LINKS[k]||[]).length;cardAlt=(cardAlt+ +b.dataset.fan+n)%n;renderCard();return;}
+  if(b.dataset.alt!==undefined){cardAlt=+b.dataset.alt;renderCard();return;}
+  if(b.dataset.qset!==undefined){cardPrev=+b.dataset.qset;renderCard();return;}
   if(b.dataset.rn){const v=b.dataset.rn==="1"?cleanName($("cardName").value):"";if(b.dataset.rn==="1"&&(!v||v===C[k].n))return;
     if(v){applyNames({[k]:v});store.names[k]=v;}else{applyNames({[k]:BASEN[k]});delete store.names[k];}
     for(const x in LGC)delete LGC[x];cardRen=false;save();renderCard();if(F.col||draft)renderDeck(true);if(G)render();return;}
   if(b.dataset.tg==="fav"){toggleFav(k);}
-  else if(lvl(k)===6){const c=store.cards[k];if(b.dataset.bc!==undefined)c.bc=b.dataset.bc;else if(b.dataset.tg)c[b.dataset.tg]=!c[b.dataset.tg];cardPrev=6;save();}
+  else if(lvl(k)===6&&(b.dataset.bc!==undefined||b.dataset.tg)){const c=store.cards[k];if(b.dataset.bc!==undefined)c.bc=b.dataset.bc;else c[b.dataset.tg]=!c[b.dataset.tg];cardPrev=6;save();}
+  else return;
   renderCard();if(F.col||draft)renderDeck(true);});
-$("cardQ").addEventListener("click",ev=>{const b=ev.target.closest("[data-qv]");if(!b)return;SFX.play("tap");cardPrev=(cardPrev+ +b.dataset.qv+7)%7;renderCard();});
-$("ovCard").addEventListener("click",ev=>{const n=ev.target.closest("[data-cn]");if(n){const L=cardList(),i=L.indexOf(cardId);if(i<0||L.length<2)return;SFX.play("tap");openCard(L[(i+ +n.dataset.cn+L.length)%L.length]);return;}
+$("ovCard").addEventListener("click",ev=>{const n=ev.target.closest("[data-cn]");if(n){cardNav(+n.dataset.cn);return;}
   if(ev.target.closest("#cardFav")){SFX.play("tap");toggleFav(cardId);renderCard();if(F.col||draft)renderDeck(true);return;}
   if(ev.target.closest("#cardRen")){SFX.play("tap");cardRen=!cardRen;renderCard();if(cardRen)setTimeout(()=>{const x=$("cardName");if(x){x.focus();x.select();}},30);}});
+/* vuốt ngang trên lá thẻ: thẻ trước/sau */
+{let sx=0,sy=0,st=0;const cb=$("cardBody");
+  cb.addEventListener("pointerdown",e=>{if(!e.target.closest(".cvcard"))return;sx=e.clientX;sy=e.clientY;st=performance.now();},{passive:true});
+  cb.addEventListener("pointerup",e=>{if(!st)return;const dx=e.clientX-sx,dy=e.clientY-sy,dt=performance.now()-st;st=0;if(dt<700&&Math.abs(dx)>56&&Math.abs(dx)>Math.abs(dy)*1.6)cardNav(dx<0?1:-1);},{passive:true});
+  cb.addEventListener("pointercancel",()=>{st=0;},{passive:true});}
+$("ovCard").addEventListener("keydown",e=>{if(e.target.closest&&e.target.closest("input"))return;if(e.key==="ArrowLeft")cardNav(-1);else if(e.key==="ArrowRight")cardNav(1);});
 $("btnUp").addEventListener("click",()=>{const k=cardId,b=$("btnUp");
   if(b.dataset.m==="buy"){const pr=PRICE[C[k].h]||500;if(store.tok<pr){SFX.play("ui_error",.6);return;}store.tok-=pr;grant(k);save();SFX.play("ui_buy",.9);}
   else if(b.dataset.m==="up"){const l=lvl(k);if(l>=6)return;if(store.up<UPC[l]){SFX.play("ui_error",.6);return;}store.up-=UPC[l];store.cards[k]=Object.assign({l:0,bc:"",au:false,an:false},store.cards[k]);store.cards[k].l=l+1;cardPrev=l+1;save();SFX.play("win");try{const r=document.querySelector(".bigc").getBoundingClientRect();FX.ring(r.left+r.width/2,r.top+r.height/2,QN[l+1][1],120,6);FX.burst(r.left+r.width/2,r.top+r.height/2,QN[l+1][1],26,220);}catch(e){}}
@@ -1025,7 +1046,12 @@ function buildHeOrTypeDeck(kind,val){
   return fillDeckSmart(picked);
 }
 
+/* gpu40: nút "Nền" (đặt nền hàng loạt) ở thanh bên phải Sưu tập/Bộ bài, ngay dưới Lọc/Sắp xếp */
+function nbRailBtn(){const r=$("railR");if(!r||!window.NEN||!NEN.bulk)return;let b=$("btnNbBulk");
+  if(!b){b=document.createElement("button");b.type="button";b.id="btnNbBulk";b.className="rbtn nbrb";b.setAttribute("aria-label","Đặt nền hàng loạt");b.title="Đặt nền hàng loạt";b.innerHTML=`${NEN.bulkIco}<small>Nền</small>`;b.addEventListener("click",()=>{SFX.play("tap");NEN.bulk({});});}
+  if(b.parentElement!==r||r.lastElementChild!==b)r.appendChild(b);}
 function syncDeckToolsUI(){
+  nbRailBtn();
   const tools=$("deckTools"),strip=$("recInline");
   if(!tools||!strip)return;
   if(F.col){tools.hidden=true;strip.hidden=true;return;}

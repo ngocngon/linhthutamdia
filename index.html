@@ -5,15 +5,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <title>Linh Thú Tam Địa — Bản Nâng Cấp WebGL GPU</title>
 <link rel="icon" href="data:,">
-<link rel="stylesheet" href="css/00-fonts.css?v=gpu40">
-<link rel="stylesheet" href="css/01-arena-cards.css?v=gpu40">
-<link rel="stylesheet" href="css/02-board-vfx.css?v=gpu40">
-<link rel="stylesheet" href="css/03-lobby-meta.css?v=gpu40">
-<link rel="stylesheet" href="css/04-vfx-gpu.css?v=gpu40">
-<link rel="stylesheet" href="css/05-mo-bai.css?v=gpu40">
-<link rel="stylesheet" href="css/06-cai-dat.css?v=gpu40">
-<link rel="stylesheet" href="css/07-nen-the.css?v=gpu40">
-<link rel="stylesheet" href="css/08-dau-hieu.css?v=gpu40">
+<link rel="stylesheet" href="css/00-fonts.css?v=gpu41">
+<link rel="stylesheet" href="css/01-arena-cards.css?v=gpu41">
+<link rel="stylesheet" href="css/02-board-vfx.css?v=gpu41">
+<link rel="stylesheet" href="css/03-lobby-meta.css?v=gpu41">
+<link rel="stylesheet" href="css/04-vfx-gpu.css?v=gpu41">
+<link rel="stylesheet" href="css/05-mo-bai.css?v=gpu41">
+<link rel="stylesheet" href="css/06-cai-dat.css?v=gpu41">
+<link rel="stylesheet" href="css/07-nen-the.css?v=gpu41">
+<link rel="stylesheet" href="css/08-dau-hieu.css?v=gpu41">
 </head>
 <body>
 <div id="ldr12" role="status" aria-live="polite"><div class="lb12"><b>LINH THÚ TAM ĐỊA</b><div class="bar12"><i id="ldrBar"></i></div><span id="ldrTxt">Đang tải hình… 0%</span><button type="button" id="ldrSkip" hidden>Vào luôn</button></div></div>
@@ -245,13 +245,10 @@
   <div class="foot" id="runFoot"></div>
 </div></div>
 
-<div class="ov" id="ovCard"><div class="panel tall cview">
-  <div class="resbar" id="cardRes" style="padding-top:12px"></div>
-  <div class="cvhead"><span id="cardHead">Thẻ nhân vật</span></div>
-  <div class="body" style="padding:0;flex:1"><div id="cardBody"></div></div>
-  <div class="cvbot"><button type="button" class="cvnav" data-cn="-1" aria-label="Thẻ trước"><b>‹</b></button><div class="cvq" id="cardQ"></div><button type="button" class="cvnav" data-cn="1" aria-label="Thẻ sau"><b>›</b></button></div>
-  <div class="cvact"><button type="button" class="cvb" id="cardFav" aria-label="Yêu thích">★</button><button type="button" class="cvb" id="cardRen" aria-label="Đổi tên">✎</button><button class="btn end" type="button" id="btnUp"></button></div>
-  <button type="button" class="cvx" data-close aria-label="Đóng">✕</button>
+<div class="ov" id="ovCard"><div class="panel tall cview" role="dialog" aria-label="Thông tin thẻ">
+  <div class="resbar" id="cardRes"></div>
+  <div class="body"><div id="cardBody"></div></div>
+  <div class="cvact"><button type="button" class="cvb" id="cardFav" aria-label="Yêu thích" title="Yêu thích">★</button><button type="button" class="cvb" id="cardRen" aria-label="Đổi tên" title="Đổi tên">✎</button><button class="btn end" type="button" id="btnUp"></button><button type="button" class="cvb cvx" data-close aria-label="Đóng" title="Đóng">✕</button></div>
 </div></div>
 
 <div class="ov" id="ovShop"><div class="panel tall shop">
@@ -320,23 +317,23 @@
 </div></div>
 
 
-<script src="js/11-nen-the.js?v=gpu40"></script>
-<script src="js/01-engine.js?v=gpu40"></script>
-<script src="js/03-data-store.js?v=gpu40"></script>
-<script src="js/04a-sfx-fam.js?v=gpu40"></script>
-<script src="js/04-audio.js?v=gpu40"></script>
-<script src="js/05-vfx-core.js?v=gpu40"></script>
-<script src="js/06-ui-match.js?v=gpu40"></script>
-<script src="js/07-meta-modes.js?v=gpu40"></script>
-<script src="js/08-vfx-webgl.js?v=gpu40"></script>
-<script src="js/09-card-choreo.js?v=gpu40"></script>
-<script src="js/10-online-cf.js?v=gpu40"></script>
-<script src="js/12-dau-hieu.js?v=gpu40"></script>
+<script src="js/11-nen-the.js?v=gpu41"></script>
+<script src="js/01-engine.js?v=gpu41"></script>
+<script src="js/03-data-store.js?v=gpu41"></script>
+<script src="js/04a-sfx-fam.js?v=gpu41"></script>
+<script src="js/04-audio.js?v=gpu41"></script>
+<script src="js/05-vfx-core.js?v=gpu41"></script>
+<script src="js/06-ui-match.js?v=gpu41"></script>
+<script src="js/07-meta-modes.js?v=gpu41"></script>
+<script src="js/08-vfx-webgl.js?v=gpu41"></script>
+<script src="js/09-card-choreo.js?v=gpu41"></script>
+<script src="js/10-online-cf.js?v=gpu41"></script>
+<script src="js/12-dau-hieu.js?v=gpu41"></script>
 <script>
 /* gpu22: service worker (chỉ khi chạy qua http/https, không đăng ký trong vỏ Capacitor/APK vì ảnh đã nằm sẵn trong app) */
 (function(){var C=window.Capacitor,nat=C&&C.isNativePlatform&&C.isNativePlatform();
 if(!("serviceWorker" in navigator)||!/^https?:$/.test(location.protocol)||nat)return;
-var SWU="sw.js?v=gpu40",V=SWU.split("v=")[1];
+var SWU="sw.js?v=gpu41",V=SWU.split("v=")[1];
 /* gpu35: trang mở lâu (ứng dụng để nền rồi mở lại) vẫn nhận bản mới: khi quay lại trang (tối đa 1 lần/10 phút) đọc index.html mới nhất,
    thấy số phiên bản khác -> đang ở sảnh thì tải lại ngay (1 lần cho mỗi bản), đang chơi thì hiện nút "Có bản mới — chạm để cập nhật". */
 var lastChk=0;function chk(){var now=Date.now();if(now-lastChk<600000||!navigator.onLine)return;lastChk=now;

@@ -213,13 +213,13 @@ async function endTurnRun(auto){
     if(aiSnap)G.msg=`<b>Máy đã cược!</b> Mức cược tăng lên ${Math.min(8,G.stake*Math.pow(2,G.pendingDouble))} ngọc. Rút lui ngay thì chỉ mất ${G.stake} ${icn("gems")}.<br>`+G.msg;
     if(G.turn===5&&E.boardCards(G,"p").some(([c])=>!c.sil&&E.is(G,c,"vouy"))){aiMove("a");ddPlan=true;vouySee=true;const ps=G.q.a.filter(a=>a.t==="play").map(a=>`${C[a.inst.id].n} vào ${G.locs[a.li].rvl?LOC[G.locs[a.li].id].n:"chiến địa "+(a.li+1)}`);G.msg+=`<br><b>Vô Uý thấy trước:</b> máy sẽ đặt ${ps.length?ps.join(", "):"không thẻ nào"}.`;}
     if(window.BGM)BGM.syncGame(G);
-    render();
+    render();const nh40=hideNewHand40(H0); /* gpu40: lá vừa rút chưa hiện trên tay cho tới nhịp rút bài (bay từ bộ bài vào, mặt trước) */
     /* (4a) Mở Chiến Địa mới (940ms) */
-    if(locEvs.length){playFx(locEvs,R0,P0);await sleep(reduced?80:940);}
+    if(locEvs.length){playFx(locEvs,R0,P0);await sleep(reduced?80:660);}
     /* (4b) Rút bài đầu lượt & kỹ năng Đầu Lượt (520ms+) */
-    if(drawEvs.length){HAND0=H0;playFx(drawEvs,R0,P0);await sleep(reduced?60:520);}
+    if(drawEvs.length){HAND0=H0;playFx(drawEvs,R0,P0);await sleep(reduced?60:520);}else if(nh40){drawNew40(H0);await sleep(reduced?40:320);}
     /* (4c) Máy cược Snap (980ms) hoặc Vô Uý nhìn thấu (820ms) */
-    if(aiSnap){const q=ctr($("btnSnap"));FX.ring(q.x,q.y,"#ff4d7d",90,6);SFX.play("snap");snapFx("#ff4d7d","×2");await sleep(reduced?70:980);}
+    if(aiSnap){const q=ctr($("btnSnap"));FX.ring(q.x,q.y,"#ff4d7d",90,6);SFX.play("snap");snapFx("#ff4d7d","×2");await sleep(reduced?70:Math.round(1000/SPD));}
     if(vouySee){try{const v=E.boardCards(G,"p").find(([c])=>!c.sil&&E.is(G,c,"vouy"));if(v)eye7(srcPt(v[0].uid),ctr($("avFoe")),"THẤY TRƯỚC");}catch(e){}await sleep(reduced?60:820);}
     /* (4d) Băng hiệu Lượt mới + xung nhịp Quả cầu năng lượng (780ms) */
     const isFinalTurn=G.turn===E.turns(G);

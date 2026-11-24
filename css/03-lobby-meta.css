@@ -551,31 +551,7 @@ small .kt{font-size:.85em;padding:0 5px 1px}
 .tbac{background:none!important;box-shadow:none!important;padding:0!important;top:-15px!important;filter:drop-shadow(0 2px 4px rgba(0,0,0,.7))}
 .tbac i{display:inline-block;font-style:italic;padding:4px 14px 5px;background:linear-gradient(180deg,#ff5d9e,#d6216d);color:#fff;transform:skewX(-14deg);border:1.5px solid #ffc2da;border-radius:3px;text-shadow:0 1px 0 rgba(0,0,0,.5)}
 .cview{background:radial-gradient(120% 70% at 50% 40%,#1a2350 0%,#080a1e 70%)}
-.cvhead{display:flex;justify-content:center;padding:2px 0 14px}
-.cvhead span{position:relative;padding:7px 34px 8px;font-family:"LTName",var(--f-display);font-style:italic;font-weight:800;font-size:16px;letter-spacing:.03em;color:#e9f0ff;text-transform:uppercase;background:linear-gradient(180deg,#2c3a66,#151d3c);clip-path:polygon(14px 0,calc(100% - 14px) 0,100% 50%,calc(100% - 14px) 100%,14px 100%,0 50%);box-shadow:inset 0 0 0 1px rgba(160,190,255,.4)}
-#ovCard .bigc{margin-top:14px}
-.cvtx{font-size:16px!important;line-height:1.45;color:#fff!important;padding:12px 22px 6px!important;text-shadow:0 1px 2px #000}
 .cvren{padding:6px 16px 2px;flex-wrap:nowrap}
-.cvbot{display:grid;grid-template-columns:62px 1fr 62px;align-items:center;gap:6px;padding:6px 10px 2px}
-.cvnav{height:56px;border:1px solid rgba(160,190,255,.35);background:linear-gradient(180deg,#1d2752,#0d1230);color:#dfe8ff;clip-path:polygon(18% 0,100% 0,100% 100%,18% 100%,0 50%)}
-.cvnav[data-cn="1"]{clip-path:polygon(0 0,82% 0,100% 50%,82% 100%,0 100%)}
-.cvnav b{font-size:34px;line-height:1;font-weight:900}
-.cvnav:disabled{opacity:.3}
-.cvq{display:grid;grid-template-columns:34px 1fr 34px;align-items:center;padding:6px 4px;border-radius:12px;background:linear-gradient(180deg,rgba(60,30,110,.55),rgba(20,12,50,.55));box-shadow:inset 0 0 0 1px rgba(200,170,255,.25)}
-.cvq button{height:34px;border:0;background:none;color:#cfe0ff;font-size:16px}
-.cvq div{text-align:center;font-family:"LTName",var(--f-display);font-style:italic;font-weight:800;text-transform:uppercase;line-height:1.05}
-.cvq small{display:block;font-size:12.5px;color:#dfe6ff;letter-spacing:.02em}
-.cvq b{display:block;font-size:25px;color:var(--qc,#cfd6ff);text-shadow:0 0 10px var(--qc,transparent),0 2px 0 #000}
-.cvact{display:grid;grid-template-columns:48px 48px 1fr;gap:8px;padding:8px 14px 4px}
-.cvb{height:48px;border-radius:10px;border:1px solid var(--vien);background:rgba(10,14,60,.7);color:#cfd8ff;font-size:20px;font-weight:900}
-.cvb.on{color:#ffd65a;border-color:#ffd65a;box-shadow:0 0 10px rgba(255,214,90,.35)}
-#ovCard #btnUp{height:48px;min-width:0;white-space:nowrap;font-size:clamp(13px,3.8vw,17px);padding:0 10px}
-#ovCard .bigc{width:min(62%,230px,calc((100dvh - 440px)*.76));min-width:150px}
-.cvbot{padding-left:14px;padding-right:14px}
-.cvq small{white-space:nowrap;font-size:clamp(10px,3.1vw,12.5px)}
-#ovCard #btnUp{font-size:clamp(12px,3.4vw,17px)}
-@media (max-width:380px){.cvbot{grid-template-columns:50px 1fr 50px}.cvact{grid-template-columns:44px 44px 1fr}.cvq{grid-template-columns:26px 1fr 26px}#ovCard .resbar{zoom:.86}}
-.cvx{display:block;margin:6px auto 10px;width:62px;height:46px;border:0;color:#fff;font-size:22px;font-weight:900;background:linear-gradient(180deg,#e0344f,#9a1530);clip-path:polygon(20% 0,80% 0,100% 50%,80% 100%,20% 100%,0 50%);filter:drop-shadow(0 0 6px rgba(255,60,90,.5))}
 /* nút xem thẻ được tạo / hình thái khác */
 .lkb{position:absolute;right:-16px;bottom:16%;z-index:6;width:50px;height:50px;border-radius:50%;border:0;padding:0;background:conic-gradient(from 0deg,#ff4d6d,#ffd65a,#7dff8a,#3fe0ff,#c45cff,#ff4d6d);box-shadow:0 0 14px rgba(140,180,255,.7),0 3px 8px rgba(0,0,0,.7);}
 .lkb::before{content:"";position:absolute;inset:3px;border-radius:50%;background:radial-gradient(circle at 50% 35%,#2b3a7a,#0b1030)}
@@ -595,8 +571,6 @@ small .kt{font-size:.85em;padding:0 5px 1px}
 .fanc.l{transform:rotate(-9deg) translateX(-4%)}
 .fanc.r{transform:rotate(9deg) translateX(4%)}
 .fanc:hover,.fanc:focus-visible{opacity:.9;filter:none}
-#ovCard .fanc{top:20%;width:33%}
-#ovCard .fanc.l{left:6%}#ovCard .fanc.r{right:6%}
 .fanc.l{left:2%}.fanc.r{right:2%}
 /* ===== lật xem mặt sau ===== */
 .flb{position:absolute;left:-16px;bottom:16%;z-index:9;width:44px;height:44px;border-radius:50%;border:0;padding:0;background:radial-gradient(circle at 50% 35%,#3a4a8a,#0b1030);box-shadow:0 0 0 2px #cfe0ff,0 0 12px rgba(140,180,255,.6),0 3px 8px rgba(0,0,0,.7)}
@@ -974,18 +948,6 @@ body.rm .kh11b{animation:none!important}
 .cp-err{font-size:12.5px;color:#ff8aa5;font-weight:700;padding:8px 4px}
 .cp-ok{font-size:12px;color:#e6ecff;margin-bottom:6px}
 .cp-warn{display:block;margin-top:3px;color:#ffd66b;font-size:11px}
-/* ===== xem thẻ: thẻ lớn co theo chỗ trống, tiêu đề/tab/nút không bao giờ đè lên thẻ ===== */
-#ovCard .cview>.body{display:flex;flex-direction:column;min-height:0;overflow:hidden!important;padding:0}
-#ovCard #cardBody{display:flex;flex-direction:column;flex:1 1 auto;min-height:0}
-#ovCard .fanw{flex:1 0 auto;min-height:clamp(196px,36dvh,330px);container-type:size;display:flex;align-items:center;justify-content:center;padding:0}
-#ovCard .fanw>.bigc{--bh:calc(100cqh - 40px);width:min(62cqw,230px,calc(var(--bh)*.76));min-width:0;margin:12px auto 0;flex:none}
-#ovCard .cvscroll{flex:0 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:none}
-#ovCard .cvscroll::-webkit-scrollbar{display:none}
-#ovCard .cvhead{position:relative;z-index:3;padding:2px 0 8px;flex:none}
-#ovCard .cvbot,#ovCard .cvact,#ovCard .cvx,#ovCard .resbar{flex:none}
-#ovCard.nbm-on .bigc{width:min(62cqw,230px,calc(var(--bh)*.76));min-width:0;margin:12px auto 0}
-#ovCard.nbm-on .body{overflow:hidden}
-@media (max-height:700px){#ovCard .cvx{margin:2px auto 6px;height:38px}#ovCard .cvnav{height:44px}#ovCard .cvbot{padding-top:2px}#ovCard .cvact{padding-top:4px}#ovCard .cvb,#ovCard #btnUp{height:42px}#ovCard .cvtx{font-size:14px!important;padding:6px 18px 4px!important}}
 /* ===== viền Vô Cực ở màn xem thẻ lớn: chuyển động êm, không nhấp nháy =====
    Trước đây: viền conic-gradient quay bằng cách animate @property --ang (vẽ lại mỗi khung hình) 7 s/vòng, màu lướt qua vàng/lục (sáng) và tím/đỏ (tối)
    -> tại mỗi điểm viền sáng-tối đổi nhanh; viền màu tuỳ chọn còn có dải tối quét quanh; lấp lánh 1,8 s, ngọc 2 s, hình nhún 4 s chồng lệch chu kỳ;
@@ -1014,3 +976,113 @@ body.rm .bigc.qf.q6 .qrg b,body.rm .bigc.qf.q6::before,body.rm .bigc.qf.q6 .spk 
 /* gpu34: số phiên bản */
 .lbver{position:absolute;left:50%;top:calc(env(safe-area-inset-top,0px) + 1px);transform:translateX(-50%);z-index:6;font:700 9.5px/1 "Be Vietnam Pro",system-ui,sans-serif;letter-spacing:.04em;color:rgba(255,255,255,.62);text-shadow:0 1px 2px #000;pointer-events:none;white-space:nowrap}
 .setver{font-size:11px;font-weight:600;color:#9fa9da;letter-spacing:.02em}
+
+/* ===== gpu40: MÀN THÔNG TIN THẺ (Sưu tập / Bộ bài / thẻ trưng bày ở sảnh) — bố cục lại =====
+   [tài nguyên] / [chip: Thẻ Bậc N · loại thẻ · (thẻ liên quan) (lật)] / [‹  LÁ THẺ  ›] / [tab Kỹ năng · Viền · Nền thẻ] / [ô nội dung] / [★ ✎ Nâng cấp ✕]
+   Lá thẻ co theo chỗ trống (container query), tên thẻ nằm trong dải tên ở đáy khung, ảnh nhân vật kết thúc ngay trên dải tên. */
+#ovCard{padding:10px}
+#ovCard>.panel{max-width:480px}
+#ovCard .resbar{flex:none;justify-content:center;padding:10px 12px 2px;gap:6px}
+#ovCard .resbar .res1{height:26px;font-size:14px}
+#ovCard .cview>.body{flex:1 1 auto;display:flex;flex-direction:column;min-height:0;overflow:hidden!important;padding:0!important}
+#ovCard #cardBody{flex:1 1 auto;display:flex;flex-direction:column;min-height:0}
+#ovCard .cvwrap{flex:1 1 auto;display:flex;flex-direction:column;min-height:0;gap:4px}
+#ovCard .cvstage{flex:1 1 auto;display:flex;flex-direction:column;min-height:170px}
+/* dòng chip */
+#ovCard .cvchips{flex:none;display:flex;align-items:center;gap:6px;min-height:40px;padding:0 12px}
+#ovCard .cvc{flex:none;display:inline-flex;align-items:center;gap:5px;height:24px;padding:0 10px;border-radius:999px;border:1px solid rgba(160,190,255,.32);background:rgba(10,14,50,.72);color:#dfe8ff;font:800 11.5px/1 var(--f-ui,inherit);letter-spacing:.02em;white-space:nowrap}
+#ovCard .cvc.bac{border-color:var(--cc);background:color-mix(in srgb,var(--cc) 26%,#0a0e30);color:#fff;font-family:"LTName",var(--f-display);font-style:italic;font-size:12.5px;text-transform:uppercase}
+#ovCard .cvc.no{color:#aab0d8;border-style:dashed}
+#ovCard .cvsp{flex:1 1 0;min-width:0}
+#ovCard .cvb2{height:40px;min-width:40px;padding:0 10px;justify-content:center;border-radius:12px;font-size:12.5px;cursor:pointer;background:rgba(16,24,72,.85)}
+#ovCard .cvb2.on{border-color:#9fd0ff;color:#fff}
+#ovCard .cvi{font-style:normal;font-weight:900;font-size:18px;line-height:1}
+#ovCard .cvi.lk{position:relative;width:11px;height:14px;margin:0 3px 0 5px;border:2px solid #dfe9ff;border-radius:3px;transform:rotate(8deg)}
+#ovCard .cvi.lk::before{content:"";position:absolute;left:-8px;top:-4px;width:11px;height:14px;border:2px solid #9fc4ff;border-radius:3px;transform:rotate(-16deg);background:#16205a}
+/* lá thẻ + mũi tên */
+#ovCard .cvcard{flex:1 1 auto;min-height:0;display:grid;grid-template-columns:40px minmax(0,1fr) 40px;align-items:center;gap:2px;padding:0 4px}
+#ovCard .cvn{width:40px;height:64px;border-radius:12px;border:1px solid rgba(160,190,255,.28);background:rgba(12,18,60,.6);color:#dfe8ff;font-size:30px;font-weight:900;line-height:1;padding:0 0 4px}
+#ovCard .cvn:disabled{visibility:hidden}
+#ovCard .fanw{position:relative;height:100%;min-height:0;container-type:size;display:flex;align-items:center;justify-content:center;padding:0;--cw:min(100cqw - 28px,(100cqh - 12px)*.7,400px)}
+#ovCard .fanw>.bigc{width:var(--cw);min-width:0;margin:calc(var(--cw)*.05) 0 0;flex:none}
+#ovCard .fanw>.bigc.qf.q6{margin-top:calc(var(--cw)*.09)}
+#ovCard .bigc>.flb{display:none}
+/* ảnh nhân vật dừng ngay trên dải tên (không bị chữ che) */
+#ovCard .bigc>.art.cut{top:0!important;left:0!important;width:100%!important;height:calc(100% - 14cqw)!important;border-radius:9px 9px 0 0}
+#ovCard .bigc.qf.q6>.art:not(.pic){inset:auto auto 14cqw -13%!important;height:auto!important;width:126%!important;border-radius:0}
+#ovCard .bigc>.art.pic{inset:0 0 14cqw 0!important;width:100%!important;height:calc(100% - 14cqw)!important;border-radius:9px 9px 0 0}
+#ovCard .bigc>.n.cvnm{position:absolute;inset:auto 0 0 0;z-index:3;height:14cqw;min-height:20px;display:flex;align-items:center;justify-content:center;padding:0 4cqw;margin:0;border-radius:0 0 9px 9px;
+  background:linear-gradient(180deg,rgba(6,6,26,.72),rgba(4,4,18,.94));box-shadow:inset 0 1px 0 color-mix(in srgb,var(--hc,#88f) 60%,transparent);
+  font-family:"LTName","Barlow Condensed",var(--f-display);font-style:italic;font-weight:800;text-transform:uppercase;color:#fff;letter-spacing:.01em;
+  font-size:min(22px,7.4cqw,calc(90cqw / var(--nmw,4)));line-height:1;white-space:nowrap;overflow:hidden;text-shadow:0 1px 0 #000,0 0 8px color-mix(in srgb,var(--hc,#88f) 70%,transparent)}
+#ovCard .bigc>.n.cvnm b{font:inherit;display:block;overflow:hidden;text-overflow:clip}
+/* hào quang dịu hơn, không loá trắng */
+#ovCard .bigc.qau:not(.qcc){--qc:#b48cff}
+#ovCard .bigc.qau{filter:drop-shadow(0 0 5px color-mix(in srgb,var(--qc) 55%,transparent))}
+#ovCard .bigc.qf.q6::before{box-shadow:0 0 10px 0 rgba(196,92,255,.32)}
+#ovCard .bigc.qf.q6.qcc::before{box-shadow:0 0 10px 0 color-mix(in srgb,var(--qc) 35%,transparent)}
+/* vùng tuỳ chọn */
+#ovCard .cvopts{flex:none;display:flex;flex-direction:column;min-height:0;gap:6px}
+#ovCard .cvopts .nbtabs{margin:0 12px}
+#cardBody .cvpane{display:none;margin:0 12px;min-height:0;max-height:clamp(76px,28dvh,250px);overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#4a5aa8 transparent}
+#cardBody[data-cvm="info"] .cvpane[data-pane="info"],#cardBody:not([data-cvm]) .cvpane[data-pane="info"],#cardBody[data-cvm="vien"] .cvpane[data-pane="vien"]{display:block}
+#cardBody .nbp{margin:0 12px;max-height:clamp(150px,36dvh,300px);overflow-y:auto;overscroll-behavior:contain}
+#ovCard .cvtx{padding:4px 4px 6px;font-size:15px;line-height:1.45;color:#fff;text-align:center;text-shadow:0 1px 2px #000}
+#ovCard .cvren{flex:none;padding:0 12px;flex-wrap:nowrap}
+#ovCard .cvren input{flex:1;min-width:0;height:40px}
+#ovCard .cvren .sortb{height:40px}
+/* thẻ liên quan / thẻ tạo ra */
+#ovCard .cvrel{margin-top:4px;text-align:left}
+#ovCard .cvrel>small{display:block;font-size:11px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:#ffd65a;margin:0 0 5px 2px}
+#ovCard .cvrl{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 4px;scrollbar-width:none}
+#ovCard .cvrl::-webkit-scrollbar{display:none}
+#ovCard .cvri{flex:none;width:62px;padding:0;border:0;background:none;color:#cfd8ff;display:flex;flex-direction:column;align-items:center;gap:3px}
+#ovCard .cvri .gc.mini{display:block;width:100%;aspect-ratio:5/6;border-radius:8px;border:1.5px solid var(--hc);padding:0;margin:0;box-shadow:0 2px 6px rgba(0,0,0,.5)}
+#ovCard .cvri.on .gc.mini{outline:2px solid #ffd65a;outline-offset:1px}
+#ovCard .cvri em{font-style:normal;font-size:10.5px;line-height:1.15;max-width:100%;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;text-align:center}
+/* tab Viền */
+#ovCard .cvqh{display:flex;align-items:baseline;justify-content:center;gap:8px;margin:2px 0 6px}
+#ovCard .cvqh b{font-family:"LTName",var(--f-display);font-style:italic;font-weight:800;font-size:19px;text-transform:uppercase;color:var(--qc,#fff);text-shadow:0 0 8px color-mix(in srgb,var(--qc,#fff) 45%,transparent),0 1px 0 #000}
+#ovCard .cvqh small{font-size:12px;color:#aab4e0}
+#ovCard .cvql{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px}
+#ovCard .cvql button{height:40px;border-radius:10px;border:1px solid rgba(160,190,255,.22);background:rgba(10,14,50,.7);display:grid;place-items:center;padding:0}
+#ovCard .cvql button i{width:18px;height:18px;border-radius:50%;border:3px solid var(--c);box-sizing:border-box;opacity:.75}
+#ovCard .cvql button.got i{background:var(--c);opacity:1}
+#ovCard .cvql button:last-child i{border-color:transparent;background:conic-gradient(#ff6b9d,#ffc15a,#b4ee7a,#5ee0ff,#a88bff,#ff6b9d) border-box;-webkit-mask:radial-gradient(circle,transparent 4px,#000 4.5px);mask:radial-gradient(circle,transparent 4px,#000 4.5px)}
+#ovCard .cvql button.got:last-child i{-webkit-mask:none;mask:none}
+#ovCard .cvql button.on{border-color:var(--c);background:color-mix(in srgb,var(--c) 18%,#0a0e30);box-shadow:0 0 0 1px var(--c)}
+#ovCard .cvql button:last-child.on{border-color:#c9a2ff;box-shadow:0 0 0 1px #c9a2ff}
+#ovCard .cust{padding:8px 0 2px;gap:8px}
+#ovCard .cust .sw{gap:6px}
+#ovCard .cust .sw button{width:40px;height:40px}
+#ovCard .cust .tgb{height:40px}
+#ovCard .cvnote{margin:8px 4px 2px;font-size:12.5px;line-height:1.4;color:#b7c0ee;text-align:center}
+#ovCard .cvnote b{color:#fff}
+/* hàng hành động cố định ở đáy */
+#ovCard .cvact{flex:none;display:grid;grid-template-columns:44px 44px minmax(0,1fr) 44px;gap:8px;align-items:center;padding:8px 12px calc(10px + env(safe-area-inset-bottom,0px));border-top:1px solid rgba(120,160,255,.16)}
+#ovCard .cvb{width:44px;height:44px;padding:0;border-radius:12px;border:1px solid rgba(160,190,255,.35);background:rgba(10,14,60,.75);color:#cfd8ff;font-size:19px;font-weight:900;line-height:1;display:grid;place-items:center}
+#ovCard .cvb.on{color:#ffd65a;border-color:#ffd65a;box-shadow:0 0 8px rgba(255,214,90,.3)}
+#ovCard .cvb.cvx{color:#fff;border-color:#ff8a9c;background:linear-gradient(180deg,#e0344f,#9a1530);font-size:18px}
+#ovCard #btnUp{height:44px;min-width:0;margin:0;padding:0 10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:clamp(12.5px,3.6vw,15.5px);display:flex;align-items:center;justify-content:center;gap:6px}
+#ovCard #btnUp .cvpr{display:inline-flex;align-items:center;gap:2px}
+#ovCard #btnUp.max{background:rgba(255,255,255,.06)!important;border:1px solid rgba(255,255,255,.16)!important;box-shadow:none!important;color:#9fa9da!important;opacity:1;filter:none}
+#ovCard #btnUp.max::after,#ovCard #btnUp.max::before{display:none}
+#ovCard #btnUp.max small{font-size:12.5px;font-weight:800;letter-spacing:.04em;text-transform:uppercase}
+@media (max-height:700px){#ovCard{padding:4px}#ovCard .resbar{padding-top:6px}#ovCard .resbar .res1{height:22px;font-size:12.5px}#ovCard .cvtx{font-size:13.5px;padding-bottom:2px}#ovCard .cvact{padding-top:6px;padding-bottom:calc(6px + env(safe-area-inset-bottom,0px))}#ovCard .cvchips{min-height:40px}}
+@media (max-width:380px){#ovCard{padding:4px}#ovCard .cvcard{grid-template-columns:34px minmax(0,1fr) 34px}#ovCard .cvn{width:34px}#ovCard .cvchips{padding:0 8px;gap:5px}#ovCard .cvc{padding:0 8px}#ovCard .cvopts .nbtabs,#cardBody .cvpane,#cardBody .nbp{margin-left:8px;margin-right:8px}#ovCard .cvact{padding-left:8px;padding-right:8px;gap:6px}}
+@media (min-width:600px) and (min-height:760px){#ovCard>.panel{max-width:540px}#ovCard .cvtx{font-size:16px}}
+/* ngang (desktop/tablet ngang): lá thẻ bên trái, tuỳ chọn bên phải */
+@media (min-width:760px) and (min-aspect-ratio:5/4){
+  #ovCard>.panel{max-width:min(940px,100%)}
+  #ovCard .cvwrap{display:grid;grid-template-columns:minmax(0,1fr) minmax(300px,380px);grid-template-rows:minmax(0,1fr);gap:8px;padding-right:12px}
+  #ovCard .cvopts{min-height:0;padding:44px 0 8px}
+  #ovCard .cvopts .nbtabs,#cardBody .cvpane,#cardBody .nbp{margin-left:0;margin-right:0}
+  #cardBody .cvpane,#cardBody .nbp{max-height:none;flex:0 1 auto}
+  #ovCard .cvact{grid-template-columns:44px 44px minmax(0,360px) 44px;justify-content:end}
+}
+/* nền bảng đặc (không lộ lưới Sưu tập phía sau làm rối mắt) */
+#ovCard>.panel.cview,body.ar #ovCard>.panel.cview{background:radial-gradient(120% 70% at 50% 35%,#1c2656 0%,#0b0e2c 62%,#05061a 100%)!important}
+@media (max-height:700px){#ovCard.nbm-on .resbar{display:none}}
+@media (min-width:760px) and (min-aspect-ratio:5/4){#ovCard .cvrl{flex-wrap:wrap;overflow:visible}}
+#ovCard .cvc:not(.cvb2){flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis}
+#ovCard .cvc.bac{flex-shrink:0}
