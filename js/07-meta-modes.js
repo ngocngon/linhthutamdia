@@ -364,7 +364,11 @@ let cardRen=false,cardAlt=0;
 /* viền Vô Cực (màn xem thẻ lớn): giữ pha hoạt ảnh qua các lần renderCard để viền không giật về đầu mỗi lần làm mới (đổi màu, yêu thích, lật thẻ...) */
 const QR_T0=performance.now();
 function qrDelay(){return "-"+(((performance.now()-QR_T0)/1000)%120).toFixed(2)+"s";}
-function cardList(){return [...document.querySelectorAll('#ovDeck [data-pick]')].map(e=>e.dataset.pick).filter(k=>C[k]);}
+/* gpu43: màn thông tin thẻ nhớ "ngữ cảnh" nơi mở nó (danh sách đang xem + nguồn) — mũi tên trước/sau đi đúng danh sách đó,
+   hàng lối tắt #cardGo đổi theo nguồn: edit (lưới trình sửa), tray (khay 12 thẻ), decks (khay ở danh sách bộ bài), col (Sưu tập), "" (nơi khác). */
+let cardCtx={list:null,src:"",idx:-1};
+function domList(sel,attr){return [...document.querySelectorAll(sel)].map(e=>e.dataset[attr]).filter(k=>C[k]);}
+function cardList(){return cardCtx.list&&cardCtx.list.length?cardCtx.list:[];}
 /* gpu40: màn thông tin thẻ bố cục lại — lá thẻ ở giữa (to nhất có thể), dòng chip nhỏ phía trên (Thẻ Bậc N · loại thẻ · lật mặt sau · thẻ liên quan),
    mũi tên thẻ trước/sau hai bên lá thẻ (vuốt ngang cũng được), tên thẻ trong dải tên ở đáy khung (không đè nhân vật),
    tab phân đoạn "Kỹ năng · Viền · Nền thẻ" (ô nội dung data-pane, NEN.slot dựng thanh tab), hàng hành động cố định ★ ✎ Nâng cấp ✕ ở đáy (index.html). */
@@ -392,8 +396,10 @@ function renderCard(){const k=cardId,d=C[k],o=OWN.has(k),l=lvl(k),pv=cardPrev,c=
   else if(l>=6){b.innerHTML=`<small>Đã tối đa</small>`;b.disabled=true;b.dataset.m="";}
   else{b.innerHTML=`Lên ${QN[l+1][0]} <span class="cvpr">${icn("up")}${UPC[l]}</span>`;b.disabled=store.up<UPC[l];b.dataset.m="up";}
   b.classList.toggle("max",o&&l>=6);
+  cardGoPaint();
 }
-function openCard(k){cardId=k;cardPrev=lvl(k);cardRen=false;cardAlt=0;renderCard();$("ovCard").classList.add("on");}
+function openCard(k,ctx){if(ctx)cardCtx={list:ctx.list||null,src:ctx.src||"",idx:ctx.idx==null?-1:ctx.idx};else if(!$("ovCard").classList.contains("on"))cardCtx={list:null,src:"",idx:-1};
+  cardId=k;cardPrev=lvl(k);cardRen=false;cardAlt=0;renderCard();$("ovCard").classList.add("on");}
 function cardNav(dir){const L=cardList(),i=L.indexOf(cardId);if(i<0||L.length<2)return;SFX.play("tap");openCard(L[(i+dir+L.length)%L.length]);}
 $("cardBody").addEventListener("click",ev=>{const b=ev.target.closest("button");if(!b)return;const k=cardId;
   if(b.dataset.cn)return; /* thẻ trước/sau: xử lý ở #ovCard */
@@ -456,7 +462,7 @@ function cardTile(k,attr,u){const d=C[k],ug=u&&u.n?`<span class="ugb">⬆${u.n}<
   const cs=d.c-((u&&u.c)||0),pw=d.p+((u&&u.p)||0);
   return `<button type="button" class="gc mdc" style="--hc:${HC[d.h]}" ${attr} aria-label="${esc(d.n)}">${nbL(k)}${art(k)}<span class="cst${cs<d.c?" up":""}">${cs}</span><span class="pwh${pw>d.p?" up":""}">${pw}</span>${ug}</button>`;}
 /* ---- trận theo chế độ ---- */
-function startModeGame(mode,pDeck,foeDeck,upP,upA,xo){mmBot(nm=>{startModeGame0(mode,pDeck,foeDeck,upP,upA,xo);$("foeName").textContent=nm;runMatchIntro("LƯỢT 1",mode.lbl||"",true);});}
+function startModeGame(mode,pDeck,foeDeck,upP,upA,xo){const same=Array.isArray(pDeck)&&pDeck.join()===store.deck.join();mmCtx={lbl:mode.lbl||"",deck:same?null:pDeck,foeAv:Array.isArray(foeDeck)?foeDeck[foeDeck.length-1]:null,dn:({draft:"Bộ tuyển chọn",jr:"Bộ Hành Trình",conq:"Bộ Chinh phục",wk:"Bộ sự kiện"})[mode.k]||"Bộ bài của chế độ"};mmBot(nm=>{startModeGame0(mode,pDeck,foeDeck,upP,upA,xo);$("foeName").textContent=nm;runMatchIntro("LƯỢT 1",mode.lbl||"",true);});}
 function startModeGame0(mode,pDeck,foeDeck,upP,upA,xo){
   BC=null;TN0=0;LOCID=[];seenRev.clear();prevPow.clear();seenLoc.clear();seenStg.clear();prevLd=[];PWV={};sel=look=moveSel=null;armRetreat=0;
   foeAv=foeDeck[foeDeck.length-1];$("avFoe").innerHTML=artFace(foeAv);$("avMe").innerHTML=meAv();
@@ -871,7 +877,7 @@ $("btnBack").addEventListener("click",()=>{const r=$("bkRow");r.hidden=!r.hidden
 $("bkRow").addEventListener("click",ev=>{const b=ev.target.closest("[data-bk]");if(!b)return;draftB=b.dataset.bk;SFX.play("place");paintBack();});
 $("btnEquip").addEventListener("click",()=>{store.cur=pendIdx;store.deck=store.decks[store.cur].ids;save();$("ovDecks").classList.remove("on");renderLobby();});
 $("btnDelDeck").addEventListener("click",()=>{if(store.decks.length<2||editIdx>=store.decks.length)return;const b=$("btnDelDeck");if(b.dataset.arm!=="1"){b.dataset.arm="1";b.textContent="Xoá thật?";setTimeout(()=>{b.dataset.arm="";b.textContent="Xoá";},2500);return;}
-  b.dataset.arm="";b.textContent="Xoá";store.decks.splice(editIdx,1);if(store.cur===editIdx)store.cur=0;else if(store.cur>editIdx)store.cur--;store.deck=store.decks[store.cur].ids;save();$("ovDeck").classList.remove("on");renderLobby();});
+  b.dataset.arm="";b.textContent="Xoá";store.decks.splice(editIdx,1);if(store.cur===editIdx)store.cur=0;else if(store.cur>editIdx)store.cur--;store.deck=store.decks[store.cur].ids;save();pendIdx=store.cur;edClose();renderLobby();});
 $("btnSort").addEventListener("click",()=>{renderSort();$("ovSort").classList.add("on");});
 $("btnFilt").addEventListener("click",()=>{SFX.play("tap");renderDeck(true);$("ovFilt").classList.add("on");});
 $("btnFiltOk").addEventListener("click",()=>{$("ovFilt").classList.remove("on");});
@@ -884,14 +890,15 @@ $("chipsDang").addEventListener("click",ev=>{const c=ev.target.closest("[data-d]
 $("chipsHe").addEventListener("click",ev=>{const c=ev.target.closest("[data-f]");if(!c)return;F.he=c.dataset.f;renderDeck();});
 $("deckCosts").addEventListener("click",ev=>{const c=ev.target.closest("[data-cost]");if(!c)return;const n=+c.dataset.cost;F.cost=F.cost===n?0:n;renderDeck();});
 $("deckSearch").addEventListener("input",ev=>{F.text=ev.target.value.trim();renderDeck();});
+/* gpu43: Sưu tập: chạm = xem thông tin. Trình sửa bộ: chạm 1 lần = xem thông tin (#ovCard, có nút Thêm/Bỏ), chạm 2 lần = thêm/bỏ nhanh.
+   Đang ở chế độ đổi thẻ (bộ đủ 12) thì chạm thẻ khác trong lưới = chọn thẻ đó để đổi. */
 $("deckList").addEventListener("click",ev=>{
   const r=ev.target.closest("[data-pick]");if(!r)return;const k=r.dataset.pick;
-  if(F.col){openCard(k);return;}
+  const ctx=()=>({list:domList("#deckList [data-pick]","pick"),src:F.col?"col":"edit"});
+  if(F.col){SFX.play("tap");openCard(k,ctx());return;}
   const now=Date.now();
-  if(tapK===k&&now-tapT<330){clearTimeout(tapTm);tapK="";
-    if(!draft.has(k)&&draft.size<12&&OWN.has(k)){draft.add(k);SFX.play("place");renderDeck(true);const el=document.querySelector('#deckList [data-pick="'+k+'"]');if(el){el.classList.remove("dadd");void el.offsetWidth;el.classList.add("dadd");}}
-    else openPick(k);return;}
-  tapK=k;tapT=now;clearTimeout(tapTm);SFX.play("tap");tapTm=setTimeout(()=>{tapK="";openPick(k);},300);
+  if(tapK===k&&now-tapT<330){clearTimeout(tapTm);tapK="";dkQuick(k,r,ctx);return;}
+  tapK=k;tapT=now;clearTimeout(tapTm);SFX.play("tap");tapTm=setTimeout(()=>{tapK="";openCard(k,ctx());},300);
 });
 let tapK="",tapT=0,tapTm=0;
 let pickAlt=0;
@@ -909,7 +916,11 @@ $("pkBody").addEventListener("click",ev=>{const lk=ev.target.closest("[data-lk],
   if(a==="add"&&k&&!draft.has(k)&&draft.size<12&&OWN.has(k)){draft.add(k);SFX.play("place");}
   else if(a==="rm"&&k){draft.delete(k);SFX.play("tap");}
   $("ovPick").classList.remove("on");renderDeck(true);});
-$("deckTray").addEventListener("click",ev=>{const r=ev.target.closest("[data-tray]");if(!r)return;SFX.play("tap");openPick(r.dataset.tray);});
+$("deckTray").addEventListener("click",ev=>{const r=ev.target.closest("[data-tray]");if(!r)return;const k=r.dataset.tray;
+  if(swapK){dkSwapDo(k);return;}
+  const now=Date.now();
+  if(tapK==="t:"+k&&now-tapT<330){clearTimeout(tapTm);tapK="";if(draft.has(k)){draft.delete(k);SFX.play("tap");dkHintUse();renderDeck(true);}return;}
+  tapK="t:"+k;tapT=now;clearTimeout(tapTm);SFX.play("tap");tapTm=setTimeout(()=>{tapK="";openCard(k,{list:domList("#deckTray [data-tray]","tray"),src:"tray"});},300);});
 $("deckDetail").addEventListener("click",ev=>{const fb=ev.target.closest("[data-fav]");if(fb){toggleFav(fb.dataset.fav);SFX.play("tap");renderDeck(true);return;}const r=ev.target.closest("[data-toggle]");if(!r)return;toggleDraft(r.dataset.toggle);SFX.play("tap");renderDeck(true);});
 $("btnRandom").textContent="✨ Đề xuất bộ";
 $("btnRandom").addEventListener("click",()=>{
@@ -1250,12 +1261,12 @@ if($("btnCodeNewDeck"))$("btnCodeNewDeck").addEventListener("click",()=>{
   $("ovCode").classList.remove("on");if($("ovDeck").classList.contains("on"))$("ovDeck").classList.remove("on");
   if($("ovDecks").classList.contains("on"))renderDecks();renderLobby();SFX.play("win");toast("Đã tạo & trang bị bộ bài mới từ mã!");
 });
-$("btnSaveDeck").addEventListener("click",()=>{if(draft.size!==12)return;store.decks[editIdx]={n:($("deckName").value.trim()||"Bộ bài "+(editIdx+1)).slice(0,16),ids:[...draft],b:draftB};store.deck=store.decks[store.cur].ids;save();$("ovDeck").classList.remove("on");renderLobby();});
+$("btnSaveDeck").addEventListener("click",()=>{if(draft.size!==12)return;store.decks[editIdx]={n:($("deckName").value.trim()||"Bộ bài "+(editIdx+1)).slice(0,16),ids:[...draft],b:draftB};store.deck=store.decks[store.cur].ids;save();edClose(true);renderLobby();toast("Đã lưu "+store.decks[editIdx].n);});
 $("btnProfile").addEventListener("click",()=>{$("inName").value=store.name;renderProfile();$("ovProfile").classList.add("on");});
 $("inName").addEventListener("input",ev=>{store.name=ev.target.value.trim().slice(0,12);save();render();renderLobby();});
 $("avGrid").addEventListener("click",ev=>{const b=ev.target.closest("[data-av]");if(!b)return;store.avatar=b.dataset.av;store.avImg="";save();$("avMe").innerHTML=meAv();SFX.play("tap");renderProfile();renderLobby();});
 $("btnAgain").addEventListener("click",()=>{if(G&&G.mode)openModeHub(G.mode.k);else{newGame();runMatchIntro("LƯỢT 1/6","",true);}});
-document.addEventListener("click",ev=>{const o=ev.target.closest(".ov");if(o&&(ev.target===o||ev.target.closest("[data-close]")))o.classList.remove("on");});
+document.addEventListener("click",ev=>{const o=ev.target.closest(".ov");if(o&&(ev.target===o||ev.target.closest("[data-close]")))closeOv(o);});
 
 $("avMe").innerHTML=meAv();
 function start(data){
@@ -1283,3 +1294,133 @@ window.UI={get G(){return G;},render,newGame,get t(){return tLeft;},set t(v){tLe
   document.querySelectorAll(".ov").forEach(watch);
   new MutationObserver(ms=>{for(const m of ms)for(const n of m.addedNodes)watch(n);}).observe(document.body,{childList:true});
 })();
+
+/* ===================== gpu43: liên kết giữa các màn (Bộ bài · Sưu tập · Thông tin thẻ · Cửa hàng · Nhiệm vụ) =====================
+   - Trình sửa bộ nhớ nơi mở nó (edRet): danh sách bộ bài / Sưu tập (giữ bộ lọc + vị trí cuộn) / sảnh. Đóng hoặc Lưu -> quay về đúng chỗ đó.
+   - Đổi thẻ khi bộ đã đủ 12 (swapK): chọn "Đổi với thẻ trong bộ" rồi chạm một thẻ trong khay.
+   - Nút Back của trình duyệt/Android đóng bảng phủ trên cùng (một mục lịch sử "lính gác" khi có bảng mở). */
+let edRet=null,swapK=null,colSave=null;
+{const _oe=openEdit;openEdit=function(i){
+  const fromDecks=$("ovDecks").classList.contains("on"),fromCol=$("ovDeck").classList.contains("on")&&F.col;
+  edRet=fromDecks?{to:"decks"}:fromCol?{to:"col"}:null;
+  colSave=fromCol?{F:{dang:F.dang,he:F.he,cost:F.cost,text:F.text,foc:F.foc},y:$("deckList").parentElement.scrollTop}:null;
+  swapK=null;clearTimeout(tapTm);tapK="";_oe(i);};}
+function edClose(saved){const r=edRet;edRet=null;swapK=null;clearTimeout(tapTm);tapK="";
+  if(r&&r.to==="col"){const c=colSave||{};colSave=null;F.col=true;draft=new Set(store.deck);if(c.F)Object.assign(F,c.F);$("deckSearch").value=F.text||"";renderDeck();$("deckList").parentElement.scrollTop=c.y||0;$("ovDeck").classList.add("on");return;}
+  $("ovDeck").classList.remove("on");
+  if(r&&r.to==="decks"){if(saved)pendIdx=editIdx;if(!store.decks[pendIdx])pendIdx=store.cur;renderDecks();$("ovDecks").classList.add("on");}}
+/* đóng một bảng phủ theo thao tác người dùng (nút ✕/Đóng, chạm nền, nút Back) */
+function closeOv(o){if(!o)return;if(o.id==="ovDeck"&&o.classList.contains("on")&&!F.col){edClose(false);return;}o.classList.remove("on");}
+function dkHintUse(){if((store.dkh|0)<3){store.dkh=(store.dkh|0)+1;save();}}
+function dkScrollTo(k){requestAnimationFrame(()=>{const e=document.querySelector('#deckList [data-pick="'+k+'"]');if(!e)return;const bd=$("deckList").parentElement,r=e.getBoundingClientRect(),br=bd.getBoundingClientRect();bd.scrollTop=Math.max(0,bd.scrollTop+r.top-br.top-(br.height-r.height)/2);});}
+/* chạm 2 lần trong lưới trình sửa: thêm / bỏ nhanh (bộ đủ 12 hoặc chưa sở hữu -> mở thông tin thẻ để chọn cách khác) */
+function dkQuick(k,el,ctx){
+  if(draft.has(k)){draft.delete(k);SFX.play("tap");dkHintUse();renderDeck(true);return;}
+  if(!OWN.has(k)||draft.size>=12){SFX.play("ui_error",.5);openCard(k,ctx());return;}
+  draft.add(k);SFX.play("place");dkHintUse();renderDeck(true);const e2=document.querySelector('#deckList [data-pick="'+k+'"]');if(e2){e2.classList.remove("dadd");void e2.offsetWidth;e2.classList.add("dadd");}}
+function dkSwapDo(t){const k=swapK;swapK=null;if(k&&draft.has(t)&&!draft.has(k)&&OWN.has(k)){draft.delete(t);draft.add(k);SFX.play("place");toast("Đã đổi "+C[t].n+" lấy "+C[k].n);}renderDeck(true);}
+function dkPaint(){const sw=$("dkSwap"),h=$("dkHint"),tr=$("deckTray");if(!sw||!h)return;
+  if(F.col){sw.hidden=true;h.hidden=true;tr.classList.remove("swp");return;}
+  if(swapK&&(!C[swapK]||draft.has(swapK)))swapK=null;
+  if(swapK&&draft.size<12){draft.add(swapK);swapK=null;}
+  sw.hidden=!swapK;tr.classList.toggle("swp",!!swapK);h.hidden=!!swapK||(store.dkh|0)>=3||(innerHeight<700&&!$("recInline").hidden); /* màn thấp: dải đề xuất đã ghi "chạm để thêm", nhường chỗ cho lưới thẻ */
+  if(swapK){const d=C[swapK];sw.innerHTML=`<span class="gc mini" style="--hc:${HC[d.h]}">${nbL(swapK)}${art(swapK)}<span class="cst">${d.c}</span><span class="pwh">${d.p}</span></span><span class="dkswt"><b>Đổi lấy ${esc(d.n)}</b><small>Chạm một thẻ trong khay để thay</small></span><button type="button" class="ib alt" data-swx="1">Huỷ</button>`;}}
+$("dkSwap").addEventListener("click",ev=>{if(!ev.target.closest("[data-swx]"))return;SFX.play("tap");swapK=null;renderDeck(true);});
+{const _s=syncDeckToolsUI;syncDeckToolsUI=function(){_s();try{dkPaint();}catch(e){console.error(e);}};}
+/* hàng lối tắt trong màn thông tin thẻ */
+function cardGoPaint(){const el=$("cardGo");if(!el)return;const k=cardId,d=C[k];if(!d){el.hidden=true;return;}
+  const o=OWN.has(k),l=lvl(k),src=cardCtx.src,ed=$("ovDeck").classList.contains("on")&&!F.col&&(src==="edit"||src==="tray"),B=[];
+  if(ed){if(draft.has(k))B.push(["rm","− Bỏ khỏi bộ",`Bộ bài ${draft.size}/12`,"alt"]);
+    else if(o&&draft.size<12)B.push(["add","+ Thêm vào bộ",`Bộ bài ${draft.size}/12`,""]);
+    else if(o)B.push(["swap","⇄ Đổi với thẻ trong bộ","Bộ đã đủ 12 thẻ",""]);}
+  else if(src==="decks"&&store.decks[cardCtx.idx])B.push(["edit","✎ Sửa bộ này",store.decks[cardCtx.idx].n,"alt"]);
+  else if(o&&store.decks[store.cur]){const cd=store.decks[store.cur];
+    B.push(cd.ids.includes(k)?["edit","✎ Sửa bộ đang dùng","Thẻ đã ở trong "+cd.n,"alt"]:["go","+ Thêm vào bộ đang dùng",cd.n+(cd.ids.length>=12?" · chọn thẻ để đổi":""),""]);}
+  if(!o){const pr=PRICE[d.h]||500;if(store.tok<pr)B.push(["res:tok","Lấy thêm token",`Còn thiếu ${pr-store.tok}`,"res"]);}
+  else if(l<6&&store.up<UPC[l])B.push(["res:up","Lấy điểm nâng cấp",`Còn thiếu ${UPC[l]-store.up}`,"res"]);
+  el.hidden=!B.length;el.innerHTML=B.map(([a,t,s,c])=>`<button type="button" class="cgb${c?" "+c:""}" data-cg="${a}"><b>${esc(t)}</b><small>${esc(s)}</small></button>`).join("");}
+function shopGo(tab,sec){shopTab=tab;$("shopBody").scrollTop=0;openShop();requestAnimationFrame(()=>{const bd=$("shopBody");bd.scrollTop=Math.max(0,secTop(sec)-4);});}
+$("cardGo").addEventListener("click",ev=>{const b=ev.target.closest("[data-cg]");if(!b)return;const a=b.dataset.cg,k=cardId;SFX.play("tap");
+  if(a==="add"){if(!draft.has(k)&&draft.size<12&&OWN.has(k)){draft.add(k);SFX.play("place");}renderDeck(true);renderCard();return;}
+  if(a==="rm"){draft.delete(k);renderDeck(true);renderCard();return;}
+  if(a==="swap"){swapK=k;$("ovCard").classList.remove("on");renderDeck(true);return;}
+  if(a==="edit"||a==="go"){const i=a==="edit"&&cardCtx.src==="decks"?cardCtx.idx:store.cur;openEdit(i);
+    let note="";if(a==="go"&&!draft.has(k)&&OWN.has(k)){if(draft.size<12){draft.add(k);note="Đã thêm "+C[k].n+" vào bộ. Bấm Lưu bộ bài để giữ.";}else swapK=k;}
+    F.foc=k;renderDeck();$("ovCard").classList.remove("on");dkScrollTo(k);if(note)toast(note,3200);return;}
+  if(a.startsWith("res:")){const r=a.slice(4);shopGo(r==="tok"?"card":"deal",r);}});
+/* danh sách bộ bài: chạm thẻ trong khay = xem thông tin; nút Chơi = trang bị + vào trận */
+$("dkSelTray").addEventListener("click",ev=>{const r=ev.target.closest("[data-dsel]");if(!r)return;SFX.play("tap");openCard(r.dataset.dsel,{list:domList("#dkSelTray [data-dsel]","dsel"),src:"decks",idx:pendIdx});});
+$("btnDkPlay").addEventListener("click",()=>{const d=store.decks[pendIdx];if(!d||d.ids.length!==12)return;SFX.play("tap");store.cur=pendIdx;store.deck=d.ids;save();renderLobby();playNow();});
+/* sảnh: sửa nhanh bộ đang dùng */
+$("lbDeckEd").addEventListener("click",()=>{SFX.play("tap");openEdit(store.cur);});
+/* nhiệm vụ: Chơi ngay khi còn nhiệm vụ ngày chưa xong */
+function misPlayPaint(){const b=$("misPlay");if(b)b.hidden=MIS.every((m,i)=>store.ms.v[i]>=m[1]);}
+$("lbMisBtn").addEventListener("click",misPlayPaint);
+$("misPlay").addEventListener("click",()=>{SFX.play("tap");playNow();});
+
+/* ---- nút Back (popstate): đóng bảng phủ trên cùng ---- */
+(function(){
+  /* Chỉ thêm mục lịch sử (pushState), không bao giờ tự gọi history.back(): gọi back() xen kẽ với mở/đóng nhanh có thể
+     làm trình duyệt lùi quá mục "lính gác" và rời trang. Đóng bảng bằng nút ✕ thì mục lính gác ở lại — lần Back kế tiếp khi
+     không còn bảng nào chỉ "tiêu" mục đó (không thoát trang ngay), giống chặn thoát nhầm trên Android. */
+  const NOBACK=new Set(["ovEnd","ovOpen"]);let armed=false,qd=false;
+  const mm=$("mm");
+  function openList(){return [...document.querySelectorAll(".ov.on")];}
+  function topOv(){const L=openList();if(!L.length)return null;let best=null,bz=-1e9,bi=-1;L.forEach(o=>{const z=parseInt(getComputedStyle(o).zIndex,10)||0,i=[...document.body.children].indexOf(o);if(z>bz||(z===bz&&i>bi)){best=o;bz=z;bi=i;}});return best;}
+  function anyOpen(){return openList().length>0||mm.classList.contains("on");}
+  function sync(){qd=false;try{if(anyOpen()&&!armed){history.pushState({ltdOv:1},"");armed=true;}}catch(e){}}
+  function q(){if(!qd){qd=true;setTimeout(sync,0);}}
+  addEventListener("popstate",e=>{if(e.state&&e.state.ltdOv){armed=true;return;}armed=false;
+    if(mm.classList.contains("on")){const c=$("mmCancel");if(c&&c.style.display!=="none")c.click();q();return;}
+    const o=topOv();if(o&&!NOBACK.has(o.id)){closeOv(o);try{SFX.play("tap");}catch(e){}}q();});
+  /* theo dõi bật/tắt bảng phủ: đồng bộ mục lịch sử; Cửa hàng mở từ thông tin thẻ đóng lại -> vẽ lại số tài nguyên/nút */
+  const mo=new MutationObserver(ms=>{for(const m of ms){const el=m.target;if(el.id==="ovShop"&&!el.classList.contains("on")&&$("ovCard").classList.contains("on"))try{renderCard();}catch(e){}}q();});
+  const watch=el=>{if(el&&el.nodeType===1&&(el.classList.contains("ov")||el===mm)&&!el._bk43){el._bk43=1;mo.observe(el,{attributes:true,attributeFilter:["class"]});}};
+  document.querySelectorAll(".ov").forEach(watch);watch(mm);
+  new MutationObserver(ms=>{for(const m of ms)for(const n of m.addedNodes)watch(n);}).observe(document.body,{childList:true});
+})();
+
+/* ===================== gpu43: màn chờ ghép trận kiểu VS =====================
+   Giữ nguyên logic ghép trận/mạng ở 05/10: chỉ bọc mmShow/mmFound/mmHide để vẽ thêm (chế độ, đồng hồ chờ, bộ bài + 4 thẻ tiêu biểu,
+   mẹo luân phiên, chuyển cảnh vào trận). Máy: chờ tìm ~1–1.6 s, lộ diện ~1 s rồi vào trận (body.rm: gần như tức thì). */
+const KWH=n=>{const h=KWT.find(x=>x[0]===n);return `<b class="kt k-${h?h[1]:"x"}">${n}</b>`;};
+const MM_TIPS=[
+  "Giữ <b>2 trong 3</b> chiến địa là thắng. Nếu mỗi bên giữ số chiến địa bằng nhau, tổng sức mạnh toàn bàn quyết định.",
+  "Chiến địa lộ diện lần lượt ở lượt 1, 2 và 3. Đọc hiệu ứng của nó trước khi dồn bài vào đó.",
+  "Mỗi bên đặt tối đa <b>4 thẻ</b> ở một chiến địa. Chừa chỗ cho thẻ mạnh của lượt cuối.",
+  "Lượt nào có bấy nhiêu năng lượng: lượt 1 có 1, lượt 6 có 6. Năng lượng không dùng sẽ mất.",
+  "Bên đang dẫn lật bài trước. Trong một bên, thẻ lật đúng theo thứ tự bạn đã đặt.",
+  `Thẻ ${KWH("Kích Hoạt")} dùng được từ lượt sau lượt đặt, mỗi thẻ một lần mỗi ván.`,
+  `${KWH("Duy Trì")} có hiệu lực khi thẻ nằm ngửa trên bàn và mất ngay khi thẻ rời bàn hoặc bị xoá kỹ năng.`,
+  `${KWH("Cuối Lượt")} tự chạy sau khi mọi thẻ của lượt đã lật.`,
+  "Tay bài chứa tối đa <b>7 thẻ</b>. Tay đầy thì không rút thêm được.",
+  "Chạm khối cược để nhân đôi từ lượt sau. Thấy thua thì rút lui sớm, chỉ mất mức cược hiện tại.",
+  "Hết giờ lượt thì lượt tự kết thúc. Bỏ 3 lượt liên tiếp sẽ bị xử thua.",
+  `Phần cộng sức mạnh từ ${KWH("Duy Trì")} không tính là Cường Hoá.`,
+  "Thẻ được kéo xuống chiến địa bởi hiệu ứng vẫn lật và chạy kỹ năng của nó, trừ khi có hiệu ứng cấm."];
+let mmCtx=null,mmT0=0,mmTk=0,mmTipI=-1,mmTipT=0;
+const mmLo=()=>!!(reduced||window.FXLV===0);
+function mmFmt(ms){const s=Math.max(0,Math.floor(ms/1000));return Math.floor(s/60)+":"+String(s%60).padStart(2,"0");}
+function mmTip(next){const el=$("mmTipT"),t=$("mmTip");if(!el||!t)return;mmTipI=next?(mmTipI+1)%MM_TIPS.length:Math.floor(Math.random()*MM_TIPS.length);
+  if(!next||mmLo()){el.innerHTML=MM_TIPS[mmTipI];t.classList.remove("mmout");return;}
+  t.classList.add("mmout");setTimeout(()=>{el.innerHTML=MM_TIPS[mmTipI];t.classList.remove("mmout");},240);}
+function mmPaint(online){const c=mmCtx||{},m=$("mm");
+  m.classList.toggle("mmlo",mmLo());m.classList.remove("mmgo");
+  $("mmMode").textContent=c.lbl||(online?"Đấu online":"Đấu thường");
+  const ids=(c.deck&&c.deck.length?c.deck:store.deck).filter(k=>C[k]),top=ids.slice().sort((a,b)=>C[b].c-C[a].c||C[b].p-C[a].p).slice(0,4);
+  const dn=c.deck?(c.dn||"Bộ bài của chế độ"):((store.decks[store.cur]||{}).n||"Bộ bài");
+  $("mmDk").innerHTML=`<span class="mmdn">${esc(dn)}</span><span class="mmcs">${top.map(k=>{const d=C[k];return `<span class="gc mini" style="--hc:${HC[d.h]}">${nbL(k)}${art(k)}<span class="cst">${d.c}</span><span class="pwh">${d.p}</span></span>`;}).join("")}</span>`;
+  $("mmNmFoe").textContent="";$("mmRkFoe").textContent="";$("mmAvFoe").innerHTML="";
+  mmT0=Date.now();$("mmTime").textContent="0:00";clearInterval(mmTk);mmTipT=Date.now();mmTip(false);
+  mmTk=setInterval(()=>{if(!m.classList.contains("on")){clearInterval(mmTk);return;}if(!m.classList.contains("found"))$("mmTime").textContent=mmFmt(Date.now()-mmT0);if(Date.now()-mmTipT>5200){mmTipT=Date.now();mmTip(true);}},500);}
+function mmFade(){if(mmLo())return;const f=document.createElement("div");f.className="mmfade";f.setAttribute("aria-hidden","true");document.body.appendChild(f);const rm=()=>{if(f.parentNode)f.remove();};f.addEventListener("animationend",rm);setTimeout(rm,900);}
+{const _sh=mmShow,_fd=mmFound,_hd=mmHide;
+  mmShow=function(online){_sh(online);try{mmPaint(online);}catch(e){console.error(e);}};
+  mmFound=function(p,bot){_fd(p,bot);try{$("mmTime").textContent=mmFmt(Date.now()-mmT0);}catch(e){}};
+  mmHide=function(){const m=$("mm"),was=m.classList.contains("on")&&m.classList.contains("found");_hd();clearInterval(mmTk);m.classList.remove("mmgo");mmCtx=null;if(was)mmFade();};}
+mmBot=function(go){const c=mmCtx;mmShow(false);
+  const nm=BOTS[Math.floor(Math.random()*BOTS.length)],fix=!(c&&c.foeAv&&C[c.foeAv]),av=fix?E.COLLECT[Math.floor(Math.random()*E.COLLECT.length)]:c.foeAv;
+  clearTimeout(mmBotT);const q=reduced,t1=q?80:950+Math.floor(Math.random()*650),t2=q?80:1050,t3=q?0:300;
+  mmBotT=setTimeout(()=>{mmFound({nm,av,dk:null},true);
+    mmBotT=setTimeout(()=>{$("mm").classList.add("mmgo");
+      mmBotT=setTimeout(()=>{mmHide();go(nm);if(fix){try{foeAv=av;$("avFoe").innerHTML=artFace(av);}catch(e){}}},t3);},t2);},t1);};
