@@ -461,7 +461,7 @@ function startModeGame0(mode,pDeck,foeDeck,upP,upA,xo){
   BC=null;TN0=0;LOCID=[];seenRev.clear();prevPow.clear();seenLoc.clear();seenStg.clear();prevLd=[];PWV={};sel=look=moveSel=null;armRetreat=0;
   foeAv=foeDeck[foeDeck.length-1];$("avFoe").innerHTML=artFace(foeAv);$("avMe").innerHTML=meAv();
   foeBack=Object.keys(BACKS)[Math.floor(Math.random()*Object.keys(BACKS).length)];
-  try{$("ovEnd").classList.remove("on");}catch(e){}
+  try{if(typeof endSeqKill==="function")endSeqKill();$("ovEnd").classList.remove("on");}catch(e){}
   G=E.newGame(pDeck,foeDeck,Object.assign({upg:{p:upP||{},a:upA||{}}},xo||{}));G.mode=mode;gameDeck=store.deck.join();
   missNote="";resetTimer(false);
   G.msg=`<b>${mode.lbl||(mode.k==="draft"?"Tuyển chọn":"Chinh phục")} · máy ${DIFF[mode.diff].n}.</b> `+turnMsg(G.msgs.slice(0,4));
