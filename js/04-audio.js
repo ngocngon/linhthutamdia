@@ -16,7 +16,13 @@ const SFX = (() => {
         comp.attack.value = 0.004;
         comp.release.value = 0.16;
         comp.connect(ac.destination);
-        masterOut = comp;
+        /* gpu43: hạ nhẹ dải chói (kệ cao -3 dB từ ~4,5 kHz) cho mọi âm, kể cả bộ tổng hợp dự phòng */
+        const shelf = ac.createBiquadFilter();
+        shelf.type = "highshelf";
+        shelf.frequency.value = 4500;
+        shelf.gain.value = -3;
+        shelf.connect(comp);
+        masterOut = shelf;
       }
     }
     if (ac && ac.state === "suspended") ac.resume();
@@ -291,18 +297,21 @@ const SFX = (() => {
     }
   };
 
-  const VIB = { rv_t5: [12, 20, 30], ult: [15, 35, 65], boom: [20, 25, 50], place: 10, flip: 8, destroy: [25, 25, 35], snap: [25, 35, 25], act: 16, win: [35, 50, 35] };
+  const VIB = { ra_s5: [12, 20, 30], ra_s5b: [12, 20, 30], ra_s4: 14, ult: [15, 35, 65], boom: [20, 25, 50], place: 10, flip: 8, destroy: [25, 25, 35], snap: [25, 35, 25], act: 16, win: [35, 50, 35] };
 
-  /* ===== Mẫu âm thanh thật (sprite www/sfx/sfx.mp3 + sfx.json: tên → [bắt đầu, độ dài] giây) =====
+  /* ===== Mẫu âm thanh thật (sprite www/sfx/sfx3.mp3 + sfx3.json: tên → [bắt đầu, độ dài] giây) =====
      Chưa tải xong / thiếu mẫu → dùng lại bộ tổng hợp S[...] ở trên làm dự phòng. */
   const bufs = {};
+  let lastH = null; /* âm vừa phát (để màn ra mắt có thể tắt dần tiếng ra mắt trước) */
   let loadState = 0; // 0 chưa tải, 1 đang tải, 2 xong, 3 lỗi
   const recent = {};
   let voices = 0;
   const live = []; /* thời điểm bắt đầu của các âm đang phát */
-  const DUCK = { ult: 0.9, boom: 0.7, destroy: 0.7, snap: 0.8, win: 1.6, lose: 1.4, horn: 0.6, e_sam: 0.5, e_dat: 0.5, gacha3: 1.4, loc: 0.5, timeout: 0.5, rv_t5: 0.8, f_bigup: 0.4, f_bigdn: 0.5, f_exile: 0.5 };
+  const DUCK = { ra_s5: 1.2, ra_s5b: 1.2, ra_s4: 0.9, boom: 0.7, destroy: 0.6, snap: 0.8, win: 1.6, lose: 1.4, horn: 0.6, e_sam: 0.4, e_dat: 0.4, gacha3: 1.4, loc: 0.6, timeout: 0.5, f_bigup: 0.4, f_bigdn: 0.5, f_exile: 0.5 };
+  const MAXV = 10; /* trần số âm phát cùng lúc */
 
-  /* Hai sprite: sfx.mp3 (69 âm ElevenLabs gốc) + sfx2.mp3 (âm mới dựng từ chính các mẫu gốc: lớp lật thẻ theo bậc, họ kỹ năng) */
+  /* gpu43: một sprite sfx3.mp3 (+ sfx3.json: tên -> [bắt đầu, độ dài] giây): toàn bộ âm tạo lại bằng ElevenLabs,
+     đã chuẩn hoá độ to, hạ dải 2–6 kHz, fade đầu/cuối (tools/sfx_do.py build). Mono 44,1 kHz, 96 kb/s. */
   function cutSprite(idx, big) {
     const sr = big.sampleRate, src = big.getChannelData(0);
     for (const k in idx) {
@@ -327,9 +336,9 @@ const SFX = (() => {
   function loadSamples() {
     if (loadState || !ac) return;
     loadState = 1;
-    loadSprite("sfx", false)
-      .then(() => { loadState = 2; return loadSprite("sfx2", true); })
-      .catch(() => { if (loadState !== 2) loadState = 3; });
+    loadSprite("sfx3", false)
+      .then(() => { loadState = 2; })
+      .catch(() => { loadState = 3; });
   }
 
   function playSample(n, vol, o) {
@@ -341,15 +350,18 @@ const SFX = (() => {
     /* tự chữa bộ đếm: nếu có âm không bao giờ báo kết thúc (máy treo/tạm dừng giữa chừng) thì xoá phiếu quá 4 giây */
     for (let i = live.length - 1; i >= 0; i--) if (now - live[i] > 4) { live.splice(i, 1); }
     voices = live.length;
+    /* chống trùng theo tên: cùng một mẫu tối đa 2 lần trong 0,12 s; trần số âm đồng thời (âm ưu tiên như màn ra mắt được vượt trần) */
     const r = (recent[n] = (recent[n] || []).filter((t) => now - t < 0.12 && t <= now));
-    if (r.length >= 3 || voices >= 14) return true; // nuốt bớt, không rơi về synth
+    if (!o.pri && (r.length >= 2 || voices >= MAXV)) return true; // nuốt bớt, không rơi về synth
     r.push(now);
+    /* chồng nhiều âm -> mỗi âm nhỏ đi (tổng không dồn lên chói) */
+    const stack = 1 / Math.sqrt(1 + 0.3 * voices) * (r.length > 1 ? 0.7 : 1);
     const src = ac.createBufferSource();
     const g = ac.createGain();
     const nodes = [g];
     src.buffer = b;
     src.playbackRate.value = (o.rate || 1) * (1 + (Math.random() * 2 - 1) * 0.04);
-    g.gain.value = sfxGainVal(0.9 * (vol == null ? 1 : vol) * (1 + (Math.random() * 2 - 1) * 0.1));
+    g.gain.value = sfxGainVal(0.9 * stack * (vol == null ? 1 : vol) * (1 + (Math.random() * 2 - 1) * 0.08));
     src.connect(g);
     let last = g;
     for (const [ty, fr] of [["highpass", o.hp], ["lowpass", o.lp]]) {
@@ -365,6 +377,8 @@ const SFX = (() => {
     const tk = now; live.push(tk); voices = live.length;
     src.onended = () => { const i = live.indexOf(tk); if (i >= 0) live.splice(i, 1); voices = live.length; for (const x of nodes) { try { x.disconnect(); } catch (e) {} } };
     src.start(now + (o.delay || 0));
+    lastH = { src, g, n, t: now };
+    if (window.SFX_TAP) try { window.SFX_TAP(n, vol, o); } catch (e) {} /* móc kiểm thử: đếm âm thật sự phát */
     if (DUCK[n] && typeof BGM !== "undefined" && BGM.duck) BGM.duck(0.4, DUCK[n]);
     return true;
   }
@@ -391,11 +405,12 @@ const SFX = (() => {
     silence: ["silence"], lock: ["f_lock"], shield: ["shield"], block: ["f_block"], up1: ["f_smallup"], up2: ["buff"], up3: ["f_bigup"],
     dn1: ["f_smalldn"], dn2: ["debuff"], dn3: ["f_bigdn"], dbl: ["f_dbl"], energy: ["energy"], egain: ["f_energy2"], nrgloss: ["f_nrg_loss"],
     costdn: ["f_costdn"], costup: ["f_costup"], merge: ["f_absorb"], morph: ["morph"], locup: ["f_locup"], locdn: ["f_afflict"], locx: ["f_xform"],
-    locrev: ["loc", "f_reveal_loc"], ult: ["ult"], aura: ["f_aura"], endt: ["f_end"], act: ["act"], hurt: ["hurt"]
+    locrev: ["loc", "f_reveal_loc"], aura: ["f_aura"], endt: ["f_end"], act: ["act"], hurt: ["hurt"]
   };
   const famIdx = {};
   function fam(key, o) {
     o = o || {};
+    if (key === "ult") { launch(o.rate > 1.05 ? 4 : 5, o); return; } /* tương thích lời gọi cũ fam("ult") */
     if (store.mute) return;
     try {
       if (!ctx()) return;
@@ -412,10 +427,14 @@ const SFX = (() => {
     } catch (e) {}
   }
 
-  /* ===== Lật thẻ: một lần lật = một âm nhiều lớp (thân lật + nhấn hệ + lớp theo Bậc); lật dồn dập thì thưa dần/gộp lại ===== */
+  /* ===== Lật thẻ: thân lật xoay vòng + nhấn hệ nhẹ; lật dồn dập thì thưa dần =====
+     gpu43: BỎ lớp Bậc 4/5 (rv_t4/rv_t5) ở nhịp lật — trước đây thẻ S4/S5 kêu 2 lần (lớp Bậc khi lật + tiếng "ult" 2 s khi màn ra mắt
+     diễn ngay sau, cộng 2 lớp nhấn hệ) nên nghe như lặp lại. Nay tiếng ra mắt chỉ phát MỘT lần trong launch(), gọi từ màn ra mắt.
+     Khi tắt hiệu ứng (không có màn ra mắt) thì launch() được gọi ngay tại nhịp lật. */
   const REVB = ["rv_a", "rv_b", "rv_c"];
   let revBody = 0, revTimes = [];
   const tierOf = (h) => (h === "S5" || h === "MP" ? 5 : h === "S4" ? 4 : h === "S3" ? 3 : 1);
+  const noShow = () => typeof reduced !== "undefined" && !!reduced;
   function reveal(o) {
     o = o || {};
     if (store.mute) return;
@@ -427,23 +446,54 @@ const SFX = (() => {
       revTimes = revTimes.filter((t) => now - t < 1800);
       const n = revTimes.length, tier = o.tier || tierOf(o.h), el = o.el, p = el && EL[el];
       revTimes.push(now);
-      if (store.vib !== false && navigator.vibrate) { try { navigator.vibrate(tier >= 5 ? [12, 20, 30] : 8); } catch (e) {} }
-      const rate = (p ? 1 + (p.r - 1) * 0.5 : 1) * (tier >= 4 ? 0.97 : 1);
+      if (store.vib !== false && navigator.vibrate && tier < 4) { try { navigator.vibrate(8); } catch (e) {} }
+      const rate = p ? 1 + (p.r - 1) * 0.5 : 1;
       if (n === 0) {
         revBody = (revBody + 1 + (Math.random() < 0.5 ? 1 : 0)) % 3;
         playSample(REVB[revBody], 1, { rate });
       } else if (n === 1) {
-        playSample("rv_soft", 0.85, { rate: rate * (0.95 + Math.random() * 0.2) });
-      } else if (n === 2) {
-        playSample("rv_cas", 0.9, { rate });
-      } else if (tier < 4 && n % 2 === 0) {
-        playSample("rv_soft", 0.5, { rate: rate * 1.1 });
+        playSample("rv_soft", 0.85, { rate: rate * (0.95 + Math.random() * 0.1) });
+      } else if (n % 2 === 0) {
+        playSample("rv_soft", 0.55, { rate });
       }
-      const accVol = (tier >= 5 ? 0.62 : tier === 4 ? 0.5 : tier === 3 ? 0.42 : 0.32) * (n >= 2 ? 0.6 : 1);
-      if (p && (n < 2 || tier >= 4)) playSample(p.a, accVol, { delay: 0.1, rate: 1 + (tier - 3) * 0.02 });
-      if (tier >= 5) playSample("rv_t5", n >= 2 ? 0.8 : 1, { delay: 0.04, rate: o.h === "MP" ? 1.08 : 1 });
-      else if (tier === 4 && n < 3) playSample("rv_t4", n >= 2 ? 0.7 : 0.9, { delay: 0.05 });
-      else if (tier === 3 && n < 2) playSample("rv_t3", 0.8, { delay: 0.05 });
+      if (tier >= 4) { if (noShow()) launch(tier, { el, uid: o.uid }); return; }
+      if (p && n < 2) playSample(p.a, (tier === 3 ? 0.36 : 0.28), { delay: 0.08 });
+      if (tier === 3 && n < 2) playSample("rv_t3", 0.55, { delay: 0.05 });
+    } catch (e) {}
+  }
+
+  /* ===== Màn ra mắt: đúng MỘT tiếng mỗi lần ra mắt =====
+     tier 5 / 4 / 3 (= bản gọn cho Bậc 1–3). Chống trùng: cùng thẻ (uid) trong 3 s hoặc bất kỳ tiếng ra mắt nào trong 0,25 s -> bỏ;
+     tiếng ra mắt trước còn ngân thì được tắt dần 60 ms trước khi phát tiếng mới (nhiều thẻ ra mắt liền nhau không dồn chồng);
+     bản gọn không phát khi một tiếng ra mắt lớn vừa phát < 0,6 s. Thẻ thứ 2 trở đi trong lượt nhỏ hơn. */
+  const LAUNCH = { 5: ["ra_s5", "ra_s5b"], 4: ["ra_s4", "ra_s4b"], 3: ["ra_mini", "ra_minib"] };
+  const lIdx = { 5: 0, 4: 0, 3: 0 };
+  let lastL = null;
+  function launch(tier, o) {
+    o = o || {};
+    tier = tier >= 5 ? 5 : tier === 4 ? 4 : 3;
+    if (store.vib !== false && tier >= 4 && navigator.vibrate) { try { navigator.vibrate(VIB[tier === 5 ? "ra_s5" : "ra_s4"]); } catch (e) {} }
+    if (store.mute) return;
+    try {
+      if (!ctx()) return;
+      if (loadState === 0) loadSamples();
+      if (ac.state !== "running") return;
+      const now = ac.currentTime;
+      if (lastL) {
+        const dt = now - lastL.t;
+        if ((o.uid && lastL.uid === o.uid && dt < 3) || dt < 0.25) return;
+        if (tier === 3 && lastL.tier >= 4 && dt < 0.6) return;
+      }
+      const L = LAUNCH[tier].filter((n) => bufs[n]);
+      if (!L.length) { if (tier >= 4 && S.ult) S.ult(); return; }
+      if (lastL && lastL.h && now - lastL.t < 2.5) {
+        try { lastL.h.g.gain.cancelScheduledValues(now); lastL.h.g.gain.setTargetAtTime(0.0001, now, 0.06); lastL.h.src.stop(now + 0.35); } catch (e) {}
+      }
+      const n = L[lIdx[tier]++ % L.length], p = o.el && EL[o.el];
+      const vol = (tier === 5 ? 1 : tier === 4 ? 0.85 : 0.5) * (o.nth > 0 ? 0.8 : 1) * (o.foe ? 0.9 : 1);
+      lastH = null;
+      playSample(n, vol, { rate: p ? 1 + (p.r - 1) * 0.35 : 1, pri: 1 });
+      lastL = { t: now, uid: o.uid || 0, tier, h: lastH && lastH.n === n ? lastH : null };
     } catch (e) {}
   }
 
@@ -461,10 +511,12 @@ const SFX = (() => {
     },
     fam,
     reveal,
+    launch,
     src(el) { srcEl = el || null; srcT = performance.now(); },
     famOf(id) { try { return typeof sfxFamOf === "function" && C[id] ? sfxFamOf(C[id]) : "none"; } catch (e) { return "none"; } },
     famKeys() { return Object.keys(FAM); },
     play(n, vol) { /* vol: hệ số âm lượng riêng cho mẫu này (mặc định 1) */
+      if (n === "ult") { launch(5); return; } /* tên cũ: tiếng ra mắt */
       if (store.vib !== false && VIB[n] && navigator.vibrate) {
         try { navigator.vibrate(VIB[n]); } catch (e) {}
       }
