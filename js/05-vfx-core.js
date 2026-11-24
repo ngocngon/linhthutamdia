@@ -436,7 +436,7 @@ function playFxCore(evs,R0,P0,part){
       case "surge": {const tg=$(ev.side==="p"?"meSub":"oppSub"),sr=at(ev.src);if(tg){const q=ctr(tg),to={x:q.x,y:q.y,w:40,h:56};
           const go=()=>{FX.bolts(q.x,q.y,"#7fe0ff",7,34);FX.glow(q.x,q.y,"#7fe0ff",46);if(ev.side==="p")FX.float(q.x+20,q.y+18,"−1⚡ +1","#7fe0ff");pulse("#"+tg.id,[{transform:"scale(1.25)"},{transform:"scale(1)"}],180);};
           if(sr){FX.comet(sr.x,sr.y,q.x,q.y,"#7fe0ff");chip(sr,to,lite(ev.src)||sr.html,go,60,210);}else go();}cue("energy");break;}
-      case "loc": {if(S8.has("l"+ev.li)){cue("locrev");break;}locReveal(ev.li);/* gpu40: lộ chiến địa chỉ còn 1 chuyển động (locReveal) — bỏ cổng xoáy/sóng/ấn/hạt/nảy chồng thêm */cue("locrev");break;}
+      case "loc": {if(S8.has("l"+ev.li)){cue("locrev");break;}locReveal(ev.li);/* gpu47: locReveal (08) tự phát tiếng loc đúng nhịp bung mở -> không cue thêm (chỉ 1 lần) */if(typeof gpuLocOpen47!=="function")cue("locrev");break;}
     }
   }
   if(part===1){if(imp>0){FXHOLD=Math.max(FXHOLD,FX.impact(ix,iy,imp));snd.add("boom");}if(snd.has("boom"))SFX.play("boom");return 0;}
