@@ -192,7 +192,7 @@ body .loc .in {
 }
 .locw.new,
 .locw.gpu-loc-rev {
-  animation: locflip 1.32s cubic-bezier(0.18, 0.88, 0.26, 1.12) both !important;
+  animation: locrev40 0.6s cubic-bezier(0.22, 0.9, 0.3, 1) both !important;
   z-index: 16 !important;
 }
 
@@ -443,6 +443,21 @@ body.rm #oppNotifHost {
 }
 .snapfx b {
   font-size: 52px !important;
+}
+/* gpu40: cược Snap lớn giữa màn (JS đặt --sy/--sw, hoạt ảnh WAAPI ngắn) */
+.snapfx.s40 {
+  animation: none !important;
+  top: var(--sy, 42vh) !important;
+  width: var(--sw, 60vw) !important;
+  height: var(--sw, 60vw) !important;
+  margin: calc(var(--sw, 60vw) / -2) 0 0 calc(var(--sw, 60vw) / -2) !important;
+  background: radial-gradient(circle, color-mix(in srgb, var(--c) 55%, transparent) 0, color-mix(in srgb, var(--c) 22%, transparent) 42%, transparent 66%) !important;
+}
+.snapfx.s40 b {
+  font-size: calc(var(--sw, 60vw) * 0.42) !important;
+  line-height: 1;
+  -webkit-text-stroke: 3px rgba(20, 6, 40, 0.85);
+  text-shadow: 0 0 18px var(--c), 0 4px 0 #000, 0 0 3px #000 !important;
 }
 
 body:not(.lbon) #toastX {
@@ -1072,7 +1087,7 @@ body.rm .choreo-afterimage {
 }
 .locw.gpu-loc-rev {
   z-index: 16 !important;
-  animation: locflip 1.32s cubic-bezier(0.18, 0.88, 0.26, 1.12) both !important;
+  animation: locrev40 0.6s cubic-bezier(0.22, 0.9, 0.3, 1) both !important;
 }
 
 /* ==================== VFX CHIẾN ĐỊA TRỰC QUAN TRÊN 2 PHẦN SÂN NGƯỜI CHƠI (#boardFieldVfx) ==================== */
@@ -1509,6 +1524,14 @@ body.dragging .lane.ok .side.me,body.dragging .lane.okx .side.opp{box-shadow:non
 }
 .uc5.s4 .uc-card > .gc { box-shadow: 0 0 0 2px color-mix(in srgb, var(--c2) 70%, #fff), 0 0 18px 2px var(--c), 0 16px 28px rgba(0, 0, 0, 0.7); }
 body.rm .uc5 { display: none !important; }
+/* gpu40: màn ra mắt bản gọn cho thẻ Bậc 1–3 (nền tối nhẹ, lá nhỏ hơn, không tia/hạt) */
+.uc5.uc3 .uc-card > .gc { font-size: 15px; box-shadow: 0 0 0 2px color-mix(in srgb, var(--c2) 70%, #fff), 0 0 14px 2px var(--c), 0 12px 22px rgba(0, 0, 0, 0.65); }
+.uc5.uc3 .uc-card > .gc .n { font-size: 17px; min-height: 34px; }
+/* gpu40: thẻ lật trên bàn chậm hơn một nhịp */
+#board .mc.flip,
+#board .mc.qf.q6.flip {
+  animation-duration: 0.34s !important;
+}
 
 /* thẻ nguồn đang được "nhấc" hoặc đang ra giữa màn hình: ẩn ô gốc (bản sao thế chỗ) */
 #board .mc.hero-hid { visibility: hidden !important; }
@@ -1566,3 +1589,13 @@ body.mmon #app *, body.mmon #lobby * {
 }
 /* vệt sáng nút (sheen): chạy bằng transform thay vì "left" -> không tính lại bố cục mỗi khung hình (cùng quãng đường: -60% -> 130% bề rộng nút = 475% bề rộng vệt) */
 @keyframes sheen{0%,60%{transform:translateX(0) skewX(-20deg)}100%{transform:translateX(475%) skewX(-20deg)}}
+
+/* gpu40: lộ chiến địa gọn — biển lật hiện một lần (không chớp sáng gắt) + một vệt sáng nhẹ */
+@keyframes locrev40 {
+  0% { transform: perspective(760px) rotateY(-80deg) scale(0.94); opacity: 0.35; }
+  60% { transform: perspective(760px) rotateY(4deg) scale(1.03); opacity: 1; }
+  100% { transform: perspective(760px) rotateY(0deg) scale(1); opacity: 1; }
+}
+.loc-sheen40 { position: fixed; z-index: 17; pointer-events: none; overflow: hidden; border-radius: 10px; }
+.loc-sheen40 i { position: absolute; top: -10%; bottom: -10%; left: 0; width: 38%; background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.42), transparent); }
+body.rm .loc-sheen40 { display: none !important; }

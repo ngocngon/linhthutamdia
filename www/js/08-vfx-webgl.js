@@ -329,6 +329,8 @@
     return s.length <= 9 && PURE_STAT_RE.test(s);
   }
 
+  /* gpu40: chữ cộng/trừ gộp nhóm ("+2 ×3", "TĂNG SỨC MẠNH ×4", "−1 NĂNG LƯỢNG ×2") ở nửa sân trên: hiện nửa thời gian */
+  const PW_GRP_RE = /^(?:[+＋−\-]\s*\d+(?:\s*NĂNG LƯỢNG)?\s*×\s*\d+|(?:TĂNG|GIẢM) SỨC MẠNH ×\s*\d+|(?:ĐỔI NĂNG LƯỢNG) ×\s*\d+|[+＋−\-]\s*\d+\s*NĂNG LƯỢNG|[+＋]\d+ năng lượng)$/;
   function spawnStatPop(x, y, txt, c) {
     if (reduced) return;
     const d = document.createElement("div");
@@ -348,9 +350,9 @@
       { transform: "translate3d(-50%, -96%, 0) scale(1.0)", opacity: 1, offset: 0.42 },
       { transform: "translate3d(-50%, -125%, 0) scale(1.0)", opacity: 1, offset: 0.78 },
       { transform: "translate3d(-50%, -158%, 0) scale(0.88)", opacity: 0 }
-    ], { duration: 1080, easing: "cubic-bezier(0.22, 1, 0.36, 1)", fill: "forwards" });
+    ], { duration: 540, easing: "cubic-bezier(0.22, 1, 0.36, 1)", fill: "forwards" }); /* gpu40: x2 nhanh (cũ 1080) */
     a.onfinish = () => d.remove();
-    fxT(() => d.remove(), 1250);
+    fxT(() => d.remove(), 640);
   }
 
   { /* gpu23: say khai báo ở 05, thân hàm ở đây */
@@ -359,7 +361,7 @@
       const run = () => {
         if (typeof SAYOFF !== "undefined" && SAYOFF) return;
         if (isPureStatNumber(t)) spawnStatPop(x, y, t, c);
-        else pushOppNotif(t, c);
+        else pushOppNotif(t, c, PW_GRP_RE.test(String(t).trim()) ? { dur: 640 } : undefined);
       };
       if (dl) fxT(run, dl);
       else run();
@@ -1012,7 +1014,7 @@
     FX.float = function (x, y, txt, c) {
       if (reduced || !txt) return;
       if (isPureStatNumber(txt)) spawnStatPop(x, y, txt, c);
-      else pushOppNotif(txt, c);
+      else pushOppNotif(txt, c, PW_GRP_RE.test(String(txt).trim()) ? { dur: 640 } : undefined);
     };
 
     FX.burst = function (x, y, c, n, sp) {
@@ -1939,24 +1941,23 @@
       fxT(() => FX.wave(cx, cy, "#9ff2ff", 54), 500);
     };
 
+    /* gpu40: rút bài đầu lượt — lá bay từ cụm bộ bài vào tay, luôn MẶT TRƯỚC (bỏ sprite mặt lưng "rut_bai" và pha xoay lật), gọn ~0,3 s gốc */
     CFX.drawIn = function (el, cr, k) {
+      if (el) el.style.opacity = "";
       if (reduced || !el) return;
       const b = el.getBoundingClientRect();
       const col = cr ? "#ffd65a" : "#7fe8ff";
-      const delay = (k || 0) * 95;
-      if (typeof holdFx === "function") holdFx(480 + delay);
-      if (b.width > 0 && typeof window.playV16 === "function") {
-        window.playV16("rut_bai", b.left + b.width / 2, b.top + b.height / 2, Math.max(92, b.width * 1.75), 460, delay);
-      }
+      const delay = (k || 0) * 70;
+      if (typeof holdFx === "function") holdFx(320 + delay);
+      const cx = b.left + b.width / 2, cy = b.top + b.height / 2;
+      const dz = (typeof DECKZ === "function" && DECKZ("p")) || { x: window.innerWidth * 0.2, y: cy - 200 };
+      const dx = dz.x - cx, dy = dz.y - cy, s0 = Math.max(0.35, Math.min(0.7, (dz.w || 44) / Math.max(1, b.width)));
       smoothAnim(el, [
-        { opacity: 0, transform: "perspective(650px) translate3d(130px, 34px, 40px) rotateY(-65deg) rotateZ(22deg) scale(0.48)" },
-        { opacity: 1, transform: "perspective(650px) translate3d(-8px, -24px, 28px) rotateY(8deg) rotateZ(-4deg) scale(1.12)", offset: 0.62 },
-        { opacity: 1, transform: "perspective(650px) translate3d(0, 0, 0) rotateY(0deg) rotateZ(0deg) scale(1)" }
-      ], { duration: 460, delay, fill: "backwards" });
-      fxT(() => {
-        FX.glow(b.left + b.width / 2, b.top + b.height / 2, col, 62);
-        FX.sparks(b.left + b.width / 2, b.top + b.height / 2, col, cr ? 18 : 10, 210);
-      }, 330 + delay);
+        { opacity: 0, transform: `translate3d(${dx.toFixed(1)}px, ${dy.toFixed(1)}px, 0) scale(${s0.toFixed(3)})`, easing: "cubic-bezier(0.3, 0.7, 0.4, 1)" },
+        { opacity: 1, transform: `translate3d(${(dx * 0.12).toFixed(1)}px, ${(dy * 0.12 - 12).toFixed(1)}px, 0) scale(1.08)`, offset: 0.72, easing: "ease-out" },
+        { opacity: 1, transform: "translate3d(0, 0, 0) scale(1)" }
+      ], { duration: 300, delay, easing: "linear", fill: "backwards" });
+      fxT(() => { FX.glow(cx, cy, col, 50, 0.4); if (cr) FX.sparks(cx, cy, col, 10, 180); }, 250 + delay);
     };
 
     CFX.summon = function (el, c) {
@@ -2013,21 +2014,21 @@
       if (reduced || !el) return;
       const r = el.getBoundingClientRect();
       if (r.width > 0 && typeof window.playV16 === "function") {
-        window.playV16("tang_suc", r.left + r.width / 2, r.top + r.height / 2, Math.max(96, r.width * 1.85), 500, 0);
+        window.playV16("tang_suc", r.left + r.width / 2, r.top + r.height / 2, Math.max(96, r.width * 1.85), 250, 0);
       }
-      if (typeof holdFx === "function") holdFx(520);
+      if (typeof holdFx === "function") holdFx(260);
       smoothAnim(el, [
         { transform: "translate3d(0,0,0) scale(1)" },
         { transform: "perspective(600px) translate3d(0,-7px,22px) scale(1.16)", offset: 0.38 },
         { transform: "translate3d(0,0,0) scale(1)" }
-      ], { duration: 500 });
+      ], { duration: 250 });
       const pwh = el.querySelector(".pwh");
       if (pwh) {
         smoothAnim(pwh, [
           { transform: "scale(1)" },
           { transform: "scale(1.85) rotate(-8deg)", offset: 0.38 },
           { transform: "scale(1)" }
-        ], { duration: 480 });
+        ], { duration: 240 });
       }
     };
 
@@ -2035,15 +2036,15 @@
       if (reduced || !el) return;
       const r = el.getBoundingClientRect();
       if (r.width > 0 && typeof window.playV16 === "function") {
-        window.playV16("giam_suc", r.left + r.width / 2, r.top + r.height / 2, Math.max(96, r.width * 1.85), 500, 0);
+        window.playV16("giam_suc", r.left + r.width / 2, r.top + r.height / 2, Math.max(96, r.width * 1.85), 250, 0);
       }
-      if (typeof holdFx === "function") holdFx(520);
+      if (typeof holdFx === "function") holdFx(260);
       smoothAnim(el, [
         { transform: "translate3d(0,0,0) scale(1)" },
         { transform: "translate3d(-5px, 2px, 0) rotate(-3deg) scale(0.94)", offset: 0.24 },
         { transform: "translate3d(5px, 1px, 0) rotate(3deg) scale(0.96)", offset: 0.52 },
         { transform: "translate3d(0,0,0) scale(1)" }
-      ], { duration: 500 });
+      ], { duration: 250 });
     };
   }
 
@@ -2450,86 +2451,42 @@
   window.classifyLocField = classifyLocField;
   window.addEventListener("resize", syncBoardFieldVfx, { passive: true });
 
-  /* Mở Chiến Địa 3D Chậm Rãi & Hoành Tráng (Phong Ấn Cổ Ngữ -> Lật 3D -> Lan Hào Quang Sang 2 Phần Sân) */
+  /* gpu40: Mở Chiến Địa GỌN — một chuyển động chính: biển chiến địa lật hiện (CSS locrev40) + một vệt sáng nhẹ lướt qua tên.
+     Bỏ: vòng ấn cổ ngữ xoay, tia điện bát giác, dây năng lượng + sóng + hạt sang 2 phần sân, tia toả/sóng/hạt giữa biển,
+     rung màn, sprite "hien_dia", quầng theo nhóm (.lrev + hạt), cổng xoáy, thông báo "▸ Lộ diện" ở nửa sân trên. */
   if (typeof locReveal === "function") {
-    const _locRevOrig = locReveal;
     locReveal = function (li) {
       if (reduced || !G || !G.locs[li]) return;
       const ln = document.querySelector(`#board [data-lane="${li}"]`);
       const lw = ln && ln.querySelector(".locw");
       if (!lw) return;
       const L = G.locs[li];
-      const def = typeof LOC !== "undefined" ? LOC[L.id] : null;
       const kind = classifyLocField(L.id);
       const fMeta = kind ? LOC_FIELD_META[kind] : null;
       const th = (typeof LTH !== "undefined" && LTH[L.id]) || "thieng";
-      const col = (fMeta && fMeta.col) || (typeof LTC !== "undefined" && LTC[th]) || (typeof LHUE !== "undefined" && LHUE[L.id]) || "#40d8ff";
-      const lr = lw.getBoundingClientRect();
-      const cx = lr.left + lr.width / 2, cy = lr.top + lr.height / 2;
-      const hw = lr.width * 0.5, hh = lr.height * 0.45;
-
-      if (typeof holdFx === "function") holdFx(940);
+      const col = (fMeta && fMeta.col) || (typeof LTC !== "undefined" && LTC[th]) || "#ffd65a";
+      if (typeof holdFx === "function") holdFx(640);
+      lw.style.setProperty("--lc", col);
       lw.classList.remove("gpu-loc-rev");
       void lw.offsetWidth;
       lw.classList.add("gpu-loc-rev");
-      fxT(() => lw.classList.remove("gpu-loc-rev"), 920);
-
-      /* Vòng ấn cổ ngữ xoay mở phong ấn Chiến Địa (900ms chuẩn xác) */
-      const seal = document.createElement("div");
-      seal.className = "gpu-loc-seal";
-      seal.style.cssText = `left:${cx}px;top:${cy}px;width:${Math.max(126, lr.width * 1.42)}px;height:${Math.max(126, lr.width * 1.42)}px;--lc:${col}`;
-      const ic16 = typeof window.v16Html === "function" ? window.v16Html((fMeta && fMeta.k16) || "bua_chu", 840, 0, 15, "ls-icon") : "";
-      seal.innerHTML = `<img class="ls-ring" src="img/v/v_an_vong.webp?v=gpu19" alt="">` + (ic16 || `<img class="ls-icon" src="${(fMeta && fMeta.img) || "img/v/v_bua_chu.webp?v=gpu19"}" alt="">`);
-      document.body.appendChild(seal);
-      if (typeof window.v16Activate === "function") window.v16Activate(seal);
-      seal.animate([
-        { transform: "translate(-50%,-50%) scale(0.32) rotate(-80deg)", opacity: 0 },
-        { transform: "translate(-50%,-50%) scale(1.16) rotate(12deg)", opacity: 1, offset: 0.32 },
-        { transform: "translate(-50%,-50%) scale(1.06) rotate(68deg)", opacity: 0.92, offset: 0.72 },
-        { transform: "translate(-50%,-50%) scale(1.38) rotate(125deg)", opacity: 0 }
-      ], { duration: 900, easing: "cubic-bezier(0.22, 1, 0.36, 1)", fill: "forwards" }).onfinish = () => seal.remove();
-      fxT(() => seal.remove(), 940);
-
-      /* Viền tia điện bát giác + Sóng lan toả lên cả 2 phần sân của 2 người chơi */
-      if (GLFX.ok) {
-        const pts = [
-          [cx - hw * 0.82, cy - hh],
-          [cx + hw * 0.82, cy - hh],
-          [cx + hw, cy - hh * 0.68],
-          [cx + hw, cy + hh * 0.68],
-          [cx + hw * 0.82, cy + hh],
-          [cx - hw * 0.82, cy + hh],
-          [cx - hw, cy + hh * 0.68],
-          [cx - hw, cy - hh * 0.68]
-        ];
-        for (let i = 0; i < pts.length; i++) {
-          const a = pts[i], b = pts[(i + 1) % pts.length];
-          GLFX.arc(a[0], a[1], b[0], b[1], col, 6, 0.85, false, 0.55);
-        }
-        const oppSide = ln.querySelector(".side.opp");
-        const meSide = ln.querySelector(".side.me");
-        fxT(() => {
-          [oppSide, meSide].forEach((sEl) => {
-            if (!sEl) return;
-            const sr = sEl.getBoundingClientRect();
-            const sx = sr.left + sr.width / 2, sy = sr.top + sr.height / 2;
-            GLFX.tether(cx, cy, sx, sy, col, 9, 0.16, 0.52);
-            FX.wave(sx, sy, col, Math.max(75, sr.width * 0.65));
-            FX.sparks(sx, sy, col, 14, 180);
-          });
-          syncBoardFieldVfx();
-        }, 360);
+      fxT(() => lw.classList.remove("gpu-loc-rev"), 660);
+      const r = lw.getBoundingClientRect();
+      if (r.width > 0) {
+        const sh = document.createElement("div");
+        sh.className = "loc-sheen40";
+        sh.style.cssText = `left:${r.left.toFixed(1)}px;top:${r.top.toFixed(1)}px;width:${r.width.toFixed(1)}px;height:${r.height.toFixed(1)}px`;
+        sh.innerHTML = "<i></i>";
+        document.body.appendChild(sh);
+        const a = sh.firstChild.animate([
+          { transform: "translateX(-130%) skewX(-16deg)", opacity: 0 },
+          { transform: "translateX(-40%) skewX(-16deg)", opacity: 1, offset: 0.35 },
+          { transform: "translateX(260%) skewX(-16deg)", opacity: 0 }
+        ], { duration: 380, delay: 220, easing: "ease-in-out", fill: "both" });
+        a.onfinish = () => sh.remove();
+        fxT(() => sh.remove(), 700);
       }
-
-      _locRevOrig(li);
-      FX.rays(cx, cy, col, 138, 12);
-      FX.wave(cx, cy, col, 132);
-      FX.sparks(cx, cy, col, 28, 260);
-      GLFX.impulseShake(5.0, 0, 1);
       syncBoardFieldVfx();
-      if (def && def.n) {
-        pushOppNotif(`${def.n} ▸ Lộ diện`, col, { dur: 1450, force: true });
-      }
     };
     window.gpuLocReveal = locReveal;
   }
