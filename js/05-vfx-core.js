@@ -566,7 +566,7 @@ const LTH={};for(const [t,ids] of Object.entries({nuoc:"village spring falls fer
 const LTC={nuoc:"#40d8ff",lua:"#ff7a1f",rung:"#7dde5a",suong:"#d6e8ff",thieng:"#ffd65a",toi:"#b06bff"};
 const LAMB=[null,null,null];
 let ambQ=0,ambPos=[];function syncAmb(){if(window.GLFX&&GLFX.ok){clearAmb();return;}const pos=ambPos=[];let host=$("lamb");if(!host){host=document.createElement("div");host.id="lamb";host.setAttribute("aria-hidden","true");$("app").insertBefore(host,$("app").firstChild);}
-  for(let li=0;li<3;li++){const L=G&&G.locs[li],t=L&&L.rvl&&!L.gone?LTH[L.id]:null,ln=document.querySelector(`#board [data-lane="${li}"]`);let el=LAMB[li];
+  for(let li=0;li<3;li++){const L=G&&G.locs[li],t=L&&L.rvl&&!L.gone&&!locVeiled(G)?LTH[L.id]:null,ln=document.querySelector(`#board [data-lane="${li}"]`);let el=LAMB[li];
     if(el&&el.dataset.t!==(t||"")){const old=el;old.classList.remove("on");fxT(()=>old.remove(),1300);el=LAMB[li]=null;}
     if(t&&!el){el=document.createElement("div");el.className="lamb "+t;el.dataset.t=t;let h="";const n=t==="suong"?18:t==="toi"?10:16;
       for(let k=0;k<n;k++)h+=`<i style="--x:${(5+Math.random()*85).toFixed(1)}%;--s:${(4+Math.random()*6).toFixed(1)}px;--t:${(4+Math.random()*5).toFixed(1)}s;--d:${(-Math.random()*8).toFixed(1)}s"></i>`;
@@ -702,7 +702,7 @@ async function onlineResolveRun(op){OL.resolving=true;clearTimeout(OL.waitT);con
   OL.sub=false;OL.locked=false;OL.resolving=false;document.body.classList.remove("olwait");
   if(CG.turn>=E.turns(CG)){await endReveal(CG,disp);E.finish(CG,"end");disp();OL.myH={t:CG.turn*2+1,v:hashSt(CG)};try{OL.mr.presence({h:OL.myH,sub:0,acts:[],lock:0});}catch(e){}showEnd();return;}
   let hNew="";{const R0=rects0(),P0=powers();E.startTurn(CG);hNew=hashSt(CG);/* gpu22: chốt mã trạng thái ngay khi sang lượt, trước khi người chơi kịp đặt thẻ trong lúc diễn đầu lượt */disp();const evs=G.evs.slice(),locEvs=evs.filter(e=>e.k==="loc"),drawEvs=evs.filter(e=>e.k!=="loc");resetTimer(true);tArmed=true;tLast=0;G.msg="";render();const H40=new Map(HAND0),nh40=hideNewHand40(H40);
-   if(locEvs.length){playFx(locEvs,R0,P0);await sleep(reduced?80:660);}
+   if(locEvs.length){playFx(locEvs,R0,P0);await sleep(reduced?80:LOC_OPEN);}
    if(drawEvs.length){playFx(drawEvs,R0,P0);await sleep(reduced?60:520);}else if(nh40){drawNew40(H40);await sleep(reduced?40:320);}
    banner("LƯỢT "+G.turn,G.turn===E.turns(G)?"Lượt cuối":"");pulse("#orb",[{transform:"scale(1.45)",filter:"brightness(2.2)"},{transform:"scale(1)",filter:"brightness(1)"}],460);await sleep(reduced?50:780);}
   OL.myH={t:CG.turn*2,v:hNew||hashSt(CG)};try{OL.mr.presence({t:CG.turn,sub:0,acts:[],lock:0,h:OL.myH});}catch(e){}

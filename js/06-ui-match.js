@@ -1,6 +1,8 @@
 /* Module 06: Giao diện bàn đấu, vòng lặp lượt chơi, kéo thả thẻ & bộ đếm giờ */
 /* gpu29: trong lúc diễn một bước, bàn được vẽ theo "khung trước bước" GV (05: pvShow) cho tới khi nhịp kỹ năng bắt đầu */
-function render(){if(typeof GV!=="undefined"&&GV&&GV!==G){const g=G;G=GV;try{render0();paintZoom();}finally{G=g;}return;}render0();paintZoom();}
+function render(){if(typeof GV!=="undefined"&&GV&&GV!==G){const g=G;G=GV;try{render0();paintZoom();}finally{G=g;}return;}veil43(G,()=>{render0();paintZoom();});}
+/* gpu43: trước lượt 1 (LVEIL, 03) vẽ bàn như thể cả 3 chiến địa chưa lộ diện — đặt tạm rvl=false rồi trả lại ngay trong finally (không đổi luật, không lọt vào mã băm online) */
+function veil43(g,f){if(!locVeiled(g))return f();const sv=g.locs.map(L=>L.rvl);try{for(const L of g.locs)L.rvl=false;return f();}finally{g.locs.forEach((L,i)=>{L.rvl=sv[i];});}}
 /* vá bàn đấu: so từng ô với lần vẽ trước, chỉ thay ô nào đổi */
 let BC=null;
 function laneKey(ln){const c=ln.children;return {l:c[1].outerHTML,o:[...c[0].children].map(x=>x.className+"|"+x.innerHTML),m:[...c[2].children].map(x=>x.className+"|"+x.innerHTML)};}
@@ -35,7 +37,7 @@ function render0(){
   $("finalV").innerHTML="";
   const selInst=sel?G.hand.p.find(c=>c.uid===sel):null;
   const mvF=moveSel?E.find(G,moveSel):null;
-  let html="";
+  let html="";const vl43=locVeiled(G),ua43=!vl43&&G.uatu&&G.uatu.p;
   G.locs.forEach((L,li)=>{
     let ok=false,okx=false;
     if(play&&selInst&&E.canPlay(G,"p",selInst,li)){if(selInst.id==="boxit")okx=true;else ok=true;}
@@ -59,14 +61,14 @@ function render0(){
       <div class="side opp">${top.map((h,i)=>`<div class="slot${offTop(i)}">${h}</div>`).join("")}</div>
       <div class="${lc}" style="--lc:${hue};--lg:${hue}99">
         <span class="pw a${ld==="a"?" lead":""}${lchA?" lchg":""}${dg(pa)}">${pa}</span>${mxb("a",pa)}
-        <div class="loc"><div class="in"${L.rvl&&IMGL.has(L.id)?` style="--li:url(${IMGS.l[L.id]})"`:""}><div class="ln">${L.gone?"Đã bị huỷ":L.rvl?def.n:G.uatu&&G.uatu.p?def.n:"?"}</div><div class="lt">${L.gone?"Không còn tính điểm.":L.rvl?def.s:(G.uatu&&G.uatu.p?def.s+" · ":"")+"Lộ diện ở lượt "+(li+1)}</div>${lk}</div></div>
+        <div class="loc"><div class="in"${L.rvl&&IMGL.has(L.id)?` style="--li:url(${IMGS.l[L.id]})"`:""}><div class="ln">${L.gone?"Đã bị huỷ":L.rvl?def.n:ua43?def.n:"?"}</div><div class="lt">${L.gone?"Không còn tính điểm.":L.rvl?def.s:(ua43?def.s+" · ":"")+"Lộ diện ở lượt "+(li+1)}</div>${lk}</div></div>
         <span class="pw p${ld==="p"?" lead":""}${lchP?" lchg":""}${dg(pp)}">${pp}</span>${mxb("p",pp)}
       </div>
       <div class="side me">${[0,1,2,3].map(i=>`<div class="slot${offBot(i)}">${mine[i]||""}</div>`).join("")}</div>
     </section>`;
   });
   patchBoard(html);tickPw();try{syncAmb();if(typeof syncBoardFieldVfx==="function")syncBoardFieldVfx();landDust();}catch(e){}
-  let info=(G.phase==="play"&&G.hideT===G.turn&&!G.msg?"<b>Lượt này mọi thẻ đặt xuống sẽ úp đến cuối ván</b> ("+C.sieusaokhonglo.n+").":G.msg),acts="";
+  let info=vl43?`<b>Chuẩn bị trận…</b> Chiến địa đang đóng, sẽ mở khi lượt 1 bắt đầu.`:(G.phase==="play"&&G.hideT===G.turn&&!G.msg?"<b>Lượt này mọi thẻ đặt xuống sẽ úp đến cuối ván</b> ("+C.sieusaokhonglo.n+").":G.msg),acts="";
   if(moveSel&&mvF){info=`<b>Dời ${C[mvF.inst.id].n}.</b> Chạm chiến địa muốn dời tới.`;acts=`<button type="button" class="ib alt" data-do="cancelmove">Thôi</button>`;}
   else if(selInst){
     let extra="";
@@ -159,6 +161,7 @@ let ddPlan=false;
 async function endTurnUI(auto){FFTURN.start();try{return await endTurnRun(auto);}finally{FFTURN.stop();}}
 async function endTurnRun(auto){
   if(!playing())return;
+  if(LVEIL===G){LVEIL=null;render();} /* gpu43: kết thúc lượt khi màn mở đầu chưa xong -> mở che ngay */
   if(G.online){onlineEnd();return;}
   sel=look=moveSel=null;
   if(!auto){G.cnt.missed=0;missNote="";}
@@ -214,8 +217,8 @@ async function endTurnRun(auto){
     if(G.turn===5&&E.boardCards(G,"p").some(([c])=>!c.sil&&E.is(G,c,"vouy"))){aiMove("a");ddPlan=true;vouySee=true;const ps=G.q.a.filter(a=>a.t==="play").map(a=>`${C[a.inst.id].n} vào ${G.locs[a.li].rvl?LOC[G.locs[a.li].id].n:"chiến địa "+(a.li+1)}`);G.msg+=`<br><b>Vô Uý thấy trước:</b> máy sẽ đặt ${ps.length?ps.join(", "):"không thẻ nào"}.`;}
     if(window.BGM)BGM.syncGame(G);
     render();const nh40=hideNewHand40(H0); /* gpu40: lá vừa rút chưa hiện trên tay cho tới nhịp rút bài (bay từ bộ bài vào, mặt trước) */
-    /* (4a) Mở Chiến Địa mới (940ms) */
-    if(locEvs.length){playFx(locEvs,R0,P0);await sleep(reduced?80:660);}
+    /* (4a) Mở Chiến Địa mới (LOC_OPEN: một lần lật + giữ tên để đọc) */
+    if(locEvs.length){playFx(locEvs,R0,P0);await sleep(reduced?80:LOC_OPEN);}
     /* (4b) Rút bài đầu lượt & kỹ năng Đầu Lượt (520ms+) */
     if(drawEvs.length){HAND0=H0;playFx(drawEvs,R0,P0);await sleep(reduced?60:520);}else if(nh40){drawNew40(H0);await sleep(reduced?40:320);}
     /* (4c) Máy cược Snap (980ms) hoặc Vô Uý nhìn thấu (820ms) */
@@ -264,7 +267,7 @@ function newGame(){
   const foeDeck=E.themedDeck(hs[Math.floor(Math.random()*hs.length)]);
   foeAv=foeDeck[foeDeck.length-1];$("avFoe").innerHTML=artFace(foeAv);$("avMe").innerHTML=meAv();
   foeBack=Object.keys(BACKS)[Math.floor(Math.random()*Object.keys(BACKS).length)];
-  G=E.newGame(store.deck,foeDeck);gameDeck=store.deck.join();$("foeName").textContent="MÁY";
+  G=E.newGame(store.deck,foeDeck);LVEIL=G;gameDeck=store.deck.join();$("foeName").textContent="MÁY";
   missNote="";resetTimer(true);
   if(window.BGM&&!$("lobby").classList.contains("on"))BGM.syncGame(G);
   G.msg=turnMsg(G.msgs.slice(0,4));
