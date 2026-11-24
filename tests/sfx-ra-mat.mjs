@@ -89,12 +89,13 @@ try {
   console.log("màn thiếu/thừa tiếng:", bad, " tiếng ra mắt dư:", extra, " tiếng cũ còn phát:", nO, " khoảng cách nhỏ nhất (ms):", isFinite(gap) ? gap.toFixed(0) : "-");
   if (big < 2) throw new Error("không có đủ màn ra mắt S4/S5 để kiểm tra");
   // chống trùng: gọi dồn dập trong 0,25 s -> chỉ 1 tiếng; cùng thẻ gọi lại trong 3 s -> bỏ; thẻ khác cách >= 0,25 s -> phát (tiếng trước tắt dần)
-  const burst = await page.evaluate(async () => {
+  const burst = await page.evaluate(async (LA) => {
+    const cnt = () => window.__snd.filter(x => LA.includes(x.n)).length;
     const w = ms => new Promise(r => setTimeout(r, ms)); window.__snd = [];
     SFX.launch(5, { uid: 9001 }); SFX.launch(5, { uid: 9001 }); SFX.launch(4, { uid: 9002 }); await w(100); SFX.launch(4, { uid: 9003 });
-    const a = window.__snd.length; await w(400); SFX.launch(5, { uid: 9001 }); const b = window.__snd.length; SFX.launch(4, { uid: 9004 }); await w(300); SFX.launch(4, { uid: 9005 });
-    return [a, b, window.__snd.length];
-  });
+    const a = cnt(); await w(400); SFX.launch(5, { uid: 9001 }); const b = cnt(); SFX.launch(4, { uid: 9004 }); await w(300); SFX.launch(4, { uid: 9005 });
+    return [a, b, cnt()];
+  }, LAUNCH);
   console.log("dồn dập:", JSON.stringify(burst), "(mong đợi [1,1,3])");
   if (JSON.stringify(burst) !== "[1,1,3]") throw new Error("chống trùng tiếng ra mắt sai");
   if (bad || extra || nO) throw new Error("tiếng ra mắt chưa đúng 1 lần mỗi màn");
