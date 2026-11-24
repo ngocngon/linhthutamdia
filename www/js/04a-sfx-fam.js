@@ -42,9 +42,13 @@ function sfxFamOf(d) {
   if (/làm ngập|ngập/.test(body)) return "lock";
   if (/rút/.test(body)) return /đối thủ/.test(body) ? "pull" : "draw";
   if (/đặt .*từ tay|thêm .*(vào đây|tại đây)|bản sao .*(vào đây|tại đây)/.test(body)) return "summon";
-  if (/di chuyển|dời|đi nơi khác/.test(body)) return "move";
+  if (/chiêu mộ/.test(body)) return "pull";
+  if (/di chuyển|dời|đi nơi khác|chạy .*đến .*chiến địa|nhảy đến/.test(body)) return "move";
+  /* gpu43: đưa thẻ/vật lên bàn ở chiến địa (không phải vào tay) -> triệu hồi, trước đây rơi nhầm vào "đổi chiến địa"/"tạo thẻ" */
+  if (!/vào tay/.test(body) && /(thêm|tạo) [^.]*(chiến địa|vào phía|mỗi phía)|sao chép [^.]*phía bạn/.test(body)) return "summon";
   if (/thay (đổi )?chiến địa/.test(body)) return "locx";
-  if (/sao chép|tạo|vào tay|nhận .* thẻ/.test(body)) return "create";
+  if (/nhận sức mạnh của/.test(body)) return "merge";
+  if (/sao chép|tạo|vào tay|nhận (\d+|một|hai|ba) thẻ/.test(body)) return "create";
   if (/triệu hồi|thêm .*(tại đây|vào mỗi chiến địa|vào chiến địa)/.test(body)) return "summon";
   if (/mất .*năng lượng|trừ .*năng lượng của bạn/.test(body)) return "nrgloss";
   if (/giảm .*năng lượng|năng lượng .*giảm/.test(body)) return "costdn";
@@ -53,7 +57,7 @@ function sfxFamOf(d) {
   if (/(trừ|giảm) \d+ sức mạnh|[−-]\d+ sức mạnh|giảm sức mạnh/.test(body)) return "dn" + mag;
   if (/nuốt|hấp thụ|hợp thể|nhận sức mạnh của|lấy .*sức mạnh/.test(body)) return "merge";
   if (/chỉnh|đặt .*thành|đặt lại|bằng sức mạnh của/.test(body)) return "morph";
-  if (/\+\d+ sức mạnh|cộng \d+|tăng \d+ sức mạnh/.test(body)) return "up" + mag;
+  if (/\+\d+ sức mạnh|cộng \d+|tăng \d+ sức mạnh|bầy xác \+\d/.test(body)) return "up" + mag;
   if (/chiến địa/.test(body)) return "locx";
   if (d.t === "end" || first === "cuối lượt") return "endt";
   if (d.t === "act" || first === "kích hoạt") return "act";

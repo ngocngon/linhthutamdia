@@ -1,0 +1,805 @@
+{
+ "_ghi_chu": "Danh sách SFX tạo bằng ElevenLabs Sound Effects (tools/tao_sfx_elevenlabs.mjs). n = số bản thử (chọn bản ít gắt nhất bằng tools/sfx_do.py), d = giây, c = lớp độ to (xem LOP trong sfx_do.py), dung = dùng cho gì.",
+ "list": [
+  {
+   "k": "ra_s5",
+   "n": 4,
+   "d": 1.8,
+   "c": "dinh",
+   "dung": "Màn ra mắt thẻ Bậc 5",
+   "t": "epic fantasy hero card reveal: a resonant medium bronze gong strike layered with a punchy taiko drum hit and a short warm brass swell, full-bodied mid-range, majestic and powerful but smooth, no shrill high ringing"
+  },
+  {
+   "k": "ra_s4",
+   "n": 4,
+   "d": 1.4,
+   "c": "lon",
+   "dung": "Màn ra mắt thẻ Bậc 4",
+   "t": "fantasy card reveal: a punchy wooden drum hit with a resonant small bronze gong and a warm plucked zither chord, full-bodied mid-range, powerful yet soft, no shrill highs"
+  },
+  {
+   "k": "ra_mini",
+   "n": 3,
+   "d": 0.6,
+   "c": "vua",
+   "dung": "Màn ra mắt gọn Bậc 1–3",
+   "t": "short magical card swoosh ending in a soft wooden drum tap and a warm plucked zither note, subtle, mid-range"
+  },
+  {
+   "k": "place",
+   "n": 2,
+   "d": 0.5,
+   "c": "nho",
+   "dung": "Đặt thẻ xuống bàn",
+   "t": "a thick playing card placed firmly on a wooden table, soft papery thud, short, warm low-mid"
+  },
+  {
+   "k": "rv_a",
+   "n": 2,
+   "d": 0.5,
+   "c": "nho",
+   "dung": "Lật thẻ (thân 1)",
+   "t": "card flip over on a wooden table, quick soft papery flip then gentle wooden tap, warm"
+  },
+  {
+   "k": "rv_b",
+   "n": 2,
+   "d": 0.5,
+   "c": "nho",
+   "dung": "Lật thẻ (thân 2)",
+   "t": "thick game card flipped and slapped softly onto felt table, short muted thump"
+  },
+  {
+   "k": "rv_c",
+   "n": 2,
+   "d": 0.5,
+   "c": "nho",
+   "dung": "Lật thẻ (thân 3)",
+   "t": "magical card turning over with a soft low whoosh and muted knock, short, warm"
+  },
+  {
+   "k": "rv_t3",
+   "n": 2,
+   "d": 0.7,
+   "c": "nho",
+   "dung": "Lớp lật thẻ Bậc 3",
+   "t": "soft low plucked zither note with a gentle shimmer swell, short, warm, mellow"
+  },
+  {
+   "k": "buff",
+   "n": 3,
+   "d": 0.7,
+   "c": "vua",
+   "dung": "Cộng sức mạnh",
+   "t": "warm magical power-up, a soft rising wooden flute phrase over a mellow humming swell, gentle and round, no sparkles, no glitter, no high chimes"
+  },
+  {
+   "k": "debuff",
+   "n": 2,
+   "d": 0.7,
+   "c": "vua",
+   "dung": "Trừ sức mạnh",
+   "t": "descending dark magical weaken sound, low falling wooden tone with soft breathy whoosh, mellow, not harsh"
+  },
+  {
+   "k": "destroy",
+   "n": 3,
+   "d": 1.0,
+   "c": "lon",
+   "dung": "Tiêu huỷ thẻ",
+   "t": "magic card destroyed: a solid wooden crack and a heavy thud with a short dusty crumble, punchy mid-range, no glass, no metallic shards, no hiss"
+  },
+  {
+   "k": "discard",
+   "n": 3,
+   "d": 0.7,
+   "c": "vua",
+   "dung": "Vứt bỏ thẻ",
+   "t": "card tossed away and catching fire: soft paper toss with a short warm low flame puff, muffled"
+  },
+  {
+   "k": "move",
+   "n": 3,
+   "d": 0.6,
+   "c": "vua",
+   "dung": "Di chuyển thẻ",
+   "t": "card slides across a felt table with a soft round airy whoosh, muffled, short"
+  },
+  {
+   "k": "draw",
+   "n": 3,
+   "d": 0.5,
+   "c": "nho",
+   "dung": "Rút thẻ",
+   "t": "drawing a card from a deck: a short soft muffled card slide, warm"
+  },
+  {
+   "k": "snap",
+   "n": 2,
+   "d": 1.2,
+   "c": "lon",
+   "dung": "Cược (Snap)",
+   "t": "bold dramatic stakes doubled hit, two quick war drum strikes with a short low brass gong swell, confident, punchy but warm, no high ringing, full-bodied with audible mid-range punch"
+  },
+  {
+   "k": "loc",
+   "n": 2,
+   "d": 1.2,
+   "c": "lon",
+   "dung": "Mở chiến địa",
+   "t": "ancient stone gate opening with low rumble and soft mystical wind swell and distant gong, mellow, fantasy, full-bodied with audible mid-range punch"
+  },
+  {
+   "k": "turn",
+   "n": 2,
+   "d": 0.8,
+   "c": "vua",
+   "dung": "Hết lượt / đổi lượt",
+   "t": "single soft low wooden temple block knock followed by a short gentle drum roll, turn change, warm, short"
+  },
+  {
+   "k": "win",
+   "n": 2,
+   "d": 2.5,
+   "c": "dinh",
+   "dung": "Thắng",
+   "t": "victory fanfare with Asian bamboo flute melody, festive taiko drums and a warm gong, triumphant, short, mellow highs"
+  },
+  {
+   "k": "lose",
+   "n": 2,
+   "d": 2.0,
+   "c": "dinh",
+   "dung": "Thua",
+   "t": "defeat sound, slow descending melancholic Vietnamese zither notes over a soft low drum, sad, gentle"
+  },
+  {
+   "k": "draw_game",
+   "n": 2,
+   "d": 0.9,
+   "c": "vua",
+   "dung": "Hoà",
+   "t": "neutral ending chime, two soft low wooden block knocks and a calm plucked zither note, short"
+  },
+  {
+   "k": "tap",
+   "n": 2,
+   "d": 0.5,
+   "c": "ui",
+   "dung": "Chạm nút",
+   "t": "very short soft wooden UI click, muted, warm, tiny"
+  },
+  {
+   "k": "pick",
+   "n": 2,
+   "d": 0.5,
+   "c": "ui",
+   "dung": "Nhấc thẻ",
+   "t": "picking up a playing card, very short soft paper lift, tiny"
+  },
+  {
+   "k": "unplay",
+   "n": 2,
+   "d": 0.5,
+   "c": "ui",
+   "dung": "Rút lại thẻ về tay",
+   "t": "card pulled back into hand, very short reverse soft paper swish"
+  },
+  {
+   "k": "tick",
+   "n": 2,
+   "d": 0.5,
+   "c": "ui",
+   "dung": "Đếm ngược",
+   "t": "single soft wooden clock tick, low, muted, short"
+  },
+  {
+   "k": "timeout",
+   "n": 3,
+   "d": 1.0,
+   "c": "vua",
+   "dung": "Hết giờ",
+   "t": "time is up: a medium bronze gong hit with a short descending tone, clear"
+  },
+  {
+   "k": "ui_open",
+   "n": 2,
+   "d": 0.5,
+   "c": "ui",
+   "dung": "Mở bảng",
+   "t": "soft paper scroll unrolling, very short, gentle"
+  },
+  {
+   "k": "ui_close",
+   "n": 2,
+   "d": 0.5,
+   "c": "ui",
+   "dung": "Đóng bảng",
+   "t": "soft paper scroll rolling closed with muted tap, very short"
+  },
+  {
+   "k": "ui_tab",
+   "n": 2,
+   "d": 0.5,
+   "c": "ui",
+   "dung": "Đổi thẻ (tab)",
+   "t": "tiny soft wooden tick UI tab switch, muted"
+  },
+  {
+   "k": "ui_buy",
+   "n": 3,
+   "d": 0.9,
+   "c": "vua",
+   "dung": "Mua",
+   "t": "purchase confirmed: a warm wooden marimba two-note chime with a soft thump, mellow, no coins, no bright jingle"
+  },
+  {
+   "k": "ui_error",
+   "n": 3,
+   "d": 0.5,
+   "c": "ui",
+   "dung": "Lỗi / không được",
+   "t": "denied UI: two soft medium-pitched wooden knocks, short, clear"
+  },
+  {
+   "k": "ui_reward",
+   "n": 2,
+   "d": 1.4,
+   "c": "vua",
+   "dung": "Nhận thưởng",
+   "t": "reward received, warm rising plucked zither arpeggio with a soft gong bloom, joyful, mellow"
+  },
+  {
+   "k": "gacha1",
+   "n": 2,
+   "d": 0.8,
+   "c": "vua",
+   "dung": "Mở thưởng thường",
+   "t": "magic chest opening, soft wooden creak and gentle shimmer, short, mellow"
+  },
+  {
+   "k": "gacha2",
+   "n": 3,
+   "d": 1.6,
+   "c": "lon",
+   "dung": "Mở thưởng hiếm",
+   "t": "rare reward reveal: a clear hand drum hit then a rising bamboo flute phrase and a soft bronze bowl ring, magical"
+  },
+  {
+   "k": "gacha3",
+   "n": 2,
+   "d": 2.0,
+   "c": "dinh",
+   "dung": "Mở thưởng cực hiếm",
+   "t": "legendary reward reveal, big deep gong and taiko drums with heroic warm brass swell, epic, mellow highs"
+  },
+  {
+   "k": "e_lua",
+   "n": 2,
+   "d": 0.8,
+   "c": "vua",
+   "dung": "Hệ Lửa",
+   "t": "short fire burst whoosh, warm crackling flame, low-mid, not hissy"
+  },
+  {
+   "k": "e_bang",
+   "n": 2,
+   "d": 0.8,
+   "c": "vua",
+   "dung": "Hệ Băng",
+   "t": "ice forming crackle, soft frosty crunch with low cold whoosh, mellow, not shrill"
+  },
+  {
+   "k": "e_sam",
+   "n": 2,
+   "d": 0.8,
+   "c": "vua",
+   "dung": "Hệ Sét",
+   "t": "short distant thunder crack with low electric rumble, punchy, not sizzling"
+  },
+  {
+   "k": "e_doc",
+   "n": 2,
+   "d": 0.8,
+   "c": "vua",
+   "dung": "Hệ Độc",
+   "t": "toxic poison bubbling, thick gooey bubbles with soft hiss, low, short"
+  },
+  {
+   "k": "e_toi",
+   "n": 2,
+   "d": 0.9,
+   "c": "vua",
+   "dung": "Hệ Bóng tối",
+   "t": "dark shadow magic, ominous whoosh with low reversed boom, short, full-bodied with audible mid-range punch"
+  },
+  {
+   "k": "e_sang",
+   "n": 2,
+   "d": 0.9,
+   "c": "vua",
+   "dung": "Hệ Ánh sáng",
+   "t": "holy light magic, soft warm choir pad swell with gentle bell bloom, mellow, not shrill"
+  },
+  {
+   "k": "e_gio",
+   "n": 2,
+   "d": 0.8,
+   "c": "vua",
+   "dung": "Hệ Gió",
+   "t": "quick gust of wind whoosh, airy, smooth, low-mid"
+  },
+  {
+   "k": "e_dat",
+   "n": 2,
+   "d": 0.8,
+   "c": "vua",
+   "dung": "Hệ Đất/Đá",
+   "t": "heavy rock slam on the ground with low earth rumble and pebbles, short, full-bodied with audible mid-range punch"
+  },
+  {
+   "k": "e_nuoc",
+   "n": 2,
+   "d": 0.8,
+   "c": "vua",
+   "dung": "Hệ Nước",
+   "t": "water splash wave, soft liquid swoosh, short, smooth"
+  },
+  {
+   "k": "e_mau",
+   "n": 3,
+   "d": 0.8,
+   "c": "vua",
+   "dung": "Hệ Huyết",
+   "t": "blood magic: a wet squelchy pulse with a medium-pitched heartbeat knock, short, clear"
+  },
+  {
+   "k": "e_cokhi",
+   "n": 2,
+   "d": 0.8,
+   "c": "vua",
+   "dung": "Hệ Cơ khí",
+   "t": "mechanical gears clunk, heavy wooden and bronze mechanism click and whirr, low, short"
+  },
+  {
+   "k": "e_hon",
+   "n": 2,
+   "d": 0.9,
+   "c": "vua",
+   "dung": "Hệ Hồn/linh",
+   "t": "spirit soul magic, ghostly soft breathy whoosh with low hum, ethereal, mellow"
+  },
+  {
+   "k": "e_moc",
+   "n": 2,
+   "d": 0.8,
+   "c": "vua",
+   "dung": "Hệ Mộc",
+   "t": "vines and wood creaking and growing, leaves rustle with wooden knock, short, natural"
+  },
+  {
+   "k": "summon",
+   "n": 2,
+   "d": 1.0,
+   "c": "vua",
+   "dung": "Triệu hồi",
+   "t": "summoning a creature, low magical swirl rising into a soft drum hit, mystical, warm"
+  },
+  {
+   "k": "revive",
+   "n": 3,
+   "d": 1.2,
+   "c": "vua",
+   "dung": "Hồi sinh",
+   "t": "resurrection: a rising airy choir 'aah' swell with a soft clear chime of a bronze bowl, hopeful"
+  },
+  {
+   "k": "morph",
+   "n": 2,
+   "d": 0.9,
+   "c": "vua",
+   "dung": "Biến đổi / đặt lại",
+   "t": "magical transformation, smooth warping whoosh with soft wooden pluck, short, mellow"
+  },
+  {
+   "k": "silence",
+   "n": 3,
+   "d": 0.8,
+   "c": "vua",
+   "dung": "Xoá / khoá kỹ năng",
+   "t": "ability silenced: a muffled medium-pitched knock with a short breathy fade, like a candle snuffed"
+  },
+  {
+   "k": "shield",
+   "n": 3,
+   "d": 0.8,
+   "c": "vua",
+   "dung": "Bảo vệ / bất khả huỷ",
+   "t": "magical shield raised: a clear wooden knock with a soft medium-pitched bronze bowl ring, protective"
+  },
+  {
+   "k": "steal",
+   "n": 2,
+   "d": 0.7,
+   "c": "vua",
+   "dung": "Cướp / đổi phe",
+   "t": "sneaky quick snatch, swift cloth swish with soft low pluck, short"
+  },
+  {
+   "k": "dark",
+   "n": 3,
+   "d": 1.0,
+   "c": "vua",
+   "dung": "Bóng tối (thua chiến địa...)",
+   "t": "dark magic: a hollow breathy whoosh with a muffled medium-pitch drum hit, eerie, clear"
+  },
+  {
+   "k": "double",
+   "n": 3,
+   "d": 0.8,
+   "c": "vua",
+   "dung": "Nhân đôi",
+   "t": "two quick clear medium-pitched hand drum hits, doubling, punchy"
+  },
+  {
+   "k": "energy",
+   "n": 2,
+   "d": 0.8,
+   "c": "vua",
+   "dung": "Năng lượng",
+   "t": "warm energy charge, soft low humming pulse rising, magical, short"
+  },
+  {
+   "k": "act",
+   "n": 3,
+   "d": 0.8,
+   "c": "vua",
+   "dung": "Kích hoạt kỹ năng",
+   "t": "ability activated: a clear wooden drum hit with a quick magical whoosh, medium pitch, punchy, clear on small speakers"
+  },
+  {
+   "k": "hurt",
+   "n": 3,
+   "d": 0.7,
+   "c": "vua",
+   "dung": "Bị đánh",
+   "t": "soft body hit: a clear muffled punch smack, medium pitch, short"
+  },
+  {
+   "k": "f_exile",
+   "n": 2,
+   "d": 1.0,
+   "c": "vua",
+   "dung": "Trục xuất",
+   "t": "card banished into a void portal, deep low suction whoosh fading away, mystical"
+  },
+  {
+   "k": "f_lock",
+   "n": 2,
+   "d": 0.8,
+   "c": "vua",
+   "dung": "Cấm đặt / khoá",
+   "t": "heavy old bronze lock clunk shut with short chain rattle, low, short"
+  },
+  {
+   "k": "f_copy",
+   "n": 2,
+   "d": 0.8,
+   "c": "vua",
+   "dung": "Sao chép kỹ năng",
+   "t": "magical echo duplicate, soft whoosh repeated twice like an echo, mellow"
+  },
+  {
+   "k": "f_pull",
+   "n": 2,
+   "d": 0.8,
+   "c": "vua",
+   "dung": "Kéo thẻ",
+   "t": "magical pull, low reverse whoosh drawing in then soft thud, short"
+  },
+  {
+   "k": "f_absorb",
+   "n": 3,
+   "d": 0.9,
+   "c": "vua",
+   "dung": "Hấp thụ / hợp thể",
+   "t": "absorbing energy: a swirling airy suction whoosh into a medium-pitched soft pop, clear"
+  },
+  {
+   "k": "f_create",
+   "n": 3,
+   "d": 0.8,
+   "c": "vua",
+   "dung": "Tạo thẻ vào tay",
+   "t": "a card magically appears: a soft round whoosh landing with a gentle wooden tap and a mellow plucked note, no sparkles"
+  },
+  {
+   "k": "f_shuffle",
+   "n": 2,
+   "d": 0.7,
+   "c": "vua",
+   "dung": "Xáo thẻ",
+   "t": "shuffling a deck of cards quickly, soft riffle, short"
+  },
+  {
+   "k": "f_bounce",
+   "n": 2,
+   "d": 0.6,
+   "c": "vua",
+   "dung": "Trả về tay",
+   "t": "card springs back to hand, quick soft upward whoosh with light paper flick"
+  },
+  {
+   "k": "f_swap",
+   "n": 2,
+   "d": 0.7,
+   "c": "vua",
+   "dung": "Hoán đổi",
+   "t": "two cards swapping places, two quick crossing soft whooshes"
+  },
+  {
+   "k": "f_deckadd",
+   "n": 2,
+   "d": 0.6,
+   "c": "vua",
+   "dung": "Thêm vào bộ bài",
+   "t": "card slid into a deck, soft paper insert with muted tap, short"
+  },
+  {
+   "k": "f_costdn",
+   "n": 2,
+   "d": 0.6,
+   "c": "vua",
+   "dung": "Giảm giá thẻ",
+   "t": "soft descending three wooden marimba notes, cost reduced, gentle"
+  },
+  {
+   "k": "f_costup",
+   "n": 2,
+   "d": 0.6,
+   "c": "vua",
+   "dung": "Tăng giá thẻ",
+   "t": "soft ascending three low wooden marimba notes ending with a muted thud, cost increased"
+  },
+  {
+   "k": "f_bigup",
+   "n": 2,
+   "d": 1.0,
+   "c": "lon",
+   "dung": "Tăng sức mạnh lớn",
+   "t": "big power surge, deep drum hit with warm rising brass and flute swell, heroic, mellow"
+  },
+  {
+   "k": "f_bigdn",
+   "n": 3,
+   "d": 1.0,
+   "c": "lon",
+   "dung": "Giảm sức mạnh lớn",
+   "t": "heavy curse: a descending breathy whoosh and a dull medium-pitched drum hit, ominous, clear"
+  },
+  {
+   "k": "f_smallup",
+   "n": 2,
+   "d": 0.5,
+   "c": "nho",
+   "dung": "Tăng sức mạnh nhỏ",
+   "t": "tiny warm upward pluck of a zither string, positive, short"
+  },
+  {
+   "k": "f_smalldn",
+   "n": 3,
+   "d": 0.5,
+   "c": "nho",
+   "dung": "Giảm sức mạnh nhỏ",
+   "t": "tiny downward plucked zither note, medium pitch, short, soft"
+  },
+  {
+   "k": "f_dbl",
+   "n": 3,
+   "d": 0.8,
+   "c": "vua",
+   "dung": "Nhân đôi sức mạnh",
+   "t": "power doubled: two rising clear hand drum hits, medium pitch, energetic"
+  },
+  {
+   "k": "f_energy2",
+   "n": 2,
+   "d": 0.7,
+   "c": "vua",
+   "dung": "Nhận năng lượng",
+   "t": "gaining energy, soft coin-like warm wooden chime with rising hum, short, mellow"
+  },
+  {
+   "k": "f_nrg_loss",
+   "n": 3,
+   "d": 0.7,
+   "c": "vua",
+   "dung": "Mất năng lượng",
+   "t": "energy draining: a descending medium-pitched breathy whoosh with a soft wooden tap"
+  },
+  {
+   "k": "f_afflict",
+   "n": 3,
+   "d": 0.9,
+   "c": "vua",
+   "dung": "Chiến địa giáng hại",
+   "t": "cursed ground: an eerie hollow wind whoosh with a soft medium-pitched wooden knock"
+  },
+  {
+   "k": "f_xform",
+   "n": 2,
+   "d": 1.0,
+   "c": "vua",
+   "dung": "Đổi chiến địa",
+   "t": "landscape transforms, deep rumble with swirling magical wind, mystical"
+  },
+  {
+   "k": "f_locup",
+   "n": 3,
+   "d": 0.9,
+   "c": "vua",
+   "dung": "Chiến địa tăng sức mạnh",
+   "t": "blessed ground: a soft medium-pitched bronze bowl ring with an airy rising swell, mellow"
+  },
+  {
+   "k": "f_aura",
+   "n": 2,
+   "d": 0.7,
+   "c": "vua",
+   "dung": "Duy Trì / Bị Động",
+   "t": "steady aura pulse, soft low magical hum, calm, short"
+  },
+  {
+   "k": "f_end",
+   "n": 3,
+   "d": 0.7,
+   "c": "vua",
+   "dung": "Kỹ năng Cuối Lượt",
+   "t": "end of turn: a single soft medium-pitched wooden block knock with a short mellow tail"
+  },
+  {
+   "k": "f_block",
+   "n": 2,
+   "d": 0.5,
+   "c": "vua",
+   "dung": "Chặn",
+   "t": "blocked attack, firm wooden shield knock, short, solid"
+  },
+  {
+   "k": "f_reveal_loc",
+   "n": 3,
+   "d": 0.9,
+   "c": "vua",
+   "dung": "Lộ chiến địa",
+   "t": "hidden land revealed: an airy parting whoosh with a clear medium-pitched drum knock"
+  },
+  {
+   "k": "slash",
+   "n": 2,
+   "d": 0.5,
+   "c": "vua",
+   "dung": "Chém",
+   "t": "sword slash swoosh, quick blade through air, smooth, not metallic screech"
+  },
+  {
+   "k": "punch",
+   "n": 2,
+   "d": 0.5,
+   "c": "vua",
+   "dung": "Đấm",
+   "t": "heavy punch impact, muffled thud, short, full-bodied with audible mid-range punch"
+  },
+  {
+   "k": "boom",
+   "n": 2,
+   "d": 1.0,
+   "c": "lon",
+   "dung": "Nổ lớn",
+   "t": "explosion boom with low rumble tail, powerful, not crackly, full-bodied with audible mid-range punch"
+  },
+  {
+   "k": "whoosh",
+   "n": 2,
+   "d": 0.5,
+   "c": "nho",
+   "dung": "Vút",
+   "t": "fast smooth air whoosh, short, low-mid"
+  },
+  {
+   "k": "laser",
+   "n": 2,
+   "d": 0.9,
+   "c": "vua",
+   "dung": "Tia năng lượng",
+   "t": "magical energy beam blast, warm humming beam with low thump, not shrill, short"
+  },
+  {
+   "k": "bow",
+   "n": 3,
+   "d": 0.5,
+   "c": "vua",
+   "dung": "Bắn cung",
+   "t": "bow string twang and arrow whoosh, clear wooden twang, medium pitch, short"
+  },
+  {
+   "k": "dagger",
+   "n": 2,
+   "d": 0.5,
+   "c": "vua",
+   "dung": "Dao găm",
+   "t": "quick dagger stab, soft swish and thud, short, not screechy"
+  },
+  {
+   "k": "bite",
+   "n": 2,
+   "d": 0.6,
+   "c": "vua",
+   "dung": "Cắn (thú)",
+   "t": "beast bite, animal snarl with jaw snap, low, short"
+  },
+  {
+   "k": "web",
+   "n": 3,
+   "d": 0.6,
+   "c": "vua",
+   "dung": "Tơ nhện",
+   "t": "spider web shot: a soft stretchy elastic twang with a muted thump, rubbery, no hiss"
+  },
+  {
+   "k": "chain",
+   "n": 3,
+   "d": 0.8,
+   "c": "vua",
+   "dung": "Xích",
+   "t": "heavy chain dropped, dull low rattle and clunk, muted, no bright jingle"
+  },
+  {
+   "k": "magnet",
+   "n": 3,
+   "d": 0.7,
+   "c": "vua",
+   "dung": "Hút (nam châm)",
+   "t": "magnetic pull: a warbling medium-pitched hum with a soft clunk, clear"
+  },
+  {
+   "k": "tentacle",
+   "n": 2,
+   "d": 0.7,
+   "c": "vua",
+   "dung": "Xúc tu",
+   "t": "slimy tentacle whip and squelch, short"
+  },
+  {
+   "k": "forge",
+   "n": 3,
+   "d": 0.9,
+   "c": "vua",
+   "dung": "Rèn",
+   "t": "muffled hammer striking a heavy anvil once, dull thud with a short mellow ring, no high ping"
+  },
+  {
+   "k": "gavel",
+   "n": 2,
+   "d": 0.5,
+   "c": "vua",
+   "dung": "Phán quyết",
+   "t": "wooden gavel strike, single firm knock, short"
+  },
+  {
+   "k": "horn",
+   "n": 2,
+   "d": 1.0,
+   "c": "lon",
+   "dung": "Tù và",
+   "t": "ancient war horn short blast, low buffalo horn, warm, full-bodied with audible mid-range punch"
+  },
+  {
+   "k": "chime",
+   "n": 2,
+   "d": 1.0,
+   "c": "vua",
+   "dung": "Chuông gió / thắng chiến địa",
+   "t": "soft low bronze bell chime, warm, gentle, not shrill"
+  }
+ ]
+}

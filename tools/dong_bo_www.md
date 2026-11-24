@@ -18,7 +18,7 @@ Từ bản gpu22, **kho GitHub này là bản gốc duy nhất** của game. S�
 ## Tài nguyên
 
 - Ảnh thẻ: `www/img/ct/<id>.webp` (256 px) và `www/img/c/<id>.webp` (512 px). Tách lại từ sprite gốc bằng `python3 tools/tach_anh_the.py --force` (sprite gốc ở `tools/nguon_sprite/s`, không đóng gói vào APK).
-- Âm thanh: `www/sfx/sfx.mp3` + `sfx.json` (ElevenLabs, 69 âm) và `sfx2.mp3` + `sfx2.json` (34 âm dựng offline từ chính các mẫu đó bằng `tools/dung_sfx2.mjs`: lớp lật thẻ theo Bậc, họ kỹ năng). Phân họ kỹ năng: `www/js/04a-sfx-fam.js`. Trang nghe thử: `www/sfx/nghe-thu.html`.
+- Âm thanh: `www/sfx/sfx3.mp3` + `sfx3.json` (gpu43: toàn bộ ~100 âm tạo lại bằng ElevenLabs Sound Effects theo `tools/sfx_ds.json` bằng `tools/tao_sfx_elevenlabs.mjs`, hậu kỳ + ghép sprite bằng `tools/sfx_do.py build`). Phân họ kỹ năng: `www/js/04a-sfx-fam.js`. Trang nghe thử: `www/sfx/nghe-thu.html` (sinh bằng `tools/sfx_do.py page`).
 - Nền thẻ: `www/js/11-nen-the.js`, `www/css/07-nen-the.css` (CSS sinh từ `tools/dung_css_nen_the.py`).
 - Bảng test VFX chỉ tải khi mở: `www/js/dev-vfx-lab.js`, `www/css/dev-vfx-lab.css`.
 - Máy chủ online: thư mục `server/` (xem `server/README.md`).

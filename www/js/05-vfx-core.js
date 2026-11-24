@@ -231,7 +231,7 @@ function ultShow(inst,done,nth){
   an(z.querySelector(".uc-lb"),tx,{duration:T});an(z.querySelector(".uc-who"),tx,{duration:T});
   an(z.querySelector(".uc-tap"),[{opacity:0},{opacity:0,offset:oi},{opacity:.7,offset:Math.min(oh,oi+.1)},{opacity:.7,offset:oh},{opacity:0,offset:Math.min(1,oh+.05)},{opacity:0}],{duration:T});
   holdFx(R(T+90));
-  if(!mini)try{SFX.fam("ult",s5?{el:elOf(id)}:{el:elOf(id),vol:.55,rate:1.14,noacc:1});}catch(e){}
+  try{SFX.launch(mini?3:s5?5:4,{el:elOf(id),uid:inst.uid,nth:nth|0,foe:!mine});}catch(e){}
   const t0=performance.now();let ended=false,sk1=false,tm=0;
   /* gpu40: không bắn hạt lên mặt thẻ — chỉ một vòng sáng toả RA NGOÀI viền thẻ lúc đáp; S5 rung nhẹ */
   const tA=setTimeout(()=>{if(ended||lo5)return;FXBIG=true;try{FX.ring(cx,cy,c2,W*.8,s5?5:3);if(s5)FX.shake(4);}finally{FXBIG=false;}},TIN*.8);
