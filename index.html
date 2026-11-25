@@ -5,15 +5,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <title>Linh Thú Tam Địa — Bản Nâng Cấp WebGL GPU</title>
 <link rel="icon" href="data:,">
-<link rel="stylesheet" href="css/00-fonts.css?v=gpu50">
-<link rel="stylesheet" href="css/01-arena-cards.css?v=gpu50">
-<link rel="stylesheet" href="css/02-board-vfx.css?v=gpu50">
-<link rel="stylesheet" href="css/03-lobby-meta.css?v=gpu50">
-<link rel="stylesheet" href="css/04-vfx-gpu.css?v=gpu50">
-<link rel="stylesheet" href="css/05-mo-bai.css?v=gpu50">
-<link rel="stylesheet" href="css/06-cai-dat.css?v=gpu50">
-<link rel="stylesheet" href="css/07-nen-the.css?v=gpu50">
-<link rel="stylesheet" href="css/08-dau-hieu.css?v=gpu50">
+<link rel="stylesheet" href="css/00-fonts.css?v=gpu51">
+<link rel="stylesheet" href="css/01-arena-cards.css?v=gpu51">
+<link rel="stylesheet" href="css/02-board-vfx.css?v=gpu51">
+<link rel="stylesheet" href="css/03-lobby-meta.css?v=gpu51">
+<link rel="stylesheet" href="css/04-vfx-gpu.css?v=gpu51">
+<link rel="stylesheet" href="css/05-mo-bai.css?v=gpu51">
+<link rel="stylesheet" href="css/06-cai-dat.css?v=gpu51">
+<link rel="stylesheet" href="css/07-nen-the.css?v=gpu51">
+<link rel="stylesheet" href="css/08-dau-hieu.css?v=gpu51">
 </head>
 <body>
 <div id="ldr12" role="status" aria-live="polite"><div class="lb12"><b>LINH THÚ TAM ĐỊA</b><div class="bar12"><i id="ldrBar"></i></div><span id="ldrTxt">Đang tải hình… 0%</span><button type="button" id="ldrSkip" hidden>Vào luôn</button></div></div>
@@ -164,7 +164,9 @@
   <div class="lb-row2">
     <button type="button" class="lbpass" id="lbPass" aria-label="Thẻ tháng"><span class="lbpt">THẺ THÁNG</span><span class="lbpb"><i id="lbPassBar"></i></span><span class="lbpl" id="lbPassLv">1</span><i class="nb" id="lbPassN"></i></button>
     <button type="button" class="lbmis" id="lbMisBtn"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="3"/><path d="M8 9l2 2 4-4M8 15.5h8"/></svg><span>Nhiệm vụ</span><i class="nb" id="lbMisN"></i></button>
+    <button type="button" class="hthmail" id="lbMail" aria-label="Hộp thư" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5.5" width="18" height="13" rx="2.5"/><path d="M3.8 7.5l8.2 6 8.2-6"/></svg><i class="nb" id="lbMailN"></i></button>
   </div>
+  <div class="hth-ann" id="hthAnn" role="region" aria-label="Thông báo từ quản trị" hidden><button type="button" class="hth-at" id="hthAt"><i class="hth-ai" aria-hidden="true"></i><span class="hth-tx" id="hthTx"></span></button><button type="button" class="hth-ax" id="hthAx" aria-label="Ẩn thông báo này">&times;</button></div>
   <div class="lb-res" id="lbRes" hidden></div>
   <div class="lb-stage2"><div class="bnr" id="lbBnr" role="region" aria-label="Thông báo"></div><div class="bdots" id="lbDots"></div></div>
   <div hidden><span id="lbGems"></span><button type="button" id="lbCol"></button><button type="button" id="lbArena"><b id="lbArenaN"></b></button><button type="button" id="lbShow"></button></div>
@@ -324,23 +326,24 @@
 </div></div>
 
 
-<script src="js/11-nen-the.js?v=gpu50"></script>
-<script src="js/01-engine.js?v=gpu50"></script>
-<script src="js/03-data-store.js?v=gpu50"></script>
-<script src="js/04a-sfx-fam.js?v=gpu50"></script>
-<script src="js/04-audio.js?v=gpu50"></script>
-<script src="js/05-vfx-core.js?v=gpu50"></script>
-<script src="js/06-ui-match.js?v=gpu50"></script>
-<script src="js/07-meta-modes.js?v=gpu50"></script>
-<script src="js/08-vfx-webgl.js?v=gpu50"></script>
-<script src="js/09-card-choreo.js?v=gpu50"></script>
-<script src="js/10-online-cf.js?v=gpu50"></script>
-<script src="js/12-dau-hieu.js?v=gpu50"></script>
+<script src="js/11-nen-the.js?v=gpu51"></script>
+<script src="js/01-engine.js?v=gpu51"></script>
+<script src="js/03-data-store.js?v=gpu51"></script>
+<script src="js/04a-sfx-fam.js?v=gpu51"></script>
+<script src="js/04-audio.js?v=gpu51"></script>
+<script src="js/05-vfx-core.js?v=gpu51"></script>
+<script src="js/06-ui-match.js?v=gpu51"></script>
+<script src="js/07-meta-modes.js?v=gpu51"></script>
+<script src="js/08-vfx-webgl.js?v=gpu51"></script>
+<script src="js/09-card-choreo.js?v=gpu51"></script>
+<script src="js/10-online-cf.js?v=gpu51"></script>
+<script src="js/14-hopthu.js?v=gpu51"></script>
+<script src="js/12-dau-hieu.js?v=gpu51"></script>
 <script>
 /* gpu22: service worker (chỉ khi chạy qua http/https, không đăng ký trong vỏ Capacitor/APK vì ảnh đã nằm sẵn trong app) */
 (function(){var C=window.Capacitor,nat=C&&C.isNativePlatform&&C.isNativePlatform();
 if(!("serviceWorker" in navigator)||!/^https?:$/.test(location.protocol)||nat)return;
-var SWU="sw.js?v=gpu50",V=SWU.split("v=")[1];
+var SWU="sw.js?v=gpu51",V=SWU.split("v=")[1];
 /* gpu35: trang mở lâu (ứng dụng để nền rồi mở lại) vẫn nhận bản mới: khi quay lại trang (tối đa 1 lần/10 phút) đọc index.html mới nhất,
    thấy số phiên bản khác -> đang ở sảnh thì tải lại ngay (1 lần cho mỗi bản), đang chơi thì hiện nút "Có bản mới — chạm để cập nhật". */
 var lastChk=0;function chk(){var now=Date.now();if(now-lastChk<600000||!navigator.onLine)return;lastChk=now;

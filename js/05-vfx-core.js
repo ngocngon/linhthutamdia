@@ -436,7 +436,7 @@ function playFxCore(evs,R0,P0,part){
       case "surge": {const tg=$(ev.side==="p"?"meSub":"oppSub"),sr=at(ev.src);if(tg){const q=ctr(tg),to={x:q.x,y:q.y,w:40,h:56};
           const go=()=>{FX.bolts(q.x,q.y,"#7fe0ff",7,34);FX.glow(q.x,q.y,"#7fe0ff",46);if(ev.side==="p")FX.float(q.x+20,q.y+18,"−1⚡ +1","#7fe0ff");pulse("#"+tg.id,[{transform:"scale(1.25)"},{transform:"scale(1)"}],180);};
           if(sr){FX.comet(sr.x,sr.y,q.x,q.y,"#7fe0ff");chip(sr,to,lite(ev.src)||sr.html,go,60,210);}else go();}cue("energy");break;}
-      case "loc": {if(S8.has("l"+ev.li)){cue("locrev");break;}locReveal(ev.li);/* gpu47: locReveal (08) tự phát tiếng loc đúng nhịp bung mở -> không cue thêm (chỉ 1 lần) */if(typeof gpuLocOpen47!=="function")cue("locrev");break;}
+      case "loc": {if(S8.has("l"+ev.li)){cue("locrev");break;}locReveal(ev.li);/* gpu51: locReveal (08) tự phát tiếng loc đúng đầu nhịp 3 -> không cue thêm (chỉ 1 lần) */if(typeof gpuLocOpen51!=="function")cue("locrev");break;}
     }
   }
   if(part===1){if(imp>0){FXHOLD=Math.max(FXHOLD,FX.impact(ix,iy,imp));snd.add("boom");}if(snd.has("boom"))SFX.play("boom");return 0;}
@@ -702,7 +702,7 @@ async function onlineResolveRun(op){OL.resolving=true;clearTimeout(OL.waitT);con
   OL.sub=false;OL.locked=false;OL.resolving=false;document.body.classList.remove("olwait");
   if(CG.turn>=E.turns(CG)){await endReveal(CG,disp);E.finish(CG,"end");disp();OL.myH={t:CG.turn*2+1,v:hashSt(CG)};try{OL.mr.presence({h:OL.myH,sub:0,acts:[],lock:0});}catch(e){}showEnd();return;}
   let hNew="";{const R0=rects0(),P0=powers();E.startTurn(CG);hNew=hashSt(CG);/* gpu22: chốt mã trạng thái ngay khi sang lượt, trước khi người chơi kịp đặt thẻ trong lúc diễn đầu lượt */disp();const evs=G.evs.slice(),locEvs=evs.filter(e=>e.k==="loc"),drawEvs=evs.filter(e=>e.k!=="loc");resetTimer(true);tArmed=true;tLast=0;G.msg="";render();const H40=new Map(HAND0),nh40=hideNewHand40(H40);
-   if(locEvs.length){playFx(locEvs,R0,P0);await sleep(reduced?80:LOC_OPEN);}
+   if(locEvs.length){playFx(locEvs,R0,P0);await sleep(reduced?80:locWait51(locEvs.length));}
    if(drawEvs.length){playFx(drawEvs,R0,P0);await sleep(reduced?60:520);}else if(nh40){drawNew40(H40);await sleep(reduced?40:320);}
    banner("LƯỢT "+G.turn,G.turn===E.turns(G)?"Lượt cuối":"");pulse("#orb",[{transform:"scale(1.45)",filter:"brightness(2.2)"},{transform:"scale(1)",filter:"brightness(1)"}],460);await sleep(reduced?50:780);}
   OL.myH={t:CG.turn*2,v:hNew||hashSt(CG)};try{OL.mr.presence({t:CG.turn,sub:0,acts:[],lock:0,h:OL.myH});}catch(e){}
@@ -1147,7 +1147,7 @@ function plan8(evA,R0,R1,P0,P1){S8=new Set();if(reduced||!G)return 0;const X=evA
   const bk=s=>s.k==="steal"||s.k==="copy",dur=s=>q8(s,()=>s.k==="ult29"?s.T:s.k==="top"?topDur29(s):(s.k==="move"||s.k==="swap")?mvDur9(s):s.k==="loc"?T8.LIFT+620+700:s.k==="lshield"?1100:(s.sp?(s.nl?0:T8.LIFT)+T8.FLY:0)+T8.REACT+(bk(s)?T8.BACK:0)),
     stg=s=>q8(s,()=>s.k==="ult29"?s.T+T8.GAP:s.k==="top"?topStg29(s):(s.k==="move"||s.k==="swap")?mvDur9(s)-200+T8.GAP:s.k==="lshield"?700:(s.sp?(s.nl?0:T8.LIFT)+T8.FLY:300*PQ8(s))+T8.GAP+(bk(s)?T8.BACK+T8.REACT-80:0));
   const locs=steps.filter(s=>s.k==="loc"),rest=steps.filter(s=>s.k!=="loc");let t=0,T=0;
-  const gk=s=>(s.k==="move"||s.k==="swap"||s.k==="lshield"||s.k==="top"||s.k==="ult29"||s.self29)?null:s.ong?"ong|"+s.k:(s.src>0?"u"+s.src:(s.li!=null?"L"+s.li:"x"))+"|"+(s.k==="lminus"?"lplus":s.k);
+  const gk=s=>((s.k==="move"||s.k==="swap")&&!s.sp)?"mv":(s.k==="move"||s.k==="swap"||s.k==="lshield"||s.k==="top"||s.k==="ult29"||s.self29)?null:s.ong?"ong|"+s.k:(s.src>0?"u"+s.src:(s.li!=null?"L"+s.li:"x"))+"|"+(s.k==="lminus"?"lplus":s.k);
   const groups=[];for(const s of rest){const k=gk(s),g=groups[groups.length-1];if(k&&g&&g.k===k)g.s.push(s);else groups.push({k,s:[s]});}
   /* gpu35: các đòn đơn của CÙNG một thẻ nguồn (kể cả khác loại: +1 phe mình rồi −1 phe địch) đánh dồn một chuỗi, nhịp nhanh dần
      (240 -> 192 -> 154 -> … tối thiểu 110 ms gốc), không chờ đòn trước bay xong -> thẻ nhấc nhiều mục tiêu ≈ 1 s gốc thay vì 2–3 s */
@@ -1157,6 +1157,7 @@ function plan8(evA,R0,R1,P0,P1){S8=new Set();if(reduced||!G)return 0;const X=evA
     if(simple(s0)){if(bSrc!==s0.src){bSrc=s0.src;bK=0;}
       g.s.forEach((s,i)=>{s.t0=bK?bT+Math.round(bGap(bK)*PQ8(s)):t;bT=s.t0;bK++;if(n>1)s.grp={n,i,c,list:g.s};T=Math.max(T,s.t0+dur(s));});t=bT+stg(s0);continue;}
     bSrc=0;const stepGap=Math.round((s0.ong?70:n<=4?380:230)*PQ8(s0));
+    if(g.k==="mv"){let acc=0,pd=0;g.s.forEach((s,i)=>{const d=Math.sign((s.tp.x-s.r0.x)||(s.tp.y-s.r0.y));if(i&&d&&pd&&d!==pd){}else if(i)acc=Math.min(150,acc+Math.min(60,Math.round(50*PQ8(s))));if(d)pd=d;s.t0=t+acc;if(n>1)s.grp={n,i,c,list:g.s};T=Math.max(T,s.t0+dur(s));});t=Math.max(...g.s.map(s=>s.t0))+stg(s0);continue;}
     g.s.forEach((s,i)=>{s.t0=t+i*stepGap;if(n>1)s.grp={n,i,c,list:g.s};T=Math.max(T,s.t0+dur(s));});t=Math.max(...g.s.map(s=>s.t0))+stg(s0);}
   t=rest.length?T+T8.GAP:0;
   for(const s of locs){s.t0=t;t+=dur(s)+T8.GAP;T=Math.max(T,s.t0+dur(s));}
@@ -1293,12 +1294,12 @@ run8=function(s){const c=K8[s.k][0],sp=s.sp,tp=s.tp;
   fxT(()=>hit8(s),L0+T8.FLY);};
 const _pre8=pre8;
 pre8=function(s){
-  if(s.k==="move"||s.k==="swap"){const el=mcEl9(s.dst);if(el){hide9(el,1);s.hid=el;}if(s.r0)s.ph=ghostOf9(s.r0,s.dst);return;}
+  if(s.k==="move"||s.k==="swap"){const el=mcEl9(s.dst);if(el){hide9(el,1);s.hid=el;}if(s.r0)s.ph=ghostOf9(s.r0,s.dst);if(typeof window.mvPre9==="function")window.mvPre9(s);return;}
   _pre8(s);
   if(s.k==="steal"||s.k==="sil"){const t=anyC(s.dst),id=t?(E.ab(t)||t.id):null;if(id&&C[id]&&C[id].t!=="none"&&s.tp){const w=Math.max(12,(s.tp.w||46)*.3),d=document.createElement("div");d.className="tb9";
     const w2=Math.max(12,Math.min(22,(s.tp.w||46)*.3));d.style.cssText=`left:${s.tp.x-(s.tp.w||46)*.48}px;top:${s.tp.y+(s.tp.h||64)/2-w2/2}px;width:${w2}px;height:${w2}px`;d.innerHTML=badgeHTML9(id);document.body.appendChild(d);s.tb=d;}}};
 const _post8=post8;
-post8=function(s){_post8(s);if(s.tb)s.tb.remove();if(s.hidSrc)hide9(s.hidSrc,0);if(s.hid)hide9(s.hid,0);};
+post8=function(s){_post8(s);if(typeof window.mvPost9==="function"&&(s.k==="move"||s.k==="swap"))window.mvPost9(s);if(s.tb)s.tb.remove();if(s.hidSrc)hide9(s.hidSrc,0);if(s.hid)hide9(s.hid,0);};
 function stepNum9(el,d){const pw=el&&el.querySelector(".pwh");if(!pw)return;const v1=parseInt(pw.textContent,10);if(isNaN(v1)||!d)return;const n=Math.min(Math.abs(d),8),v0=v1-d;
   for(let i=0;i<=n;i++)fxT(()=>{if(pw.isConnected)pw.textContent=Math.round(v0+d*i/n);},i*35);}
 const _hit8=hit8;
@@ -1343,7 +1344,10 @@ function move9(s){const r0=s.r0,r1=s.tp,h=s.hid,ph=s.ph;if(!r0||!r1){if(h)h.styl
 function plan9m(evA,R0,R1,steps,W){
   for(const e of evA)if(e.k==="move"&&R0.has(e.uid)&&R1.has(e.uid)&&!S8.has("m"+e.uid)){const src=e.src>0&&e.src!==e.uid?e.src:0,sp=src?W(src):null;steps.push({k:"move",src:sp?src:0,dst:e.uid,sp,tp:R1.get(e.uid),r0:R0.get(e.uid),push:!!sp});S8.add("m"+e.uid);}
   for(const [u,r] of R1){const s0=SD0.get(u),c=anyC(u);if(!s0||!c||c.side===s0||S8.has("m"+u)||!R0.has(u))continue;const me=evA.find(e=>e.k==="morph"&&e.uid===u),src=me&&me.src>0&&me.src!==u?me.src:0,sp=src?W(src):null;
-    steps.push({k:"swap",src:sp?src:0,dst:u,sp,tp:r,r0:R0.get(u),side:c.side});S8.add("w"+u);}}
+    steps.push({k:"swap",src:sp?src:0,dst:u,sp,tp:r,r0:R0.get(u),side:c.side});S8.add("w"+u);}
+  /* gpu51: thẻ đổi chiến địa mà không có sự kiện move/morph (vd. Chấn Nữ hoán đổi hai chiến địa) cũng bay như thẻ dời */
+  for(const [u,r] of R1){if(S8.has("m"+u)||S8.has("w"+u)||!R0.has(u)||!anyC(u))continue;const a=R0.get(u),la=laneOf8(a),lb=laneOf8(r);if(la<0||lb<0||la===lb)continue;steps.push({k:"move",src:0,dst:u,sp:null,tp:r,r0:a,gen:1});S8.add("m"+u);}
+  window.MVR9={R0,R1,skip:new Set(steps.filter(x=>x.k==="move"||x.k==="swap").map(x=>x.dst)),pin:new Set()};}
 let mvDur9; /* gpu23: thời lượng hoạt ảnh dời thẻ — định nghĩa ở 08-vfx-webgl.js mục 6 */
 /* tiêu huỷ: thẻ nứt rồi vỡ mảnh từ chính hình của nó */
 let SH9=0;

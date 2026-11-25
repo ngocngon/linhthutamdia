@@ -2,7 +2,7 @@
 /* gpu29: trong lúc diễn một bước, bàn được vẽ theo "khung trước bước" GV (05: pvShow) cho tới khi nhịp kỹ năng bắt đầu */
 function render(){if(typeof GV!=="undefined"&&GV&&GV!==G){const g=G,v=locVeiled(g);G=GV;try{veil43(GV,()=>{render0();paintZoom();},v);}finally{G=g;}return;}veil43(G,()=>{render0();paintZoom();});}
 /* gpu43: trước lượt 1 (LVEIL, 03) vẽ bàn như thể cả 3 chiến địa chưa lộ diện — đặt tạm rvl=false rồi trả lại ngay trong finally (không đổi luật, không lọt vào mã băm online) */
-function veil43(g,f,force){if(!(force||locVeiled(g)))return f();const sv=g.locs.map(L=>L.rvl);try{for(const L of g.locs)L.rvl=false;return f();}finally{g.locs.forEach((L,i)=>{L.rvl=sv[i];});}}
+function veil43(g,f,force){if(!(force||locVeiled(g)))return f();const sv=g.locs.map(L=>L.rvl);try{g.locs.forEach((L,i)=>{if(!(LVOPEN.g===LVEIL&&LVOPEN.g&&LVOPEN.s.has(i)))L.rvl=false;});return f();}finally{g.locs.forEach((L,i)=>{L.rvl=sv[i];});}}
 /* vá bàn đấu: so từng ô với lần vẽ trước, chỉ thay ô nào đổi */
 let BC=null;
 function laneKey(ln){const c=ln.children;return {l:c[1].outerHTML,o:[...c[0].children].map(x=>x.className+"|"+x.innerHTML),m:[...c[2].children].map(x=>x.className+"|"+x.innerHTML)};}
@@ -223,11 +223,11 @@ async function endTurnRun(auto){
     if(window.BGM)BGM.syncGame(G);
     render();const nh40=hideNewHand40(H0); /* gpu40: lá vừa rút chưa hiện trên tay cho tới nhịp rút bài (bay từ bộ bài vào, mặt trước) */
     /* (4a) Mở Chiến Địa mới (LOC_OPEN: một lần lật + giữ tên để đọc) */
-    if(locEvs.length){playFx(locEvs,R0,P0);await sleep(reduced?80:LOC_OPEN);}
+    if(locEvs.length){playFx(locEvs,R0,P0);await sleep(reduced?80:locWait51(locEvs.length));}
     /* (4b) Rút bài đầu lượt & kỹ năng Đầu Lượt (520ms+) */
     if(drawEvs.length){HAND0=H0;playFx(drawEvs,R0,P0);await sleep(reduced?60:520);}else if(nh40){drawNew40(H0);await sleep(reduced?40:320);}
     /* (4c) Máy cược Snap (980ms) hoặc Vô Uý nhìn thấu (820ms) */
-    if(aiSnap){const q=ctr($("btnSnap"));FX.ring(q.x,q.y,"#ff4d7d",90,6);SFX.play("snap");snapFx("#ff4d7d","×2");await sleep(reduced?70:Math.round(1000/SPD));}
+    if(aiSnap){const q=ctr($("btnSnap"));FX.ring(q.x,q.y,"#ff4d7d",90,6);SFX.play("snap");snapFx("#ff4d7d","×"+Math.min(8,G.stake*Math.pow(2,G.pendingDouble)),"a");await sleep(reduced?70:Math.round(1000/SPD));}
     if(vouySee){try{const v=E.boardCards(G,"p").find(([c])=>!c.sil&&E.is(G,c,"vouy"));if(v)eye7(srcPt(v[0].uid),ctr($("avFoe")),"THẤY TRƯỚC");}catch(e){}await sleep(reduced?60:820);}
     /* (4d) Băng hiệu Lượt mới + xung nhịp Quả cầu năng lượng (780ms) */
     const isFinalTurn=G.turn===E.turns(G);
@@ -920,7 +920,7 @@ $("btnSnap").addEventListener("click",()=>{
   if(!playing()||G.snap.p||OL.sub)return;
   G.snap.p=true;G.pendingDouble++;sel=look=moveSel=null;
   G.msg=`<b>Bạn đã cược!</b> Mức cược nhân đôi từ lượt sau.`;render();G.msg=turnMsg();
-  const q=ctr($("btnSnap"));FX.ring(q.x,q.y,"#ffd65a",100,7);FX.burst(q.x,q.y,"#ffd65a",26,220);SFX.play("snap");snapFx("#b07bff","×2");
+  const q=ctr($("btnSnap"));FX.ring(q.x,q.y,"#ffd65a",100,7);FX.burst(q.x,q.y,"#ffd65a",26,220);SFX.play("snap");snapFx("#b07bff","×"+Math.min(8,G.stake*Math.pow(2,G.pendingDouble)));
   if(window.BGM)BGM.syncGame(G);
 });
 $("btnRetreat").addEventListener("click",()=>{

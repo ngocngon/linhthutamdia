@@ -1172,6 +1172,170 @@
     };
   }
 
+  /* ==================== 6B. DỜI THẺ MƯỢT: MỌI LẦN THẺ ĐỔI CHIẾN ĐỊA ĐỀU LÀ MỘT CHUYẾN BAY LIỀN MẠCH (gpu51) ====================
+     Bản sao (ph, dựng ở pre8) nằm yên ở ô cũ -> nhấc nhẹ -> bay cong ease-in-out -> đáp đúng ô mới; ô mới bị giữ ẩn (visibility, không phụ
+     thuộc opacity nên hoạt ảnh lật của thẻ vẽ lại không lộ thẻ sớm) tới lúc đáp; thẻ khác trong hai chiến địa được ghim ở chỗ cũ (FLIP) rồi
+     trượt về chỗ mới lúc cất cánh. Chỉ transform/opacity. Thời lượng gốc MVD (nhân SPD): 0,8 s ở SPD 2,0. Tiếng: SFX.fam("move") đúng một lần lúc cất cánh. */
+  const MVD = 400;
+  const MVHOLD = new Map();
+  let mvRaf = 0;
+  const mvSibs = (el) => {
+    const xs = [el], ps = el.parentElement;
+    if (ps) ps.querySelectorAll(":scope>.au9,:scope>.au9r,:scope>.ak9,:scope>.au10,:scope>.au10g,:scope>.kh11").forEach((x) => xs.push(x));
+    return xs;
+  };
+  function mvApply() {
+    mvRaf = 0;
+    if (!MVHOLD.size) return;
+    for (const u of MVHOLD.keys()) {
+      const el = mcEl9(u);
+      if (el) for (const x of mvSibs(el)) if (!x.classList.contains("mvhd9")) x.classList.add("mvhd9");
+    }
+    mvRaf = requestAnimationFrame(mvApply);
+  }
+  function mvHold(uid) {
+    if (!uid) return;
+    MVHOLD.set(uid, (MVHOLD.get(uid) || 0) + 1);
+    mvApply();
+  }
+  function mvRel(uid) {
+    const n = (MVHOLD.get(uid) || 0) - 1;
+    if (n > 0) { MVHOLD.set(uid, n); return; }
+    MVHOLD.delete(uid);
+    const el = mcEl9(uid);
+    if (el) for (const x of mvSibs(el)) x.classList.remove("mvhd9");
+  }
+  /* đường bay: nhấc 10% đầu, bay smoothstep, đáp 10% cuối; cong lên giữa đường */
+  function mvPath(dx, dy) {
+    const dist = Math.hypot(dx, dy) || 1, arch = Math.min(46, Math.max(14, dist * 0.16)), A = 0.1, B = 0.9;
+    const at = (u) => {
+      const q = u <= A ? 0 : u >= B ? 1 : (u - A) / (B - A), s = q * q * (3 - 2 * q);
+      return { s, x: dx * s, y: dy * s - arch * Math.sin(Math.PI * s) - 8 * Math.sin(Math.PI * u) };
+    };
+    return { dist, at };
+  }
+  function mvKF(dx, dy) {
+    const P = mvPath(dx, dy), N = 28, kf = [], tilt = Math.max(0.35, Math.abs(dx) / P.dist) * (dx >= 0 ? 1 : -1) * 8;
+    for (let i = 0; i <= N; i++) {
+      const u = i / N, p = P.at(u);
+      kf.push({ offset: u, transform: `translate3d(${p.x.toFixed(1)}px,${p.y.toFixed(1)}px,0) rotate(${(tilt * Math.sin(Math.PI * p.s)).toFixed(2)}deg) scale(${(1 + 0.13 * Math.sin(Math.PI * u)).toFixed(3)})` });
+    }
+    return kf;
+  }
+  /* vệt sáng mảnh theo màu hệ: các đoạn nhỏ dọc đường bay, mỗi đoạn chỉ đổi opacity đúng lúc thẻ bay qua (bỏ khi máy yếu) */
+  function mvTrail(s, col) {
+    if (window.FXLV === 0) return;
+    const r0 = s.r0, dx = s.tp.x - r0.x, dy = s.tp.y - r0.y, P = mvPath(dx, dy), K = 14, els = [], AN = Element.prototype.animate;
+    for (let k = 1; k <= K; k++) {
+      const u = 0.1 + 0.82 * k / K, p = P.at(u), q = P.at(Math.min(1, u + 0.02)), o = P.at(Math.max(0, u - 0.02));
+      const ang = Math.atan2(q.y - o.y, q.x - o.x) * 57.2958, e = document.createElement("i");
+      e.className = "mvtr9";
+      e.style.cssText = `left:${(r0.x + p.x - 15).toFixed(1)}px;top:${(r0.y + p.y - 1.5).toFixed(1)}px;transform:rotate(${ang.toFixed(1)}deg);--mc9:${col}`;
+      document.body.appendChild(e);
+      els.push(e);
+      AN.call(e, [{ opacity: 0 }, { opacity: 0.9, offset: 0.25 }, { opacity: 0 }], { duration: MVD * 0.4, delay: u * MVD, easing: "ease-out", fill: "both" });
+    }
+    s.trl = els;
+    fxT(() => els.forEach((e) => e.remove()), MVD * 1.7);
+  }
+  /* thẻ khác trong hai chiến địa: ghim ở chỗ cũ ngay khi bàn vẽ lại, rồi trượt về chỗ mới lúc thẻ cất cánh */
+  window.mvPre9 = function (s) {
+    if (reduced || !s.ph) return;
+    mvHold(s.dst);
+    s.mvh = 1;
+    const M = window.MVR9;
+    if (!M || !M.R1) return;
+    (M.t0s || (M.t0s = {}))[s.dst] = s.t0 || 0; /* lịch cất cánh gốc (nhân SPD ra ms thật), để kiểm so le */
+    s.pins = [];
+    const AN = Element.prototype.animate;
+    for (const [u, q1] of M.R1) {
+      if (u === s.dst || M.skip.has(u) || M.pin.has(u)) continue;
+      const q0 = M.R0.get(u);
+      if (!q0) continue;
+      const ddx = q0.x - q1.x, ddy = q0.y - q1.y;
+      if (Math.abs(ddx) < 3 && Math.abs(ddy) < 3) continue;
+      const el = mcEl9(u);
+      if (!el) continue;
+      M.pin.add(u);
+      const a = AN.call(el, [{ transform: `translate3d(${ddx.toFixed(1)}px,${ddy.toFixed(1)}px,0)` }, { transform: "none" }], { duration: MVD * 0.9, easing: "cubic-bezier(.4,0,.2,1)", fill: "both" });
+      a.pause();
+      a.currentTime = 0;
+      a.onfinish = () => { try { a.cancel(); } catch (e) {} };
+      s.pins.push(a);
+    }
+  };
+  function mvGo(s) {
+    if (s.pins) for (const a of s.pins) { try { if (a.playState === "paused") a.play(); } catch (e) {} }
+  }
+  window.mvPost9 = function (s) { /* chốt an toàn: nhả mọi thứ còn giữ */
+    mvGo(s);
+    if (s.mvh) { s.mvh = 0; mvRel(s.dst); }
+    if (s.ph && s.ph.isConnected) s.ph.remove();
+  };
+  /* một chuyến bay: tạo hoạt ảnh trên bản sao; light = chỉ nhả ô/ghim khi đáp (đường kéo/đẩy tự lo hiệu ứng đáp) */
+  function mvFlyAnim(s, light) {
+    const r0 = s.r0, r1 = s.tp, ph = s.ph, dx = r1.x - r0.x, dy = r1.y - r0.y, AN = Element.prototype.animate;
+    const c = anyC(s.dst), col = (c && typeof acol9 === "function" ? acol9((E.ab && E.ab(c)) || c.id)[0] : null) || "#8fe8ff";
+    ph.classList.add("mvfl9");
+    ph.style.zIndex = "36";
+    mvGo(s);
+    try { SFX.fam("move", { el: c ? elU(s.dst) : null }); } catch (e) {}
+    mvTrail(s, col);
+    const a = AN.call(ph, mvKF(dx, dy), { duration: MVD, easing: "linear", fill: "both" });
+    let done = false;
+    const fin = () => {
+      if (done) return;
+      done = true;
+      if (s.mvh) { s.mvh = 0; mvRel(s.dst); }
+      if (s.trl) { s.trl.forEach((e) => e.remove()); s.trl = null; }
+      const el = mcEl9(s.dst);
+      if (el && typeof pop9 === "function") pop9(el, 1.07, 300);
+      if (light) return;
+      if (ph.isConnected) ph.remove();
+      s.ph = null;
+      if (s.hid) { hide9(s.hid, 0); s.hid = null; }
+      if (window.FXLV !== 0) {
+        if (typeof window.playV16 === "function") window.playV16("di_chuyen", r1.x, r1.y, Math.max(98, (r1.w || 52) * 1.85), 480, 0);
+        FX.dust(r1.x, r1.y + (r1.h || 70) * 0.45, "#d8c8a0");
+      }
+      if (s.k === "swap") {
+        const sc = s.side === "p" ? "#3fa0ff" : "#ff4d6d";
+        FX.ring(r1.x, r1.y, sc, Math.min(40, (r1.w || 50) * 0.6), 4);
+        if (typeof say === "function") say(r1.x, sy8(r1), "ĐỔI PHE", s.side === "p" ? "#9fd0ff" : "#ff9aa8");
+        const nm = c && C[c.id] ? C[c.id].n.toUpperCase() : "";
+        if (window.pushOppNotif) pushOppNotif(nm ? (s.side === "p" ? `CƯỚP THẺ ▸ ${nm} VỀ PHE TA!` : `${nm} ▸ ĐỔI SANG PHE ĐỐI THỦ`) : "ĐỔI PHE", s.side === "p" ? "#3fe0ff" : "#ff4d7d");
+      }
+    };
+    a.addEventListener("finish", fin);
+    fxT(fin, MVD + 150);
+    return a;
+  }
+  { /* thời lượng bước: bay MVD + nhịp đáp; có thẻ nguồn kéo/đẩy thì cộng nhịp phóng */
+    mvDur9 = (s) => (s.k === "move" && s.sp ? 300 : 0) + MVD + 100;
+  }
+  { /* ghi đè move10 lớp ngoài cùng */
+    const _m10 = move10;
+    move10 = function (s) {
+      const r0 = s.r0, r1 = s.tp, ph = s.ph;
+      if (reduced || !r0 || !r1 || !ph || !ph.isConnected) return _m10(s);
+      const sel = s.sp ? mcEl9(s.src) : null;
+      if (s.k === "move" && s.sp && sel) {
+        /* kéo / đẩy: giữ nguyên phần thẻ nguồn (dây, đòn) của lớp dưới; chuyến bay của thẻ bị dời thay bằng đường bay chung */
+        ph.animate = function (kf, o) {
+          if (!(o && +o.duration >= 200)) return Element.prototype.animate.call(this, kf, o);
+          delete ph.animate;
+          return mvFlyAnim(s, true);
+        };
+        return _m10(s);
+      }
+      /* tự dời, đổi phe, hoặc dời không có sự kiện: bay thẳng, chỉ một tiếng "move" lúc cất cánh */
+      if (s.sp && sel && typeof lean10 === "function") lean10(sel, s.sp, r0);
+      s.ph = ph;
+      if (typeof holdFx === "function") holdFx(MVD + 200);
+      mvFlyAnim(s, false);
+    };
+  }
+
   /* ==================== 7. BỘ DIỄN HOẠT 12 NHÓM CHIÊU LẬT TRANH VẼ ĐÔNG SƠN CỠ LỚN (130PX–185PX) ==================== */
   function makeSrcGhost(sp, srcUid, srcEl) {
     if (srcUid > 0) return ghostOf9(sp, srcUid);
