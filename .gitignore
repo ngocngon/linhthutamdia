@@ -4,3 +4,5 @@ node_modules/
 *.keystore
 *.jks
 .DS_Store
+tools/fx_atlas/*_xem.png
+www/img/fx/*_xem.png

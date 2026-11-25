@@ -1,5 +1,7 @@
 # Linh Thú Tam Địa
 
+> **Phiên làm việc mới:** đọc [`TIEN_TRINH.md`](TIEN_TRINH.md) trước.
+
 Game thẻ bài chiến thuật phong cách thần thoại Việt Nam. Bản web nằm ở `www/`, đóng gói thành ứng dụng Android bằng Capacitor.
 
 ## Cài bản thử trên Android
