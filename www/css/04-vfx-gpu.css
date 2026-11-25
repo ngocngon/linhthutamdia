@@ -1615,3 +1615,33 @@ body.rm .loc-sheen40 { display: none !important; }
 .l47-rim { inset: -1px; clip-path: polygon(9% 0, 91% 0, 100% 16%, 100% 84%, 91% 100%, 9% 100%, 0 84%, 0 16%); box-shadow: inset 0 0 0 2px var(--lc, #ffd65a); opacity: 0; }
 .l47-d { left: 0; top: 0; width: 14px; height: 14px; border-radius: 50%; background: radial-gradient(circle, #fff 0 30%, var(--lc, #ffd65a) 60%, transparent 72%); box-shadow: 0 0 10px 3px var(--lc, #ffd65a); opacity: 0; }
 body.rm .l47 { display: none; }
+
+/* ===== gpu51: MỞ CHIẾN ĐỊA kiểu Marvel Snap (lá chiến địa lớn, 08 gpuLocOpen51) ===== */
+body[data-l51~="0"] #board [data-lane="0"] .locw .loc,
+body[data-l51~="1"] #board [data-lane="1"] .locw .loc,
+body[data-l51~="2"] #board [data-lane="2"] .locw .loc { opacity: 0; }
+.l51-bg { position: fixed; inset: 0; z-index: 39; pointer-events: none; background: rgba(2, 4, 16, 0.35); opacity: 0; }
+.l51-k.locw, .l51-c, .l51-sw { position: fixed; z-index: 40; pointer-events: none; margin: 0; }
+.l51-k .loc { width: 100%; height: 100%; box-sizing: border-box; }
+.l51-k .loc .in { height: 100%; box-sizing: border-box; }
+.l51-c { will-change: transform; }
+.l51-f { position: absolute; inset: 0; border-radius: var(--rd, 16px); overflow: hidden; background: radial-gradient(120% 80% at 50% 0, color-mix(in srgb, var(--lc, #6a6cf0) 85%, #fff), color-mix(in srgb, var(--lc, #6a6cf0) 35%, #000)) center / cover no-repeat; background-position: 50% 45%; background-size: 118% auto; box-shadow: 0 0 0 2px #e9c45f, inset 0 0 0 1px rgba(255, 238, 176, 0.55), 0 14px 30px rgba(0, 0, 0, 0.55); }
+.l51-c.lo .l51-f { box-shadow: 0 0 0 2px #e9c45f; }
+.l51-sh { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(6, 6, 30, 0) 0%, rgba(6, 6, 30, 0.15) 35%, rgba(6, 6, 30, 0.84) 100%); opacity: 0; }
+.l51-tx { position: absolute; left: 0; right: 0; top: 100%; margin-top: 0.5em; display: flex; flex-direction: column; align-items: stretch; gap: 0.4em; }
+.l51-nm { padding: 0.12em 0.6em 0.16em; text-align: center; background: linear-gradient(90deg, #0a0820, #15103a 50%, #0a0820); border-bottom: 2px solid #e9c45f; border-top: 1px solid rgba(233, 196, 95, 0.45); }
+.l51-nm b { font-family: var(--f-display); font-style: italic; font-weight: 900; font-size: 1.3em; line-height: 1.15; color: #fff4d6; text-wrap: balance; text-shadow: 0 2px 0 #000, 0 0 10px color-mix(in srgb, var(--lc, #ffd65a) 70%, transparent); }
+.l51-ds { padding: 0.4em 0.7em; border-radius: 0.5em; text-align: center; font-size: max(12px, 0.62em); line-height: 1.32; color: #eef0ff; background: rgba(8, 8, 26, 0.62); text-shadow: 0 1px 2px #000; text-wrap: balance; }
+.l51-sw { overflow: hidden; }
+.l51-sw i { position: absolute; top: -10%; bottom: -10%; left: 0; width: 24%; background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.85), transparent); transform: translateX(-160%) skewX(-18deg); }
+body.rm .l51-bg, body.rm .l51-k, body.rm .l51-c, body.rm .l51-sw { display: none; }
+
+/* ===== gpu51: CƯỢC "ẤN TRIỆN ĐỎ" (08 snapFx51) ===== */
+.an51 { position: fixed; z-index: 46; pointer-events: none; display: grid; place-items: center; }
+.an51 > * { grid-area: 1 / 1; }
+.an51-s { width: 100%; height: 100%; opacity: 0; }
+.an51-s svg, .an51-s img { display: block; width: 100%; height: 100%; }
+.an51-ink { width: 150%; height: 150%; margin: -25%; opacity: 0; }
+.an51 > b { z-index: 1; font-family: var(--f-display); font-style: italic; font-weight: 900; font-size: 0.4em; line-height: 1; letter-spacing: 0.01em; color: #fff4dc; opacity: 0; text-shadow: 0.025em 0 #5c0711, -0.025em 0 #5c0711, 0 0.025em #5c0711, 0 -0.025em #5c0711, 0.018em 0.018em #5c0711, -0.018em 0.018em #5c0711, 0.018em -0.018em #5c0711, -0.018em -0.018em #5c0711, 0 0.05em 0.04em rgba(60, 0, 8, 0.7); }
+.an51.opp > b { font-size: 0.42em; }
+body.rm .an51 { display: none; }

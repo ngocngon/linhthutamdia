@@ -2451,111 +2451,205 @@
   window.classifyLocField = classifyLocField;
   window.addEventListener("resize", syncBoardFieldVfx, { passive: true });
 
-  /* gpu47: MỞ CHIẾN ĐỊA 3 nhịp, tổng ≈ 1000 ms gốc (nhân SPD -> mặc định "Rất chậm" ≈ 2,0 s):
-     (1) 0–250 tụ lực: lớp phủ .l47 đè ô chiến địa đóng, viền sáng dần, dấu "?" rung rồi nứt sáng.
-     (2) 250–500 bung mở: tiếng `loc` (1 lần/chiến địa), hai nửa tách ra lộ ảnh, vòng sóng lan, ít tia/hạt theo màu loại chiến địa (bỏ khi FXLV=0), ảnh zoom nhẹ.
-     (3) 500–1000 trình diện: tên hiện kiểu băng tên, mô tả hiện dần, ánh sáng chạy một vòng quanh viền, ảnh ổn định.
-     Không rung màn hình, không chớp trắng. reduced: hiện thẳng (chỉ phát tiếng). Người gọi chờ LOC_OPEN (03) rồi tiếp tục nhịp kế. */
-  const L47 = new Set();
-  function loc47One(li, o) {
-    const g0 = G;
-    const ln = document.querySelector(`#board [data-lane="${li}"]`);
-    const lw = ln && ln.querySelector(".locw");
-    const lc = lw && lw.querySelector(".loc");
-    if (!lc || !G.locs[li] || !lc.animate) return false;
-    const r0 = lc.getBoundingClientRect();
-    if (r0.width < 20 || r0.height < 16) return false;
-    const L = G.locs[li];
-    const kind = classifyLocField(L.id);
-    const fMeta = kind ? LOC_FIELD_META[kind] : null;
-    const th = (typeof LTH !== "undefined" && LTH[L.id]) || "thieng";
-    const col = (fMeta && fMeta.col) || (typeof LTC !== "undefined" && LTC[th]) || "#ffd65a";
-    const sp = typeof SPD === "number" && SPD > 0 ? SPD : 1;
-    const lo = window.FXLV === 0;
-    const root = document.createElement("div");
-    root.className = "l47";
-    root.setAttribute("aria-hidden", "true");
-    root.style.cssText = `left:${r0.left.toFixed(1)}px;top:${r0.top.toFixed(1)}px;width:${r0.width.toFixed(1)}px;height:${r0.height.toFixed(1)}px;--lc:${col}`;
-    root.innerHTML = '<i class="l47-g"></i><div class="l47-cv"><div class="l47-h a"><b>?</b></div><div class="l47-h b"><b>?</b></div><i class="l47-k"></i></div>';
-    document.body.appendChild(root);
-    L47.add(root);
-    const A = (el, kf, op) => (el && el.animate ? el.animate(kf, Object.assign({ fill: "both", easing: "ease-out" }, op)) : null);
-    const alive = () => G === g0 && root.isConnected;
-    const done = () => { root.remove(); L47.delete(root); };
-    const g = root.querySelector(".l47-g"), cv = root.querySelector(".l47-cv"), k = root.querySelector(".l47-k");
-    const [ha, hb] = root.querySelectorAll(".l47-h");
-    /* (1) tụ lực */
-    A(g, [{ opacity: 0 }, { opacity: 1 }], { duration: 250 * sp, easing: "ease-in" });
-    A(cv, [
-      { transform: "translateX(0)" }, { transform: "translateX(-1.5px) rotate(-0.8deg)", offset: 0.2 }, { transform: "translateX(2px) rotate(1deg)", offset: 0.4 },
-      { transform: "translateX(-2.5px) rotate(-1.2deg)", offset: 0.6 }, { transform: "translateX(3px) rotate(1.4deg)", offset: 0.8 }, { transform: "translateX(0) scale(1.02)" }
-    ], { duration: 250 * sp, easing: "linear" });
-    A(k, [{ opacity: 0, transform: "scaleY(0.3)" }, { opacity: 0, transform: "scaleY(0.3)", offset: 0.55 }, { opacity: 1, transform: "scaleY(1)" }], { duration: 250 * sp });
-    /* (2) bung mở */
-    fxT(() => {
-      if (!alive()) { done(); return; }
-      if (o && o.pre) o.pre();
-      try { SFX.play("loc", 0.85); } catch (e) {}
-      const lw2 = document.querySelector(`#board [data-lane="${li}"] .locw`) || lw;
-      const lc2 = (lw2 && lw2.querySelector(".loc")) || lc;
-      const r = lc2.getBoundingClientRect();
-      if (r.width > 20) root.style.cssText = `left:${r.left.toFixed(1)}px;top:${r.top.toFixed(1)}px;width:${r.width.toFixed(1)}px;height:${r.height.toFixed(1)}px;--lc:${col}`;
-      const w = r.width, h = r.height, cx = r.left + w / 2, cy = r.top + h / 2;
-      const ln2 = lw2.querySelector(".ln"), lt2 = lw2.querySelector(".lt"), nr = ln2 && ln2.getBoundingClientRect();
-      A(ha, [{ transform: "none", opacity: 1 }, { transform: "translateX(-14%)", opacity: 0.85, offset: 0.4 }, { transform: "translateX(-22%)", opacity: 0 }], { duration: 250 * sp, easing: "cubic-bezier(.5,0,.8,.45)" });
-      A(hb, [{ transform: "none", opacity: 1 }, { transform: "translateX(14%)", opacity: 0.85, offset: 0.4 }, { transform: "translateX(22%)", opacity: 0 }], { duration: 250 * sp, easing: "cubic-bezier(.5,0,.8,.45)" });
-      A(k, [{ opacity: 1, transform: "scaleX(1) scaleY(1)" }, { opacity: 0, transform: "scaleX(7) scaleY(1)" }], { duration: 250 * sp });
-      A(g, [{ opacity: 1 }, { opacity: 0 }], { duration: 650 * sp, delay: 100 * sp });
-      const ring = document.createElement("i");
-      ring.className = "l47-r";
-      const d = Math.max(30, Math.min(w, h * 1.6) * 0.6);
-      ring.style.cssText = `width:${d.toFixed(0)}px;height:${d.toFixed(0)}px;margin:${(-d / 2).toFixed(0)}px 0 0 ${(-d / 2).toFixed(0)}px`;
-      root.appendChild(ring);
-      A(ring, [{ transform: "scale(0.3)", opacity: 0.95 }, { transform: "scale(2.3)", opacity: 0 }], { duration: 320 * sp, easing: "cubic-bezier(.2,.7,.3,1)" });
-      if (!lo) {
-        FXBIG = true;
-        try { FX.sparks(cx, cy, col, 12, 170); FX.rays(cx, cy, col, Math.min(w * 0.7, 90), 8); } finally { FXBIG = false; }
-      }
-      A(lw2, [{ scale: "1.12" }, { scale: "1" }], { duration: 650 * sp, easing: "cubic-bezier(.2,.8,.2,1)" });
-      /* (3) trình diện: băng tên + mô tả hiện dần + ánh sáng chạy một vòng */
-      if (ln2 && nr && nr.height > 4) {
-        const nb = document.createElement("i");
-        nb.className = "l47-nb";
-        nb.style.cssText = `top:${(nr.top - r.top - 3).toFixed(1)}px;height:${(nr.height + 6).toFixed(1)}px`;
-        root.appendChild(nb);
-        A(nb, [{ opacity: 0, transform: "scaleX(0.1)" }, { opacity: 0.5, transform: "scaleX(1)", offset: 0.35 }, { opacity: 0.4, transform: "scaleX(1)", offset: 0.7 }, { opacity: 0, transform: "scaleX(1)" }], { duration: 480 * sp, delay: 230 * sp });
-        A(ln2, [{ opacity: 0, transform: "scale(1.35)" }, { opacity: 1, transform: "scale(1)" }], { duration: 230 * sp, delay: 230 * sp });
-      }
-      if (lt2) A(lt2, [{ opacity: 0, transform: "translateY(4px)" }, { opacity: 1, transform: "none" }], { duration: 300 * sp, delay: 380 * sp });
-      const rim = document.createElement("i");
-      rim.className = "l47-rim";
-      root.appendChild(rim);
-      A(rim, [{ opacity: 0 }, { opacity: 0.7, offset: 0.2 }, { opacity: 0.7, offset: 0.8 }, { opacity: 0 }], { duration: 480 * sp, delay: 270 * sp, easing: "linear" });
-      const dot = document.createElement("i");
-      dot.className = "l47-d";
-      root.appendChild(dot);
-      const P = 2 * (w + h), t1 = w / P, t2 = (w + h) / P, t3 = (2 * w + h) / P;
-      A(dot, [
-        { transform: "translate(-7px,-7px)", opacity: 0 }, { transform: "translate(-7px,-7px)", opacity: 1, offset: 0.04 },
-        { transform: `translate(${(w - 7).toFixed(0)}px,-7px)`, offset: t1 }, { transform: `translate(${(w - 7).toFixed(0)}px,${(h - 7).toFixed(0)}px)`, offset: t2 },
-        { transform: `translate(-7px,${(h - 7).toFixed(0)}px)`, offset: t3 }, { transform: "translate(-7px,-7px)", opacity: 1, offset: 0.97 }, { transform: "translate(-7px,-7px)", opacity: 0 }
-      ], { duration: 460 * sp, delay: 290 * sp, easing: "linear" });
-      fxT(done, 745);
-      syncBoardFieldVfx();
-    }, 250);
-    fxT(() => { if (root.isConnected) done(); }, 1010);
-    return true;
+  /* gpu51: MỞ CHIẾN ĐỊA kiểu Marvel Snap, tổng ≈ 2,0 s ở SPD 2.0 (mọi mốc tính theo T(ms) = ms * SPD / 2):
+     (1) 0–350 ô đóng (dấu "?") nhấc nhẹ scale 1 -> 1,04 rồi lật quanh trục Y tới 90°.
+     (2) 350–700 "lá chiến địa lớn" (ảnh thật, viền vàng mảnh, ~78% bề ngang) lật tiếp 90° -> 0° giữa màn, nền tối mờ 35%.
+     (3) 700–1500 lá đứng yên; băng tên trượt vào dưới ảnh, dòng mô tả (kwfx) hiện dưới băng; tiếng `loc` đúng 1 lần ở đầu nhịp.
+     (4) 1500–2000 lá thu nhỏ bay về đúng ô (getBoundingClientRect), nền tan; chạm ô -> ô lộ mặt thật (LVEIL/LVOPEN) + một vệt sáng quét qua.
+     Không rung màn hình, không chớp trắng, không hạt. Nhiều lá: xếp hàng từng lá (nhịp 3 còn 500). FXLV=0: bỏ vệt sáng + bóng. reduced: hiện thẳng.
+     Mốc chuyển nhịp đi theo animation.finished (WAAPI) nên tự tua nhanh (FFTURN đổi playbackRate) vẫn khớp. */
+  const L51 = { n: 0, tot: 0, chain: Promise.resolve(), hide: new Set(), els: new Set() };
+  function l51Hide(li, on) {
+    if (on) L51.hide.add(li); else L51.hide.delete(li);
+    if (L51.hide.size) document.body.dataset.l51 = [...L51.hide].join(" "); else delete document.body.dataset.l51;
   }
-  /* mở trước lượt 1: ô còn đóng trong lúc tụ lực; o.pre() (lộ diện + vẽ lại bàn) được gọi đúng lúc bung mở */
-  window.gpuLocOpen47 = function (li, pre) { return loc47One(li, { pre }); };
+  function l51Add(el) { document.body.appendChild(el); L51.els.add(el); return el; }
+  function l51Del(el) { if (el) { el.remove(); L51.els.delete(el); } }
+  const l51Fin = (a) => (a && a.finished ? a.finished.catch(() => {}) : Promise.resolve());
+  const l51Rect = (li) => {
+    const lc = document.querySelector(`#board [data-lane="${li}"] .locw .loc`);
+    return lc ? { lc, r: lc.getBoundingClientRect() } : null;
+  };
+  async function l51Run(li, pre, k, g0) {
+    const sp = typeof SPD === "number" && SPD > 0 ? SPD : 1, u = sp / 2, T = (ms) => ms * u;
+    const lo = window.FXLV === 0, short = L51.tot >= 2;
+    const mine = [];
+    const A = (el, kf, op) => { const a = el.animate(kf, Object.assign({ fill: "both", easing: "ease-out" }, op)); mine.push(a); return a; };
+    let c = null, bg = null, landed = false;
+    const land = () => {
+      if (landed) return; landed = true;
+      try { if (pre) pre(); } catch (e) {}
+      l51Hide(li, false);
+      l51Del(c); l51Del(bg); l51Del(k);
+    };
+    try {
+      const cur = l51Rect(li);
+      if (G !== g0 || !cur || cur.r.width < 20) { land(); return; }
+      const lc = cur.lc, r0 = cur.r, L = G.locs[li], def = LOC[L.id] || { n: "?", s: "" };
+      k.style.cssText = `left:${r0.left.toFixed(1)}px;top:${r0.top.toFixed(1)}px;width:${r0.width.toFixed(1)}px;height:${r0.height.toFixed(1)}px;--lc:#3a376e`;
+      /* (1) lật ô đóng tới 90° */
+      const P = "perspective(700px)";
+      await l51Fin(A(k, [
+        { transform: `scale(1) ${P} rotateY(0deg)`, easing: "ease-out" },
+        { transform: `scale(1.04) ${P} rotateY(0deg)`, offset: 0.3, easing: "ease-in" },
+        { transform: `scale(1.04) ${P} rotateY(90deg)` }
+      ], { duration: T(350), easing: "linear" }));
+      l51Del(k);
+      if (G !== g0) { land(); return; }
+      /* lá lớn: cỡ + vị trí */
+      const VW = innerWidth, VH = innerHeight, asp = r0.width / Math.max(1, r0.height);
+      const cw = Math.round(Math.min(VW * 0.78, VH * 0.4 * asp)), ch = Math.round(cw / asp);
+      const rd = (parseFloat(getComputedStyle(lc).borderTopLeftRadius) || 16) * (cw / r0.width);
+      const th = (typeof LTH !== "undefined" && LTH[L.id]) || "thieng";
+      const col = (typeof LHUE !== "undefined" && LHUE[L.id]) || (typeof LTC !== "undefined" && LTC[th]) || "#ffd65a";
+      bg = l51Add(document.createElement("div")); bg.className = "l51-bg";
+      c = l51Add(document.createElement("div")); c.className = "l51-c" + (lo ? " lo" : "");
+      c.setAttribute("aria-hidden", "true"); bg.setAttribute("aria-hidden", "true");
+      const url = IMGL.has(L.id) ? IMGS.l[L.id] : "";
+      c.style.cssText = `left:${Math.round((VW - cw) / 2)}px;top:0;width:${cw}px;height:${ch}px;--rd:${rd.toFixed(1)}px;--lc:${col};font-size:${(cw * 0.074).toFixed(1)}px`;
+      c.innerHTML = `<div class="l51-f"${url ? ` style="background-image:url(${url})"` : ""}><i class="l51-sh"></i></div><div class="l51-tx"><div class="l51-nm"><b></b></div><div class="l51-ds"></div></div>`;
+      c.querySelector(".l51-nm b").textContent = def.n;
+      const nm = c.querySelector(".l51-nm"), ds = c.querySelector(".l51-ds"), sh = c.querySelector(".l51-sh");
+      ds.innerHTML = typeof kwfx === "function" ? kwfx(def.s) : def.s;
+      const stack = ch + nm.offsetHeight + ds.offsetHeight + cw * 0.05;
+      const top = Math.round(Math.max(VH * 0.06, Math.min(VH * 0.4 - stack / 2, VH * 0.94 - stack)));
+      c.style.top = top + "px";
+      const dx = r0.left + r0.width / 2 - VW / 2, dy = r0.top + r0.height / 2 - (top + ch / 2), s0 = r0.width / cw;
+      const tf = (x, y, s, d) => `translate(${x.toFixed(1)}px,${y.toFixed(1)}px) scale(${s.toFixed(4)}) perspective(900px) rotateY(${d}deg)`;
+      A(bg, [{ opacity: 0 }, { opacity: 1 }], { duration: T(350), easing: "linear" });
+      A(nm, [{ opacity: 0 }, { opacity: 0 }], { duration: 1 });
+      A(ds, [{ opacity: 0 }, { opacity: 0 }], { duration: 1 });
+      /* (2) lá lớn lật 90° -> 0° giữa màn */
+      await l51Fin(A(c, [{ transform: tf(dx, dy, s0, -90) }, { transform: tf(0, 0, 1, 0) }], { duration: T(350), easing: "cubic-bezier(.2,.75,.25,1)" }));
+      if (G !== g0) { land(); return; }
+      /* (3) trình diện */
+      try { SFX.play("loc", 0.85); } catch (e) {}
+      const t3 = short ? 500 : 800;
+      A(nm, [{ opacity: 0, transform: "translateX(-38%)" }, { opacity: 1, transform: "none" }], { duration: T(short ? 220 : 300), easing: "cubic-bezier(.2,.8,.2,1)" });
+      A(ds, [{ opacity: 0, transform: "translateY(10px)" }, { opacity: 1, transform: "none" }], { duration: T(short ? 160 : 300), delay: T(short ? 120 : 220) });
+      await l51Fin(A(sh, [{ opacity: 0 }, { opacity: 0 }], { duration: T(t3) }));
+      if (G !== g0) { land(); return; }
+      /* (4) thu nhỏ, bay về ô */
+      A(nm, [{ opacity: 1 }, { opacity: 0 }], { duration: T(140), easing: "linear" });
+      A(ds, [{ opacity: 1 }, { opacity: 0 }], { duration: T(140), easing: "linear" });
+      A(bg, [{ opacity: 1 }, { opacity: 0 }], { duration: T(500), easing: "linear" });
+      A(sh, [{ opacity: 0 }, { opacity: 1 }], { duration: T(500), easing: "ease-in" });
+      const fresh = l51Rect(li), r1 = fresh ? fresh.r : r0;
+      const dx1 = r1.left + r1.width / 2 - VW / 2, dy1 = r1.top + r1.height / 2 - (top + ch / 2), s1 = r1.width / cw;
+      await l51Fin(A(c, [{ transform: tf(0, 0, 1, 0) }, { transform: tf(dx1, dy1, s1, 0) }], { duration: T(500), easing: "cubic-bezier(.55,0,.25,1)" }));
+      /* chạm ô: lộ mặt thật + một vệt sáng */
+      const fin = l51Rect(li), rr = fin ? fin.r : r1;
+      land();
+      if (!lo && rr.width > 10) {
+        const sw = l51Add(document.createElement("div"));
+        sw.className = "l51-sw"; sw.setAttribute("aria-hidden", "true");
+        sw.style.cssText = `left:${rr.left.toFixed(1)}px;top:${rr.top.toFixed(1)}px;width:${rr.width.toFixed(1)}px;height:${rr.height.toFixed(1)}px;border-radius:${(parseFloat(getComputedStyle(lc).borderTopLeftRadius) || 16)}px`;
+        sw.innerHTML = "<i></i>";
+        const a = sw.firstChild.animate([{ transform: "translateX(-160%) skewX(-18deg)" }, { transform: "translateX(460%) skewX(-18deg)" }], { duration: T(130), easing: "ease-in-out", fill: "both" });
+        l51Fin(a).then(() => l51Del(sw));
+        setTimeout(() => l51Del(sw), 1500);
+      }
+    } catch (e) {
+      land();
+    } finally {
+      for (const a of mine) { try { if (a.playState !== "running") a.cancel(); } catch (e) {} }
+      if (!landed) land();
+    }
+  }
+  /* trả về Promise (xong khi lá chạm ô) hoặc false nếu không dựng được (người gọi dùng đường cũ) */
+  window.gpuLocOpen51 = function (li, pre) {
+    const g0 = G, cur = g0 && g0.locs[li] ? l51Rect(li) : null;
+    if (!cur || cur.r.width < 20 || cur.r.height < 16 || !cur.lc.animate || !document.body.animate) return false;
+    const lc = cur.lc, r0 = cur.r;
+    /* ô đóng giả (bản sao .loc, chữ "?") nằm đúng chỗ ô thật; ô thật ẩn bằng body[data-l51] */
+    const k = document.createElement("div");
+    k.className = "locw hid l51-k"; k.setAttribute("aria-hidden", "true");
+    const cl = lc.cloneNode(true);
+    const inn = cl.querySelector(".in");
+    if (inn) { inn.style.removeProperty("--li"); const q = inn.querySelector(".ln"), t = inn.querySelector(".lt"), lk = inn.querySelector(".lk"); if (q) q.textContent = "?"; if (t) t.textContent = "Lộ diện ở lượt " + (li + 1); if (lk) lk.remove(); }
+    k.appendChild(cl);
+    k.style.cssText = `left:${r0.left.toFixed(1)}px;top:${r0.top.toFixed(1)}px;width:${r0.width.toFixed(1)}px;height:${r0.height.toFixed(1)}px;--lc:#3a376e`;
+    l51Add(k); l51Hide(li, true);
+    L51.n++; L51.tot = L51.n === 1 ? 1 : L51.tot + 1;
+    const p = L51.chain.then(() => l51Run(li, pre, k, g0)).catch(() => {}).then(() => {
+      if (--L51.n <= 0) { L51.n = 0; L51.tot = 0; }
+      return true;
+    });
+    L51.chain = p;
+    return p;
+  };
   if (typeof locReveal === "function") {
-    /* giữa ván (lượt 2/3): ô đã vẽ ở trạng thái lộ diện -> lớp phủ che lại để diễn đủ 3 nhịp */
+    /* giữa ván (lượt 2/3): ô đã vẽ ở trạng thái lộ diện -> bản sao ô đóng che lại rồi diễn đủ 4 nhịp */
     locReveal = function (li) {
       if (!G || !G.locs[li] || locVeiled(G)) return;
-      if (reduced || !loc47One(li, null)) { try { SFX.play("loc", 0.85); } catch (e) {} }
+      if (reduced || !gpuLocOpen51(li, null)) { try { SFX.play("loc", 0.85); } catch (e) {} }
     };
     window.gpuLocReveal = locReveal;
   }
+
+  /* gpu51: CƯỢC "ẤN TRIỆN ĐỎ" — con dấu son vuông giáng giữa màn (hoặc nhỏ, lệch lên trên nếu là đối thủ), số cược ×2/×4/×8 ở giữa.
+     Ảnh www/img/v/an_trien.webp (IMGS.v.an_trien) nếu có trong danh mục ảnh, không thì vẽ SVG. Không rung màn hình, không chớp. */
+  let an51n = 0;
+  function an51Svg(id) {
+    const g = (x, y, r) => `<use href="#${id}m" transform="translate(${x} ${y}) rotate(${r})"/>`;
+    return `<svg viewBox="0 0 200 200" aria-hidden="true"><defs>
+<filter id="${id}w" x="-4%" y="-4%" width="108%" height="108%"><feTurbulence type="fractalNoise" baseFrequency=".05" numOctaves="3" seed="${3 + (an51n % 5)}" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="5" xChannelSelector="R" yChannelSelector="G" result="d"/><feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="2" seed="${11 + (an51n % 7)}" result="g"/><feColorMatrix in="g" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -8 5.3" result="m"/><feComposite in="d" in2="m" operator="in"/></filter>
+<linearGradient id="${id}g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#da2a2e"/><stop offset=".55" stop-color="#bd141d"/><stop offset="1" stop-color="#8f0b14"/></linearGradient>
+<path id="${id}m" d="M0 0H30V30H5V10H21V21H12" fill="none" stroke="#ffc7b0" stroke-opacity=".8" stroke-width="3.6" stroke-linecap="square" stroke-linejoin="miter"/>
+</defs><g filter="url(#${id}w)">
+<rect x="6" y="6" width="188" height="188" rx="8" fill="url(#${id}g)"/>
+<rect x="13" y="13" width="174" height="174" rx="4" fill="none" stroke="#6f0710" stroke-opacity=".75" stroke-width="2.4"/>
+<rect x="20" y="20" width="160" height="160" rx="2" fill="none" stroke="#ffc7b0" stroke-opacity=".8" stroke-width="3"/>
+<rect x="27" y="27" width="146" height="146" rx="1" fill="none" stroke="#ffc7b0" stroke-opacity=".5" stroke-width="1.4"/>
+${g(36, 36, 0)}${g(164, 36, 90)}${g(164, 164, 180)}${g(36, 164, 270)}${g(84, 33, 0)}${g(116, 33, 0)}${g(84, 167, 0)}${g(116, 167, 0)}
+</g></svg>`;
+  }
+  const an51Ink = `<svg class="an51-ink" viewBox="0 0 300 300" aria-hidden="true"><defs><radialGradient id="an51r"><stop offset="0" stop-color="#b3121c" stop-opacity=".62"/><stop offset=".7" stop-color="#b3121c" stop-opacity=".3"/><stop offset="1" stop-color="#b3121c" stop-opacity="0"/></radialGradient></defs><path d="M150 14c34 4 52 20 82 22 26 12 36 38 46 66 4 28-6 44-12 70-10 30-30 52-62 62-34 10-56-8-88-10-30-8-52-26-58-62-6-32 4-54 14-78 14-26 40-34 78-70z" fill="url(#an51r)"/><g fill="#b3121c" fill-opacity=".55"><circle cx="30" cy="70" r="6"/><circle cx="268" cy="214" r="7"/><circle cx="46" cy="246" r="4"/><circle cx="262" cy="52" r="4.5"/><circle cx="150" cy="288" r="3.5"/></g></svg>`;
+  function snapFx51(c, txt, opp) {
+    if (reduced) return;
+    const VW = innerWidth, VH = innerHeight, S0 = Math.round(Math.min(VW * 0.56, VH * 0.3, 260));
+    const S = opp ? Math.round(S0 * 0.62) : S0, cx = VW / 2, cy0 = Math.round(VH * 0.42);
+    const cy = opp ? Math.round(Math.max(S / 2 + VH * 0.09, cy0 - S0 * 0.62)) : cy0;
+    const id = "an51" + (++an51n) + "_";
+    const img = typeof IMGS !== "undefined" && IMGS.v && IMGS.v.an_trien;
+    const d = document.createElement("div");
+    d.className = "an51" + (opp ? " opp" : "") + (window.FXLV === 0 ? " lo" : "");
+    d.setAttribute("aria-hidden", "true");
+    d.style.cssText = `left:${Math.round(cx - S / 2)}px;top:${Math.round(cy - S / 2)}px;width:${S}px;height:${S}px;font-size:${S}px`;
+    d.innerHTML = (window.FXLV === 0 ? "" : an51Ink) + `<div class="an51-s">${img ? `<img src="${img}" alt="" draggable="false">` : an51Svg(id)}</div><b></b>`;
+    d.querySelector("b").textContent = txt;
+    document.body.appendChild(d);
+    const ink = d.querySelector(".an51-ink"), seal = d.querySelector(".an51-s");
+    const done = () => d.remove();
+    seal.animate([
+      { transform: "scale(1.8)", opacity: 0, offset: 0, easing: "cubic-bezier(.55,0,.9,.5)" },
+      { transform: "scale(1)", opacity: 1, offset: 0.13 },
+      { transform: "scale(1.035,.95) translateY(1.5%)", opacity: 1, offset: 0.17, easing: "ease-out" },
+      { transform: "scale(1)", opacity: 1, offset: 0.23 },
+      { transform: "scale(1)", opacity: 1, offset: 0.78 },
+      { transform: "scale(1.03)", opacity: 0, offset: 1 }
+    ], { duration: 1380, easing: "linear", fill: "both" });
+    const b = d.querySelector("b");
+    b.animate([
+      { transform: "scale(1.8)", opacity: 0, offset: 0, easing: "cubic-bezier(.55,0,.9,.5)" },
+      { transform: "scale(1)", opacity: 1, offset: 0.13 },
+      { transform: "scale(1.035,.95) translateY(1.5%)", opacity: 1, offset: 0.17, easing: "ease-out" },
+      { transform: "scale(1)", opacity: 1, offset: 0.23 },
+      { transform: "scale(1)", opacity: 1, offset: 0.78 },
+      { transform: "scale(1.03)", opacity: 0, offset: 1 }
+    ], { duration: 1380, easing: "linear", fill: "both" });
+    if (ink) ink.animate([
+      { transform: "scale(.6)", opacity: 0, offset: 0 },
+      { transform: "scale(.7)", opacity: 0, offset: 0.12 },
+      { transform: "scale(1)", opacity: 1, offset: 0.3, easing: "ease-out" },
+      { transform: "scale(1.06)", opacity: 0.9, offset: 0.78 },
+      { transform: "scale(1.1)", opacity: 0, offset: 1 }
+    ], { duration: 1380, easing: "linear", fill: "both" }).onfinish = done;
+    else seal.getAnimations()[0].onfinish = done;
+    setTimeout(done, 2200);
+  }
+  snapFx = snapFx51;
+  window.snapFx = snapFx51;
 
   function syncSlamAndHud(prevSet) {
     schedOppMetrics();
