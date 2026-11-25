@@ -46,6 +46,15 @@ describe("đăng ký mở", () => {
     expect((await r.json()).error).toBe("too_many_accounts");
     expect((await reg("10.0.0.9", "spam5")).status).toBe(200);
   });
+  it("yêu cầu song song không vượt giới hạn IP", async () => {
+    const rs = await Promise.all(Array.from({ length: 20 }, (_, i) => reg("10.0.0.7", "song" + i)));
+    expect(rs.filter((r) => r.status === 200).length).toBe(5);
+    expect(rs.filter((r) => r.status === 429).length).toBe(15);
+  });
+  it("body JSON không phải đối tượng trả 400 chứ không 500", async () => {
+    const r = await SELF.fetch("https://t/api/register", { method: "POST", headers: { "content-type": "application/json", "cf-connecting-ip": "10.0.0.8" }, body: "null" });
+    expect(r.status).toBe(400);
+  });
   it("quản trị tắt/bật đăng ký", async () => {
     expect((await SELF.fetch("https://t/api/admin/config", { method: "PUT", headers: { "content-type": "application/json" }, body: '{"registerOpen":false}' })).status).toBe(401);
     expect((await setOpen(false)).status).toBe(200);

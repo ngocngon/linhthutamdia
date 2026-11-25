@@ -54,7 +54,9 @@ export async function readJson(request, max = 64 * 1024) {
   if (len > max) throw Object.assign(new Error("too_big"), { status: 413 });
   const text = await request.text();
   if (text.length > max) throw Object.assign(new Error("too_big"), { status: 413 });
-  try { return JSON.parse(text || "{}"); } catch { throw Object.assign(new Error("bad_json"), { status: 400 }); }
+  let v;
+  try { v = JSON.parse(text || "{}"); } catch { throw Object.assign(new Error("bad_json"), { status: 400 }); }
+  return v && typeof v === "object" && !Array.isArray(v) ? v : {};
 }
 
 // ---- CORS ----

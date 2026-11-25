@@ -14,14 +14,13 @@ export async function registerOpen(env) {
 }
 // Chống spam: tối đa REG_MAX tài khoản mới (đăng ký hoặc Google) mỗi IP mỗi giờ, đếm trong bảng auth_fail.
 export const REG_MAX = 5, REG_WIN = 3600 * 1000;
-async function regLimited(env, ip, now) {
-  const r = await env.DB.prepare("SELECT n, ts FROM auth_fail WHERE k=?").bind("rg:" + ip).first();
-  return !!r && now - r.ts < REG_WIN && r.n >= REG_MAX;
+// Giữ chỗ nguyên tử: tăng bộ đếm trước rồi mới tạo tài khoản, nên yêu cầu song song không vượt được giới hạn.
+async function regTake(env, ip, now) {
+  const r = await env.DB.prepare("INSERT INTO auth_fail(k,n,ts) VALUES(?1,1,?2) ON CONFLICT(k) DO UPDATE SET n=CASE WHEN ?2-auth_fail.ts<?3 THEN auth_fail.n+1 ELSE 1 END, ts=CASE WHEN ?2-auth_fail.ts<?3 THEN auth_fail.ts ELSE ?2 END RETURNING n").bind("rg:" + ip, now, REG_WIN).first();
+  return !!r && r.n > REG_MAX;
 }
-async function regNote(env, ip, now) {
-  const r = await env.DB.prepare("SELECT n, ts FROM auth_fail WHERE k=?").bind("rg:" + ip).first();
-  const inWin = !!r && now - r.ts < REG_WIN;
-  await env.DB.prepare("INSERT INTO auth_fail(k,n,ts) VALUES(?,?,?) ON CONFLICT(k) DO UPDATE SET n=excluded.n, ts=excluded.ts").bind("rg:" + ip, inWin ? r.n + 1 : 1, inWin ? r.ts : now).run();
+async function regGiveBack(env, ip) {
+  await env.DB.prepare("UPDATE auth_fail SET n=MAX(n-1,0) WHERE k=?").bind("rg:" + ip).run();
 }
 const isUnique = (e) => /UNIQUE/i.test(String(e && (e.message || e)));
 
@@ -83,21 +82,21 @@ export async function handleApi(request, env, url) {
     const b = await readJson(request, 4096);
     if (!(await registerOpen(env))) return err(403, "register_closed", "Đăng ký tài khoản mới đang tạm đóng");
     const ip = clientIp(request), now = Date.now();
-    if (await regLimited(env, ip, now)) return err(429, "too_many_accounts", "Mạng này đã tạo quá nhiều tài khoản, thử lại sau một giờ");
     const username = String(b.username || "").trim().toLowerCase();
     const bad = checkNewCreds(username, b.password);
     if (bad) return err(400, "bad_creds", bad);
     if (await env.DB.prepare("SELECT 1 FROM users WHERE username=?").bind(username).first()) return err(409, "exists", "Tên đăng nhập đã có người dùng");
+    if (await regTake(env, ip, now)) return err(429, "too_many_accounts", "Mạng này đã tạo quá nhiều tài khoản, thử lại sau một giờ");
     const display = cleanName(b.display || username) || username;
     const h = await hashPassword(b.password);
     let id;
     try {
       id = (await env.DB.prepare("INSERT INTO users(username,display,pass_hash,salt,iters,created_at) VALUES(?,?,?,?,?,?)").bind(username, display, h.pass_hash, h.salt, h.iters, now).run()).meta.last_row_id;
     } catch (e) {
+      await regGiveBack(env, ip);
       if (isUnique(e)) return err(409, "exists", "Tên đăng nhập đã có người dùng");
       throw e;
     }
-    await regNote(env, ip, now);
     return session(env, { id, username, display, token_ver: 0 }, { created: true });
   }
 
@@ -115,21 +114,21 @@ export async function handleApi(request, env, url) {
     }
     if (!(await registerOpen(env))) return err(403, "register_closed", "Đăng ký tài khoản mới đang tạm đóng. Nếu đã có tài khoản, đăng nhập bằng mật khẩu rồi liên kết Google.");
     const ip = clientIp(request), now = Date.now();
-    if (await regLimited(env, ip, now)) return err(429, "too_many_accounts", "Mạng này đã tạo quá nhiều tài khoản, thử lại sau một giờ");
+    if (await regTake(env, ip, now)) return err(429, "too_many_accounts", "Mạng này đã tạo quá nhiều tài khoản, thử lại sau một giờ");
     const username = await freeUsername(env, g.email);
-    if (!username) return err(500, "server_error", "Không tạo được tên đăng nhập");
+    if (!username) { await regGiveBack(env, ip); return err(500, "server_error", "Không tạo được tên đăng nhập"); }
     const display = cleanName(g.name) || username;
     try {
       const id = (await env.DB.prepare("INSERT INTO users(username,display,pass_hash,salt,iters,created_at,google_sub,email) VALUES(?,?,'','',0,?,?,?)").bind(username, display, now, g.sub, g.email).run()).meta.last_row_id;
       u = { id, username, display, token_ver: 0 };
     } catch (e) {
+      await regGiveBack(env, ip);
       if (!isUnique(e)) throw e;
       // hai yêu cầu cùng lúc cho cùng một Google: dùng tài khoản vừa được tạo
       u = await env.DB.prepare("SELECT * FROM users WHERE google_sub=?").bind(g.sub).first();
       if (!u) return err(409, "exists", "Thử lại");
       return session(env, u, { created: false });
     }
-    await regNote(env, ip, now);
     return session(env, u, { created: true });
   }
 
