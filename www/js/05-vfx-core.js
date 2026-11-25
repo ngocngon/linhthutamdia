@@ -396,7 +396,7 @@ function playFxCore(evs,R0,P0,part){
   /* thẻ nguồn của bước này (thẻ vừa dùng kỹ năng) */
   const sev=evs.find(e=>e.k==="skill"||e.k==="act"),SRC=sev?sev.uid:(evs.find(e=>e.src)||{}).src,sR=SRC!=null?at(SRC):null,sH=sR&&(lite(SRC)||sR.html);
   const fromSrc=(uid,cb,i)=>{const t=at(uid);if(sH&&uid!==SRC&&t)chip(sR,t,sH,cb,(i||0)*90);else cb();};
-  const destroyed=new Set(),gone=new Set();let ci=0;
+  const destroyed=new Set(),gone=new Set(),moveUids=new Set();let ci=0;
   const cues=new Map(),cue=(k,weak)=>{if(k&&(!cues.has(k)||!weak))cues.set(k,!!weak);};let upMax=0,dnMax=0;
   if(part!==1){try{SFX.src(SRC!=null?elU(SRC):null,SRC);}catch(e){}}
   const revN={};for(const e of evs)if(e.k==="skill"&&e.t==="rev")revN[e.uid]=(revN[e.uid]||0)+1;
@@ -422,9 +422,9 @@ function playFxCore(evs,R0,P0,part){
       case "discard": {gone.add(ev.uid);cue("discard");break;}
       case "summon": if(p&&!S8.has("u"+ev.uid)){const pp=p,us=ev.src||SRC,sc=window.FXR?FXR.c1(us,"#8fdc4a"):"#8fdc4a";fromSrc(ev.uid,()=>{FX.sigil(pp.x,pp.y+pp.h*.42,sc,pp.w*.9,6,true,.9);FX.vortex(pp.x,pp.y,sc,12);if(window.FXR)FXR.trieu(pp,ev.uid,us);},ci++);} if(!S8.has("u"+ev.uid))cue("summon"); break;
       case "revive": if(p){const rc=window.FXR?FXR.c1(ev.src||ev.uid,"#4dffa6"):"#4dffa6";if(typeof window.playV16==="function")window.playV16("hoi_sinh",p.x,p.y,Math.max(108,p.w*2.0),560,0);if(!(window.FXR&&FXR.hoi(p,ev.uid,ev.src)))FX.pillar(p.x,p.y+p.h*.45,"#4dffa6",p.w*.9,p.h*2.4);FX.sigil(p.x,p.y+p.h*.42,rc,p.w*.9,6,true,1);FX.glow(p.x,p.y,rc,70);} cue("revive"); break;
-      case "move": {gone.add(ev.uid);if(S8.has("m"+ev.uid)){break;}const a=R0.get(ev.uid),b=R1.get(ev.uid);if(a&&b){if(typeof window.playV16==="function")window.playV16("di_chuyen",b.x,b.y,Math.max(96,(b.w||52)*1.85),480,120);FX.comet(a.x,a.y,b.x,b.y,"#6fc8ff");
+      case "move": {gone.add(ev.uid);if(moveUids.has(ev.uid))break;moveUids.add(ev.uid);if(S8.has("m"+ev.uid))break;const a=R0.get(ev.uid),b=R1.get(ev.uid);if(a&&b){if(typeof window.playV16==="function")window.playV16("di_chuyen",b.x,b.y,Math.max(96,(b.w||52)*1.85),480,120);FX.comet(a.x,a.y,b.x,b.y,"#6fc8ff");
           if(!reduced&&b.html)for(const t of [.35,.7]){const g=ghost({x:a.x+(b.x-a.x)*t,y:a.y+(b.y-a.y)*t,w:b.w,h:b.h},b.html,"fxai");anim(g,[{opacity:.12+.3*t},{opacity:0}],{duration:380,delay:t*110,easing:"ease-out"});fxT(()=>g.remove(),650);}}
-        cue("move");break;}
+        SFX.fam("move",{el:elU(ev.uid),moveUid:ev.uid});cue("move");break;}
       case "tohand": gone.add(ev.uid);break;
       case "sil": {if(S8.has("s"+ev.uid))break;const sr=ev.src?at(ev.src):null,stole=!!ev.src&&evA.some(x=>x.k==="morph"&&x.uid===ev.src);let tp=p;
         if(!tp){const c=cardOf(ev.uid),el=c&&c.side==="p"?document.querySelector(`#hand [data-hc="${ev.uid}"]`)||$("meSub"):$("avFoe");if(el){const q=ctr(el);tp={x:q.x,y:q.y,w:50,h:70};}}
@@ -478,7 +478,9 @@ function playFxCore(evs,R0,P0,part){
    const ks=[...cues.keys()].sort((a,b)=>(PRI.indexOf(a)<0?99:PRI.indexOf(a))-(PRI.indexOf(b)<0?99:PRI.indexOf(b))).slice(0,3);
    /* gpu51: NHỊP KỸ NĂNG của thẻ nguồn: tiếng riêng S4/S5 (nếu có) phát đúng một lần ở đây thay cho tiếng họ; các nhịp chạm đích sau đó dùng tiếng tình huống */
    const own=part!==1&&sev&&sev.uid===SRC&&ks.length&&SFX.skill?SFX.skill(SRC,ks[0]):false;
-   if(!own)ks.forEach((k,i)=>SFX.fam(k,{delay:i*.09,vol:i?.8:1}));}
+   /* Thẻ dời phát theo UID ở lúc cất cánh hoặc khi đổi ô tức thời. Họ kỹ năng vẫn dùng để chọn tiếng riêng. */
+   const moved=moveUids.size||STEPS12.some(s=>s.k==="move"||s.k==="swap");
+   if(!own)ks.filter(k=>k!=="move"||!moved).forEach((k,i)=>SFX.fam(k,{delay:i*.09,vol:i?.8:1}));}
   try{heroSched();}catch(e){}
   return hold;
 }
@@ -1345,7 +1347,7 @@ function move9(s){const r0=s.r0,r1=s.tp,h=s.hid,ph=s.ph;if(!r0||!r1){if(h)h.styl
       FX.dust(r1.x,r1.y+(r1.h||70)*.45,"#d8c8a0");SFX.play("place");
       if(s.k==="swap"){const sc=s.side==="p"?"#3fa0ff":"#ff4d6d";FX.ring(r1.x,r1.y,sc,Math.min(40,(r1.w||50)*.6),4);if(h)pulse(`#board [data-mc="${s.dst}"]`,[{boxShadow:`0 0 0 3px ${sc}`},{boxShadow:"0 0 0 0 transparent"}],700);say(r1.x,sy8(r1),"ĐỔI PHE",s.side==="p"?"#9fd0ff":"#ff9aa8");}
       else if(s.push)say(r1.x,sy8(r1),"BỊ ĐẨY","#b6ffe8");};
-    a.onfinish=fin;fxT(fin,D+150);SFX.fam(s.k==="swap"?"swap":"move",{el:elU(s.src)});},t);}
+    a.onfinish=fin;fxT(fin,D+150);SFX.fam(s.k==="swap"?"swap":"move",{el:elU(s.src),moveUid:s.dst});},t);}
 function plan9m(evA,R0,R1,steps,W){
   for(const e of evA)if(e.k==="move"&&R0.has(e.uid)&&R1.has(e.uid)&&!S8.has("m"+e.uid)){const src=e.src>0&&e.src!==e.uid?e.src:0,sp=src?W(src):null;steps.push({k:"move",src:sp?src:0,dst:e.uid,sp,tp:R1.get(e.uid),r0:R0.get(e.uid),push:!!sp});S8.add("m"+e.uid);}
   for(const [u,r] of R1){const s0=SD0.get(u),c=anyC(u);if(!s0||!c||c.side===s0||S8.has("m"+u)||!R0.has(u))continue;const me=evA.find(e=>e.k==="morph"&&e.uid===u),src=me&&me.src>0&&me.src!==u?me.src:0,sp=src?W(src):null;

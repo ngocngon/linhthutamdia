@@ -1279,7 +1279,7 @@
     ph.classList.add("mvfl9");
     ph.style.zIndex = "36";
     mvGo(s);
-    try { SFX.fam("move", { el: c ? elU(s.dst) : null }); } catch (e) {}
+    try { SFX.fam("move", { el: c ? elU(s.dst) : null, moveUid: s.dst }); } catch (e) {}
     mvTrail(s, col);
     const a = AN.call(ph, mvKF(dx, dy), { duration: MVD, easing: "linear", fill: "both" });
     let done = false;
