@@ -17,9 +17,14 @@ function patchBoard0(html){const b=$("board"),t=document.createElement("template
     if(c.l!==k.l)live.children[1].replaceWith(nc[1]);}
   BC=keys;}
 /* patchBoard: thẻ đang lật bị dựng lại thì giữ tiếp hoạt ảnh lật, không chạy lại từ đầu */
-function patchBoard(html){const fl=new Map();try{for(const m of document.querySelectorAll("#board .mc.flip")){const a=m.getAnimations?m.getAnimations().find(x=>/^(flip|flip3|gpuCardFlip)$/.test(x.animationName)&&x.playState==="running"):null;if(a)fl.set(m.dataset.mc,{el:m,t:a.currentTime||0});}}catch(e){}
+/* gpu49: hoạt ảnh lật được đọc (flipSnap) ở ĐẦU render0, trước mọi thay đổi DOM của lần vẽ — lúc đó style còn sạch nên rẻ; trước đây đọc giữa chừng
+   buộc trình duyệt tính lại style cả trang rồi lại tính lần nữa sau khi vá bàn. Chỉ hỏi khi bàn có thẻ đang lật; hỏi MỘT lần cho cả tài liệu. */
+let FLS=null;
+function flipSnap(){const fl=new Map();try{const ms=document.querySelectorAll("#board .mc.flip");if(!ms.length||!document.getAnimations)return fl;const st=new Set(ms);for(const a of document.getAnimations()){const el=a.effect&&a.effect.target;if(el&&st.has(el)&&!a.effect.pseudoElement&&a.playState==="running"&&/^(flip|flip3|gpuCardFlip)$/.test(a.animationName)&&!fl.has(el.dataset.mc))fl.set(el.dataset.mc,{el,t:a.currentTime||0});}}catch(e){}return fl;}
+function patchBoard(html){const fl=FLS||flipSnap();FLS=null;
   patchBoard0(html);if(!fl.size)return;for(const [u,o] of fl){const n=document.querySelector(`#board [data-mc="${u}"]`);if(n&&n!==o.el&&!n.classList.contains("flip")){n.style.animationDelay=(-o.t)+"ms";n.classList.add("flip");n.addEventListener("animationend",()=>{n.style.animationDelay="";},{once:true});}}};
 function render0(){
+  FLS=flipSnap();
   const play=playing();
   $("meName").textContent=(store.name||"Bạn").toUpperCase();
   $("meSub").innerHTML=`${icn("gems")}${store.gems} · Bài ${G.deck.p.length}`;
@@ -257,7 +262,7 @@ function showEnd(){
   const t=$("resTitle");t.className="res "+cls;t.textContent=word;
   const lanes=G.locs.map((L,i)=>({i,L,pp:E.locPower(G,i,"p"),pa:E.locPower(G,i,"a"),ld:E.lead(G,i)}));
   let wp=0,wa=0;for(const x of lanes){if(x.ld==="p")wp++;else if(x.ld==="a")wa++;}
-  const why=r.kind==="timeoutP"?"Bạn bỏ 3 lượt liên tiếp nên bị xử thua.":r.kind==="retreatA"?foe+" thấy cửa thua nên đã rút lui.":r.kind==="retreatP"?"Bạn đã rút lui để giữ ngọc.":(G.online&&OL.note)||"";
+  const why=G.online&&OL.note?OL.note:r.kind==="timeoutP"?"Bạn bỏ 3 lượt liên tiếp nên bị xử thua.":r.kind==="retreatA"?foe+" thấy cửa thua nên đã rút lui.":r.kind==="retreatP"?"Bạn đã rút lui để giữ ngọc.":(G.online&&OL.note)||"";
   {const e=$("resSub");e.textContent=why;e.hidden=!why;}
   const lname=x=>x.L.gone?"Đã bị huỷ":x.L.rvl?LOC[x.L.id].n:"Chưa lộ diện";
   const lk=x=>x.L.gone?"d":x.ld==="p"?"w":x.ld==="a"?"l":"d";
@@ -310,7 +315,7 @@ function showEnd(){
   /* Bước 2: biểu ngữ kết quả (~0,55 s vào + giữ ~1,5 s) */
   PH[1]=()=>{
     if(hid){go(2);return;}
-    const sub=r.kind==="end"?"":r.kind==="retreatA"?`${foe} đã rút lui`:r.kind==="retreatP"?"Bạn đã rút lui":"Bỏ 3 lượt liên tiếp";
+    const sub=r.kind==="end"?"":G.online&&/kết nối/.test(OL.note||"")?(r.kind==="retreatA"?`${foe} mất kết nối`:"Bạn mất kết nối"):G.online&&/không ra bài quá/.test(OL.note||"")?(r.kind==="retreatA"?`${foe} không ra bài`:"Bạn không ra bài quá 3 phút"):r.kind==="retreatA"?`${foe} đã rút lui`:r.kind==="retreatP"?"Bạn đã rút lui":"Bỏ 3 lượt liên tiếp";
     const bn=document.createElement("div");bn.className="es-ban";
     bn.innerHTML=`<div class="es-bar"><i class="sh"></i><b>${word}</b></div>${sub?`<small>${esc(sub)}</small>`:""}`;lay.appendChild(bn);s.bn=bn;
     A(veil,[{opacity:0},{opacity:1}],{duration:ms(450),easing:"ease-out"});
@@ -360,7 +365,7 @@ function newGame(){
   const hs=Object.keys(E.PARTNER);
   const foeDeck=E.themedDeck(hs[Math.floor(Math.random()*hs.length)]);
   foeAv=foeDeck[foeDeck.length-1];$("avFoe").innerHTML=artFace(foeAv);$("avMe").innerHTML=meAv();
-  foeBack=Object.keys(BACKS)[Math.floor(Math.random()*Object.keys(BACKS).length)];
+  {const bs=Object.keys(BACKS),ok=bs.filter(b=>uCssReady(BACKS[b][1]));const pl=ok.length?ok:bs;foeBack=pl[Math.floor(Math.random()*pl.length)];} /* gpu49: chỉ chọn mặt lưng đã tải xong (ảnh u tải lười) */
   G=E.newGame(store.deck,foeDeck);LVEIL=G;gameDeck=store.deck.join();$("foeName").textContent="MÁY";
   missNote="";resetTimer(true);
   if(window.BGM&&!$("lobby").classList.contains("on"))BGM.syncGame(G);
@@ -385,6 +390,20 @@ function deckMatches(k){
   if(F.text&&!norm(d.n).includes(norm(F.text)))return false;
   return true;
 }
+/* gpu49: lưới thẻ vẽ theo lô (DK_B thẻ), thêm lô kế khi cuộn gần cuối — thay vì dựng cả ~510 thẻ (~11.400 phần tử) mỗi lần mở/lọc/sắp xếp.
+   Danh sách đầy đủ (đã lọc + sắp xếp) nằm ở DK.ids: mũi tên trước/sau trong màn thông tin thẻ đi theo DK.ids chứ không theo phần tử DOM đã vẽ. */
+const DK_B=48,DK={ids:[],n:0,full:false,fvs:new Set()};
+function dkCard(k){const d=C[k],on=draft.has(k),full=DK.full,fvs=DK.fvs;
+    return `<button type="button" class="gc${on?" on":""}${fvs.has(k)?" fav":""}${F.foc===k?" foc":""}${full&&!on?" dim":""}${OWN.has(k)?qCls(k):" lock"}" style="--hc:${HC[d.h]}${qSt(k)}" data-pick="${k}" aria-label="${d.n}, năng lượng ${d.c}, sức mạnh ${d.p}">${nbL(k)}${art(k)}<span class="cst">${d.c}</span><span class="pwh">${d.p}</span><span class="n">${logo(d.id)}</span>${spk(d.id)}<span class="fv">★</span><span class="ck">✓</span>${OWN.has(k)&&canUp(k)?`<span class="gup" aria-label="Có thể nâng cấp">▲</span>`:""}<span class="gi" style="--qc:${(QN[lvl(k)]||QN[0])[1]}">${OWN.has(k)?`<span class="pips">${[1,2,3,4,5,6].map(i=>`<i class="${i<=lvl(k)?"f":""}"></i>`).join("")}</span>`:"<em>Chưa có</em>"}</span></button>`;}
+/* vẽ thêm thẻ cho tới khi đủ n thẻ (hoặc hết danh sách) */
+function dkFill(n){const L=$("deckList"),ids=DK.ids;n=Math.min(ids.length,n);if(n<=DK.n)return;let h="";for(let i=DK.n;i<n;i++)h+=dkCard(ids[i]);DK.n=n;L.insertAdjacentHTML("beforeend",h);}
+/* vẽ thêm lô cho tới khi nội dung dài tới y + 1,5 màn hình, rồi đặt vị trí cuộn */
+function dkScrollSet(y){const body=$("deckList").parentElement;if(y>0){let g=0;while(DK.n<DK.ids.length&&body.scrollHeight<y+body.clientHeight*1.5&&g++<40)dkFill(DK.n+DK_B);}body.scrollTop=y;dkNear();}
+/* vẽ tới thẻ k (để cuộn tới / lấy phần tử của nó) */
+function dkEnsure(k){const i=DK.ids.indexOf(k);if(i>=DK.n)dkFill(Math.ceil((i+1)/DK_B)*DK_B);}
+/* còn cách đáy dưới 1,5 màn hình thì vẽ thêm một lô; lặp lại ở khung kế nếu vẫn chưa đủ dài */
+function dkNear(){if(DK.n>=DK.ids.length)return;const bd=$("deckList").parentElement;if(bd.scrollHeight-bd.scrollTop-bd.clientHeight<bd.clientHeight*1.5){dkFill(DK.n+DK_B);requestAnimationFrame(dkNear);}}
+document.getElementById("deckList").parentElement.addEventListener("scroll",dkNear,{passive:true});
 function renderDeck(keepScroll){
   $("ovDeck").classList.toggle("colmode",F.col);
   if(F.col){const lv=colLv(),nx=(Math.floor(lv/5)+1)*5,cl=clPending();$("clBar").innerHTML=`<span class="lv">Cấp ${lv}</span><span class="tr"><i style="width:${(lv%5)*20}%"></i></span><span>Mốc ${nx}</span>${cl?`<button type="button" class="ib" id="btnClaim">Nhận ${cl} thưởng</button>`:""}`;}
@@ -405,11 +424,9 @@ function renderDeck(keepScroll){
   chipRow("chipsHe",[["ALL","Mọi hệ"]].concat(Object.keys(HE).filter(h=>h!=="PH").map(h=>[h,`${HE[h]} <small>${E.COLLECT.filter(k=>C[k].h===h).length}</small>`,HC[h]])),F.he,"data-f");
   const body=$("deckList").parentElement,y=keepScroll?body.scrollTop:0;
   const ids=sortIds(E.COLLECT.filter(deckMatches));$("filtCnt").textContent=ids.length;
-  const full=!F.col&&draft.size>=12,fvs=new Set(store.fav);
-  $("deckList").innerHTML=ids.map(k=>{const d=C[k],on=draft.has(k);
-    return `<button type="button" class="gc${on?" on":""}${fvs.has(k)?" fav":""}${F.foc===k?" foc":""}${full&&!on?" dim":""}${OWN.has(k)?qCls(k):" lock"}" style="--hc:${HC[d.h]}${qSt(k)}" data-pick="${k}" aria-label="${d.n}, năng lượng ${d.c}, sức mạnh ${d.p}">${nbL(k)}${art(k)}<span class="cst">${d.c}</span><span class="pwh">${d.p}</span><span class="n">${logo(d.id)}</span>${spk(d.id)}<span class="fv">★</span><span class="ck">✓</span>${OWN.has(k)&&canUp(k)?`<span class="gup" aria-label="Có thể nâng cấp">▲</span>`:""}<span class="gi" style="--qc:${(QN[lvl(k)]||QN[0])[1]}">${OWN.has(k)?`<span class="pips">${[1,2,3,4,5,6].map(i=>`<i class="${i<=lvl(k)?"f":""}"></i>`).join("")}</span>`:"<em>Chưa có</em>"}</span></button>`;}).join("")
-    ||`<div class="none" style="grid-column:1/-1">Không có thẻ nào khớp bộ lọc.</div>`;
-  body.scrollTop=y;
+  DK.ids=ids;DK.full=!F.col&&draft.size>=12;DK.fvs=new Set(store.fav);DK.n=0;
+  $("deckList").innerHTML=ids.length?"":`<div class="none" style="grid-column:1/-1">Không có thẻ nào khớp bộ lọc.</div>`;
+  dkFill(DK_B);dkScrollSet(y);
   const f=F.foc&&C[F.foc];
   $("deckDetail").innerHTML="";$("deckDetail").style.display="none";
   $("btnSaveDeck").disabled=draft.size!==12;

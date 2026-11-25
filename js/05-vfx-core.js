@@ -669,7 +669,7 @@ function startOnlineGame(seed){const op=OL.oppPr,hostDk=OL.role==="host"?store.d
   OL.CG=CG;G=OL.role==="host"?CG:mirrorG(CG);OL.st="play";OL.sub=OL.locked=OL.resolving=false;OL.myH=null;OL.note="";
   foeAv=C[op.av]?op.av:op.dk[11];$("avFoe").innerHTML=artFace(foeAv);$("avMe").innerHTML=meAv();$("foeName").textContent=olName(op.nm);foeBack=Object.keys(BACKS)[Math.floor(Math.random()*Object.keys(BACKS).length)];
   gameDeck=store.deck.join();missNote="";resetTimer(false);tArmed=true;tLast=0;
-  G.msg="<b>Đấu online.</b>";mmHide();closeAll();$("lobby").classList.remove("on");if(window.BGM)BGM.syncGame(G);render();runMatchIntro("LƯỢT 1","Đấu online",true);
+  G.msg="<b>Đấu online.</b>";try{endSeqKill();$("ovEnd").classList.remove("on");}catch(e){}mmHide();closeAll();$("lobby").classList.remove("on");if(window.BGM)BGM.syncGame(G);render();runMatchIntro("LƯỢT 1","Đấu online",true);
   try{OL.mr.presence({t:G.turn,sub:0,acts:[],lock:0,snap:0});}catch(e){}olSave();}
 function myActs(){return G.q.p.map(a=>a.t==="play"?{t:"p",u:a.uid,l:a.li}:a.t==="move"?{t:"m",u:a.uid,l:a.to}:{t:"a",u:a.uid});}
 function applyActs(g,side,acts){let ok=true;for(const a of (Array.isArray(acts)?acts:[])){if(!a||typeof a.u!=="number")continue;
@@ -748,7 +748,7 @@ async function olResume(){let sv=null;try{sv=JSON.parse(localStorage.getItem(OLK
   gameDeck=store.deck.join();missNote="";resetTimer(true);tArmed=true;tLast=0;G.msg="<b>Đã kết nối lại trận online.</b>";
   try{await r.presence(olFullPres());}catch(e){}
   OL.unM=r.onPeers(ch=>onMatchPeers(ch.peers),olRoomErr);olConn(r);
-  mmHide();closeAll();$("lobby").classList.remove("on");render();banner("ĐÃ KẾT NỐI LẠI","Lượt "+G.turn);olSave();}
+  try{endSeqKill();$("ovEnd").classList.remove("on");}catch(e){}mmHide();closeAll();$("lobby").classList.remove("on");render();banner("ĐÃ KẾT NỐI LẠI","Lượt "+G.turn);olSave();}
 setTimeout(olResume,1600);
 /* ---- cảm xúc ---- */
 const EMO=["Chào bạn!","Hay đấy!","Vậy sao?","Ối trời!","Cảm ơn!","Chơi đẹp!"];
