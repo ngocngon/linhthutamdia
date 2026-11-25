@@ -436,7 +436,7 @@ function playFxCore(evs,R0,P0,part){
       case "surge": {const tg=$(ev.side==="p"?"meSub":"oppSub"),sr=at(ev.src);if(tg){const q=ctr(tg),to={x:q.x,y:q.y,w:40,h:56};
           const go=()=>{FX.bolts(q.x,q.y,"#7fe0ff",7,34);FX.glow(q.x,q.y,"#7fe0ff",46);if(ev.side==="p")FX.float(q.x+20,q.y+18,"−1⚡ +1","#7fe0ff");pulse("#"+tg.id,[{transform:"scale(1.25)"},{transform:"scale(1)"}],180);};
           if(sr){FX.comet(sr.x,sr.y,q.x,q.y,"#7fe0ff");chip(sr,to,lite(ev.src)||sr.html,go,60,210);}else go();}cue("energy");break;}
-      case "loc": {if(S8.has("l"+ev.li)){cue("locrev");break;}locReveal(ev.li);/* gpu47: locReveal (08) tự phát tiếng loc đúng nhịp bung mở -> không cue thêm (chỉ 1 lần) */if(typeof gpuLocOpen47!=="function")cue("locrev");break;}
+      case "loc": {if(S8.has("l"+ev.li)){cue("locrev");break;}locReveal(ev.li);/* gpu51: locReveal (08) tự phát tiếng loc đúng đầu nhịp 3 -> không cue thêm (chỉ 1 lần) */if(typeof gpuLocOpen51!=="function")cue("locrev");break;}
     }
   }
   if(part===1){if(imp>0){FXHOLD=Math.max(FXHOLD,FX.impact(ix,iy,imp));snd.add("boom");}if(snd.has("boom"))SFX.play("boom");return 0;}
@@ -702,7 +702,7 @@ async function onlineResolveRun(op){OL.resolving=true;clearTimeout(OL.waitT);con
   OL.sub=false;OL.locked=false;OL.resolving=false;document.body.classList.remove("olwait");
   if(CG.turn>=E.turns(CG)){await endReveal(CG,disp);E.finish(CG,"end");disp();OL.myH={t:CG.turn*2+1,v:hashSt(CG)};try{OL.mr.presence({h:OL.myH,sub:0,acts:[],lock:0});}catch(e){}showEnd();return;}
   let hNew="";{const R0=rects0(),P0=powers();E.startTurn(CG);hNew=hashSt(CG);/* gpu22: chốt mã trạng thái ngay khi sang lượt, trước khi người chơi kịp đặt thẻ trong lúc diễn đầu lượt */disp();const evs=G.evs.slice(),locEvs=evs.filter(e=>e.k==="loc"),drawEvs=evs.filter(e=>e.k!=="loc");resetTimer(true);tArmed=true;tLast=0;G.msg="";render();const H40=new Map(HAND0),nh40=hideNewHand40(H40);
-   if(locEvs.length){playFx(locEvs,R0,P0);await sleep(reduced?80:LOC_OPEN);}
+   if(locEvs.length){playFx(locEvs,R0,P0);await sleep(reduced?80:locWait51(locEvs.length));}
    if(drawEvs.length){playFx(drawEvs,R0,P0);await sleep(reduced?60:520);}else if(nh40){drawNew40(H40);await sleep(reduced?40:320);}
    banner("LƯỢT "+G.turn,G.turn===E.turns(G)?"Lượt cuối":"");pulse("#orb",[{transform:"scale(1.45)",filter:"brightness(2.2)"},{transform:"scale(1)",filter:"brightness(1)"}],460);await sleep(reduced?50:780);}
   OL.myH={t:CG.turn*2,v:hNew||hashSt(CG)};try{OL.mr.presence({t:CG.turn,sub:0,acts:[],lock:0,h:OL.myH});}catch(e){}

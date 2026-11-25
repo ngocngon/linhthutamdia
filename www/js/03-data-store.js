@@ -101,13 +101,16 @@ function showLobby(){closeAll();renderLobby();$("lobby").classList.add("on");if(
    (không tên/ảnh/mô tả/màu, chạm xem cũng chỉ báo "chưa lộ diện", số liệu trên tay không tính hiệu ứng chiến địa). Luật engine không đổi:
    chiến địa 1 vẫn lộ ở đầu lượt 1 trong E.newGame; chỉ phần trình diễn chờ tới khi băng hiệu "LƯỢT 1" xong mới mở (locOpen43). */
 let LVEIL=null;
-const LOC_OPEN=965; /* ms gốc (nhân SPD) chờ mở chiến địa 3 nhịp: tụ lực 250 + bung mở 250 + trình diện 500 = 1000 (đã trừ ~35 đuôi của sleep) -> mặc định "Rất chậm" (SPD 2.0) ≈ 2,0 s (gpu47, vẽ ở 08) */
+const LOC_OPEN=990; /* ms gốc (nhân SPD) cho MỘT lá chiến địa kiểu Marvel Snap (gpu51): lật 350 + lá lớn lật 350 + trình diện 800 + bay về ô 450 + vệt sáng 100 ≈ 2050 ms thật ở SPD 2.0; vẽ ở 08 (gpuLocOpen51) */
+function locWait51(n){return n>1?n*(LOC_OPEN-150):LOC_OPEN;} /* nhiều lá: lần lượt từng lá, mỗi lá nhịp 3 rút còn 500 ms thật (-150 ms gốc) */
+const LVOPEN={g:null,s:new Set()}; /* gpu51: các ô đã lộ mặt thật trong lúc mở lần lượt (veil43 ở 06 chỉ che những ô chưa nằm trong tập này) */
 function locVeiled(g){return !!g&&LVEIL===g&&g.turn<=1;}
 async function locOpen43(g0,show){if(LVEIL!==g0)return;const ls=[0,1,2].filter(i=>g0.locs[i].rvl&&!g0.locs[i].gone);
-  const un=()=>{if(LVEIL===g0){LVEIL=null;render();}}; /* lộ diện + vẽ lại bàn; gọi đúng nhịp bung mở */
+  const un=()=>{if(LVEIL===g0){LVEIL=null;render();}}; /* lộ diện + vẽ lại bàn */
   if(!show||!ls.length){un();return;}
-  let n=0;if(!reduced&&typeof gpuLocOpen47==="function")for(const li of ls)if(gpuLocOpen47(li,un))n++;
-  if(n){await sleep(LOC_OPEN);un();return;}
+  const pre=li=>{if(LVEIL!==g0)return;if(LVOPEN.g!==g0){LVOPEN.g=g0;LVOPEN.s=new Set();}LVOPEN.s.add(li);render();}; /* lá chạm ô: ô đó lộ mặt thật, các ô khác vẫn che */
+  const ps=[];if(!reduced&&typeof gpuLocOpen51==="function")for(const li of ls){const p=gpuLocOpen51(li,()=>pre(li));if(p)ps.push(p);}
+  if(ps.length){try{await Promise.all(ps);}catch(e){}un();return;}
   un();try{for(const li of ls)SFX.play("loc",.85);}catch(e){}await sleep(reduced?80:300);}
 async function runMatchIntro(turnLbl,subLbl,revealLane0){const g0=G;if(!g0)return;LVEIL=g0;try{seenLoc.clear();}catch(e){}
   try{for(const L of g0.locs)if(L.rvl&&IMGL.has(L.id)){const im=new Image();im.src=IMGS.l[L.id];}}catch(e){} /* tải sẵn ảnh chiến địa để lúc lật không bị trống */
