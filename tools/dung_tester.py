@@ -12,7 +12,7 @@
 - Thư mục v, l, nen, u, a: gói theo điểm cắt CỐ ĐỊNH theo tên tệp (GROUPS) nên đổi vài ảnh chỉ đổi gói chứa chúng, thứ tự cố định, không nhúng thời gian.
   Chúng được dùng cả bằng chuỗi cứng trong mã nên bản dựng vá (có kiểm đếm) và PAK.k(đường dẫn) trả Blob URL nếu gói đã tải, chưa tải thì trả ảnh giữ chỗ
   (gif 1x1 mang "#pk=<đường dẫn>") + bắt đầu tải gói; tải xong thì quét DOM thay ảnh giữ chỗ (thuộc tính src và style) bằng Blob URL.
-  IMGS.u/l/a bọc Proxy kiểu giữ chỗ; IMGS.v bọc Proxy kiểu v16 (chưa tải -> undefined) vì ảnh v còn dùng cho canvas.
+  IMGS.u/uz/l/a bọc Proxy kiểu giữ chỗ; IMGS.v bọc Proxy kiểu v16 (chưa tải -> undefined) vì ảnh v còn dùng cho canvas.
   Gói u và v được chờ ở màn hình tải (như bản gốc từng tải hết u, v ở màn hình tải); l, nen, a tải ngầm lúc rảnh hoặc khi cần.
 - Cuối bản dựng có bước kiểm: mọi chuỗi img/(v|l|nen|u|a)/ còn sót trong js/css/html mà trỏ tới tệp đã gói phải nằm trong danh sách cho phép, nếu không dừng.
 - In ra số tệp; dừng nếu vượt 300 (mục tiêu của bản này; giới hạn cứng của artifact là 512).
@@ -158,7 +158,7 @@ var PAK={url:url,has:function(p){return !!I[p];},k:k,sync:sync,sweep:sweep,
     has:function(t,key){var p=V[key];return !!(p&&blob[p]);}});},
   /* IMGS.v: chưa tải -> undefined (canvas/mã game tự dùng đường thay thế) */
   vv:function(orig){return new Proxy(orig,{get:function(t,key){var v=t[key];if(typeof v!=="string")return v;var p=norm(v);if(!I[p])return v;if(blob[p])return blob[p];kick(p);return undefined;}});},
-  wrap:function(o){try{if(o.v)o.v=PAK.vv(o.v);for(var d of ["u","l","a"])if(o[d])o[d]=deep(o[d]);}catch(e){}}};
+  wrap:function(o){try{if(o.v)o.v=PAK.vv(o.v);for(var d of ["u","uz","l","a"])if(o[d])o[d]=deep(o[d]);}catch(e){}}};
 window.PAK=PAK;})();
 """ % (json.dumps(paks), json.dumps(idx, separators=(",", ":")), json.dumps(v16, separators=(",", ":")), json.dumps(V16_CORE), json.dumps(ready_paks), json.dumps(warm_paks))
 open(os.path.join(OUT, "js/00-pak.js"), "w", encoding="utf8").write(shim)
