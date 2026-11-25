@@ -1235,15 +1235,17 @@
       els.push(e);
       AN.call(e, [{ opacity: 0 }, { opacity: 0.9, offset: 0.25 }, { opacity: 0 }], { duration: MVD * 0.4, delay: u * MVD, easing: "ease-out", fill: "both" });
     }
+    s.trl = els;
     fxT(() => els.forEach((e) => e.remove()), MVD * 1.7);
   }
   /* thẻ khác trong hai chiến địa: ghim ở chỗ cũ ngay khi bàn vẽ lại, rồi trượt về chỗ mới lúc thẻ cất cánh */
   window.mvPre9 = function (s) {
-    if (reduced) return;
+    if (reduced || !s.ph) return;
     mvHold(s.dst);
     s.mvh = 1;
     const M = window.MVR9;
     if (!M || !M.R1) return;
+    (M.t0s || (M.t0s = {}))[s.dst] = s.t0 || 0; /* lịch cất cánh gốc (nhân SPD ra ms thật), để kiểm so le */
     s.pins = [];
     const AN = Element.prototype.animate;
     for (const [u, q1] of M.R1) {
@@ -1285,6 +1287,7 @@
       if (done) return;
       done = true;
       if (s.mvh) { s.mvh = 0; mvRel(s.dst); }
+      if (s.trl) { s.trl.forEach((e) => e.remove()); s.trl = null; }
       const el = mcEl9(s.dst);
       if (el && typeof pop9 === "function") pop9(el, 1.07, 300);
       if (light) return;
@@ -1318,7 +1321,6 @@
       const sel = s.sp ? mcEl9(s.src) : null;
       if (s.k === "move" && s.sp && sel) {
         /* kéo / đẩy: giữ nguyên phần thẻ nguồn (dây, đòn) của lớp dưới; chuyến bay của thẻ bị dời thay bằng đường bay chung */
-        const orig = ph.animate;
         ph.animate = function (kf, o) {
           if (!(o && +o.duration >= 200)) return Element.prototype.animate.call(this, kf, o);
           delete ph.animate;

@@ -1157,7 +1157,7 @@ function plan8(evA,R0,R1,P0,P1){S8=new Set();if(reduced||!G)return 0;const X=evA
     if(simple(s0)){if(bSrc!==s0.src){bSrc=s0.src;bK=0;}
       g.s.forEach((s,i)=>{s.t0=bK?bT+Math.round(bGap(bK)*PQ8(s)):t;bT=s.t0;bK++;if(n>1)s.grp={n,i,c,list:g.s};T=Math.max(T,s.t0+dur(s));});t=bT+stg(s0);continue;}
     bSrc=0;const stepGap=Math.round((s0.ong?70:n<=4?380:230)*PQ8(s0));
-    if(g.k==="mv"){let acc=0,pd=0;g.s.forEach((s,i)=>{const d=Math.sign((s.tp.x-s.r0.x)||(s.tp.y-s.r0.y));if(i&&d&&pd&&d!==pd){}else if(i)acc+=Math.min(60,Math.round(50*PQ8(s)));if(d)pd=d;s.t0=t+acc;if(n>1)s.grp={n,i,c,list:g.s};T=Math.max(T,s.t0+dur(s));});t=Math.max(...g.s.map(s=>s.t0))+stg(s0);continue;}
+    if(g.k==="mv"){let acc=0,pd=0;g.s.forEach((s,i)=>{const d=Math.sign((s.tp.x-s.r0.x)||(s.tp.y-s.r0.y));if(i&&d&&pd&&d!==pd){}else if(i)acc=Math.min(150,acc+Math.min(60,Math.round(50*PQ8(s))));if(d)pd=d;s.t0=t+acc;if(n>1)s.grp={n,i,c,list:g.s};T=Math.max(T,s.t0+dur(s));});t=Math.max(...g.s.map(s=>s.t0))+stg(s0);continue;}
     g.s.forEach((s,i)=>{s.t0=t+i*stepGap;if(n>1)s.grp={n,i,c,list:g.s};T=Math.max(T,s.t0+dur(s));});t=Math.max(...g.s.map(s=>s.t0))+stg(s0);}
   t=rest.length?T+T8.GAP:0;
   for(const s of locs){s.t0=t;t+=dur(s)+T8.GAP;T=Math.max(T,s.t0+dur(s));}
