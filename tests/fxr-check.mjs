@@ -41,7 +41,7 @@ const ctx = await browser.newContext({ viewport: { width: 412, height: 915 }, is
 const page = await ctx.newPage();
 const errors = [];
 page.on("pageerror", e => errors.push("pageerror: " + e.message));
-page.on("console", m => { if (m.type() === "error") errors.push("console.error: " + m.text()); });
+page.on("console", m => { if (m.type() === "error" && !/ERR_TUNNEL_CONNECTION_FAILED|ERR_PROXY/.test(m.text())) errors.push("console.error: " + m.text()); });
 page.on("response", r => { if (r.status() >= 400) errors.push("http " + r.status() + ": " + r.url()); });
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 try {

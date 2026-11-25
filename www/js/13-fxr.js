@@ -79,7 +79,7 @@ const FXT_RAW="acmong:4,16,1,2,1,5,4304,1,1,1;ainunuotsao:5,13,1,0,0,5,4292,1,1,
   /* ---- atlas ảnh (www/img/fx/fx.json) ----
      Định dạng: {"v":1,"tam":[{"f":"L01_tang.webp","n":4,"k":["tang_lua",…16 mã ô theo hàng, "" = bỏ trống]}, …]}
      Mỗi tấm vuông n×n ô (768² với n=4 -> ô 192px). Mã ô: <nguyên mẫu>_<hệ> | <nguyên mẫu>_tr|_s4|_s5 | ic_<biểu tượng> | em_<id thẻ>. */
-  const ATL = { st: 0, m: {} };
+  const ATL = { st: 0, m: {}, lz: {} };
   function atlasLoad() {
     if (ATL.st) return; ATL.st = 1;
     try {
@@ -87,17 +87,20 @@ const FXT_RAW="acmong:4,16,1,2,1,5,4304,1,1,1;ainunuotsao:5,13,1,0,0,5,4292,1,1,
         if (!j || !Array.isArray(j.tam)) { ATL.st = 3; return; }
         ATL.st = 2;
         /* chỉ nhận một tấm khi ảnh của nó tải được (thiếu tệp -> các ô của tấm đó dùng hình dự phòng) */
+        /* gpu52: tấm nguyên mẫu (L01–L09) nạp ngay; tấm ấn ký (*_anky) chỉ nạp khi lần đầu cần một ô của nó
+           (24 tấm 768² giải mã ≈ 57 MB -> nạp hết làm nặng máy yếu; một trận chỉ chạm vài tấm ấn ký) */
         for (const s of j.tam) {
-          const n = +s.n || 4, f = "img/fx/" + s.f, im = new Image();
-          im.onload = () => (s.k || []).forEach((k, i) => { if (k) ATL.m[k] = { f, n, x: i % n, y: Math.floor(i / n) }; });
-          im.src = window.PAK && PAK.k ? PAK.k(f) : f;
+          const ld = () => { if (s._ld) return; s._ld = 1; const n = +s.n || 4, f = "img/fx/" + s.f, im = new Image();
+            im.onload = () => (s.k || []).forEach((k, i) => { if (k) ATL.m[k] = { f, n, x: i % n, y: Math.floor(i / n) }; });
+            im.src = window.PAK && PAK.k ? PAK.k(f) : f; };
+          if (/anky/.test(s.f)) (s.k || []).forEach(k => { if (k) ATL.lz[k] = ld; }); else ld();
         }
       }).catch(() => { ATL.st = 3; });
     } catch (e) { ATL.st = 3; }
   }
   function spr(keys) {
     if (ATL.st !== 2) return null;
-    for (const k of keys) { const a = k && ATL.m[k]; if (a) { const u = window.PAK && PAK.k ? PAK.k(a.f) : a.f, p = v => (a.n > 1 ? (v * 100 / (a.n - 1)).toFixed(3) : 0) + "%"; return `<i class="fxr-sp" style="background-image:url('${u}');background-size:${a.n * 100}% ${a.n * 100}%;background-position:${p(a.x)} ${p(a.y)}"></i>`; } }
+    for (const k of keys) { const a = k && ATL.m[k]; if (!a && k && ATL.lz[k]) ATL.lz[k](); if (a) { const u = window.PAK && PAK.k ? PAK.k(a.f) : a.f, p = v => (a.n > 1 ? (v * 100 / (a.n - 1)).toFixed(3) : 0) + "%"; return `<i class="fxr-sp" style="background-image:url('${u}');background-size:${a.n * 100}% ${a.n * 100}%;background-position:${p(a.x)} ${p(a.y)}"></i>`; } }
     return null;
   }
 
@@ -325,6 +328,7 @@ const FXT_RAW="acmong:4,16,1,2,1,5,4304,1,1,1;ainunuotsao:5,13,1,0,0,5,4292,1,1,
   if (typeof run8 === "function") {
     const _run8 = run8;
     run8 = function (s) {
+      try { const id = s && s.src > 0 ? baseIdOf(s.src) : null; if (id && ATL.st === 2) spr(["em_" + id]); } catch (e) {} /* nạp sớm tấm ấn ký của thẻ nguồn */
       try {
         const k = s && KIND(s);
         if (k && s.sp && s.tp && s.src > 0 && !s.self29 && !s.ong) {

@@ -517,7 +517,7 @@ const SFX = (() => {
   const SIT_RATE = { up1: 1.08, up3: 0.92, dn1: 1.06, dn3: 0.9, costup: 0.94, costdn: 1.06, nrgloss: 0.88 };
   const HEAVY = { up3: 1, dn3: 1, dbl: 1, exile: 1 };
   const GRPN = /^(x_|f_|destroy$|discard$|move$|draw$|summon$|revive$|steal$|silence$|shield$|buff$|debuff$|energy$|morph$|act$|hurt$)/;
-  let hintO = null, beatT = -9, beatCall = -1e9, famCall = -1e9; /* beatCall/famCall: thời điểm GỌI (performance.now) tiếng riêng / tiếng nhóm gần nhất */ /* gợi ý tình huống/hệ cho lời gọi fam() kế tiếp (FXR đặt quanh hit8); mốc tiếng riêng vừa phát */
+  const lastK = {}; let hintO = null, beatT = -9, beatCall = -1e9, famCall = -1e9; /* beatCall/famCall: thời điểm GỌI (performance.now) tiếng riêng / tiếng nhóm gần nhất */ /* gợi ý tình huống/hệ cho lời gọi fam() kế tiếp (FXR đặt quanh hit8); mốc tiếng riêng vừa phát */
   function fam(key, o) {
     o = o || {};
     if (key === "ult") { launch(o.rate > 1.05 ? 4 : 5, o); return; } /* tương thích lời gọi cũ fam("ult") */
@@ -537,6 +537,8 @@ const SFX = (() => {
       const el = hk && hk.el ? hk.el : o.el === undefined ? curEl() : o.el, p = el && EL[el];
       const vol = o.vol == null ? 1 : o.vol;
       const sk = (hk && hk.k) || SIT_OF[key];
+      /* gpu52 QA: tiếng tình huống do FXR gợi ý (vd. Duy Trì ủng hộ nhiều thẻ cùng lúc -> x_tim ×3 trong 150 ms) -> chỉ phát 1 lần mỗi 200 ms */
+      if (hk && hk.k && !o.skill) { const now = performance.now(); if (now - (lastK[hk.k] || -1e9) < 200) return; lastK[hk.k] = now; }
       if (sk && bufs["x_" + sk]) {
         if (VIB[n] && store.vib !== false && navigator.vibrate) { try { navigator.vibrate(VIB[n]); } catch (e) {} }
         playSample("x_" + sk, vol, { rate: (p ? p.r : 1) * (SIT_RATE[key] || 1) * (o.rate || 1), hp: p && p.hp, lp: p && p.lp, delay: o.delay });

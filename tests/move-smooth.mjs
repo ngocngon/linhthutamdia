@@ -189,7 +189,7 @@ for (const vp of VPS) {
   const ctx = await browser.newContext({ viewport: { width: vp[0], height: vp[1] }, isMobile: true, hasTouch: true });
   const page = await ctx.newPage();
   page.on("pageerror", e => errors.push("pageerror: " + e.message));
-  page.on("console", m => { if (m.type() === "error") errors.push(m.text()); });
+  page.on("console", m => { if (m.type() === "error" && !/ERR_TUNNEL_CONNECTION_FAILED|ERR_PROXY/.test(m.text())) errors.push(m.text()); });
   await page.goto(url, { waitUntil: "domcontentloaded" });
   await page.waitForSelector("#ldr12", { state: "detached", timeout: 120000 });
   await page.evaluate(() => document.getElementById("lbPlay").click());
