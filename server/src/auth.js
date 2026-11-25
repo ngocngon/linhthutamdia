@@ -35,13 +35,25 @@ export async function verifyToken(env, token, now = Date.now()) {
   return p;
 }
 
-// Lấy người dùng đang đăng nhập từ token; kiểm tra còn hoạt động và chưa bị thu hồi
-export async function authUser(env, token) {
+// Khoá vĩnh viễn = ban_until từ mốc này trở đi (năm 2100); API trả until: null
+export const BAN_FOREVER = 4102444800000;
+
+// Kiểm tra token: null = không hợp lệ/đã thu hồi; { user, ban } với ban = null hoặc { reason, until }
+export async function authCheck(env, token, now = Date.now()) {
   const p = await verifyToken(env, token);
   if (!p) return null;
-  const u = await env.DB.prepare("SELECT id, username, display, disabled, token_ver FROM users WHERE id=?").bind(p.u).first();
-  if (!u || u.disabled || (u.token_ver | 0) !== (p.v | 0)) return null;
-  return u;
+  const u = await env.DB.prepare("SELECT id, username, display, disabled, token_ver, created_at, ban_reason, ban_until FROM users WHERE id=?").bind(p.u).first();
+  if (!u || (u.token_ver | 0) !== (p.v | 0)) return null;
+  let ban = null;
+  if (u.disabled) ban = { reason: u.ban_reason || "", until: null };
+  else if (u.ban_until && u.ban_until > now) ban = { reason: u.ban_reason || "", until: u.ban_until >= BAN_FOREVER ? null : u.ban_until };
+  return { user: u, ban };
+}
+
+// Lấy người dùng đang đăng nhập từ token; kiểm tra còn hoạt động, chưa bị thu hồi, không bị khoá
+export async function authUser(env, token) {
+  const a = await authCheck(env, token);
+  return a && !a.ban ? a.user : null;
 }
 
 export function bearer(request) {
