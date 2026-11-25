@@ -2,6 +2,7 @@ import { DurableObject } from "cloudflare:workers";
 import { hsx, cleanName } from "./util.js";
 
 const MAX_MSG = 8 * 1024;
+const RECENT_MS = 30 * 60 * 1000;
 const MODES = ["online"];
 const PKEY_RE = /^(d\d{4}-\d{2}-\d{2}|m\d{4}-\d{2}|w\d{1,5})$/;
 
@@ -18,6 +19,13 @@ export class Matchmaker extends DurableObject {
     ctx.setWebSocketAutoResponse(new WebSocketRequestResponsePair('{"type":"ping"}', '{"type":"pong"}'));
   }
   async fetch(request) {
+    // thống kê nội bộ cho trang quản trị (chỉ Worker gọi được: đường dẫn ngoài luôn là /api/play)
+    if (new URL(request.url).pathname === "/__stats") {
+      const all = this.ctx.getWebSockets().map((ws) => ws.deserializeAttachment() || {});
+      const now = Date.now();
+      const recent = ((await this.ctx.storage.get("recent")) || []).filter((x) => now - x.t < RECENT_MS);
+      return Response.json({ lobby: new Set(all.map((a) => a.uid)).size, seeking: all.filter((a) => a.seeking).length, recent });
+    }
     if ((request.headers.get("upgrade") || "").toLowerCase() !== "websocket") return new Response("expected websocket", { status: 426 });
     const uid = +request.headers.get("x-ltd-uid");
     if (!uid) return new Response("unauthorized", { status: 401 });
@@ -91,6 +99,13 @@ export class Matchmaker extends DurableObject {
     const mk = (z) => ({ uid: z.s.a.uid, name: z.s.a.name, rating: z.s.a.rating, peer: z.p, keys: z.s.a.keys || {} });
     const r = await stub.fetch("https://match/init", { method: "POST", body: JSON.stringify({ mid, mode: x.a.mode, players: [mk(host), mk(guest)] }) });
     if (!r.ok) { used_fail(x, y); return; }
+    // nhớ các trận vừa ghép (30 phút) để trang quản trị ước tính số trận đang diễn ra
+    try {
+      const now = Date.now();
+      const rec = ((await this.ctx.storage.get("recent")) || []).filter((z) => now - z.t < RECENT_MS);
+      rec.push({ mid, t: now });
+      await this.ctx.storage.put("recent", rec.slice(-500));
+    } catch {}
     const info = (z) => ({ peer: z.p, t0: z.t0, pres: z.s.a.pres });
     for (const [me, opp] of [[host, guest], [guest, host]]) {
       try { me.s.ws.send(JSON.stringify({ type: "found", mid, role: me === host ? "host" : "guest", me: info(me), opp: info(opp) })); } catch {}

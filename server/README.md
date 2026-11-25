@@ -6,7 +6,7 @@ Cloudflare Worker + Durable Objects + D1. Không cần máy chủ riêng, không
 
 - **Worker** (`src/index.js`): REST + WebSocket, kiểm tra CORS (`https://ngocngon.github.io`, `https://localhost`, `capacitor://localhost`, `http://localhost:*`), phục vụ trang quản trị `/admin`.
 - **Tài khoản**: người chơi tự đăng ký (tên đăng nhập + mật khẩu, tối đa 5 tài khoản mới/IP/giờ; quản trị tắt/bật ở `/admin`), đăng nhập bằng Google (khi đã đặt `GOOGLE_CLIENT_ID`), hoặc do quản trị tạo. Mật khẩu băm PBKDF2-SHA256 (WebCrypto). Đăng nhập trả về mã phiên ký HMAC (`SESSION_SECRET (không bắt buộc — để trống thì máy chủ tự sinh và lưu trong D1)`), hạn 30 ngày; khoá tài khoản hoặc đổi mật khẩu sẽ thu hồi các phiên cũ. Sai quá 6 lần/10 phút thì tạm khoá.
-- **D1** (`migrations/`): `users`, `ratings` (Elo theo chế độ), `scores` (điểm theo ngày/tháng/tuần mỗi chế độ), `matches` (lịch sử), `saves` (tiến trình người chơi, đồng bộ nhiều máy).
+- **D1** (`migrations/`): `users`, `ratings` (Elo theo chế độ), `scores` (điểm theo ngày/tháng/tuần mỗi chế độ), `matches` (lịch sử), `saves` (tiến trình người chơi, đồng bộ nhiều máy), `activity` (hoạt động theo ngày), `mail`/`mail_claim`, `giftcodes`/`giftcode_redeem`, `announcements`, `admin_log`.
 - **Durable Object `Matchmaker`**: hàng chờ ghép trận theo chế độ + mã riêng + độ gần Elo (chờ càng lâu càng nới rộng).
 - **Durable Object `Match`** (một DO mỗi trận, WebSocket Hibernation): chuyển tiếp trạng thái "presence" của game (giữ nguyên giao thức lockstep của client: hạt giống, thao tác từng lượt, khoá, băm trạng thái), giới hạn kích thước/tốc độ tin, và nắm các hạn chót phía máy chủ:
   - mất kết nối quá 3 phút thì xử thua;
@@ -15,7 +15,19 @@ Cloudflare Worker + Durable Objects + D1. Không cần máy chủ riêng, không
   - Đồng hồ lượt 90 giây và luật "bỏ 3 lượt liên tiếp thì thua" vẫn do client xử lý như cũ.
 - **Client**: `www/js/10-online-cf.js` cắm vào game khi có địa chỉ máy chủ; không có thì game chạy cách cũ.
 
-API: `GET /api/config` (công khai: `googleClientId`, `registerOpen`), `POST /api/register`, `POST /api/login`, `POST /api/login/google`, `POST /api/link/google`, `POST /api/unlink/google`, `POST /api/password`, `GET /api/me`, `GET|PUT /api/save` (`?slot=avatar` cho ảnh), `GET /api/leaderboard?mode=online[&key=d2026-11-23]`, `POST /api/score` (điểm các chế độ chơi với máy), `GET /api/history`, `GET|POST|PATCH /api/admin/users`, `GET|PUT /api/admin/config` (cần `ADMIN_TOKEN`), WebSocket `/api/play` (ghép trận) và `/api/play?room=<mã trận>`.
+API: `GET /api/config` (công khai: `googleClientId`, `registerOpen`), `POST /api/register`, `POST /api/login`, `POST /api/login/google`, `POST /api/link/google`, `POST /api/unlink/google`, `POST /api/password`, `GET /api/me`, `GET|PUT /api/save` (`?slot=avatar` cho ảnh), `GET /api/leaderboard?mode=online[&key=d2026-11-23]`, `POST /api/score` (điểm các chế độ chơi với máy), `GET /api/history`, `GET|POST|PATCH /api/admin/users`, `GET|PUT /api/admin/config` và các API quản trị khác (cần `ADMIN_TOKEN`, xem mục Trang quản trị), WebSocket `/api/play` (ghép trận) và `/api/play?room=<mã trận>`.
+
+API cho game (hợp đồng cố định): `POST /api/ping {v, platform:'web'|'apk'|'tester'}` (ghi hoạt động theo ngày giờ VN, tối đa 30 lần/giờ), `GET /api/announce` (công khai), `GET /api/mail`, `POST /api/mail/claim {id}` (409 `claimed`, 410 `expired`), `POST /api/giftcode {code}` (404 `not_found`, 410 `expired`/`not_started`, 409 `used_up`/`already`, 429 sau 10 lần sai/giờ). Phần quà `{vang?, ngoc?, token?, diem?, the?: [id]}`, máy chủ kiểm khoá và trần (1.000.000 / 100.000 / 10.000 / 100.000 / 20 thẻ). Tài khoản đang bị khoá: mọi API cần đăng nhập trả `403 {error:'banned', reason, until}` (`until: null` = vĩnh viễn).
+
+## Trang quản trị `/admin`
+
+Mở `https://<worker>/admin`, nhập `ADMIN_TOKEN` (chỉ giữ trong phiên trình duyệt, có nút Đăng xuất). Gồm: Tổng quan; Người chơi (Tra cứu theo mã/tên/email, chi tiết người chơi với các tab Tổng quan / Tiến trình / Trận đấu / Thư / Nhật ký / Cờ và lưới "Ngày có chơi (60 ngày)", Khoá tài khoản có lý do + thời hạn, Cờ gian lận, Tạo tài khoản); Vận hành (Gửi thư/quà cho một người hoặc tất cả, Giftcode, Thông báo, Cài đặt đăng ký/Google); Phân tích (Thời gian thực, Người chơi & DAU, Giữ chân D1–D30, Trận đấu & Elo, Nền tảng & phiên bản); Hệ thống (Sức khoẻ máy chủ, Nhật ký quản trị). API ở `/api/admin/*` (header `x-admin-token`), mọi thao tác ghi đều vào bảng `admin_log`.
+
+- Trang quản trị **chỉ đọc** bản lưu người chơi (xem/tải JSON), không sửa hay xoá.
+- Cờ gian lận chỉ liệt kê, không tự phạt. "Nhiều tài khoản cùng mạng" dùng IP đã băm HMAC (không lưu IP thô), chỉ có cho tài khoản tạo sau migration 0004.
+- Số liệu hoạt động/giữ chân/thời gian chơi dựa trên `/api/ping` của game; trước khi bản game có ping, các số này trống.
+- Tên thẻ lấy từ `src/cards.js`, sinh bằng `node scripts/gen-cards.mjs` (chạy lại khi game thêm thẻ). Đổi mã máy chủ thì tăng `WORKER_VERSION` trong `src/ops.js`.
+- Thử trên máy với dữ liệu MẪU (giả, lưu ở `.wrangler/demo`, không commit): `node scripts/seed-demo.mjs && npx wrangler dev --local --port 8787 --persist-to .wrangler/demo`, rồi mở `http://localhost:8787/admin`. Chụp ảnh: `PW_PATH=<thư mục node_modules có playwright-core> SERVER=http://localhost:8787 OUT=shots node scripts/shots-admin.mjs`.
 
 ## Việc chủ game phải làm MỘT LẦN để chạy thật
 

@@ -1,7 +1,10 @@
 import { json, err, readJson, cleanName } from "./util.js";
-import { authUser, bearer, adminOk, login, checkNewCreds, hashPassword, checkPassword, signToken, clientIp, throttled, noteFail, clearFail, USERNAME_RE } from "./auth.js";
+import { authCheck, bearer, adminOk, login, checkNewCreds, hashPassword, checkPassword, signToken, clientIp, throttled, noteFail, clearFail, USERNAME_RE } from "./auth.js";
 import { START_RATING, MODES, SCORE_MODES, PKEY_RE } from "./elo.js";
 import { verifyGoogleIdToken } from "./google.js";
+import { gameApi, announce } from "./game.js";
+import { adminApi } from "./admin.js";
+import { logAdmin, ipTag, WORKER_VERSION } from "./ops.js";
 
 const SAVE_MAX = 512 * 1024;
 
@@ -91,7 +94,7 @@ export async function handleApi(request, env, url) {
     const h = await hashPassword(b.password);
     let id;
     try {
-      id = (await env.DB.prepare("INSERT INTO users(username,display,pass_hash,salt,iters,created_at) VALUES(?,?,?,?,?,?)").bind(username, display, h.pass_hash, h.salt, h.iters, now).run()).meta.last_row_id;
+      id = (await env.DB.prepare("INSERT INTO users(username,display,pass_hash,salt,iters,created_at,reg_ip) VALUES(?,?,?,?,?,?,?)").bind(username, display, h.pass_hash, h.salt, h.iters, now, await ipTag(env, ip)).run()).meta.last_row_id;
     } catch (e) {
       await regGiveBack(env, ip);
       if (isUnique(e)) return err(409, "exists", "Tên đăng nhập đã có người dùng");
@@ -119,7 +122,7 @@ export async function handleApi(request, env, url) {
     if (!username) { await regGiveBack(env, ip); return err(500, "server_error", "Không tạo được tên đăng nhập"); }
     const display = cleanName(g.name) || username;
     try {
-      const id = (await env.DB.prepare("INSERT INTO users(username,display,pass_hash,salt,iters,created_at,google_sub,email) VALUES(?,?,'','',0,?,?,?)").bind(username, display, now, g.sub, g.email).run()).meta.last_row_id;
+      const id = (await env.DB.prepare("INSERT INTO users(username,display,pass_hash,salt,iters,created_at,google_sub,email,reg_ip) VALUES(?,?,'','',0,?,?,?,?)").bind(username, display, now, g.sub, g.email, await ipTag(env, ip)).run()).meta.last_row_id;
       u = { id, username, display, token_ver: 0 };
     } catch (e) {
       await regGiveBack(env, ip);
@@ -132,11 +135,18 @@ export async function handleApi(request, env, url) {
     return session(env, u, { created: true });
   }
 
+  if (path === "/api/announce" && m === "GET") return announce(env);
+
   if (path.startsWith("/api/admin/")) return admin(request, env, url);
 
-  // --- cần đăng nhập ---
-  const user = await authUser(env, bearer(request));
-  if (!user) return err(401, "unauthorized", "Cần đăng nhập");
+  // --- cần đăng nhập; tài khoản đang bị khoá nhận 403 kèm lý do và hạn ---
+  const a = await authCheck(env, bearer(request));
+  if (!a) return err(401, "unauthorized", "Cần đăng nhập");
+  if (a.ban) return json({ ok: false, error: "banned", reason: a.ban.reason, until: a.ban.until, message: "Tài khoản đang bị khoá" }, 403);
+  const user = a.user;
+
+  const g = await gameApi(request, env, url, user);
+  if (g) return g;
 
   if (path === "/api/me" && m === "GET") {
     const rs = await env.DB.prepare("SELECT mode, rating, games, wins, losses, draws FROM ratings WHERE user_id=?").bind(user.id).all();
@@ -223,18 +233,18 @@ export async function handleApi(request, env, url) {
     let rows, me = null;
     if (!key) {
       if (!MODES.includes(mode)) return json({ ok: true, mode, key: "", kind: "rating", rows: [], me: null });
-      rows = (await env.DB.prepare("SELECT u.display AS name, u.id AS uid, r.rating AS v, r.games, r.wins FROM ratings r JOIN users u ON u.id=r.user_id WHERE r.mode=? AND r.games>0 AND u.disabled=0 ORDER BY r.rating DESC, r.wins DESC, u.id LIMIT 50").bind(mode).all()).results;
+      rows = (await env.DB.prepare("SELECT u.display AS name, u.id AS uid, r.rating AS v, r.games, r.wins FROM ratings r JOIN users u ON u.id=r.user_id WHERE r.mode=? AND r.games>0 AND u.disabled=0 AND (u.ban_until IS NULL OR u.ban_until<=strftime('%s','now')*1000) ORDER BY r.rating DESC, r.wins DESC, u.id LIMIT 50").bind(mode).all()).results;
       const mine = await env.DB.prepare("SELECT rating, games, wins FROM ratings WHERE user_id=? AND mode=?").bind(user.id, mode).first();
       if (mine && mine.games > 0) {
-        const hi = await env.DB.prepare("SELECT COUNT(*) AS c FROM ratings r JOIN users u ON u.id=r.user_id WHERE r.mode=? AND r.games>0 AND u.disabled=0 AND r.rating>?").bind(mode, mine.rating).first();
+        const hi = await env.DB.prepare("SELECT COUNT(*) AS c FROM ratings r JOIN users u ON u.id=r.user_id WHERE r.mode=? AND r.games>0 AND u.disabled=0 AND (u.ban_until IS NULL OR u.ban_until<=strftime('%s','now')*1000) AND r.rating>?").bind(mode, mine.rating).first();
         me = { rank: hi.c + 1, v: mine.rating, games: mine.games, wins: mine.wins };
       }
     } else {
       if (!PKEY_RE.test(key)) return err(400, "bad_key");
-      rows = (await env.DB.prepare("SELECT u.display AS name, u.id AS uid, s.pts AS v FROM scores s JOIN users u ON u.id=s.user_id WHERE s.mode=? AND s.pkey=? AND s.pts>0 AND u.disabled=0 ORDER BY s.pts DESC, u.id LIMIT 50").bind(mode, key).all()).results;
+      rows = (await env.DB.prepare("SELECT u.display AS name, u.id AS uid, s.pts AS v FROM scores s JOIN users u ON u.id=s.user_id WHERE s.mode=? AND s.pkey=? AND s.pts>0 AND u.disabled=0 AND (u.ban_until IS NULL OR u.ban_until<=strftime('%s','now')*1000) ORDER BY s.pts DESC, u.id LIMIT 50").bind(mode, key).all()).results;
       const mine = await env.DB.prepare("SELECT pts FROM scores WHERE user_id=? AND mode=? AND pkey=?").bind(user.id, mode, key).first();
       if (mine && mine.pts > 0) {
-        const hi = await env.DB.prepare("SELECT COUNT(*) AS c FROM scores s JOIN users u ON u.id=s.user_id WHERE s.mode=? AND s.pkey=? AND u.disabled=0 AND s.pts>?").bind(mode, key, mine.pts).first();
+        const hi = await env.DB.prepare("SELECT COUNT(*) AS c FROM scores s JOIN users u ON u.id=s.user_id WHERE s.mode=? AND s.pkey=? AND u.disabled=0 AND (u.ban_until IS NULL OR u.ban_until<=strftime('%s','now')*1000) AND s.pts>?").bind(mode, key, mine.pts).first();
         me = { rank: hi.c + 1, v: mine.pts };
       }
     }
@@ -274,12 +284,13 @@ async function admin(request, env, url) {
     return json({ ok: true, users: rs.results });
   }
   if (path === "/api/admin/config" && m === "GET") {
-    return json({ ok: true, registerOpen: await registerOpen(env), google: !!String(env.GOOGLE_CLIENT_ID || "").trim() });
+    return json({ ok: true, registerOpen: await registerOpen(env), google: !!String(env.GOOGLE_CLIENT_ID || "").trim(), googleClientId: String(env.GOOGLE_CLIENT_ID || "").trim(), version: WORKER_VERSION });
   }
   if (path === "/api/admin/config" && (m === "PUT" || m === "PATCH")) {
     const b = await readJson(request, 1024);
     if (typeof b.registerOpen !== "boolean") return err(400, "bad_value");
     await env.DB.prepare("INSERT INTO config(k,v) VALUES('register_open',?) ON CONFLICT(k) DO UPDATE SET v=excluded.v").bind(b.registerOpen ? "1" : "0").run();
+    await logAdmin(env, "config.register", "config", { registerOpen: b.registerOpen });
     return json({ ok: true, registerOpen: b.registerOpen });
   }
   if (path === "/api/admin/users" && m === "POST") {
@@ -291,6 +302,7 @@ async function admin(request, env, url) {
     const h = await hashPassword(b.password);
     try {
       const r = await env.DB.prepare("INSERT INTO users(username,display,pass_hash,salt,iters,created_at) VALUES(?,?,?,?,?,?)").bind(username, display, h.pass_hash, h.salt, h.iters, Date.now()).run();
+      await logAdmin(env, "user.create", "u:" + r.meta.last_row_id, { username, display });
       return json({ ok: true, id: r.meta.last_row_id, username, display }, 201);
     } catch (e) {
       if (/UNIQUE/i.test(String(e && (e.message || e)))) return err(409, "exists", "Tên đăng nhập đã có");
@@ -316,7 +328,8 @@ async function admin(request, env, url) {
       const h = await hashPassword(b.password);
       await env.DB.prepare("UPDATE users SET pass_hash=?, salt=?, iters=?, token_ver=token_ver+1 WHERE id=?").bind(h.pass_hash, h.salt, h.iters, id).run();
     }
+    await logAdmin(env, "user.patch", "u:" + id, { display: typeof b.display === "string" ? cleanName(b.display) : undefined, disabled: typeof b.disabled === "boolean" ? b.disabled : undefined, password: b.password !== undefined ? "đặt lại" : undefined });
     return json({ ok: true });
   }
-  return err(404, "not_found");
+  return adminApi(request, env, url);
 }

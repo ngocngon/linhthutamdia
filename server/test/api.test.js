@@ -106,6 +106,8 @@ describe("tiến trình, bảng xếp hạng, CORS", () => {
   it("trang quản trị được phục vụ", async () => {
     const r = await SELF.fetch("https://t/admin");
     expect(r.status).toBe(200);
-    expect(await r.text()).toContain("Quản trị tài khoản");
+    const t = await r.text();
+    expect(t).toContain("Linh Thú Tam Địa — Quản trị");
+    expect(t).not.toMatch(/<script[^>]+src=/);
   });
 });
