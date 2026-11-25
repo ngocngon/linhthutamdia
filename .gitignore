@@ -6,3 +6,4 @@ node_modules/
 .DS_Store
 tools/fx_atlas/*_xem.png
 www/img/fx/*_xem.png
+__pycache__/
