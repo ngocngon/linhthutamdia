@@ -718,3 +718,7 @@ body.rm .pk{animation:none}
 @keyframes qshake{0%,100%{transform:translateX(0)}18%{transform:translateX(-5px) rotate(-2deg)}38%{transform:translateX(5px) rotate(2deg)}58%{transform:translateX(-4px)}78%{transform:translateX(3px)}}
 @keyframes qhint{0%,100%{box-shadow:0 0 0 2px rgba(63,224,255,.35)}50%{box-shadow:0 0 0 3px #7fe0ff,0 0 18px rgba(127,224,255,.95)}}
 body.rm #board .mc.staged.qnudge,body.rm #board .mc.staged.qhint{animation:none!important}
+/* gpu51: dời thẻ mượt — ô mới giữ ẩn tới khi đáp, bản sao bay, vệt sáng mảnh */
+.mvhd9{visibility:hidden!important}
+.fxg.mvfl9{will-change:transform}
+.mvtr9{position:fixed;z-index:35;pointer-events:none;width:30px;height:3px;border-radius:2px;opacity:0;background:linear-gradient(90deg,transparent,var(--mc9,#8fe8ff));box-shadow:0 0 8px var(--mc9,#8fe8ff);will-change:opacity}
