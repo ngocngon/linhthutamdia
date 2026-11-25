@@ -89,10 +89,11 @@ export async function login(env, request, username, password) {
   const keys = ["u:" + uname, "i:" + ip];
   for (const k of keys) if (await throttled(env, k)) return { status: 429, error: "too_many", message: "Sai quá nhiều lần, thử lại sau ít phút" };
   const u = await env.DB.prepare("SELECT * FROM users WHERE username=?").bind(uname).first();
+  // tài khoản chỉ có Google (pass_hash rỗng) KHÔNG BAO GIỜ đăng nhập được bằng mật khẩu
+  const hasPw = !!(u && u.pass_hash && u.salt && u.iters > 0);
   // luôn tính băm để tránh lộ tên có tồn tại hay không qua thời gian phản hồi
-  const salt = u ? u.salt : "AAAAAAAAAAAAAAAAAAAAAA";
-  const h = await pbkdf2(String(password || "").slice(0, 128), salt, u ? u.iters : PBKDF2_ITERS);
-  if (!u || u.disabled || !timingSafeEq(h, u.pass_hash)) {
+  const h = await pbkdf2(String(password || "").slice(0, 128), hasPw ? u.salt : "AAAAAAAAAAAAAAAAAAAAAA", hasPw ? u.iters : PBKDF2_ITERS);
+  if (!u || !hasPw || u.disabled || !timingSafeEq(h, u.pass_hash)) {
     for (const k of keys) await noteFail(env, k);
     return { status: 401, error: "bad_login", message: u && u.disabled ? "Tài khoản đã bị khoá" : "Sai tên đăng nhập hoặc mật khẩu" };
   }
@@ -100,3 +101,12 @@ export async function login(env, request, username, password) {
   await env.DB.prepare("UPDATE users SET last_login=? WHERE id=?").bind(Date.now(), u.id).run();
   return { status: 200, token: await signToken(env, u), user: { id: u.id, username: u.username, display: u.display } };
 }
+
+// Kiểm tra mật khẩu của một người dùng đã có (dùng khi đổi mật khẩu)
+export async function checkPassword(u, password) {
+  if (!u || !u.pass_hash || !u.salt || !(u.iters > 0)) return false;
+  const h = await pbkdf2(String(password || "").slice(0, 128), u.salt, u.iters);
+  return timingSafeEq(h, u.pass_hash);
+}
+
+export const clientIp = (request) => request.headers.get("cf-connecting-ip") || "-";

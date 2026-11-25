@@ -26,6 +26,8 @@ th{color:#9fa8dc;font-weight:600;font-size:12px}
 .msg{margin-top:10px;font-size:14px;min-height:20px}.ok{color:#7be28f}.bad{color:#ff8a8a}
 .sc{overflow-x:auto}
 .act{display:flex;gap:6px;flex-wrap:wrap}
+.sw{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.sw label{display:flex;align-items:center;gap:8px;margin:0;font-size:15px;color:#e9ecff;cursor:pointer}.sw input{width:20px;height:20px;margin:0}
+.gm{font-size:13px;color:#9fd8ff;word-break:break-all}
 </style>
 </head>
 <body>
@@ -41,6 +43,11 @@ th{color:#9fa8dc;font-weight:600;font-size:12px}
   <div class="msg" id="m0"></div>
 </div>
 <div class="card">
+  <h2>Đăng ký mở</h2>
+  <div class="sw"><label for="regOpen"><input type="checkbox" id="regOpen" disabled> Cho phép đăng ký</label><span id="gst" class="gm"></span></div>
+  <div class="msg" id="m3">Tải danh sách để xem trạng thái.</div>
+</div>
+<div class="card">
   <h2>Tạo tài khoản</h2>
   <div class="row">
     <div><label for="nu">Tên đăng nhập</label><input id="nu" maxlength="24" autocomplete="off" placeholder="3–24 ký tự: chữ, số, _ . -"></div>
@@ -52,7 +59,7 @@ th{color:#9fa8dc;font-weight:600;font-size:12px}
 </div>
 <div class="card">
   <h2>Danh sách tài khoản</h2>
-  <div class="sc"><table><thead><tr><th>#</th><th>Tên đăng nhập</th><th>Hiển thị</th><th>Hạng</th><th>Ván</th><th>Đăng nhập cuối</th><th></th></tr></thead><tbody id="rows"></tbody></table></div>
+  <div class="sc"><table><thead><tr><th>#</th><th>Tên đăng nhập</th><th>Hiển thị</th><th>Google</th><th>Hạng</th><th>Ván</th><th>Đăng nhập cuối</th><th></th></tr></thead><tbody id="rows"></tbody></table></div>
   <div class="msg" id="m2"></div>
 </div>
 </main>
@@ -76,11 +83,21 @@ th{color:#9fa8dc;font-weight:600;font-size:12px}
   async function load(){
     try{
       const j=await api("GET","/api/admin/users");
-      $("rows").innerHTML=j.users.map(u=>`<tr class="${u.disabled?"off":""}"><td>${u.id}</td><td>${esc(u.username)}</td><td>${esc(u.display)}</td><td>${u.rating==null?"–":u.rating}</td><td>${u.games||0}</td><td>${when(u.last_login)}</td><td class="act"><button class="g" data-a="pw" data-id="${u.id}">Đổi mật khẩu</button><button class="${u.disabled?"g":"r"}" data-a="${u.disabled?"on":"off"}" data-id="${u.id}">${u.disabled?"Mở khoá":"Khoá"}</button></td></tr>`).join("")||`<tr><td colspan="7">Chưa có tài khoản.</td></tr>`;
+      $("rows").innerHTML=j.users.map(u=>`<tr class="${u.disabled?"off":""}"><td>${u.id}</td><td>${esc(u.username)}</td><td>${esc(u.display)}</td><td class="gm">${u.google?esc(u.email||"đã liên kết"):"–"}${u.has_pw===0?" (chưa có mật khẩu)":""}</td><td>${u.rating==null?"–":u.rating}</td><td>${u.games||0}</td><td>${when(u.last_login)}</td><td class="act"><button class="g" data-a="pw" data-id="${u.id}">Đổi mật khẩu</button><button class="${u.disabled?"g":"r"}" data-a="${u.disabled?"on":"off"}" data-id="${u.id}">${u.disabled?"Mở khoá":"Khoá"}</button></td></tr>`).join("")||`<tr><td colspan="8">Chưa có tài khoản.</td></tr>`;
       say("m0","Đã tải "+j.users.length+" tài khoản.",true);
+      const c=await api("GET","/api/admin/config");
+      $("regOpen").checked=!!c.registerOpen;$("regOpen").disabled=false;
+      $("gst").textContent=c.google?"Đăng nhập Google: đang bật":"Đăng nhập Google: chưa bật (đặt GOOGLE_CLIENT_ID, xem README)";
+      say("m3",c.registerOpen?"Người chơi đang tự đăng ký được.":"Đăng ký đang đóng: chỉ quản trị tạo tài khoản.",true);
     }catch(e){say("m0","Lỗi: "+e.message,false);}
   }
   $("load").onclick=load;
+  $("regOpen").onchange=async()=>{
+    const v=$("regOpen").checked;$("regOpen").disabled=true;
+    try{const j=await api("PUT","/api/admin/config",{registerOpen:v});$("regOpen").checked=!!j.registerOpen;say("m3",j.registerOpen?"Đã mở đăng ký.":"Đã đóng đăng ký.",true);}
+    catch(e){$("regOpen").checked=!v;say("m3","Lỗi: "+e.message,false);}
+    $("regOpen").disabled=false;
+  };
   $("create").onclick=async()=>{
     try{
       const j=await api("POST","/api/admin/users",{username:$("nu").value.trim(),display:$("nd").value.trim(),password:$("np").value});

@@ -5,7 +5,7 @@ Cloudflare Worker + Durable Objects + D1. Không cần máy chủ riêng, không
 ## Kiến trúc ngắn gọn
 
 - **Worker** (`src/index.js`): REST + WebSocket, kiểm tra CORS (`https://ngocngon.github.io`, `https://localhost`, `capacitor://localhost`, `http://localhost:*`), phục vụ trang quản trị `/admin`.
-- **Tài khoản**: chỉ quản trị tạo (không có đăng ký mở). Mật khẩu băm PBKDF2-SHA256 (WebCrypto). Đăng nhập trả về mã phiên ký HMAC (`SESSION_SECRET (không bắt buộc — để trống thì máy chủ tự sinh và lưu trong D1)`), hạn 30 ngày; khoá tài khoản hoặc đổi mật khẩu sẽ thu hồi các phiên cũ. Sai quá 6 lần/10 phút thì tạm khoá.
+- **Tài khoản**: người chơi tự đăng ký (tên đăng nhập + mật khẩu, tối đa 5 tài khoản mới/IP/giờ; quản trị tắt/bật ở `/admin`), đăng nhập bằng Google (khi đã đặt `GOOGLE_CLIENT_ID`), hoặc do quản trị tạo. Mật khẩu băm PBKDF2-SHA256 (WebCrypto). Đăng nhập trả về mã phiên ký HMAC (`SESSION_SECRET (không bắt buộc — để trống thì máy chủ tự sinh và lưu trong D1)`), hạn 30 ngày; khoá tài khoản hoặc đổi mật khẩu sẽ thu hồi các phiên cũ. Sai quá 6 lần/10 phút thì tạm khoá.
 - **D1** (`migrations/`): `users`, `ratings` (Elo theo chế độ), `scores` (điểm theo ngày/tháng/tuần mỗi chế độ), `matches` (lịch sử), `saves` (tiến trình người chơi, đồng bộ nhiều máy).
 - **Durable Object `Matchmaker`**: hàng chờ ghép trận theo chế độ + mã riêng + độ gần Elo (chờ càng lâu càng nới rộng).
 - **Durable Object `Match`** (một DO mỗi trận, WebSocket Hibernation): chuyển tiếp trạng thái "presence" của game (giữ nguyên giao thức lockstep của client: hạt giống, thao tác từng lượt, khoá, băm trạng thái), giới hạn kích thước/tốc độ tin, và nắm các hạn chót phía máy chủ:
@@ -15,7 +15,7 @@ Cloudflare Worker + Durable Objects + D1. Không cần máy chủ riêng, không
   - Đồng hồ lượt 90 giây và luật "bỏ 3 lượt liên tiếp thì thua" vẫn do client xử lý như cũ.
 - **Client**: `www/js/10-online-cf.js` cắm vào game khi có địa chỉ máy chủ; không có thì game chạy cách cũ.
 
-API: `POST /api/login`, `GET /api/me`, `GET|PUT /api/save` (`?slot=avatar` cho ảnh), `GET /api/leaderboard?mode=online[&key=d2026-11-23]`, `POST /api/score` (điểm các chế độ chơi với máy), `GET /api/history`, `GET|POST|PATCH /api/admin/users` (cần `ADMIN_TOKEN`), WebSocket `/api/play` (ghép trận) và `/api/play?room=<mã trận>`.
+API: `GET /api/config` (công khai: `googleClientId`, `registerOpen`), `POST /api/register`, `POST /api/login`, `POST /api/login/google`, `POST /api/link/google`, `POST /api/unlink/google`, `POST /api/password`, `GET /api/me`, `GET|PUT /api/save` (`?slot=avatar` cho ảnh), `GET /api/leaderboard?mode=online[&key=d2026-11-23]`, `POST /api/score` (điểm các chế độ chơi với máy), `GET /api/history`, `GET|POST|PATCH /api/admin/users`, `GET|PUT /api/admin/config` (cần `ADMIN_TOKEN`), WebSocket `/api/play` (ghép trận) và `/api/play?room=<mã trận>`.
 
 ## Việc chủ game phải làm MỘT LẦN để chạy thật
 
@@ -37,7 +37,9 @@ API: `POST /api/login`, `GET /api/me`, `GET|PUT /api/save` (`?slot=avatar` cho �
 
 ## Tạo tài khoản cho người chơi
 
-Mở `https://<địa-chỉ-worker>/admin`, nhập `ADMIN_TOKEN`, rồi tạo tài khoản (tên đăng nhập + mật khẩu), xem danh sách, đổi mật khẩu, khoá/mở khoá. Gửi tên và mật khẩu cho tester. Cũng có thể gọi trực tiếp:
+Người chơi tự đăng ký trong game (Hồ sơ, Tài khoản online, tab Đăng ký). Muốn đóng đăng ký mở (ví dụ khi bị spam): mở `/admin`, tải danh sách, bỏ chọn **Cho phép đăng ký**.
+
+Quản trị vẫn tạo được tài khoản: mở `https://<địa-chỉ-worker>/admin`, nhập `ADMIN_TOKEN`, rồi tạo tài khoản (tên đăng nhập + mật khẩu), xem danh sách, đổi mật khẩu, khoá/mở khoá. Gửi tên và mật khẩu cho tester. Cũng có thể gọi trực tiếp:
 
 ```
 curl -X POST https://<worker>/api/admin/users -H "x-admin-token: $ADMIN_TOKEN" -H "content-type: application/json" \
@@ -45,6 +47,23 @@ curl -X POST https://<worker>/api/admin/users -H "x-admin-token: $ADMIN_TOKEN" -
 ```
 
 Trong game: Hồ sơ, mục "Tài khoản online", Đăng nhập. Bấm chế độ Online sẽ ghép với người chơi khác đã đăng nhập. Muốn tester chỉ ghép với nhau: mỗi người nhập cùng **"Mã ghép riêng"** (cũng ngay trong mục tài khoản, hoặc mở game với `?code=abc`); người có mã chỉ ghép với người cùng mã. Mục "Liên kết tài khoản" ở ngay dưới đồng bộ tiến trình giữa các máy.
+
+## Bật đăng nhập Google
+
+Không bắt buộc. Chưa làm bước này thì nút "Đăng nhập bằng Google" tự ẩn, người chơi vẫn đăng ký/đăng nhập bằng mật khẩu.
+
+1. Vào [Google Cloud Console](https://console.cloud.google.com/), tạo (hoặc chọn) một project.
+2. **APIs & Services → OAuth consent screen**: chọn loại **External**, điền tên ứng dụng "Linh Thú Tam Địa", email hỗ trợ, bấm lưu. Phạm vi (scopes) chỉ cần mặc định (`openid`, `email`, `profile`). Khi sẵn sàng cho mọi người dùng, bấm **Publish app** (khi còn ở chế độ Testing chỉ các email trong danh sách Test users đăng nhập được).
+3. **APIs & Services → Credentials → Create credentials → OAuth client ID**, loại **Web application**.
+   - **Authorized JavaScript origins**: `https://ngocngon.github.io` (thêm `http://localhost:8080` và `http://localhost` nếu muốn thử trên máy). Không cần Authorized redirect URIs.
+4. Chép **Client ID** (dạng `1234567890-abc...apps.googleusercontent.com`). Đây là giá trị **công khai**, không phải bí mật; KHÔNG dùng Client secret ở đâu cả.
+5. Mở `server/wrangler.toml`, mục `[vars]`, đặt `GOOGLE_CLIENT_ID = "<Client ID vừa chép>"`, commit và đẩy lên `main`: workflow tự áp migration và triển khai lại.
+6. Kiểm tra: mở `https://<worker>/api/config` thấy `googleClientId` có giá trị; trong game, Hồ sơ → Tài khoản online → Đăng nhập sẽ có nút Google.
+
+Ghi chú:
+- Đăng nhập Google chỉ chạy trên trang web (GitHub Pages). Bản APK (`https://localhost`/`capacitor://localhost`) và trang nhúng trong khung (bản tester) tự ẩn nút Google; người chơi ở đó dùng tên đăng nhập + mật khẩu. Ai đăng nhập Google trên web có thể vào Tài khoản → "Đặt mật khẩu" để dùng thêm trên APK.
+- Máy chủ chỉ lưu `sub` (mã người dùng Google) và email, không lưu token Google. Token được kiểm chữ ký RS256 bằng khoá công khai của Google, `iss`, `aud` = Client ID, hạn dùng và `email_verified`.
+- Đóng đăng ký ở `/admin` thì Google cũng không tạo tài khoản mới (tài khoản đã liên kết vẫn đăng nhập được).
 
 ## Chạy thử trên máy
 
