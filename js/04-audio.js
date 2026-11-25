@@ -345,7 +345,7 @@ const SFX = (() => {
 
 
   /* ===== Tiếng KỸ NĂNG riêng từng thẻ S5/S4 (gpu47) =====
-     Chỉ mục sfx/the.json (id thẻ -> [số sprite, bắt đầu, độ dài]) nhỏ, tải lúc khởi động; các sprite sfx/the-1.mp3 … the-6.mp3 (~50 thẻ/cái)
+     Chỉ mục sfx/the.json (id thẻ -> [số sprite, bắt đầu, độ dài]) nhỏ, tải lúc khởi động; các sprite sfx/the-1.mp3 … the-9.mp3 (~46 thẻ/cái, gồm S5/S4/S3)
      tải LƯỜI: khi có thẻ cần phát mà sprite chưa sẵn sàng thì phát tiếng nhóm như cũ và tải nền cho lần sau.
      fam(key,o): nếu biết thẻ nguồn (o.id / o.uid, hoặc SFX.src(el, uid), hoặc thẻ S4/S5 đang được nhấc lên màn chiến đấu) và thẻ có tiếng riêng
      đã sẵn sàng -> phát tiếng riêng THAY cho tiếng nhóm; các tiếng nhóm còn lại của cùng bước đó bị bỏ (không chồng). */
@@ -359,14 +359,14 @@ const SFX = (() => {
   function loadCardIndex() {
     if (cardIdxState) return;
     cardIdxState = 1;
-    fetch("sfx/the.json").then((r) => { if (!r.ok) throw new Error("the.json"); return r.json(); })
+    fetch("sfx/the.json?v=gpu54").then((r) => { if (!r.ok) throw new Error("the.json"); return r.json(); })
       .then((j) => { cardIdx = j; cardIdxState = 2; const w = spWait.splice(0); w.forEach((f) => { try { f(); } catch (e) {} }); })
       .catch(() => { cardIdxState = 3; spWait.length = 0; });
   }
   function loadCardSprite(n) {
     if (spState[n] || !ac || !cardIdx) return Promise.resolve();
     spState[n] = 1;
-    return fetch("sfx/the-" + n + ".mp3").then((r) => { if (!r.ok) throw new Error("the-" + n); return r.arrayBuffer(); })
+    return fetch("sfx/the-" + n + ".mp3?v=gpu54").then((r) => { if (!r.ok) throw new Error("the-" + n); return r.arrayBuffer(); })
       .then((ab) => new Promise((res, rej) => { const p = ac.decodeAudioData(ab, res, rej); if (p && p.catch) p.catch(rej); }))
       .then((big) => {
         const sr = big.sampleRate, src = big.getChannelData(0);
@@ -450,9 +450,9 @@ const SFX = (() => {
     /* tự chữa bộ đếm: nếu có âm không bao giờ báo kết thúc (máy treo/tạm dừng giữa chừng) thì xoá phiếu quá 4 giây */
     for (let i = live.length - 1; i >= 0; i--) if (now - live[i] > 4) { live.splice(i, 1); }
     voices = live.length;
-    /* chống trùng theo tên: cùng một mẫu tối đa 2 lần trong 0,12 s; trần số âm đồng thời (âm ưu tiên như màn ra mắt được vượt trần) */
+    /* Mẫu thường tối đa 2 lần trong 0,12 s. Tiếng thẻ dời đã được gộp theo UID ở bước hiệu ứng. */
     const r = (recent[n] = (recent[n] || []).filter((t) => now - t < 0.12 && t <= now));
-    if (!o.pri && (r.length >= 2 || voices >= MAXV)) return true; // nuốt bớt, không rơi về synth
+    if (!o.pri && (voices >= MAXV || (o.moveUid == null && r.length >= 2))) return true; // nuốt bớt, không rơi về synth
     r.push(now);
     /* chồng nhiều âm -> mỗi âm nhỏ đi (tổng không dồn lên chói) */
     const stack = 1 / Math.sqrt(1 + 0.3 * voices) * (r.length > 1 ? 0.7 : 1);
@@ -529,9 +529,11 @@ const SFX = (() => {
       if (!L) return;
       autoPre();
       if (cardSkill(key, o)) return; /* tiếng riêng của thẻ (chỉ ở nhịp kỹ năng của chính thẻ) */
-      if (!o.skill && performance.now() - beatCall < 150) return; /* tiếng nhóm gọi ngay sau tiếng riêng (cùng bước): bỏ, không chồng */
+      const moveUid = key === "move" ? o.moveUid : undefined;
+      const group = !o.skill && moveUid == null;
+      if (group && performance.now() - beatCall < 150) return; /* tiếng nhóm gọi ngay sau tiếng riêng (cùng bước): bỏ, không chồng */
       /* ngay sau tiếng riêng (0,25 s): không chồng tiếng nhóm lên */
-      if (!o.skill && ac.currentTime + (o.delay || 0) - beatT < 0.25 && ac.currentTime + (o.delay || 0) >= beatT - 0.02) return;
+      if (group && ac.currentTime + (o.delay || 0) - beatT < 0.25 && ac.currentTime + (o.delay || 0) >= beatT - 0.02) return;
       const hk = hintO;
       const i = (famIdx[key] = ((famIdx[key] == null ? -1 : famIdx[key]) + 1) % L.length), n = L[i];
       const el = hk && hk.el ? hk.el : o.el === undefined ? curEl() : o.el, p = el && EL[el];
@@ -547,7 +549,7 @@ const SFX = (() => {
         return;
       }
       if (VIB[n] && store.vib !== false && navigator.vibrate) { try { navigator.vibrate(VIB[n]); } catch (e) {} }
-      const ok = playSample(n, vol, { rate: (p ? p.r : 1) * (o.rate || 1), hp: p && p.hp, lp: p && p.lp, delay: o.delay });
+      const ok = playSample(n, vol, { rate: (p ? p.r : 1) * (o.rate || 1), hp: p && p.hp, lp: p && p.lp, delay: o.delay, moveUid });
       if (!ok && S[n]) S[n]();
       if (ok && p && !o.noacc) playSample(p.a, vol * 0.4, { delay: (o.delay || 0) + 0.05, rate: 1 + (famIdx[key] % 2) * 0.06 });
     } catch (e) {}
