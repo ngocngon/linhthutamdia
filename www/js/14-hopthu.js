@@ -23,7 +23,7 @@ function gotSave(){try{LSX.setItem(GOT_KEY,JSON.stringify({mail:store.mailGot,co
 /* ---------- phần thưởng ---------- */
 function nInt(x){x=Math.floor(+x);return x>0&&x<1e9?x:0;}
 function normRw(r){r=r&&typeof r==="object"?r:{};
-  return {vang:nInt(r.vang),ngoc:nInt(r.ngoc),token:nInt(r.token),diem:nInt(r.diem),the:(Array.isArray(r.the)?r.the:[]).filter(function(k){return typeof k==="string"&&C[k];})};}
+  return {vang:nInt(r.vang),ngoc:nInt(r.ngoc),token:nInt(r.token),diem:nInt(r.diem),the:(Array.isArray(r.the)?r.the:[]).filter(function(k){return typeof k==="string"&&C[k]&&(typeof E==="undefined"||!E.COLLECT||E.COLLECT.includes(k));})};}
 function hasRw(r){r=normRw(r);return !!(r.vang||r.ngoc||r.token||r.diem||r.the.length);}
 function tierOf(k){var h=C[k]&&C[k].h;return /^S\d$/.test(h||"")&&HE[h]?" · Thẻ "+HE[h]:"";}
 function chips(r,withTier){r=normRw(r);var o=[];

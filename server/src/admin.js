@@ -31,6 +31,11 @@ export function summarizeSave(blob) {
   let s;
   try { s = JSON.parse(blob); } catch { return { error: "bad_json" }; }
   if (!s || typeof s !== "object" || Array.isArray(s)) return { error: "bad_json" };
+  // Game lưu dạng bọc {v, t, gid, s: "<chuỗi JSON của store>"} (10-online-cf.js cfPush); bản cũ/thử có thể là store phẳng.
+  if (typeof s.s === "string" && s.v != null) {
+    try { s = JSON.parse(s.s); } catch { return { error: "bad_json" }; }
+    if (!s || typeof s !== "object" || Array.isArray(s)) return { error: "bad_json" };
+  }
   const out = {};
   const str = (v, n) => (typeof v === "string" ? v.slice(0, n) : undefined);
   const ids = (a, n) => (Array.isArray(a) ? a.filter((x) => typeof x === "string").slice(0, n).map((x) => x.slice(0, 40)) : undefined);

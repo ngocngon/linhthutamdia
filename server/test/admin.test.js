@@ -112,9 +112,9 @@ describe("API game: thư và quà", () => {
   });
   it("kiểm phần quà: khoá lạ, vượt trần, id thẻ sai", async () => {
     const u = await user("mr");
-    for (const rewards of [{ vang: 1000001 }, { ngoc: 100001 }, { token: 10001 }, { diem: 100001 }, { vang: -1 }, { vang: 1.5 }, { kimcuong: 1 }, { the: ["Hoa Sen"] }, { the: Array.from({ length: 21 }, (_, i) => "the" + i) }, [1]])
+    for (const rewards of [{ vang: 1000001 }, { ngoc: 100001 }, { token: 10001 }, { diem: 100001 }, { vang: -1 }, { vang: 1.5 }, { kimcuong: 1 }, { the: ["Hoa Sen"] }, { the: ["a_1"] }, { the: Array.from({ length: 21 }, (_, i) => "the" + i) }, [1]])
       expect((await adm("POST", "/api/admin/mail", { to: u.id, title: "x", rewards })).s).toBe(400);
-    expect((await adm("POST", "/api/admin/mail", { to: u.id, title: "x", rewards: { vang: 1000000, ngoc: 100000, token: 10000, diem: 100000, the: ["a_1"] } })).s).toBe(201);
+    expect((await adm("POST", "/api/admin/mail", { to: u.id, title: "x", rewards: { vang: 1000000, ngoc: 100000, token: 10000, diem: 100000, the: ["quaituong"] } })).s).toBe(201);
     expect((await adm("POST", "/api/admin/mail", { to: 999999, title: "x" })).s).toBe(404);
     expect((await adm("POST", "/api/admin/mail", { to: u.id, title: "" })).s).toBe(400);
   });
@@ -254,6 +254,9 @@ describe("API quản trị", () => {
     expect(JSON.parse(sv.j.blob).gold).toBe(131000);
     expect((await adm("GET", "/api/admin/players/999999")).s).toBe(404);
     expect(summarizeSave("không phải json")).toEqual({ error: "bad_json" });
+    // dạng bọc thật của game
+    const wrapped = JSON.stringify({ v: 1, t: Date.now(), gid: "g1", s: JSON.stringify(store) });
+    expect(summarizeSave(wrapped)).toMatchObject({ gold: 131000, gems: 420, ownCount: 2 });
   });
   it("đổi tên, đặt lại mật khẩu, ngắt kết nối; ghi nhật ký quản trị", async () => {
     const u = await user("ng");

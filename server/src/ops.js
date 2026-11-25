@@ -1,6 +1,7 @@
 // Tiện ích dùng chung cho vận hành/quản trị: ngày giờ Việt Nam, phần quà, nhật ký quản trị, băm IP.
 import { hmacSign } from "./util.js";
 import { sessionKey } from "./auth.js";
+import { CARDS } from "./cards.js";
 
 // Phiên bản Worker: tăng khi đổi mã máy chủ (hiện ở trang Sức khoẻ máy chủ)
 export const WORKER_VERSION = "2026.11.25-admin1";
@@ -38,7 +39,7 @@ export function cleanRewards(r, { required = false } = {}) {
   if (r.the != null) {
     if (!Array.isArray(r.the)) return { error: "bad_rewards", message: "the phải là danh sách id thẻ" };
     if (r.the.length > 20) return { error: "bad_rewards", message: "Tối đa 20 thẻ" };
-    for (const id of r.the) if (typeof id !== "string" || !CARD_ID_RE.test(id)) return { error: "bad_rewards", message: "Id thẻ không hợp lệ: " + String(id).slice(0, 40) };
+    for (const id of r.the) if (typeof id !== "string" || !CARD_ID_RE.test(id) || !Object.prototype.hasOwnProperty.call(CARDS, id)) return { error: "bad_rewards", message: "Id thẻ không hợp lệ: " + String(id).slice(0, 40) };
     if (r.the.length) out.the = [...new Set(r.the)];
   }
   if (required && !Object.keys(out).length) return { error: "bad_rewards", message: "Cần ít nhất một phần quà" };
