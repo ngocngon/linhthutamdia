@@ -97,7 +97,7 @@ try {
   await sleep(600);
   const idle = () => page.waitForFunction(() => FXR.nodes() === 0 && !document.querySelector(".fxg,.p8,.dcb") && (typeof FX_UNTIL === "undefined" || performance.now() > FX_UNTIL), null, { timeout: 20000, polling: 50 }).catch(() => {});
   const SHOTS = ["tang", "giam", "ung", "nl", "gia", "huy", "vut", "kich", "trieu", "tao", "hoi"];
-  const meta = {};
+  const meta = {}, beamsB = [];
   for (const k of SHOTS) {
     meta[k] = [];
     for (let i = 0, tries = 0; i < 3; i++) {
@@ -131,6 +131,7 @@ try {
           requestAnimationFrame(() => requestAnimationFrame(r)); }, Math.max(0, ms)); }; go(); }), WANT[k]);
       const f = path.join(OUT, `${k}-${ELS[i]}.png`);
       await page.screenshot({ path: f });
+      if (k === "tang" || k === "giam") { await sleep(700); beamsB.push(...await page.evaluate(() => FXR.log.filter(x => x.k === "beam" && x.as && x.bs))); }
       const m = await page.evaluate(() => { const L = FXR.log.filter(x => x.k !== "beam" || true); const n = document.querySelectorAll(".fxr").length; document.getAnimations().forEach(a => { try { a.play(); } catch (e) {} }); return { n, e: L.map(x => x.e), k: L.map(x => x.k + (x.kind ? ":" + x.kind : "")) }; });
       /* máy bận làm hẹn giờ trễ -> chụp lỡ lúc hiệu ứng đã tắt: chụp lại (tối đa 3 lần) */
       if (!m.n && ++tries < 3) { i--; continue; }
@@ -171,10 +172,9 @@ print(json.dumps(res))
     window.SFX_BEAT = (uid, id) => window.__beat.push({ uid, id, t: performance.now() });
     setInterval(() => { for (const x of FXR.log.splice(0)) if (x.k === "beam") window.__beams.push(x); }, 50);
   });
-  const pool = await page.evaluate(() => {
-    const B = n => 1 << FXR.SITS.indexOf(n), want = B("tang") | B("giam") | B("huy") | B("trieu");
-    return Object.keys(C).filter(id => C[id].t === "rev" && (FXR.cfg(id).p & want) && C[id].h !== "PH");
-  });
+  /* thẻ Lật cộng/trừ sức mạnh cho thẻ KHÁC (để có luồng nguồn -> đích) + thẻ S4/S5 có tiếng riêng */
+  const pool = await page.evaluate(() => Object.keys(C).filter(id => C[id].t === "rev" && C[id].h !== "PH" && /(\+|−|-)\s?\d+\s*sức mạnh/.test(C[id].x || "") && /(thẻ khác|các thẻ|một thẻ|1 thẻ|thẻ (của )?(bạn|đối thủ|địch)|mỗi thẻ)/.test(C[id].x || "")));
+  console.log(`(c) bộ thẻ tự chơi: ${pool.length} thẻ ±sức mạnh cho thẻ khác`);
   const own = new Set(Object.keys(theIdx));
   const t0 = Date.now(); let lastTurn = -1, g = 0;
   /* tối đa 4 ván / 8 phút; dừng sớm khi đã có đủ mẫu (≥4 luồng ±sức mạnh, ≥2 tiếng riêng) sau ít nhất 2 ván */
@@ -189,7 +189,7 @@ print(json.dumps(res))
           G.hand[s] = [0, 1, 2].map(i => E.mk(G, ok[(G.turn * 7 + i * 13 + (s === "a" ? 5 : 0)) % ok.length], s));
         }
         E.aiPlan(G, "p", 60); render(); document.getElementById("btnEnd").click();
-      }, { lt: lastTurn, pool: pool.filter(id => own.has(id)).concat(pool.filter(id => !own.has(id)).slice(0, 40)) });
+      }, { lt: lastTurn, pool: pool.concat(Object.keys(theIdx).filter(id => !pool.includes(id)).slice(0, pool.length >> 1)) });
       lastTurn = await page.evaluate(() => G.turn);
     }
     await sleep(250);
@@ -199,23 +199,23 @@ print(json.dumps(res))
   console.log(`(c) chi phí CPU của FXR trong ${g} ván (CPU thường): ${R.prf.n} lần gọi, tổng ${R.prf.ms.toFixed(1)} ms, TB ${(R.prf.ms / Math.max(1, R.prf.n)).toFixed(2)} ms/lần, lâu nhất ${R.prf.max.toFixed(1)} ms`);
   const owns = R.snd.filter(s => s.n.startsWith("the:")), xs = R.snd.filter(s => s.n.startsWith("x_"));
   let bad = 0;
-  for (const o of owns) { const id = o.n.slice(4); if (o.skill !== id || !R.beat.some(b => b.id === id && o.t - b.t >= -5 && o.t - b.t < 80)) bad++; }
+  for (const o of owns) { const id = o.n.slice(4); if (o.skill !== id || !R.beat.some(b => b.id === id && o.t - b.t >= -5 && o.t - b.t < 200)) bad++; }
   if (!owns.length) fail("không có tiếng riêng S4/S5 nào trong ván");
   if (bad) fail(`${bad}/${owns.length} tiếng riêng phát NGOÀI nhịp kỹ năng của chính thẻ`);
   if (!xs.length) fail("không có tiếng tình huống x_* nào");
   const xc = {}; for (const s of xs) xc[s.n] = (xc[s.n] || 0) + 1;
   console.log(`(c) tiếng: ${R.beat.length} nhịp kỹ năng, ${owns.length} tiếng riêng (đều đúng nhịp của chính thẻ: ${owns.length - bad}/${owns.length}); tiếng tình huống: ${JSON.stringify(xc)}`);
-  const pw = R.beams.filter(b => b.kind === "tang" || b.kind === "giam" || b.kind === "x2");
+  const pw = R.beams.filter(b => b.kind === "tang" || b.kind === "giam" || b.kind === "x2").concat(beamsB.map(b => Object.assign(b, { tb: 1 })));
   let wrong = 0, meas = 0;
   for (const b of pw) {
     if (!b.as || !b.bs) continue; meas++;
     const tol = Math.max(14, (b.as.w || 50) * .35), d1 = Math.hypot(b.a.x - b.as.x, b.a.y - b.as.y), d2 = Math.hypot(b.b.x - b.bs.x, b.b.y - b.bs.y);
     if (d1 > tol || d2 > tol) wrong++;
   }
-  if (!meas) fail("ván tự chơi không có luồng ±sức mạnh nào đo được");
+  if (!meas) { fail("ván tự chơi không có luồng ±sức mạnh nào đo được"); console.error(JSON.stringify(pw.slice(0, 2))); }
   if (wrong) { fail(`${wrong}/${meas} luồng ±sức mạnh lệch thẻ nguồn/đích`); console.error(JSON.stringify(pw.slice(0, 3))); }
   const els = new Set(pw.map(b => b.e));
-  console.log(`(c) luồng ±sức mạnh: ${pw.length} (đo được ${meas}, đúng nguồn -> đích ${meas - wrong}), ${els.size} hệ nguồn khác nhau: ${[...els].join(",")}`);
+  console.log(`(c) luồng ±sức mạnh: ${pw.length} (${pw.filter(b => !b.tb).length} trong ván tự chơi + ${beamsB.length} ở bước (b)); đo được ${meas}, đúng nguồn -> đích ${meas - wrong}; ${els.size} hệ nguồn khác nhau: ${[...els].join(",")}`);
 } catch (e) { fail(e.message); }
 await browser.close(); server.close();
 if (errors.length) { console.error([...new Set(errors)].slice(0, 10).join("\n")); fails.push("lỗi trang"); }

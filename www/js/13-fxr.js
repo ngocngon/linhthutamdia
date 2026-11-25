@@ -154,7 +154,7 @@ const FXT_RAW="acmong:4,16,1,2,1,5,4304,1,1,1;ainunuotsao:5,13,1,0,0,5,4292,1,1,
     if (!c) return false;
     atlasLoad();
     /* gpu51: điểm đầu/cuối theo vị trí THẬT của thẻ lúc bắn (thẻ nguồn có thể đang được nhấc lên/phóng to) */
-    const live = u => { const el = u > 0 && document.querySelector(`#board [data-mc="${u}"]`); if (!el) return null; const r = el.getBoundingClientRect(); return r.width > 8 ? { x: r.left + r.width / 2, y: r.top + r.height / 2, w: r.width, h: r.height } : null; };
+    const live = u => { const el = u > 0 && document.querySelector(`#board [data-mc="${u}"]`); if (!el) return null; const r = el.getBoundingClientRect(); return r.height > 8 ? { x: r.left + r.width / 2, y: r.top + r.height / 2, w: Math.max(r.width, r.height * .7), h: r.height } : null; };
     sp = live(srcUid) || sp; tp = live(o.dst) || tp;
     const dl = o.dl || 0, du = Math.max(120, o.dur || 300), sg = k === "giam" ? "#b0102e" : k === "nl" || k === "gia" ? "#7fe0ff" : "#7dffb0";
     if (window.FXR_LOG) { /* kiểm thử: đo lại thẻ nguồn lúc đầu luồng rời đi và thẻ đích lúc đầu luồng tới nơi */

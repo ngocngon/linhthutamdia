@@ -424,7 +424,7 @@ const SFX = (() => {
     if (lastCard[src.id] != null && now - lastCard[src.id] < 0.4 && now >= lastCard[src.id]) return true; /* cùng thẻ phát lại trong 0,4 s */
     lastStep = { key: src.key, cid: src.id };
     lastCard[src.id] = now;
-    beatT = now + (o.delay || 0);
+    beatT = now + (o.delay || 0); beatCall = performance.now();
     if (ac.state !== "running") return true;
     return playSample(n, o.vol == null ? 1 : o.vol, { delay: o.delay, rate: 1, skill: src.id }) !== false;
   }
@@ -475,6 +475,7 @@ const SFX = (() => {
     }
     last.connect(outNode());
     const tk = now; live.push(tk); voices = live.length;
+    if (GRPN.test(n)) famCall = performance.now(); /* gpu51: mốc tiếng nhóm/tình huống gần nhất (tách tiếng riêng ở nhịp kỹ năng) */
     src.onended = () => { const i = live.indexOf(tk); if (i >= 0) live.splice(i, 1); voices = live.length; for (const x of nodes) { try { x.disconnect(); } catch (e) {} } };
     src.start(now + (o.delay || 0));
     lastH = { src, g, n, t: now };
@@ -511,11 +512,12 @@ const SFX = (() => {
   /* gpu51: họ kỹ năng -> tiếng TÌNH HUỐNG (sprite fx: x_*) — nhịp chạm đích của ±sức mạnh, năng lượng, tiêu huỷ, vứt bỏ, kích hoạt,
      triệu hồi, hồi sinh, bị chặn; nhuộm hệ (đổi tốc/lọc + lớp nhấn e_<hệ>) như cũ. Đòn lớn (up3/dn3/dbl) giữ thêm tiếng họ nhỏ cho "nặng". */
   const SIT_OF = { up1: "tang", up2: "tang", up3: "tang", dbl: "tang", locup: "tang", dn1: "giam", dn2: "giam", dn3: "giam", locdn: "giam",
-    egain: "nl", energy: "nl", nrgloss: "nl", costdn: "nl", costup: "nl", aura: "tim", destroy: "huy", exile: "huy", discard: "vut", act: "kich",
+    egain: "nl", energy: "nl", nrgloss: "nl", costdn: "nl", costup: "nl", destroy: "huy", exile: "huy", discard: "vut", act: "kich",
     summon: "trieu", create: "trieu", revive: "hoi", block: "chan", shield: "chan" };
   const SIT_RATE = { up1: 1.08, up3: 0.92, dn1: 1.06, dn3: 0.9, costup: 0.94, costdn: 1.06, nrgloss: 0.88 };
   const HEAVY = { up3: 1, dn3: 1, dbl: 1, exile: 1 };
-  let hintO = null, beatT = -9; /* gợi ý tình huống/hệ cho lời gọi fam() kế tiếp (FXR đặt quanh hit8); mốc tiếng riêng vừa phát */
+  const GRPN = /^(x_|f_|destroy$|discard$|move$|draw$|summon$|revive$|steal$|silence$|shield$|buff$|debuff$|energy$|morph$|act$|hurt$)/;
+  let hintO = null, beatT = -9, beatCall = -1e9, famCall = -1e9; /* beatCall/famCall: thời điểm GỌI (performance.now) tiếng riêng / tiếng nhóm gần nhất */ /* gợi ý tình huống/hệ cho lời gọi fam() kế tiếp (FXR đặt quanh hit8); mốc tiếng riêng vừa phát */
   function fam(key, o) {
     o = o || {};
     if (key === "ult") { launch(o.rate > 1.05 ? 4 : 5, o); return; } /* tương thích lời gọi cũ fam("ult") */
@@ -527,6 +529,7 @@ const SFX = (() => {
       if (!L) return;
       autoPre();
       if (cardSkill(key, o)) return; /* tiếng riêng của thẻ (chỉ ở nhịp kỹ năng của chính thẻ) */
+      if (!o.skill && performance.now() - beatCall < 150) return; /* tiếng nhóm gọi ngay sau tiếng riêng (cùng bước): bỏ, không chồng */
       /* ngay sau tiếng riêng (0,25 s): không chồng tiếng nhóm lên */
       if (!o.skill && ac.currentTime + (o.delay || 0) - beatT < 0.25 && ac.currentTime + (o.delay || 0) >= beatT - 0.02) return;
       const hk = hintO;
@@ -646,7 +649,9 @@ const SFX = (() => {
         if (loadState === 0) loadSamples();
         const id = cardIdByUid(uid), had = !!(id && cardBufs["the:" + id]);
         if (!had) { if (id && cardIdx && cardIdx[id]) preloadCards([id]); return false; }
-        return cardSkill(key || "act", o);
+        /* vừa có tiếng nhóm (bước trước còn ngân) < 130 ms: lùi tiếng riêng cho tách tiếng, không chồng */
+        const go = (k) => { const gap = performance.now() - famCall; if (k < 4 && gap >= 0 && gap < 130) { setTimeout(() => go(k + 1), 130 - gap); return true; } try { return cardSkill(key || "act", o); } catch (e) { return false; } };
+        return go(0);
       } catch (e) { return false; }
     },
     hint(h) { hintO = h || null; },
@@ -665,6 +670,7 @@ const SFX = (() => {
       try {
         if (!ctx()) return;
         if (loadState === 0) loadSamples();
+        if (GRPN.test(n) && performance.now() - beatCall < 150) return; /* gpu51: không chồng lên tiếng riêng vừa phát ở nhịp kỹ năng */
         const el = FLAV.has(n) ? curEl() : null, p = el && EL[el];
         if (playSample(n, vol, p ? { rate: p.r, hp: p.hp, lp: p.lp } : null)) {
           if (p && ACC.has(n)) playSample(p.a, (vol == null ? 1 : vol) * 0.3, { delay: 0.05 });
