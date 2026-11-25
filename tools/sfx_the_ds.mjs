@@ -68,7 +68,7 @@ const ACT = {
   merge: "with a swirling absorbing gulp", morph: "with a warping transformation sweep", locup: "with a rising ground swell", locdn: "with a dark ground tremor", locx: "with a grinding shifting of the ground",
   aura: "with a steady resonant hum that blooms softly", endt: "with a slow tolling bell", act: "with a snappy trigger click and bloom", none: "with a soft bloom"
 };
-const SIZE = { S5: "epic and full-bodied, layered, cinematic", S4: "compact and punchy, tight" };
+const SIZE = { S5: "epic and full-bodied, layered, cinematic", S4: "compact and punchy, tight", S3: "compact, clear and light" };
 const END = "warm low-mid body, rounded, no harsh or shrill high frequencies, no voices or singing, short one-shot";
 const CHESS = "wooden Go and chess pieces clacking on a board with a soft bamboo knock";
 const OVERRIDE = { /* id -> cụm âm thanh thay cho phần tự khớp từ khoá */
@@ -113,9 +113,11 @@ const OVERRIDE = { /* id -> cụm âm thanh thay cho phần tự khớp từ kho
   tuongquan: "heavy armor plates clanking with a steady war drum march and a low brass resonance",
   cunemthantoc: "a stone sling whoosh with a fiery flick and a heavy thud",
 };
+const S3 = process.argv.includes("--s3"); // --s3: thẻ bậc S3 (1 bản/thẻ, 1 giây) -> sfx_the_s3.json
+const BAC = S3 ? ["S3"] : ["S5", "S4"];
 const out = [];
 for (const id of Object.keys(C)) {
-  const c = C[id]; if (c.h !== "S5" && c.h !== "S4") continue;
+  const c = C[id]; if (!BAC.includes(c.h)) continue;
   const vn = RENAME[id] || c.n, nm = words(vn), mo = words(MOTA[id] || ""), hh = hash(id);
   const sc = [];
   for (const [ws, ph, pr] of KW) { let s = 0; for (const w of ws) { const q = " " + w + " "; if (nm.includes(q)) s += 6; if (w.length > 3 && mo.includes(q)) s += 2; } if (s) sc.push([s - pr * 0.5, ph]); }
@@ -126,8 +128,8 @@ for (const id of Object.keys(C)) {
   let core = OVERRIDE[id] ? OVERRIDE[id] : ph.length ? ph.join(", layered with ") : "a layered fantasy impact built from " + ins;
   if (ph.length && hh % 3 === 0) core += ", accented by " + ins;
   const t = `${c.h === "S5" ? "Epic" : "Compact"} fantasy card skill sound: ${core}, ${ACT[f] || ACT.none}; ${SIZE[c.h]}, ${END}`;
-  out.push({ k: id, h: c.h, vn, he: elOf(id) || "", fam: f, d: c.h === "S5" ? 1.1 : 1.0, n: 2, c: c.h === "S5" ? "the5" : "the4", dung: `Tiếng kỹ năng riêng của thẻ ${vn} (${c.h})`, t });
+  out.push({ k: id, h: c.h, vn, he: elOf(id) || "", fam: f, d: c.h === "S5" ? 1.1 : 1.0, n: S3 ? 1 : 2, c: c.h === "S5" ? "the5" : "the4", dung: `Tiếng kỹ năng riêng của thẻ ${vn} (${c.h})`, t });
 }
 out.sort((a, b) => (a.h < b.h ? 1 : a.h > b.h ? -1 : 0));
-fs.writeFileSync(path.join(here, "sfx_the.json"), JSON.stringify({ _ghi_chu: "Sinh bởi tools/sfx_the_ds.mjs. k = id thẻ; n = số bản; d = giây; c = lớp độ to (the5 = -17 LUFS, the4 = -18 LUFS).", list: out }, null, 1));
+fs.writeFileSync(path.join(here, S3 ? "sfx_the_s3.json" : "sfx_the.json"), JSON.stringify({ _ghi_chu: "Sinh bởi tools/sfx_the_ds.mjs. k = id thẻ; n = số bản; d = giây; c = lớp độ to (the5 = -17 LUFS, the4 = -18 LUFS).", list: out }, null, 1));
 console.log(out.length, "thẻ;", out.filter(x => !/layered with|accented/.test(x.t) && x.t.includes("built from")).length, "thẻ dùng mô tả chung");
