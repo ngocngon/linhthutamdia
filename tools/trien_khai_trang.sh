@@ -9,7 +9,7 @@ GHP="$1"; BAN="${2:-}"
 W="$(cd "$(dirname "$0")/.." && pwd)/www"
 cd "$GHP"
 git fetch -q --depth=5 origin gh-pages && git reset -q --hard FETCH_HEAD
-for d in img/c img/ct img/cut img/nen img/l img/v img/v16 img/u img/a fonts sfx; do
+for d in img/c img/ct img/cut img/nen img/l img/v img/v16 img/u img/a img/fx fonts sfx; do
   [ -d "$W/$d" ] || continue
   if ! diff -rq "$W/$d" "$d" >/dev/null 2>&1; then rm -rf "$d"; mkdir -p "$(dirname "$d")"; cp -r "$W/$d" "$d"; echo "cap nhat $d"; fi
 done
