@@ -2659,7 +2659,7 @@ ${g(36, 36, 0)}${g(164, 36, 90)}${g(164, 164, 180)}${g(36, 164, 270)}${g(84, 33,
       { transform: "scale(1.1)", opacity: 0, offset: 1 }
     ], { duration: 1380 / spd, easing: "linear", fill: "both" }).onfinish = done;
     else seal.getAnimations()[0].onfinish = done;
-    setTimeout(done, 2200);
+    setTimeout(done, 3500);
   }
   snapFx = snapFx51;
   window.snapFx = snapFx51;

@@ -117,19 +117,20 @@ for (const [vw, vh] of VPS) {
     const page = await open(vw, vh, true);
     await startMatch(page);
     await page.waitForFunction(() => window.__k0 > 0, null, { timeout: 40000 });
-    const at = async (ms, name) => {
+    let box = null;
+    const at = async (ms, name, fn) => {
       await page.waitForFunction((ms) => performance.now() - window.__k0 >= ms, ms);
+      if (fn) box = await page.evaluate(fn);
       await page.screenshot({ path: path.join(shots, `A_${tag}_${name}.png`) });
     };
     await at(0.5 * 350 * 4, "1_lat_o_dong");
     await at((350 + 175) * 4, "2_la_lon_lat");
-    await at((700 + 650) * 4, "3_ten_va_mo_ta");
-    if (vw === 360 || vw === 412 || vw === 1280) {
-      const box = await page.evaluate(() => { const c = document.querySelector(".l51-c"); if (!c) return null; const f = c.querySelector(".l51-f").getBoundingClientRect(), x = c.querySelector(".l51-tx").getBoundingClientRect(), ds = c.querySelector(".l51-ds"); return { f: [f.left, f.top, f.right, f.bottom], x: [x.left, x.top, x.right, x.bottom], clip: ds.scrollHeight > ds.clientHeight + 1, w: innerWidth, h: innerHeight, fw: f.width }; });
+    await at((700 + 600) * 4, "3_ten_va_mo_ta", () => { const c = document.querySelector(".l51-c"); if (!c) return null; const f = c.querySelector(".l51-f").getBoundingClientRect(), x = c.querySelector(".l51-tx").getBoundingClientRect(), ds = c.querySelector(".l51-ds"); return { f: [f.left, f.top, f.right, f.bottom], x: [x.left, x.top, x.right, x.bottom], clip: ds.scrollHeight > ds.clientHeight + 1, w: innerWidth, h: innerHeight, fw: f.width }; });
+    {
       must(box && box.f[0] >= 0 && box.x[2] <= box.w + 0.5 && box.x[3] <= box.h && box.f[1] >= 0 && !box.clip, "lá lớn + băng tên + mô tả phải nằm gọn trong màn, không cắt chữ " + JSON.stringify(box));
       must(box && box.fw <= box.w * 0.78 + 1, "lá lớn ≤ 78% bề ngang");
     }
-    await at((1500 + 250) * 4, "4_bay_ve_o");
+    await at((1500 + 200) * 4, "4_bay_ve_o");
     await idle(page);
     await page.screenshot({ path: path.join(shots, `A_${tag}_5_xong.png`) });
     /* (B) ấn triện: bấm nút cược thật */
