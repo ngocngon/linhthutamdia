@@ -262,7 +262,7 @@ function showEnd(){
   const t=$("resTitle");t.className="res "+cls;t.textContent=word;
   const lanes=G.locs.map((L,i)=>({i,L,pp:E.locPower(G,i,"p"),pa:E.locPower(G,i,"a"),ld:E.lead(G,i)}));
   let wp=0,wa=0;for(const x of lanes){if(x.ld==="p")wp++;else if(x.ld==="a")wa++;}
-  const why=r.kind==="timeoutP"?"Bạn bỏ 3 lượt liên tiếp nên bị xử thua.":r.kind==="retreatA"?foe+" thấy cửa thua nên đã rút lui.":r.kind==="retreatP"?"Bạn đã rút lui để giữ ngọc.":(G.online&&OL.note)||"";
+  const why=G.online&&OL.note?OL.note:r.kind==="timeoutP"?"Bạn bỏ 3 lượt liên tiếp nên bị xử thua.":r.kind==="retreatA"?foe+" thấy cửa thua nên đã rút lui.":r.kind==="retreatP"?"Bạn đã rút lui để giữ ngọc.":(G.online&&OL.note)||"";
   {const e=$("resSub");e.textContent=why;e.hidden=!why;}
   const lname=x=>x.L.gone?"Đã bị huỷ":x.L.rvl?LOC[x.L.id].n:"Chưa lộ diện";
   const lk=x=>x.L.gone?"d":x.ld==="p"?"w":x.ld==="a"?"l":"d";
@@ -315,7 +315,7 @@ function showEnd(){
   /* Bước 2: biểu ngữ kết quả (~0,55 s vào + giữ ~1,5 s) */
   PH[1]=()=>{
     if(hid){go(2);return;}
-    const sub=r.kind==="end"?"":r.kind==="retreatA"?`${foe} đã rút lui`:r.kind==="retreatP"?"Bạn đã rút lui":"Bỏ 3 lượt liên tiếp";
+    const sub=r.kind==="end"?"":G.online&&/kết nối/.test(OL.note||"")?(r.kind==="retreatA"?`${foe} mất kết nối`:"Bạn mất kết nối"):G.online&&/không ra bài quá/.test(OL.note||"")?(r.kind==="retreatA"?`${foe} không ra bài`:"Bạn không ra bài quá 3 phút"):r.kind==="retreatA"?`${foe} đã rút lui`:r.kind==="retreatP"?"Bạn đã rút lui":"Bỏ 3 lượt liên tiếp";
     const bn=document.createElement("div");bn.className="es-ban";
     bn.innerHTML=`<div class="es-bar"><i class="sh"></i><b>${word}</b></div>${sub?`<small>${esc(sub)}</small>`:""}`;lay.appendChild(bn);s.bn=bn;
     A(veil,[{opacity:0},{opacity:1}],{duration:ms(450),easing:"ease-out"});
