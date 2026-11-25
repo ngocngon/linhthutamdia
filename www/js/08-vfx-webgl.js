@@ -2451,11 +2451,11 @@
   window.classifyLocField = classifyLocField;
   window.addEventListener("resize", syncBoardFieldVfx, { passive: true });
 
-  /* gpu51: MỞ CHIẾN ĐỊA kiểu Marvel Snap, tổng ≈ 2,0 s ở SPD 2.0 (mọi mốc tính theo T(ms) = ms * SPD / 2):
+  /* gpu51: MỞ CHIẾN ĐỊA kiểu Marvel Snap, tổng ≈ 2,0 s ở SPD 2.0 (mọi thời lượng WAAPI viết ms/2 vì 05 tự nhân SPD):
      (1) 0–350 ô đóng (dấu "?") nhấc nhẹ scale 1 -> 1,04 rồi lật quanh trục Y tới 90°.
      (2) 350–700 "lá chiến địa lớn" (ảnh thật, viền vàng mảnh, ~78% bề ngang) lật tiếp 90° -> 0° giữa màn, nền tối mờ 35%.
      (3) 700–1500 lá đứng yên; băng tên trượt vào dưới ảnh, dòng mô tả (kwfx) hiện dưới băng; tiếng `loc` đúng 1 lần ở đầu nhịp.
-     (4) 1500–2000 lá thu nhỏ bay về đúng ô (getBoundingClientRect), nền tan; chạm ô -> ô lộ mặt thật (LVEIL/LVOPEN) + một vệt sáng quét qua.
+     (4) 1500–1950 lá thu nhỏ bay về đúng ô (getBoundingClientRect), nền tan; chạm ô -> ô lộ mặt thật (LVEIL/LVOPEN) + một vệt sáng quét qua.
      Không rung màn hình, không chớp trắng, không hạt. Nhiều lá: xếp hàng từng lá (nhịp 3 còn 500). FXLV=0: bỏ vệt sáng + bóng. reduced: hiện thẳng.
      Mốc chuyển nhịp đi theo animation.finished (WAAPI) nên tự tua nhanh (FFTURN đổi playbackRate) vẫn khớp. */
   const L51 = { n: 0, tot: 0, chain: Promise.resolve(), hide: new Set(), els: new Set() };
@@ -2471,10 +2471,9 @@
     return lc ? { lc, r: lc.getBoundingClientRect() } : null;
   };
   async function l51Run(li, pre, k, g0) {
-    const sp = typeof SPD === "number" && SPD > 0 ? SPD : 1, u = sp / 2, T = (ms) => ms * u;
+    const T = (ms) => ms / 2; /* Element.prototype.animate (05) đã nhân mọi thời lượng/độ trễ với SPD: mốc viết theo SPD 2.0 -> chia 2 ở đây */
     const lo = window.FXLV === 0, short = L51.tot >= 2;
-    const mine = [];
-    const A = (el, kf, op) => { const a = el.animate(kf, Object.assign({ fill: "both", easing: "ease-out" }, op)); mine.push(a); return a; };
+    const A = (el, kf, op) => el.animate(kf, Object.assign({ fill: "both", easing: "linear" }, op));
     let c = null, bg = null, landed = false;
     const land = () => {
       if (landed) return; landed = true;
@@ -2487,19 +2486,10 @@
       if (G !== g0 || !cur || cur.r.width < 20) { land(); return; }
       const lc = cur.lc, r0 = cur.r, L = G.locs[li], def = LOC[L.id] || { n: "?", s: "" };
       k.style.cssText = `left:${r0.left.toFixed(1)}px;top:${r0.top.toFixed(1)}px;width:${r0.width.toFixed(1)}px;height:${r0.height.toFixed(1)}px;--lc:#3a376e`;
-      /* (1) lật ô đóng tới 90° */
-      const P = "perspective(700px)";
-      await l51Fin(A(k, [
-        { transform: `scale(1) ${P} rotateY(0deg)`, easing: "ease-out" },
-        { transform: `scale(1.04) ${P} rotateY(0deg)`, offset: 0.3, easing: "ease-in" },
-        { transform: `scale(1.04) ${P} rotateY(90deg)` }
-      ], { duration: T(350), easing: "linear" }));
-      l51Del(k);
-      if (G !== g0) { land(); return; }
       /* lá lớn: cỡ + vị trí */
       const VW = innerWidth, VH = innerHeight, asp = r0.width / Math.max(1, r0.height);
       const cw = Math.round(Math.min(VW * 0.78, VH * 0.4 * asp)), ch = Math.round(cw / asp);
-      const rd = (parseFloat(getComputedStyle(lc).borderTopLeftRadius) || 16) * (cw / r0.width);
+      const rdc = parseFloat(getComputedStyle(lc).borderTopLeftRadius) || 16, rd = rdc * (cw / r0.width);
       const th = (typeof LTH !== "undefined" && LTH[L.id]) || "thieng";
       const col = (typeof LHUE !== "undefined" && LHUE[L.id]) || (typeof LTC !== "undefined" && LTC[th]) || "#ffd65a";
       bg = l51Add(document.createElement("div")); bg.className = "l51-bg";
@@ -2514,45 +2504,67 @@
       const stack = ch + nm.offsetHeight + ds.offsetHeight + cw * 0.05;
       const top = Math.round(Math.max(VH * 0.06, Math.min(VH * 0.4 - stack / 2, VH * 0.94 - stack)));
       c.style.top = top + "px";
-      const dx = r0.left + r0.width / 2 - VW / 2, dy = r0.top + r0.height / 2 - (top + ch / 2), s0 = r0.width / cw;
-      const tf = (x, y, s, d) => `translate(${x.toFixed(1)}px,${y.toFixed(1)}px) scale(${s.toFixed(4)}) perspective(900px) rotateY(${d}deg)`;
-      A(bg, [{ opacity: 0 }, { opacity: 1 }], { duration: T(350), easing: "linear" });
-      A(nm, [{ opacity: 0 }, { opacity: 0 }], { duration: 1 });
-      A(ds, [{ opacity: 0 }, { opacity: 0 }], { duration: 1 });
-      /* (2) lá lớn lật 90° -> 0° giữa màn */
-      await l51Fin(A(c, [{ transform: tf(dx, dy, s0, -90) }, { transform: tf(0, 0, 1, 0) }], { duration: T(350), easing: "cubic-bezier(.2,.75,.25,1)" }));
-      if (G !== g0) { land(); return; }
-      /* (3) trình diện */
-      try { SFX.play("loc", 0.85); } catch (e) {}
-      const t3 = short ? 500 : 800;
-      A(nm, [{ opacity: 0, transform: "translateX(-38%)" }, { opacity: 1, transform: "none" }], { duration: T(short ? 220 : 300), easing: "cubic-bezier(.2,.8,.2,1)" });
-      A(ds, [{ opacity: 0, transform: "translateY(10px)" }, { opacity: 1, transform: "none" }], { duration: T(short ? 160 : 300), delay: T(short ? 120 : 220) });
-      await l51Fin(A(sh, [{ opacity: 0 }, { opacity: 0 }], { duration: T(t3) }));
-      if (G !== g0) { land(); return; }
-      /* (4) thu nhỏ, bay về ô */
-      A(nm, [{ opacity: 1 }, { opacity: 0 }], { duration: T(140), easing: "linear" });
-      A(ds, [{ opacity: 1 }, { opacity: 0 }], { duration: T(140), easing: "linear" });
-      A(bg, [{ opacity: 1 }, { opacity: 0 }], { duration: T(500), easing: "linear" });
-      A(sh, [{ opacity: 0 }, { opacity: 1 }], { duration: T(500), easing: "ease-in" });
       const fresh = l51Rect(li), r1 = fresh ? fresh.r : r0;
+      const dx = r0.left + r0.width / 2 - VW / 2, dy = r0.top + r0.height / 2 - (top + ch / 2), s0 = r0.width / cw;
       const dx1 = r1.left + r1.width / 2 - VW / 2, dy1 = r1.top + r1.height / 2 - (top + ch / 2), s1 = r1.width / cw;
-      await l51Fin(A(c, [{ transform: tf(0, 0, 1, 0) }, { transform: tf(dx1, dy1, s1, 0) }], { duration: T(500), easing: "cubic-bezier(.55,0,.25,1)" }));
+      const tf = (x, y, s, d) => `translate(${x.toFixed(1)}px,${y.toFixed(1)}px) scale(${s.toFixed(4)}) perspective(900px) rotateY(${d}deg)`;
+      /* mốc (ms ở SPD 2.0): 350 lật ô đóng | 700 lá lớn lật xong | e3 hết trình diện | e4 chạm ô */
+      const e3 = 700 + (short ? 500 : 800), e4 = e3 + 450, D = e4 - 350; /* nhịp 4 = 450 ms (chạm ô lúc 1,95 s) để cộng vệt sáng 0,1 s vẫn ≤ 2,1 s */
+      const P = "perspective(700px)";
+      /* toàn bộ hoạt ảnh dựng sẵn theo trục thời gian (delay) -> không cộng dồn độ trễ khung hình giữa các nhịp */
+      const aK = A(k, [
+        { transform: `scale(1) ${P} rotateY(0deg)`, easing: "ease-out" },
+        { transform: `scale(1.04) ${P} rotateY(0deg)`, offset: 0.3, easing: "ease-in" },
+        { transform: `scale(1.04) ${P} rotateY(90deg)` }
+      ], { duration: T(350) });
+      l51Fin(aK).then(() => l51Del(k));
+      setTimeout(() => l51Del(k), T(350) * (typeof SPD === "number" && SPD > 0 ? SPD : 1) + 40);
+      A(bg, [{ opacity: 0 }, { opacity: 1, offset: 350 / D }, { opacity: 1, offset: (e3 - 350) / D }, { opacity: 0 }], { delay: T(350), duration: T(D) });
+      const aV = A(c, [{ opacity: 1 }, { opacity: 1 }], { delay: T(350), duration: T(350), fill: "forwards" }); /* hiện lá lớn đúng lúc nhịp 2; finished = đầu nhịp 3 */
+      const aT = A(c, [
+        { transform: tf(dx, dy, s0, -90), easing: "cubic-bezier(.2,.75,.25,1)" },
+        { transform: tf(0, 0, 1, 0), offset: 350 / D, easing: "linear" },
+        { transform: tf(0, 0, 1, 0), offset: (e3 - 350) / D, easing: "cubic-bezier(.55,0,.25,1)" },
+        { transform: tf(dx1, dy1, s1, 0) }
+      ], { delay: T(350), duration: T(D) });
+      A(sh, [{ opacity: 0 }, { opacity: 1 }], { delay: T(e3), duration: T(450), easing: "ease-in" });
+      const inN = short ? 220 : 300, d0 = short ? 120 : 220, inD = short ? 160 : 300, t3 = e3 - 700, durN = t3 + 500;
+      A(nm, [
+        { opacity: 0, transform: "translateX(-38%)", easing: "cubic-bezier(.2,.8,.2,1)" },
+        { opacity: 1, transform: "none", offset: inN / durN },
+        { opacity: 1, transform: "none", offset: t3 / durN },
+        { opacity: 0, transform: "none", offset: (t3 + 140) / durN },
+        { opacity: 0, transform: "none" }
+      ], { delay: T(700), duration: T(durN) });
+      const durD = t3 + 500 - d0;
+      A(ds, [
+        { opacity: 0, transform: "translateY(10px)" },
+        { opacity: 1, transform: "none", offset: inD / durD },
+        { opacity: 1, transform: "none", offset: (t3 - d0) / durD },
+        { opacity: 0, transform: "none", offset: (t3 - d0 + 140) / durD },
+        { opacity: 0, transform: "none" }
+      ], { delay: T(700 + d0), duration: T(durD) });
+      const spd0 = typeof SPD === "number" && SPD > 0 ? SPD : 1;
+      const til = (a, ms) => Promise.race([l51Fin(a), new Promise((r) => setTimeout(r, ms * spd0))]); /* hẹn giờ + finished: khung hình trễ (máy yếu) không làm lệch mốc; tua nhanh thì finished tới trước */
+      await til(aV, T(700));
+      if (G !== g0) { land(); return; }
+      try { SFX.play("loc", 0.85); } catch (e) {} /* đầu nhịp 3, đúng 1 lần */
+      await til(aT, T(e4));
       /* chạm ô: lộ mặt thật + một vệt sáng */
       const fin = l51Rect(li), rr = fin ? fin.r : r1;
       land();
       if (!lo && rr.width > 10) {
         const sw = l51Add(document.createElement("div"));
         sw.className = "l51-sw"; sw.setAttribute("aria-hidden", "true");
-        sw.style.cssText = `left:${rr.left.toFixed(1)}px;top:${rr.top.toFixed(1)}px;width:${rr.width.toFixed(1)}px;height:${rr.height.toFixed(1)}px;border-radius:${(parseFloat(getComputedStyle(lc).borderTopLeftRadius) || 16)}px`;
+        sw.style.cssText = `left:${rr.left.toFixed(1)}px;top:${rr.top.toFixed(1)}px;width:${rr.width.toFixed(1)}px;height:${rr.height.toFixed(1)}px;border-radius:${rdc}px`;
         sw.innerHTML = "<i></i>";
-        const a = sw.firstChild.animate([{ transform: "translateX(-160%) skewX(-18deg)" }, { transform: "translateX(460%) skewX(-18deg)" }], { duration: T(130), easing: "ease-in-out", fill: "both" });
+        const a = sw.firstChild.animate([{ transform: "translateX(-160%) skewX(-18deg)" }, { transform: "translateX(460%) skewX(-18deg)" }], { duration: T(100), easing: "ease-in-out", fill: "both" });
         l51Fin(a).then(() => l51Del(sw));
-        setTimeout(() => l51Del(sw), 1500);
+        setTimeout(() => l51Del(sw), T(100) * spd0 + 30); /* hẹn giờ gỡ: khung hình trễ không làm vệt sáng sót lâu */
       }
     } catch (e) {
       land();
     } finally {
-      for (const a of mine) { try { if (a.playState !== "running") a.cancel(); } catch (e) {} }
       if (!landed) land();
     }
   }
@@ -2610,6 +2622,7 @@ ${g(36, 36, 0)}${g(164, 36, 90)}${g(164, 164, 180)}${g(36, 164, 270)}${g(84, 33,
     const VW = innerWidth, VH = innerHeight, S0 = Math.round(Math.min(VW * 0.56, VH * 0.3, 260));
     const S = opp ? Math.round(S0 * 0.62) : S0, cx = VW / 2, cy0 = Math.round(VH * 0.42);
     const cy = opp ? Math.round(Math.max(S / 2 + VH * 0.09, cy0 - S0 * 0.62)) : cy0;
+    const spd = typeof SPD === "number" && SPD > 0 ? SPD : 1; /* 05 nhân SPD vào mọi WAAPI -> chia lại để ấn luôn ~1,4 s thật */
     const id = "an51" + (++an51n) + "_";
     const img = typeof IMGS !== "undefined" && IMGS.v && IMGS.v.an_trien;
     const d = document.createElement("div");
@@ -2628,7 +2641,7 @@ ${g(36, 36, 0)}${g(164, 36, 90)}${g(164, 164, 180)}${g(36, 164, 270)}${g(84, 33,
       { transform: "scale(1)", opacity: 1, offset: 0.23 },
       { transform: "scale(1)", opacity: 1, offset: 0.78 },
       { transform: "scale(1.03)", opacity: 0, offset: 1 }
-    ], { duration: 1380, easing: "linear", fill: "both" });
+    ], { duration: 1380 / spd, easing: "linear", fill: "both" });
     const b = d.querySelector("b");
     b.animate([
       { transform: "scale(1.8)", opacity: 0, offset: 0, easing: "cubic-bezier(.55,0,.9,.5)" },
@@ -2637,14 +2650,14 @@ ${g(36, 36, 0)}${g(164, 36, 90)}${g(164, 164, 180)}${g(36, 164, 270)}${g(84, 33,
       { transform: "scale(1)", opacity: 1, offset: 0.23 },
       { transform: "scale(1)", opacity: 1, offset: 0.78 },
       { transform: "scale(1.03)", opacity: 0, offset: 1 }
-    ], { duration: 1380, easing: "linear", fill: "both" });
+    ], { duration: 1380 / spd, easing: "linear", fill: "both" });
     if (ink) ink.animate([
       { transform: "scale(.6)", opacity: 0, offset: 0 },
       { transform: "scale(.7)", opacity: 0, offset: 0.12 },
       { transform: "scale(1)", opacity: 1, offset: 0.3, easing: "ease-out" },
       { transform: "scale(1.06)", opacity: 0.9, offset: 0.78 },
       { transform: "scale(1.1)", opacity: 0, offset: 1 }
-    ], { duration: 1380, easing: "linear", fill: "both" }).onfinish = done;
+    ], { duration: 1380 / spd, easing: "linear", fill: "both" }).onfinish = done;
     else seal.getAnimations()[0].onfinish = done;
     setTimeout(done, 2200);
   }

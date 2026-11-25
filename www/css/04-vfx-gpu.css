@@ -1624,7 +1624,8 @@ body[data-l51~="2"] #board [data-lane="2"] .locw .loc { opacity: 0; }
 .l51-k.locw, .l51-c, .l51-sw { position: fixed; z-index: 40; pointer-events: none; margin: 0; }
 .l51-k .loc { width: 100%; height: 100%; box-sizing: border-box; }
 .l51-k .loc .in { height: 100%; box-sizing: border-box; }
-.l51-c { will-change: transform; }
+.l51-c { will-change: transform; opacity: 0; }
+.l51-tx > * { opacity: 0; }
 .l51-f { position: absolute; inset: 0; border-radius: var(--rd, 16px); overflow: hidden; background: radial-gradient(120% 80% at 50% 0, color-mix(in srgb, var(--lc, #6a6cf0) 85%, #fff), color-mix(in srgb, var(--lc, #6a6cf0) 35%, #000)) center / cover no-repeat; background-position: 50% 45%; background-size: 118% auto; box-shadow: 0 0 0 2px #e9c45f, inset 0 0 0 1px rgba(255, 238, 176, 0.55), 0 14px 30px rgba(0, 0, 0, 0.55); }
 .l51-c.lo .l51-f { box-shadow: 0 0 0 2px #e9c45f; }
 .l51-sh { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(6, 6, 30, 0) 0%, rgba(6, 6, 30, 0.15) 35%, rgba(6, 6, 30, 0.84) 100%); opacity: 0; }

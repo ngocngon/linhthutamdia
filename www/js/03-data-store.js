@@ -101,7 +101,7 @@ function showLobby(){closeAll();renderLobby();$("lobby").classList.add("on");if(
    (không tên/ảnh/mô tả/màu, chạm xem cũng chỉ báo "chưa lộ diện", số liệu trên tay không tính hiệu ứng chiến địa). Luật engine không đổi:
    chiến địa 1 vẫn lộ ở đầu lượt 1 trong E.newGame; chỉ phần trình diễn chờ tới khi băng hiệu "LƯỢT 1" xong mới mở (locOpen43). */
 let LVEIL=null;
-const LOC_OPEN=990; /* ms gốc (nhân SPD) cho MỘT lá chiến địa kiểu Marvel Snap (gpu51): lật 350 + lá lớn lật 350 + trình diện 800 + bay về ô 500 = 2000 ms thật ở SPD 2.0; vẽ ở 08 (gpuLocOpen51) */
+const LOC_OPEN=990; /* ms gốc (nhân SPD) cho MỘT lá chiến địa kiểu Marvel Snap (gpu51): lật 350 + lá lớn lật 350 + trình diện 800 + bay về ô 450 + vệt sáng 100 ≈ 2050 ms thật ở SPD 2.0; vẽ ở 08 (gpuLocOpen51) */
 function locWait51(n){return n>1?n*(LOC_OPEN-150):LOC_OPEN;} /* nhiều lá: lần lượt từng lá, mỗi lá nhịp 3 rút còn 500 ms thật (-150 ms gốc) */
 const LVOPEN={g:null,s:new Set()}; /* gpu51: các ô đã lộ mặt thật trong lúc mở lần lượt (veil43 ở 06 chỉ che những ô chưa nằm trong tập này) */
 function locVeiled(g){return !!g&&LVEIL===g&&g.turn<=1;}
