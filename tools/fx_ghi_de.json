@@ -1,4 +1,149 @@
 {
  "_ghi_chu": "Ghi đè tay cấu hình hiệu ứng thẻ (gpu51): {id: {e: hệ trong 13 hệ, m: mô-típ (tên kiểu đòn 09), c2: 0-3 màu phụ, q: 0-2 quỹ đạo (cong trái/cong phải/thẳng)}}. Sau khi sửa: node tools/sinh_fx_the.mjs",
- "the": {}
+ "the": {
+  "annu": {
+   "e": "nuoc"
+  },
+  "ansao": {
+   "e": "sang"
+  },
+  "bato": {
+   "e": "cokhi"
+  },
+  "battykhonglo": {
+   "e": "doc"
+  },
+  "bayxac": {
+   "e": "hon"
+  },
+  "bayxacnuotsao": {
+   "e": "toi"
+  },
+  "biamo": {
+   "e": "hon"
+  },
+  "bienhinhthuat": {
+   "e": "hon"
+  },
+  "condoi": {
+   "e": "hon"
+  },
+  "cuocthu": {
+   "e": "gio"
+  },
+  "cuongdomienvien": {
+   "e": "mau"
+  },
+  "cuongvuong": {
+   "e": "toi"
+  },
+  "dainao": {
+   "e": "hon"
+  },
+  "damquai": {
+   "e": "moc"
+  },
+  "daonghich": {
+   "e": "hon"
+  },
+  "dauvuong": {
+   "e": "dat"
+  },
+  "duatrehoang": {
+   "e": "moc"
+  },
+  "duclongnhan": {
+   "e": "gio"
+  },
+  "giacnguu": {
+   "e": "dat"
+  },
+  "ketudao": {
+   "e": "mau"
+  },
+  "lucsi": {
+   "e": "dat"
+  },
+  "matvumuoiba": {
+   "e": "toi"
+  },
+  "mieuthan": {
+   "e": "sang"
+  },
+  "ngunhan": {
+   "e": "nuoc"
+  },
+  "nhaihinh": {
+   "e": "moc"
+  },
+  "nhasuutam": {
+   "e": "dat"
+  },
+  "phatuong": {
+   "e": "dat"
+  },
+  "phiung": {
+   "e": "gio"
+  },
+  "quangpho": {
+   "e": "sang"
+  },
+  "sieudihinh": {
+   "e": "toi"
+  },
+  "sieusaokhonglo": {
+   "e": "dat"
+  },
+  "sokhong": {
+   "e": "toi"
+  },
+  "tamtudo": {
+   "e": "mau"
+  },
+  "thantho": {
+   "e": "cokhi"
+  },
+  "thiendien": {
+   "e": "hon"
+  },
+  "thosan": {
+   "e": "moc"
+  },
+  "thuhoang": {
+   "e": "cokhi"
+  },
+  "thukydungcam": {
+   "e": "sang"
+  },
+  "tieukhonglo": {
+   "e": "dat"
+  },
+  "toaansong": {
+   "e": "sang"
+  },
+  "toctu": {
+   "e": "gio"
+  },
+  "trungmau": {
+   "e": "moc"
+  },
+  "tuthan": {
+   "e": "hon"
+  },
+  "vitthamtu": {
+   "e": "nuoc"
+  },
+  "vualunren": {
+   "e": "lua"
+  },
+  "xaccunhan": {
+   "e": "hon"
+  },
+  "xanhan": {
+   "e": "doc"
+  },
+  "xuyentuongnu": {
+   "e": "hon"
+  }
+ }
 }

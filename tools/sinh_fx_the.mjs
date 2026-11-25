@@ -85,5 +85,9 @@ writeFileSync(f13, out);
   writeFileSync(path.join(here, "fx_atlas_mau.json"), JSON.stringify({ _ghi_chu: "gpu51: MẪU chỉ mục atlas cho bộ phát FXR (www/js/13-fxr.js). Mỗi tấm vuông n×n ô (768², ô 192px), ô theo hàng trái->phải, trên->xuống; \"\" = ô trống. Mã ô: <nguyên mẫu>_<hệ> | <nguyên mẫu>_tr/_s4/_s5 (trung tính / Bậc 4 / Bậc 5) | ic_<biểu tượng> | em_<id thẻ> (ấn ký S4/S5). Khi có ảnh: đặt www/img/fx/<f> rồi chép mục tương ứng vào \"tam\" của www/img/fx/fx.json; thiếu tệp -> hình dự phòng SVG.", v: 1, tam }, null, 1) + "\n");
   console.log(`mẫu atlas: ${tam.length} tấm (${PROTO.length} nguyên mẫu × 13 hệ + 3, 1 biểu tượng, ${Math.ceil(em.length / 16)} ấn ký cho ${em.length} thẻ S4/S5) -> tools/fx_atlas_mau.json`);
 }
-writeFileSync(path.join(here, "fx_he_ra_tay.txt"), "# gpu51: thẻ có hệ xếp theo BĂM hoặc QUY TẮC CHỮ phụ (không khớp từ khoá tên/MOTA) — rà tay, sửa trong tools/fx_ghi_de.json {\"the\":{id:{\"e\":\"<hệ>\"}}}\n# id\tbậc\ttên\thệ hiện tại\tnguồn\tmô tả\n" + review.join("\n") + "\n");
+writeFileSync(path.join(here, "fx_he_ra_tay.txt"), [
+  '# gpu51: thẻ có hệ xếp theo BĂM hoặc QUY TẮC CHỮ phụ (không khớp từ khoá tên/MOTA) — rà tay, sửa trong tools/fx_ghi_de.json {"the":{id:{"e":"<hệ>"}}}',
+  "# id\tbậc\ttên\thệ hiện tại\tnguồn\tmô tả",
+  ...review
+].join("\n") + "\n");
 console.log("đã ghi khối FXT vào www/js/13-fxr.js");
