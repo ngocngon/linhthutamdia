@@ -35,10 +35,12 @@ function api(method,path,body,opt){
   return fetch(CF.base+path,init).then(function(r){
     return r.json().catch(function(){return {};}).then(function(j){
       if(r.status===401&&tk&&tk===CF.token&&!(opt&&opt.keep))cfLogout(true);
-      if(!r.ok){var e=new Error(j.message||j.error||("HTTP "+r.status));e.status=r.status;e.code=j.error;e.reason=j.reason;throw e;}
+      if(r.status===403&&j&&j.error==="banned"&&typeof window.LTD_ONBAN==="function"){try{window.LTD_ONBAN(j);}catch(x){}}
+      if(!r.ok){var e=new Error(j.message||j.error||("HTTP "+r.status));e.status=r.status;e.code=j.error;e.reason=j.reason;e.data=j;throw e;}
       return j;});});
 }
 function say(m,ms){try{if(typeof toast==="function")toast(m,ms);}catch(e){}}
+CF.api=api;/* móc cho 14-hopthu.js: gọi REST có phiên + bắt 403 banned qua window.LTD_ONBAN */
 
 /* ---------- đăng nhập / đăng xuất ---------- */
 CF.me=null;CF.cfg=null;CF.saveVer=null;CF.lastPush=0;CF.conflict=false;
@@ -612,6 +614,7 @@ document.addEventListener("keydown",function(ev){
   else if(/^cf(OP|NP|NP2)$/.test(id)){ev.preventDefault();doPw();}
 });
 document.addEventListener("change",function(ev){if(ev.target&&ev.target.id==="cfCode"){CF.code=ev.target.value.replace(/[^a-zA-Z0-9_-]/g,"").slice(0,24);ev.target.value=CF.code;lsSet("ltd.pcode",CF.code||null);}});
+CF.logout=cfLogout;
 window.LTD_CF_UI={openLogin:openLogin,openRegister:openRegister,openManage:openManage,ask:cfAsk,where:gWhere,loadCfg:loadCfg};
 /* ---------- khởi động: kiểm tra phiên cũ, dựng lại tài khoản ---------- */
 function boot(){

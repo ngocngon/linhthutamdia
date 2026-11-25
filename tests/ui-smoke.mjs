@@ -27,6 +27,7 @@ const errors = [];
 const browser = await chromium.launch({ headless: true, executablePath: process.env.CHROME_PATH || undefined, args: ["--no-sandbox", "--autoplay-policy=no-user-gesture-required"] });
 const ctx = await browser.newContext({ viewport: { width: 412, height: 915 }, deviceScaleFactor: 1, isMobile: true, hasTouch: true });
 const page = await ctx.newPage();
+await page.route(/^https:\/\/[^/]*workers\.dev\//, r => r.fulfill({ status: 200, contentType: "application/json", body: '{"ok":false,"items":[]}' })); /* gpu52: không gọi máy chủ online thật */
 page.on("pageerror", e => errors.push("pageerror: " + e.message));
 page.on("console", m => { if (m.type() === "error") errors.push("console.error: " + m.text()); });
 page.on("requestfailed", r => { if (r.url().startsWith(url.replace(/index\.html$/, ""))) errors.push("requestfailed: " + r.url()); }); // bỏ qua host ngoài (Google Fonts) khi chạy offline
