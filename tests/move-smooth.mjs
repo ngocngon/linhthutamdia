@@ -25,7 +25,7 @@ const errors = [];
 
 
 const VPS = process.env.VPS ? JSON.parse(process.env.VPS) : [[412, 915], [360, 640]];
-const SCEN = [["move", "normal"], ["move2", "normal"], ["swap", "normal"], ["opp", "normal"], ["lane", "normal"], ["src", "normal"], ["move", "lo"], ["move", "rm"]];
+const SCEN = [["move", "normal"], ["move2", "normal"], ["swap", "normal"], ["opp", "normal"], ["lane", "normal"], ["src", "normal"], ["skill", "normal"], ["move", "lo"], ["move", "rm"], ["move2", "rm"]];
 
 /* Cài móc hoạt ảnh (một lần mỗi trang): bắt chuyến bay của bản sao, vệt sáng, hoạt ảnh ghim thẻ khác. */
 const HOOK = () => {
@@ -57,14 +57,19 @@ async function run(page, kind, mode, tag, vp) {
     for (let i = 0; i < 3; i++) { G.locs[i].cards.p = []; G.locs[i].cards.a = []; G.locs[i].rvl = true; G.locs[i].gone = false; }
     const ids = Object.keys(C).filter(k => C[k].t === "none" && C[k].c <= 3).slice(0, 12);
     const mk = (id, s) => { const c = E.mk(G, id, s); c.rev = true; c.turn = 0; c.sum = false; return c; };
-    const A = mk(ids[0], "p"), B = mk(ids[1], "p"), Cc = mk(ids[2], "p"), X = mk(ids[3], "a"), Y = mk(ids[4], "p"), Z = mk(ids[5], "p");
-    G.locs[0].cards.p.push(A, B, Z); G.locs[1].cards.p.push(Cc, Y); G.locs[0].cards.a.push(X);
+    const A = mk(ids[0], "p"), B = mk(ids[1], "p"), Cc = mk(ids[2], "p"), X = mk(kind === "skill" ? "tunu" : ids[3], "a"), Y = mk(ids[4], "p"), Z = mk(ids[5], "p");
+    G.locs[0].cards.p.push(A, B, Z); G.locs[1].cards.p.push(Cc, Y); G.locs[kind === "skill" ? 1 : 0].cards.a.push(X);
     reduced = mode === "rm"; document.body.classList.toggle("rm", reduced);
     render();
     { const t1 = performance.now(); while (performance.now() - t1 < 8000 && (document.getAnimations().some(a => a.effect && a.effect.target && a.effect.target.closest && a.effect.target.closest("#board") && a.playState === "running" && a.effect.getComputedTiming().iterations !== Infinity) || document.querySelectorAll(".fxg").length)) await sleep(60); await sleep(150); }
     const rect = u => { const e = document.querySelector(`#board [data-mc="${u}"]`); if (!e) return null; const b = e.getBoundingClientRect(); return { x: b.left + b.width / 2, y: b.top + b.height / 2, w: b.width, h: b.height }; };
     const wCard = rect(A.uid).w;
-    const tS = performance.now(); window.__snd = []; window.SFX_TAP = n => window.__snd.push(n + "@" + Math.round(performance.now() - tS));
+    const tS = performance.now(), moveSoundUids = [];
+    window.__snd = [];
+    window.SFX_TAP = (n, vol, o) => {
+      window.__snd.push(n + "@" + Math.round(performance.now() - tS));
+      if (n === "move") moveSoundUids.push(o.moveUid);
+    };
     const R0 = rects0(), P0 = powers(), G0 = pvSnap();
     G.evs.length = 0; if (G.msgs) G.msgs.length = 0;
     let uids;
@@ -74,12 +79,18 @@ async function run(page, kind, mode, tag, vp) {
     else if (kind === "swap") { uids = [X.uid]; const a = G.locs[0].cards.a; a.splice(a.indexOf(X), 1); X.side = "p"; G.locs[0].cards.p.push(X); G.evs.push({ k: "morph", uid: X.uid }); }
     else if (kind === "lane") { const t = G.locs[1]; G.locs[1] = G.locs[2]; G.locs[2] = t; uids = [Cc.uid, Y.uid]; }
     else if (kind === "src") { uids = [A.uid]; G.srcU = X.uid; E.moveCard(G, A, 0, 1); G.srcU = 0; }
+    else if (kind === "skill") {
+      uids = [A.uid];
+      G.evs.push({ k: "skill", uid: X.uid, t: "rev" });
+      G.srcU = X.uid; E.moveCard(G, A, 0, 1); G.srcU = 0;
+    }
     const evs = G.evs.slice();
+    if (kind === "move2" && mode === "rm") evs.push({ ...evs.find(e => e.k === "move" && e.uid === A.uid) });
     const wanted = new Set(uids), n = uids.length;
     const start = uids.map(u => R0.get(u)).map(r => r && { x: r.x, y: r.y });
     window.FXLV = mode === "lo" ? 0 : 1; /* bộ đo khung hình có thể tự hạ FXLV khi máy chậm: đặt lại ngay trước khi phát */
     stepFx(G0, evs, R0, P0);
-    const out = { uids, wCard, start, n, mode };
+    const out = { uids, moveSoundUids, wCard, start, n, mode };
     if (mode === "rm") { await sleep(700); out.snd = window.__snd.slice(); out.end = uids.map(u => rect(u)); out.left = { hid: document.querySelectorAll(".mvhd9").length, fxg: document.querySelectorAll(".fxg").length }; out.flights = window.__fly.length; return out; }
     // chờ đủ n chuyến bay
     { const tw = performance.now(); while (performance.now() - tw < 12000 && window.__fly.length < n) await sleep(15); }
@@ -141,6 +152,7 @@ async function run(page, kind, mode, tag, vp) {
 function analyse(tag, kind, mode, r) {
   const n = r.n;
   console.log(` - ${tag}: ${n} thẻ, ${r.flights} chuyến bay, vệt=${r.trailCount}, ghim=${r.pinCount}, thời lượng=${JSON.stringify(r.durs)}, lệch pha=${JSON.stringify(r.offs)}, âm=${(r.snd || []).join(",")}`);
+  chk(r.moveSoundUids.length === n && r.uids.every(uid => r.moveSoundUids.includes(uid)), `mỗi UID có đúng một tiếng move (UID phát: ${r.moveSoundUids.join(",")})`);
   if (mode === "rm") {
     chk(r.flights === 0, "giảm hiệu ứng: không có bản sao bay (chuyển tức thời như cũ)");
     chk(r.snd.filter(s => /^move@/.test(s)).length === n, `giảm hiệu ứng: đúng ${n} tiếng move`);
@@ -170,7 +182,7 @@ function analyse(tag, kind, mode, r) {
   chk(r.left.clones === 0 && r.left.fxg === 0 && r.left.trail === 0 && r.left.hid === 0 && r.left.pinned === 0, `không sót bản sao/vệt/ô ẩn/hoạt ảnh ghim (${JSON.stringify(r.left)})`);
   const mv = r.snd.filter(s => /^move@/.test(s)).length;
   chk(mv === n, `đúng ${n} tiếng move (thực tế ${mv})`);
-  if (kind !== "src" && kind !== "swap") chk(!r.snd.some(s => /^(e_gio|place|whoosh)@/.test(s)), "không tiếng thừa (e_gio/place/whoosh)");
+  if (kind !== "src" && kind !== "skill" && kind !== "swap") chk(!r.snd.some(s => /^(e_gio|place|whoosh)@/.test(s)), "không tiếng thừa (e_gio/place/whoosh)");
   chk(mode === "lo" ? r.trailCount === 0 : r.trailCount > 0, mode === "lo" ? "FXLV=0: bỏ vệt sáng nhưng vẫn bay" : `có vệt sáng theo màu hệ (${r.trailCount} đoạn)`);
   if (mode !== "lo") chk(fr.some(f => f.tr > 0.3), "vệt sáng hiện thật (opacity > 0) trong chuyến bay");
   if (kind === "move2") { const g = r.t0s[1] - r.t0s[0]; chk(g >= 80 && g <= 120, `so le theo lịch ${g} ms thật giữa hai thẻ (80–120); đo thực tế ${r.offs[1] - r.offs[0]} ms (nhiễu theo tải máy)`); }
