@@ -31,6 +31,10 @@ page.on("pageerror", e => errs.push(`[${cur}] pageerror: ${e.message} @${(e.stac
 page.on("console", m => { if (m.type() === "error") errs.push(`[${cur}] console.error: ${m.text()}`); });
 page.on("response", r => { if (r.status() >= 400 && r.url().startsWith(BASE)) errs.push(`[${cur}] http ${r.status()}: ${r.url()}`); });
 page.on("dialog", d => d.dismiss().catch(() => {}));
+/* không gọi máy chủ online thật: giả lập cấu hình công khai, chặn mọi gọi khác tới máy chủ */
+await page.route(/^https:\/\/[^/]*workers\.dev\//, r => r.fulfill(/\/api\/config$/.test(new URL(r.request().url()).pathname)
+  ? { status: 200, contentType: "application/json", body: '{"ok":true,"googleClientId":"","registerOpen":true}' }
+  : { status: 200, contentType: "application/json", body: '{"ok":false,"error":"offline"}' }));
 page.on("popup", p => p.close().catch(() => {}));
 await page.goto(BASE + "index.html", { waitUntil: "domcontentloaded" });
 await page.waitForSelector("#ldr12", { state: "detached", timeout: 180000 });
