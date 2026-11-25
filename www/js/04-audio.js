@@ -345,7 +345,7 @@ const SFX = (() => {
 
 
   /* ===== Tiếng KỸ NĂNG riêng từng thẻ S5/S4 (gpu47) =====
-     Chỉ mục sfx/the.json (id thẻ -> [số sprite, bắt đầu, độ dài]) nhỏ, tải lúc khởi động; các sprite sfx/the-1.mp3 … the-6.mp3 (~50 thẻ/cái)
+     Chỉ mục sfx/the.json (id thẻ -> [số sprite, bắt đầu, độ dài]) nhỏ, tải lúc khởi động; các sprite sfx/the-1.mp3 … the-9.mp3 (~46 thẻ/cái, gồm S5/S4/S3)
      tải LƯỜI: khi có thẻ cần phát mà sprite chưa sẵn sàng thì phát tiếng nhóm như cũ và tải nền cho lần sau.
      fam(key,o): nếu biết thẻ nguồn (o.id / o.uid, hoặc SFX.src(el, uid), hoặc thẻ S4/S5 đang được nhấc lên màn chiến đấu) và thẻ có tiếng riêng
      đã sẵn sàng -> phát tiếng riêng THAY cho tiếng nhóm; các tiếng nhóm còn lại của cùng bước đó bị bỏ (không chồng). */
@@ -359,14 +359,14 @@ const SFX = (() => {
   function loadCardIndex() {
     if (cardIdxState) return;
     cardIdxState = 1;
-    fetch("sfx/the.json?v=gpu53").then((r) => { if (!r.ok) throw new Error("the.json"); return r.json(); })
+    fetch("sfx/the.json?v=gpu54").then((r) => { if (!r.ok) throw new Error("the.json"); return r.json(); })
       .then((j) => { cardIdx = j; cardIdxState = 2; const w = spWait.splice(0); w.forEach((f) => { try { f(); } catch (e) {} }); })
       .catch(() => { cardIdxState = 3; spWait.length = 0; });
   }
   function loadCardSprite(n) {
     if (spState[n] || !ac || !cardIdx) return Promise.resolve();
     spState[n] = 1;
-    return fetch("sfx/the-" + n + ".mp3?v=gpu53").then((r) => { if (!r.ok) throw new Error("the-" + n); return r.arrayBuffer(); })
+    return fetch("sfx/the-" + n + ".mp3?v=gpu54").then((r) => { if (!r.ok) throw new Error("the-" + n); return r.arrayBuffer(); })
       .then((ab) => new Promise((res, rej) => { const p = ac.decodeAudioData(ab, res, rej); if (p && p.catch) p.catch(rej); }))
       .then((big) => {
         const sr = big.sampleRate, src = big.getChannelData(0);
