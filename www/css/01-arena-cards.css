@@ -22,6 +22,8 @@
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%}
+/* gpu49-sua: html cũng overflow:hidden để body tự cắt (không đẩy overflow lên viewport) — nếu không, hạt/hiệu ứng tạm vượt mép làm Chrome di động nở layout viewport (471×1044 ở 412×915) và #ovEnd (fixed) lệch/cắt mép */
+html{overflow:hidden}
 body{
   color:var(--chu);font-family:var(--f-body);font-size:13px;line-height:1.35;
   -webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;touch-action:manipulation;overflow:hidden;
