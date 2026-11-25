@@ -2882,7 +2882,7 @@ ${g(36, 36, 0)}${g(164, 36, 90)}${g(164, 164, 180)}${g(36, 164, 270)}${g(84, 33,
     return labLoad;
   }
   function addVfxLabButtons() {
-    const lobby = $id("lobby");
+    const lobby = null; /* gpu52: nút dev ở sảnh che hàng nút (Nhiệm vụ, Hộp thư) — chỉ giữ nút trong Cài đặt > Nâng cao */
     if (lobby) {
       const lbBtn = document.createElement("button");
       lbBtn.type = "button";
