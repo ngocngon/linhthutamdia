@@ -1,0 +1,15 @@
+{
+ "_ghi_chu": "gpu51: 10 tiếng nền theo TÌNH HUỐNG hiệu ứng thẻ (FXR, www/js/13-fxr.js). Tạo: node tools/tao_sfx_elevenlabs.mjs <thư_mục_thô> --ds=sfx_fx_ds.json --ngan-sach=600 --per-sec=20; ghép: python3 tools/sfx_fx_build.py <thư_mục_thô> www/sfx (-> fx.mp3 + fx.json, một sprite). Lớp nhấn theo hệ dùng e_<hệ> có sẵn trong sfx3.",
+ "list": [
+  {"k": "x_tang", "n": 2, "d": 1.0, "c": "vua", "dung": "+sức mạnh cho thẻ khác (luồng sáng tới đích)", "t": "fantasy card game power-up blessing: a bright rising shimmering magical whoosh that lands on a soft warm bronze bell chime, ascending pitch, clean and full mid-range, no harsh high frequencies"},
+  {"k": "x_giam", "n": 2, "d": 1.0, "c": "vua", "dung": "-sức mạnh (vệt quất, nứt)", "t": "fantasy card game curse debuff: a short heavy downward whip lash followed by a dull cracking stone fracture, descending pitch, dark and punchy mid-range, not shrill"},
+  {"k": "x_nl", "n": 2, "d": 1.0, "c": "nho", "dung": "+/- năng lượng, giá thẻ (đồng hồ, ngọc năng lượng)", "t": "fantasy game mana energy gain: two quick brass clock ticks followed by a soft glowing magical charge-up hum and a small crystal gem sparkle, warm and short"},
+  {"k": "x_tim", "n": 2, "d": 1.0, "c": "nho", "dung": "ủng hộ / hồi (trái tim, Duy Trì)", "t": "fantasy card game healing support: a soft warm double heartbeat thump with a gentle glowing magical shimmer swell, comforting, low-mid warm tone, no harsh highs"},
+  {"k": "x_huy", "n": 2, "d": 1.0, "c": "lon", "dung": "tiêu huỷ (thẻ vỡ vụn)", "t": "fantasy card game card destroyed: a sharp punchy shattering crunch of breaking stone and thick glass with short debris scatter, strong impact, mid-range, no shrill ringing tail"},
+  {"k": "x_vut", "n": 2, "d": 1.0, "c": "vua", "dung": "vứt bỏ (giấy cháy bay về chồng bỏ)", "t": "fantasy card game discard: a quick whoosh of fire igniting a paper card with a short crackling burn and a soft ember puff, short and clean"},
+  {"k": "x_kich", "n": 2, "d": 1.0, "c": "vua", "dung": "kích hoạt (ấn chú xoay dưới chân thẻ)", "t": "fantasy card game rune activation: a mystical stone seal clicking into place with a resonant low magical pulse and a brief swirling hum, mid-range, not piercing"},
+  {"k": "x_trieu", "n": 2, "d": 1.0, "c": "vua", "dung": "triệu hồi / tạo thẻ (cổng ấn mở)", "t": "fantasy card game summoning portal opening: a deep magical swirling whoosh rising into a soft bronze drum boom as a creature appears, warm mid-range"},
+  {"k": "x_hoi", "n": 2, "d": 1.0, "c": "vua", "dung": "hồi sinh (sen linh hồn trồi lên)", "t": "fantasy card game spirit resurrection: an ethereal rising airy magical swell with a soft bloom of warm light and a gentle low hum, smooth, no shrill highs"},
+  {"k": "x_chan", "n": 2, "d": 1.0, "c": "vua", "dung": "bị chặn (khiên)", "t": "fantasy card game magic shield block: a solid bronze shield clang with a short magical barrier hum, deflecting hit, mid-range, not piercing"}
+ ]
+}

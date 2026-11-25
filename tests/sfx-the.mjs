@@ -2,7 +2,7 @@
 // Chạy trong thư mục tests: CHROME_PATH=/usr/bin/google-chrome node sfx-the.mjs
 //  (a) the.json: mọi id là thẻ S5/S4 có thật, đủ số thẻ đã tạo (tools/sfx_the.json), vị trí khớp độ dài sprite, không chồng nhau
 //  (b) chơi một ván có thẻ S5/S4 dùng kỹ năng: tiếng riêng phát đúng thẻ, không kèm tiếng nhóm cùng bước, chỉ tải các sprite cần thiết
-//  (c) thẻ không có tiếng riêng (bậc thấp) vẫn phát tiếng nhóm; tải lười: chưa có sprite -> tiếng nhóm + tải nền, rồi mới có tiếng riêng
+//  (c) thẻ không có tiếng riêng (bậc thấp) vẫn phát tiếng nhóm (gpu51: tiếng nhóm gồm cả tiếng tình huống x_* của sprite fx); tải lười: chưa có sprite -> tiếng nhóm + tải nền, rồi mới có tiếng riêng
 import http from "node:http";
 import { readFile } from "node:fs/promises";
 import { readFileSync } from "node:fs";
@@ -89,7 +89,7 @@ try {
   const pickA = ids.find(i => idx[i][0] === sprites[0] && C[i].h === "S5"), pickB = ids.find(i => i !== pickA && idx[i][0] === sprites[0] && C[i].h === "S5");
   const low = Object.keys(C).find(k => /^S[123]$/.test(C[k].h) && C[k].t === "rev");
   const r = await page.evaluate(async ({ a, b, low }) => {
-    const w = ms => new Promise(r => setTimeout(r, ms)), tap = () => (window.__snd = [], null), names = () => window.__snd.map(x => x.n).filter(n => /^(the:|f_|destroy$|discard$|move$|draw$|summon$|revive$|steal$|silence$|shield$|buff$|debuff$|energy$|morph$|act$|hurt$)/.test(n)); /* không đếm "loc" (mở chiến địa): không do fam() phát ra */
+    const w = ms => new Promise(r => setTimeout(r, ms)), tap = () => (window.__snd = [], null), names = () => window.__snd.map(x => x.n).filter(n => /^(the:|x_|f_|destroy$|discard$|move$|draw$|summon$|revive$|steal$|silence$|shield$|buff$|debuff$|energy$|morph$|act$|hurt$)/.test(n)); /* không đếm "loc" (mở chiến địa): không do fam() phát ra */
     const out = {}; const GRP = new Set(["destroy", "buff", "debuff", "summon", "act", "morph", "move", "discard", "revive", "steal", "silence", "shield", "energy", "hurt", "draw"]);
     out.has = !!SFX.cardLoaded(a);
     tap(); SFX.fam("destroy", { id: a, el: null }); await w(60); out.lazy1 = names();           // chưa nạp: tiếng nhóm
@@ -150,7 +150,7 @@ try {
     // đúng thẻ: thẻ đó vừa ra mắt/đang có trên bàn trong ván (ra mắt gần nhất trong 6 s trước)
     if (!R.ult.some(u => u.id === id && o.t - u.t > -50 && o.t - u.t < 6000)) wrong++;
     // không chồng tiếng nhóm: không có tiếng kỹ năng nhóm nào (mẫu f_*/destroy/buff/…) trong ±120 ms
-    if (R.snd.some(s => s !== o && !s.n.startsWith("the:") && /^(f_|destroy$|discard$|move$|draw$|summon$|revive$|steal$|silence$|shield$|buff$|debuff$|energy$|morph$|act$|hurt$)/.test(s.n) && Math.abs(s.t - o.t) < 120)) overlap++;
+    if (R.snd.some(s => s !== o && !s.n.startsWith("the:") && /^(x_|f_|destroy$|discard$|move$|draw$|summon$|revive$|steal$|silence$|shield$|buff$|debuff$|energy$|morph$|act$|hurt$)/.test(s.n) && Math.abs(s.t - o.t) < 120)) overlap++;
   }
   if (owns.length < 1) fail("không có tiếng riêng nào được phát trong ván");
   if (wrong) fail(`${wrong} tiếng riêng không khớp thẻ vừa ra mắt`);

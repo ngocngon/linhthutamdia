@@ -5,7 +5,7 @@ import { readFile, mkdir } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { createRequire } from "node:module";
-const here = path.dirname(fileURLToPath(import.meta.url)), www = path.join(here, "..", "www");
+const here = path.dirname(fileURLToPath(import.meta.url)), www = process.env.WWW || path.join(here, "..", "www"); /* gpu51: WWW=<thư mục> để đo bản gốc so sánh */
 const WHICH = process.argv[2] || "all", THR = +(process.env.CPU_THROTTLE || 4), OUT = process.env.PERF_OUT || "/home/claude/shots-gpu49/perf";
 const require = createRequire(import.meta.url);
 let chromium;
@@ -68,6 +68,8 @@ if (WHICH === "2" || WHICH === "all") {
   await page.waitForFunction(() => typeof G !== "undefined" && G && G.phase === "play" && !document.getElementById("lobby").classList.contains("on"), null, { timeout: 120000 });
   await page.waitForTimeout(4000);
   await page.evaluate(() => { const P = window.__P; P.pb = { n: 0, ms: 0, max: 0 }; P.ga = { n: 0, ms: 0 }; P.gx = { n: 0, ms: 0 }; P.r = { n: 0, ms: 0, max: 0 }; });
+  /* gpu51: đếm khung hình (rAF) trong lúc diễn các lượt: số khung/giây trung bình + số khung > 50 ms */
+  await page.evaluate(() => { const F = window.__F = { n: 0, long: 0, t0: performance.now(), last: performance.now(), on: 1 }; const f = (t) => { if (!F.on) return; F.n++; if (t - F.last > 50) F.long++; F.last = t; requestAnimationFrame(f); }; requestAnimationFrame(f); });
   const TURNS = +(process.env.TURNS || 4);
   for (let k = 0; k < TURNS; k++) {
     const t = await page.evaluate(() => G.turn);
@@ -76,6 +78,8 @@ if (WHICH === "2" || WHICH === "all") {
     await page.waitForFunction(t => G.phase === "over" || (G.phase === "play" && G.turn > t), t, { timeout: 240000, polling: 200 });
     await page.waitForTimeout(600);
   }
+  const F = await page.evaluate(() => { const F = window.__F; F.on = 0; return { n: F.n, long: F.long, s: (performance.now() - F.t0) / 1000 }; });
+  console.log(`[2] khung hình: ${F.n} khung / ${F.s.toFixed(1)} s = ${(F.n / F.s).toFixed(1)} khung/giây, khung > 50 ms: ${F.long}`);
   const P = await page.evaluate(() => window.__P);
   console.log(`[2] (CPU ${THR}x, ${TURNS} lượt) render(): ${P.r.n} lần, TB ${(P.r.ms / P.r.n).toFixed(1)} ms; patchBoard: ${P.pb.n} lần, TB ${(P.pb.ms / P.pb.n).toFixed(2)} ms, max ${P.pb.max.toFixed(1)} ms; getAnimations trong lần vẽ bàn: ${P.ga.n} lần, ${(P.ga.ms / P.r.n).toFixed(1)} ms/lần render(); getAnimations nơi khác: ${P.gx.n} lần, ${P.gx.ms.toFixed(0)} ms`);
   await ctx.close();

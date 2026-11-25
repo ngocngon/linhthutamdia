@@ -340,6 +340,7 @@ const SFX = (() => {
     loadSprite("sfx3", false)
       .then(() => { loadState = 2; })
       .catch(() => { loadState = 3; });
+    loadSprite("fx", true); /* gpu51: 10 tiếng tình huống FXR (x_*), một sprite riêng; thiếu tệp -> dùng tiếng họ như cũ */
   }
 
 
@@ -403,13 +404,11 @@ const SFX = (() => {
     } catch (e) { return null; }
   }
   /* thẻ nguồn của tiếng kỹ năng vừa gọi + khoá "bước" (mọi tiếng nhóm trong cùng một bước kỹ năng dùng chung khoá) */
+  /* gpu51: tiếng riêng CHỈ phát ở nhịp kỹ năng của chính thẻ: nơi gọi phải chỉ rõ thẻ (o.id, hoặc o.skill + o.uid từ SFX.skill).
+     Không còn đoán thẻ nguồn từ SFX.src()/HERO (trước đây làm tiếng riêng lặp lại ở mọi tình huống: +sức, tiêu huỷ, triệu hồi… của cùng thẻ). */
   function cardSource(o) {
     if (o.id && cardIdx && cardIdx[o.id]) return { id: o.id, key: null };
-    if (o.uid) { const id = cardIdByUid(o.uid); if (id) return { id, key: null }; }
-    if (srcUid && performance.now() - srcStamp < 1800) { const id = cardIdByUid(srcUid); if (id) return { id, key: "s:" + stepSeq }; }
-    try { /* dự phòng: thẻ S4/S5 đang được nhấc lên (HERO của 05-vfx-core.js) */
-      if (typeof HERO !== "undefined" && HERO && HERO.uid && performance.now() - HERO.t0 < 3000) { const id = cardIdByUid(HERO.uid); if (id) return { id, key: HERO }; }
-    } catch (e) {}
+    if (o.skill && o.uid) { const id = cardIdByUid(o.uid); if (id) return { id, key: "s:" + stepSeq }; }
     return null;
   }
   const NOCARD = { locrev: 1 };
@@ -425,8 +424,9 @@ const SFX = (() => {
     if (lastCard[src.id] != null && now - lastCard[src.id] < 0.4 && now >= lastCard[src.id]) return true; /* cùng thẻ phát lại trong 0,4 s */
     lastStep = { key: src.key, cid: src.id };
     lastCard[src.id] = now;
+    beatT = now + (o.delay || 0);
     if (ac.state !== "running") return true;
-    return playSample(n, o.vol == null ? 1 : o.vol, { delay: o.delay, rate: 1 }) !== false;
+    return playSample(n, o.vol == null ? 1 : o.vol, { delay: o.delay, rate: 1, skill: src.id }) !== false;
   }
   /* nạp trước (nhẹ, 4 giây/lần) sprite của các thẻ S4/S5 đang cầm trên tay */
   function autoPre() {
@@ -508,6 +508,14 @@ const SFX = (() => {
     locrev: ["loc", "f_reveal_loc"], aura: ["f_aura"], endt: ["f_end"], act: ["act"], hurt: ["hurt"]
   };
   const famIdx = {};
+  /* gpu51: họ kỹ năng -> tiếng TÌNH HUỐNG (sprite fx: x_*) — nhịp chạm đích của ±sức mạnh, năng lượng, tiêu huỷ, vứt bỏ, kích hoạt,
+     triệu hồi, hồi sinh, bị chặn; nhuộm hệ (đổi tốc/lọc + lớp nhấn e_<hệ>) như cũ. Đòn lớn (up3/dn3/dbl) giữ thêm tiếng họ nhỏ cho "nặng". */
+  const SIT_OF = { up1: "tang", up2: "tang", up3: "tang", dbl: "tang", locup: "tang", dn1: "giam", dn2: "giam", dn3: "giam", locdn: "giam",
+    egain: "nl", energy: "nl", nrgloss: "nl", costdn: "nl", costup: "nl", aura: "tim", destroy: "huy", exile: "huy", discard: "vut", act: "kich",
+    summon: "trieu", create: "trieu", revive: "hoi", block: "chan", shield: "chan" };
+  const SIT_RATE = { up1: 1.08, up3: 0.92, dn1: 1.06, dn3: 0.9, costup: 0.94, costdn: 1.06, nrgloss: 0.88 };
+  const HEAVY = { up3: 1, dn3: 1, dbl: 1, exile: 1 };
+  let hintO = null, beatT = -9; /* gợi ý tình huống/hệ cho lời gọi fam() kế tiếp (FXR đặt quanh hit8); mốc tiếng riêng vừa phát */
   function fam(key, o) {
     o = o || {};
     if (key === "ult") { launch(o.rate > 1.05 ? 4 : 5, o); return; } /* tương thích lời gọi cũ fam("ult") */
@@ -518,10 +526,21 @@ const SFX = (() => {
       const L = FAM[key];
       if (!L) return;
       autoPre();
-      if (cardSkill(key, o)) return; /* tiếng riêng của thẻ (nếu có và đã sẵn sàng) thay cho tiếng nhóm */
+      if (cardSkill(key, o)) return; /* tiếng riêng của thẻ (chỉ ở nhịp kỹ năng của chính thẻ) */
+      /* ngay sau tiếng riêng (0,25 s): không chồng tiếng nhóm lên */
+      if (!o.skill && ac.currentTime + (o.delay || 0) - beatT < 0.25 && ac.currentTime + (o.delay || 0) >= beatT - 0.02) return;
+      const hk = hintO;
       const i = (famIdx[key] = ((famIdx[key] == null ? -1 : famIdx[key]) + 1) % L.length), n = L[i];
-      const el = o.el === undefined ? curEl() : o.el, p = el && EL[el];
+      const el = hk && hk.el ? hk.el : o.el === undefined ? curEl() : o.el, p = el && EL[el];
       const vol = o.vol == null ? 1 : o.vol;
+      const sk = (hk && hk.k) || SIT_OF[key];
+      if (sk && bufs["x_" + sk]) {
+        if (VIB[n] && store.vib !== false && navigator.vibrate) { try { navigator.vibrate(VIB[n]); } catch (e) {} }
+        playSample("x_" + sk, vol, { rate: (p ? p.r : 1) * (SIT_RATE[key] || 1) * (o.rate || 1), hp: p && p.hp, lp: p && p.lp, delay: o.delay });
+        if (HEAVY[key] && bufs[n]) playSample(n, vol * 0.45, { rate: p ? p.r : 1, delay: (o.delay || 0) + 0.04 });
+        if (p && !o.noacc) playSample(p.a, vol * 0.4, { delay: (o.delay || 0) + 0.05, rate: 1 + (famIdx[key] % 2) * 0.06 });
+        return;
+      }
       if (VIB[n] && store.vib !== false && navigator.vibrate) { try { navigator.vibrate(VIB[n]); } catch (e) {} }
       const ok = playSample(n, vol, { rate: (p ? p.r : 1) * (o.rate || 1), hp: p && p.hp, lp: p && p.lp, delay: o.delay });
       if (!ok && S[n]) S[n]();
@@ -616,7 +635,22 @@ const SFX = (() => {
     fam,
     reveal,
     launch,
-    src(el, uid) { srcEl = el || null; srcT = performance.now(); srcUid = uid || 0; srcStamp = srcT; stepSeq++; }, /* uid (tuỳ chọn): thẻ đang dùng kỹ năng -> fam() phát tiếng riêng của thẻ đó */
+    src(el, uid) { srcEl = el || null; srcT = performance.now(); srcUid = uid || 0; srcStamp = srcT; stepSeq++; }, /* el: hệ thẻ nguồn của bước (nhuộm tiếng); uid: chỉ để ghi nhận */
+    /* gpu51: NHỊP KỸ NĂNG của thẻ uid: phát tiếng riêng (S4/S5, nếu đã nạp) thay cho tiếng họ key; trả true nếu đã phát tiếng riêng */
+    skill(uid, key, o) {
+      o = Object.assign({}, o || {}, { uid, skill: 1 });
+      if (window.SFX_BEAT) try { window.SFX_BEAT(uid, cardIdByUid(uid), key); } catch (e) {}
+      if (store.mute) return false;
+      try {
+        if (!ctx()) return false;
+        if (loadState === 0) loadSamples();
+        const id = cardIdByUid(uid), had = !!(id && cardBufs["the:" + id]);
+        if (!had) { if (id && cardIdx && cardIdx[id]) preloadCards([id]); return false; }
+        return cardSkill(key || "act", o);
+      } catch (e) { return false; }
+    },
+    hint(h) { hintO = h || null; },
+    hasFx() { return !!bufs.x_tang; },
     preloadCards,
     cardLoaded(id) { return !!cardBufs["the:" + id]; },
     cardIds() { return cardIdx ? Object.keys(cardIdx) : []; },
