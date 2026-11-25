@@ -25,6 +25,7 @@ Phiên mới có thể không có dữ liệu của phiên cũ. Mọi thứ cầ
 - **gpu50** — người chơi tự đăng ký tài khoản (tên + mật khẩu), lưu tiến độ lên server. Đăng nhập Google: mã đã có nhưng đang ẩn (chờ OAuth Client ID).
 - **gpu51** — trang quản trị `/admin` (kiểu Monverse Admin): người chơi, khoá/mở, sửa vàng/ngọc/thẻ, hộp thư, giftcode, thông báo, nhật ký. Migration D1 0003, 0004. Mở chiến địa kiểu Marvel Snap; ấn triện đỏ khi tố (snap); thẻ di chuyển bay mượt giữa chiến địa.
 - **gpu52** — bộ phát hiệu ứng tình huống `www/js/13-fxr.js`: tăng/giảm sức mạnh có luồng sáng từ thẻ nguồn → thẻ đích, tiêu huỷ, vứt bỏ, triệu hồi, hồi sinh, kích hoạt, tạo thẻ, đổi năng lượng; màu và tiếng theo 13 hệ; thẻ S4/S5 có ấn ký riêng. 10 tiếng tình huống ElevenLabs (`www/sfx/fx.mp3` + `fx.json`). 24 tấm atlas ChatGPT trong `www/img/fx/` (9 nguyên mẫu × 16 hệ + 15 tấm ấn ký cho 235 thẻ S4/S5); tấm ấn ký nạp lười. Sửa theo QA-52: gộp tiếng "tim" dồn.
+- **gpu54** — tiếng kỹ năng riêng cho 125 thẻ S3 (ElevenLabs, 2.500 credit) → 410 thẻ có tiếng riêng trong `www/sfx/the-1..9.mp3`; Codex (nhánh `codex/gpu54`, đã gộp) sửa tiếng "move" kêu đôi bằng cách phát theo UID thẻ và rà tay hệ 48 thẻ (`tools/fx_ghi_de.json`). Việc 3 và phần tiếng move của việc 4 bên dưới đã xong. Còn: ~175 thẻ bậc thấp/thẻ tạo ra chưa có tiếng riêng; câu thoại cho thẻ chưa làm (chờ người dùng chốt).
 
 ## 4. Việc còn dở / tiếp theo (theo thứ tự)
 1. **Người dùng chơi thử gpu52** trên điện thoại, góp ý hiệu ứng/ấn ký → vẽ lại lưới nào chưa ưng (quy trình mục 6).
