@@ -722,3 +722,21 @@ body.rm #board .mc.staged.qnudge,body.rm #board .mc.staged.qhint{animation:none!
 .mvhd9{visibility:hidden!important}
 .fxg.mvfl9{will-change:transform}
 .mvtr9{position:fixed;z-index:35;pointer-events:none;width:30px;height:3px;border-radius:2px;opacity:0;background:linear-gradient(90deg,transparent,var(--mc9,#8fe8ff));box-shadow:0 0 8px var(--mc9,#8fe8ff);will-change:opacity}
+/* gpu51: FXR — hiệu ứng tình huống theo từng thẻ (13-fxr.js). Chỉ transform/opacity; không bắt chạm; body.rm: ẩn hẳn */
+.fxr{position:fixed;z-index:39;pointer-events:none;contain:layout style;will-change:transform,opacity}
+.fxr>svg,.fxr>.fxr-sp{display:block;width:100%;height:100%;overflow:visible}
+.fxr-sp{background-repeat:no-repeat}
+.fxr.fxr-hy{z-index:41}
+.fxr.fxr-fl{z-index:48}
+.fxr-bm{margin-top:-4px;transform-origin:0 50%;border-radius:4px;background:linear-gradient(90deg,transparent 0,var(--a) 14%,var(--a) 60%,var(--g) 100%);box-shadow:0 0 10px var(--a),inset 0 0 0 2px rgba(255,255,255,.35);opacity:0}
+.fxr-bm.neg{background:linear-gradient(90deg,transparent 0,var(--a) 16%,#7a0a22 62%,var(--g) 100%)}
+.fxr-hd{display:grid;place-items:center;filter:drop-shadow(0 0 5px var(--a))}
+.fxr-hd>svg{width:100%;height:100%}
+.fxr-hd.em{filter:none}
+.fxr-em{display:block;width:100%;height:100%;border-radius:50%;overflow:hidden;position:relative;box-shadow:0 0 0 2px var(--r),0 0 10px var(--a);background:#120a24}
+.fxr-em>.art{position:absolute;inset:0;width:100%;height:100%;border-radius:50%}
+.fxr-ht{border-radius:50%;background:radial-gradient(circle,transparent 38%,color-mix(in srgb,var(--a) 70%,transparent) 52%,transparent 70%)}
+.fxr-ht>.fxr-sp{border-radius:0}
+.fxr-ic{filter:drop-shadow(0 0 4px var(--a))}
+.fxr-ic.lg{filter:drop-shadow(0 0 7px var(--a))}
+body.rm .fxr{display:none!important}
