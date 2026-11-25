@@ -1,5 +1,5 @@
-// Link ngắn TamDia: chuyển hướng sang trang chính trên GitHub Pages (giữ nguyên đường dẫn và tham số).
-const DICH = "https://ngocngon.github.io/linhthutamdia";
+// Link ngắn TamDia: chuyển hướng sang trang chính trên tamdia.pages.dev (giữ nguyên đường dẫn và tham số).
+const DICH = "https://tamdia.pages.dev";
 export default {
   fetch(req) {
     const u = new URL(req.url);

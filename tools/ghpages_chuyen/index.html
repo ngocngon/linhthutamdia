@@ -1,0 +1,28 @@
+<!doctype html><html lang="vi"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="referrer" content="no-referrer"><meta name="robots" content="noindex"><title>Linh Thú Tam Địa</title>
+<body style="margin:0;background:#0d0f14;color:#e8e2cf;font:16px system-ui,sans-serif;display:grid;place-items:center;height:100vh">
+<a href="https://tamdia.pages.dev/" style="color:#e8c46a">Linh Thú Tam Địa đã chuyển nhà — bấm vào đây nếu không tự chuyển</a>
+<script>
+/* Địa chỉ cũ: gỡ service worker + cache cũ, gói tiến trình chơi (khoá linhthu.* / ltd*, trừ mã đăng nhập) vào phần # của URL rồi chuyển sang trang mới. */
+(async function () {
+  var T = "https://tamdia.pages.dev/";
+  try {
+    if (navigator.serviceWorker) { var rs = await navigator.serviceWorker.getRegistrations(); for (var r of rs) await r.unregister(); }
+    if (self.caches) { for (var k of await caches.keys()) if (k.indexOf("ltd-") === 0) await caches.delete(k); }
+  } catch (e) {}
+  try {
+    var d = {}, n = 0;
+    for (var i = 0; i < localStorage.length; i++) {
+      var key = localStorage.key(i);
+      if (/^(linhthu\.|ltd)/.test(key) && key !== "ltd.cf.token" && key !== "ltd.server") { d[key] = localStorage.getItem(key); n++; }
+    }
+    if (n && self.CompressionStream) {
+      var buf = new Uint8Array(await new Response(new Blob([JSON.stringify(d)]).stream().pipeThrough(new CompressionStream("deflate-raw"))).arrayBuffer());
+      var s = ""; for (var j = 0; j < buf.length; j += 8192) s += String.fromCharCode.apply(null, buf.subarray(j, j + 8192));
+      location.replace(T + "chuyen#mig=" + btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""));
+      return;
+    }
+  } catch (e) {}
+  location.replace(T);
+})();
+</script></html>

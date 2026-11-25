@@ -1,0 +1,22 @@
+<!doctype html><html lang="vi"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="referrer" content="no-referrer"><meta name="robots" content="noindex"><title>Linh Thú Tam Địa</title>
+<body style="margin:0;background:#0d0f14;color:#e8e2cf;font:16px system-ui,sans-serif;display:grid;place-items:center;height:100vh">Đang chuyển dữ liệu…
+<script>
+/* Nhận tiến trình chơi từ địa chỉ cũ (gói nén trong phần # của URL, phần này KHÔNG gửi lên máy chủ nào).
+   Chỉ ghi khoá của game (linhthu.* / ltd*), không ghi đè dữ liệu đã có, không nhận mã đăng nhập. */
+(async function () {
+  var h = location.hash; try { history.replaceState(null, "", location.pathname); } catch (e) {}
+  try {
+    if (h.indexOf("#mig=") === 0 && self.DecompressionStream) {
+      var b = h.slice(5).replace(/-/g, "+").replace(/_/g, "/"); while (b.length % 4) b += "=";
+      var bin = atob(b), u = new Uint8Array(bin.length); for (var i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i);
+      var d = JSON.parse(await new Response(new Blob([u]).stream().pipeThrough(new DecompressionStream("deflate-raw"))).text());
+      for (var k in d) {
+        if (!/^(linhthu\.|ltd)/.test(k) || k === "ltd.cf.token" || k === "ltd.server" || typeof d[k] !== "string") continue;
+        if (localStorage.getItem(k) === null) localStorage.setItem(k, d[k]);
+      }
+    }
+  } catch (e) {}
+  location.replace("./");
+})();
+</script></html>

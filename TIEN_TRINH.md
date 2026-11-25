@@ -7,7 +7,7 @@ Phiên mới có thể không có dữ liệu của phiên cũ. Mọi thứ cầ
 | Thứ | Địa chỉ |
 |---|---|
 | Repo | github.com/ngocngon/linhthutamdia — nhánh làm việc `gpu24`, đẩy cả `gpu24` và `main` |
-| Trang chính (GitHub Pages) | https://ngocngon.github.io/linhthutamdia/ (nhánh `gh-pages`, dựng bằng `tools/trien_khai_trang.sh`) |
+| Trang chính (Cloudflare Pages) | https://tamdia.pages.dev (tự triển khai khi push `www/**` lên main, workflow `deploy-trang.yml`). Địa chỉ cũ `ngocngon.github.io/linhthutamdia` chỉ còn trang chuyển tiếp (`tools/ghpages_chuyen/`). KHÔNG đưa link GitHub cho người chơi. |
 | Bản tester (artifact claude.ai, công khai) | https://claude.ai/artifact/9o9yqZvSfZK6RNABdv7aMn — slug `473adb56-d39d-44da-88d7-20ec1af09819`, tiêu đề "Linh Thú Tam Địa", shared_live `public`, bản cuối `1795583822-7c6d` (153 tệp) |
 | Server | https://linhthu-server.likiop00.workers.dev (Cloudflare Worker + D1 + Durable Objects, mã ở `server/`) |
 | Trang quản trị | https://linhthu-server.likiop00.workers.dev/admin (đăng nhập bằng ADMIN_TOKEN — người dùng tự giữ, KHÔNG lưu ở đâu) |
@@ -43,7 +43,7 @@ for t in ui-smoke ui-meta gpu49-check sfx-ra-mat sfx-the hopthu dia-snap move-sm
 cd server && npm test            # 46 test
 # phát hành (chỉ khi test đạt — dùng &&, không dùng ;)
 git push origin gpu24 && git push origin gpu24:main         # push server/** → workflow tự migration + deploy Worker
-bash tools/trien_khai_trang.sh <thư mục clone nhánh gh-pages>   # trang chính
+# trang chính: chỉ cần push gpu24 lên main; workflow tự đưa www/ lên https://tamdia.pages.dev (script trien_khai_trang.sh đã ngừng)
 python3 tools/dung_tester.py <thư mục MỚI chưa tồn tại>         # dựng tester (pak)
 ```
 - Phát hành tester: `list_files` artifact ở trên → so sha256 từng tệp của bản dựng với danh sách → `publish_files` CHỈ các tệp khác (index.html sau cùng), `base_version` = bản cuối, `shared_live: "public"`, `artifact_title: "Linh Thú Tam Địa"`.

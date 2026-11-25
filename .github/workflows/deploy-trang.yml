@@ -1,0 +1,55 @@
+name: Triển khai trang game tamdia.pages.dev (Cloudflare)
+
+# Đẩy lên main có thay đổi trong www/ hoặc link/ -> tự triển khai.
+# - Job "pages": dựng dist/ (chỉ phần game cần) rồi đưa lên Cloudflare Pages, dự án "tamdia" -> https://tamdia.pages.dev
+# - Job "link": Worker tamdia.likiop00.workers.dev chuyển hướng sang https://tamdia.pages.dev
+# Cần 2 secret của repo: CLOUDFLARE_API_TOKEN (quyền Workers Scripts: Edit + Cloudflare Pages: Edit) và CLOUDFLARE_ACCOUNT_ID.
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "link/**"
+      - "www/**"
+      - ".github/workflows/deploy-trang.yml"
+
+concurrency:
+  group: deploy-trang
+  cancel-in-progress: false
+
+jobs:
+  pages:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Dựng dist/ (chỉ phần game cần)
+        run: |
+          for d in img/c img/ct img/cut img/nen img/l img/v img/v16 img/u img/a img/fx fonts sfx css js; do
+            [ -d "www/$d" ] && mkdir -p "dist/$(dirname "$d")" && cp -r "www/$d" "dist/$d"
+          done
+          cp www/index.html www/sw.js www/chuyen.html www/_headers dist/
+          echo "Số tệp: $(find dist -type f | wc -l)"; du -sh dist
+          BIG="$(find dist -type f -size +24M)"; if [ -n "$BIG" ]; then echo "::error::Tệp quá 25 MB (giới hạn Cloudflare Pages): $BIG"; exit 1; fi
+      - name: Đưa lên Cloudflare Pages -> https://tamdia.pages.dev
+        run: npx --yes wrangler@4 pages deploy dist --project-name tamdia --branch main --commit-dirty=true
+
+  link:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Triển khai Worker chuyển hướng tamdia.likiop00.workers.dev
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: link
+          command: deploy

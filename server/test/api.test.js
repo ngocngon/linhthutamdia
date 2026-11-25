@@ -91,15 +91,15 @@ describe("tiến trình, bảng xếp hạng, CORS", () => {
     expect(j.me.rank).toBe(1);
   });
   it("CORS chỉ cho nguồn được phép", async () => {
-    const ok = await SELF.fetch("https://t/api/health", { headers: { origin: "https://ngocngon.github.io" } });
-    expect(ok.headers.get("access-control-allow-origin")).toBe("https://ngocngon.github.io");
+    const ok = await SELF.fetch("https://t/api/health", { headers: { origin: "https://tamdia.pages.dev" } });
+    expect(ok.headers.get("access-control-allow-origin")).toBe("https://tamdia.pages.dev");
     const lo = await SELF.fetch("https://t/api/health", { headers: { origin: "http://localhost:8793" } });
     expect(lo.headers.get("access-control-allow-origin")).toBe("http://localhost:8793");
     const cap = await SELF.fetch("https://t/api/health", { headers: { origin: "https://localhost" } });
     expect(cap.headers.get("access-control-allow-origin")).toBe("https://localhost");
     const bad = await SELF.fetch("https://t/api/health", { headers: { origin: "https://evil.example" } });
     expect(bad.headers.get("access-control-allow-origin")).toBe(null);
-    const pre = await SELF.fetch("https://t/api/login", { method: "OPTIONS", headers: { origin: "https://ngocngon.github.io", "access-control-request-method": "POST" } });
+    const pre = await SELF.fetch("https://t/api/login", { method: "OPTIONS", headers: { origin: "https://tamdia.pages.dev", "access-control-request-method": "POST" } });
     expect(pre.status).toBe(204);
     expect(pre.headers.get("access-control-allow-headers")).toContain("authorization");
   });
