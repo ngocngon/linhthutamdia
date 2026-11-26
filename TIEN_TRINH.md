@@ -28,16 +28,14 @@ Phiên mới có thể không có dữ liệu của phiên cũ. Mọi thứ cầ
 - **gpu54** — tiếng kỹ năng riêng cho 125 thẻ S3 (ElevenLabs, 2.500 credit) → 410 thẻ có tiếng riêng trong `www/sfx/the-1..9.mp3`; Codex (nhánh `codex/gpu54`, đã gộp) sửa tiếng "move" kêu đôi bằng cách phát theo UID thẻ và rà tay hệ 48 thẻ (`tools/fx_ghi_de.json`). Việc 3 và phần tiếng move của việc 4 bên dưới đã xong. Còn: ~175 thẻ bậc thấp/thẻ tạo ra chưa có tiếng riêng; câu thoại cho thẻ chưa làm (chờ người dùng chốt).
 - **26/11** — game chuyển sang https://tamdia.pages.dev (Cloudflare Pages), địa chỉ GitHub cũ chỉ còn trang chuyển tiếp mang theo tiến trình khách (`tools/ghpages_chuyen/`, `www/chuyen.html`), máy chủ chỉ nhận origin tamdia.pages.dev. Quy trình bảo mật: https://claude.ai/artifact/XMajRz26G9CkijnF9Eq2CE (không đưa khoá vào repo; phát hành = push lên main).
 
-## 4. Việc còn dở / chờ người dùng duyệt (cập nhật 26/11)
-Đã xong, bỏ khỏi danh sách: rà hệ 48 thẻ, tiếng "move" kêu đôi (Codex, gpu54), tiếng riêng 410 thẻ S5/S4/S3 (gpu53–54).
-1. **Thử đăng nhập + chơi online trên https://tamdia.pages.dev** (chưa xác nhận bằng trình duyệt thật).
-2. **Tiếng theo hệ (ElevenLabs, ~1.040 credit)** — kế hoạch `docs/KE_HOACH_VFX_SFX.md`; cần khoá ElevenLabs mới.
-3. **Tiếng riêng ~175 thẻ bậc thấp/thẻ tạo ra (~3.500 credit)** — `node tools/sfx_the_ds.mjs` (cần thêm bậc), `tools/tao_sfx_elevenlabs.mjs`, `tools/sfx_the_build.py`.
-4. **Câu thoại cho thẻ** — chờ người dùng chốt bậc nào.
-5. **Đăng nhập Google** — cần OAuth Client ID → `GOOGLE_CLIENT_ID` trong `server/wrangler.toml` [vars], bỏ ẩn nút, deploy.
-6. **Lỗi nhỏ còn lại:** thẻ bị kéo/đẩy kêu 2 tiếng; nhịp Chấn Nữ chưa khớp; thư nhận quà mất nếu rớt mạng sau khi server trả 200. Chưa đo fps trên GPU thật; tiếng mới chưa ai nghe bằng tai.
-7. **Bảo mật:** người dùng bật 2FA, thay khoá đã dán vào chat; ~2 tuần sau quyết định chuyển repo sang riêng tư. Quy trình: https://claude.ai/artifact/XMajRz26G9CkijnF9Eq2CE
-8. Dọn nhánh `codex/gpu54` (đã gộp).
+## 4. Việc còn dở / chờ người dùng (cập nhật 26/11, sau gpu56)
+Đã xong gpu55–56: máy chủ đi qua https://tamdia.pages.dev/api (Pages Functions + service binding, `trang/`); sao lưu D1 hằng tuần vào KV `linhthu-saoluu` (giữ 12 bản, /admin → Sao lưu dữ liệu, khôi phục `tools/khoi_phuc_saoluu.mjs`); tự kiểm tra 6 giờ/lần (`.github/workflows/tu-kiem-tra.yml`, hỏng → issue nhãn su-co); trang quản trị mới; cài đặt gọn 1 màn hình; hộp thư luôn hiện; 65 tiếng tình huống theo hệ + tiếng riêng đủ 585 thẻ (ElevenLabs, tổng ~1.920 credit, khoá còn ~8.080 đến ~04/12); tô ô kích hoạt (104 thẻ) + sóng phủ chiến địa (32 thẻ) (`tools/vfx_dieu_kien.*`); sửa 12 lỗi QA (khoá lượt TURN_BUSY…, `tests/qa55-play.mjs`).
+1. **Câu thoại S5 (194 thẻ)** — chờ người dùng chọn văn phong A (sử thi cổ phong, Claude đề xuất) / B (ca dao) / C (khẩu khí game). Giọng ứng viên ElevenLabs (shared, tiếng Việt): nam 7hsfEc7irDn6E8br0qfw (Hai Ly), 3VnrjnYrskPMDsapTr8X (Tung Dang), ipTvfDXAg1zowfF1rv9w (Hoàng Đặng); nữ jdlxsPOZOHdGEfcItXVu (Hien), DvG3I1kDzdBY3u4EzYh6 (Ngân Nguyễn). Thử 6 câu mẫu trước, có công tắc "Lời thoại thẻ".
+2. **Vẽ lại 120 ảnh chiến địa (www/img/l, 360px → 1024px)** bằng ChatGPT trên Mac — chờ người dùng đăng nhập chatgpt.com trong khung trình duyệt của app Claude (khuyên) hoặc cho chiếm toàn màn hình. Làm nét bằng EDSR trên máy làm việc quá chậm (bỏ).
+3. **Thử đăng nhập + trận online thật** trên tamdia.pages.dev (WebSocket qua Pages Functions mới chỉ kiểm được tới bước từ chối vé giả).
+4. **Đăng nhập Google** — cần OAuth Client ID.
+5. Tệp tiếng thẻ giờ ~830 KB/tệp × 9 (tổng ~7,4 MB): theo dõi thời gian tải trên điện thoại.
+6. **Bảo mật:** 2FA; thay khoá đã dán vào chat (ElevenLabs mới cũng đã dán vào chat → thay sau đợt câu thoại); 2 tuần nữa cân nhắc repo riêng tư. Quy trình: https://claude.ai/artifact/XMajRz26G9CkijnF9Eq2CE
 
 ## 5. Lệnh thường dùng
 ```bash
