@@ -31,6 +31,15 @@ database_name = "linhthu"
 database_id = "00000000-0000-0000-0000-000000000000"
 migrations_dir = "migrations"
 
+# Sao lưu D1 hằng tuần (src/backup.js) vào KV riêng tư "linhthu-saoluu" (id không phải bí mật).
+[[kv_namespaces]]
+binding = "BACKUP"
+id = "ffcac96032eb4b538e0ef77734c07c45"
+
+# 03:17 giờ Việt Nam sáng thứ Hai (20:17 UTC Chủ nhật).
+[triggers]
+crons = ["17 20 * * SUN"]
+
 [[rules]]
 type = "Text"
 globs = ["**/*.html"]

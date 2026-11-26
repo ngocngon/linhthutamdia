@@ -4,6 +4,7 @@ import { json, err, readJson, cleanName } from "./util.js";
 import { checkNewCreds, hashPassword, BAN_FOREVER } from "./auth.js";
 import { registerOpen } from "./api.js";
 import { CARDS } from "./cards.js";
+import { taoSaoLuu, danhSachSaoLuu, taiSaoLuu, GIU } from "./backup.js";
 import { GC_RE } from "./game.js";
 import { WORKER_VERSION, vnDay, dayAdd, dayStart, DAY_MS, ONLINE_MS, PING_MS, cleanRewards, parseRewards, logAdmin } from "./ops.js";
 
@@ -255,6 +256,21 @@ export async function adminApi(request, env, url) {
   const page = intParam(url, "page", 1, 1, 100000), size = intParam(url, "size", 20, 1, 100), off = (page - 1) * size;
 
   if (path === "/api/admin/cards" && m === "GET") return json({ ok: true, cards: CARDS });
+  // ---------- sao lưu D1 (KV riêng tư) ----------
+  if (path === "/api/admin/backups" && m === "GET") return json({ ok: true, giu: GIU, items: await danhSachSaoLuu(env) });
+  if (path === "/api/admin/backups" && m === "POST") {
+    const r = await taoSaoLuu(env, now, "tay");
+    await logAdmin(env, "backup.create", r.key, { gz: r.gz, hang: r.hang });
+    return json({ ok: true, ...r });
+  }
+  if (path === "/api/admin/backups/download" && m === "GET") {
+    const key = url.searchParams.get("key") || "";
+    const buf = await taiSaoLuu(env, key);
+    if (!buf) return err(404, "not_found", "Không có bản sao này");
+    await logAdmin(env, "backup.download", key, {});
+    const ten = "linhthu-" + key.slice(7).replace(/[:.]/g, "-") + ".json.gz";
+    return new Response(buf, { headers: { "content-type": "application/gzip", "content-disposition": `attachment; filename="${ten}"`, "cache-control": "no-store" } });
+  }
   if (path === "/api/admin/online" && m === "GET") {
     const r = await env.DB.prepare("SELECT COUNT(*) AS n FROM users WHERE last_seen>=?").bind(now - ONLINE_MS).first();
     return json({ ok: true, online: r.n, version: WORKER_VERSION });

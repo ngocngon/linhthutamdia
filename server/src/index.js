@@ -3,6 +3,7 @@ import { authUser } from "./auth.js";
 import { json, err, corsHeaders, originAllowed } from "./util.js";
 import { START_RATING } from "./elo.js";
 import adminHtml from "../admin.html";
+import { taoSaoLuu } from "./backup.js";
 
 export { Matchmaker } from "./matchmaker.js";
 export { Match } from "./match.js";
@@ -46,6 +47,10 @@ async function handlePlay(request, env, url) {
 }
 
 export default {
+  // Cron (wrangler.toml [triggers]): sao lưu D1 vào KV mỗi tuần.
+  async scheduled(event, env, ctx) {
+    ctx.waitUntil(taoSaoLuu(env, Date.now(), "cron").then((r) => console.log("sao lưu", r.key, r.gz, "byte"), (e) => console.error("sao lưu lỗi", e && e.stack || e)));
+  },
   async fetch(request, env) {
     const url = new URL(request.url);
     try {
