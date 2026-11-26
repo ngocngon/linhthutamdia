@@ -109,6 +109,7 @@ function render0(){
   $("orb").textContent=String(G.energy.p);$("btnEnd").classList.toggle("nudge",!!(play&&G.phase==="play"&&!G.hand.p.some(c=>[0,1,2].some(li=>E.canPlay(G,"p",c,li)))));
   const end=$("btnEnd");
   if(over){$("endMain").textContent="VÁN MỚI";$("endSub").textContent="Chơi tiếp";end.disabled=false;}
+  else if(TURN_BUSY){$("endMain").textContent="ĐANG DIỄN…";$("endSub").textContent=`${G.turn}/${E.turns(G)}`;end.disabled=true;}
   else if(G.phase==="reveal"){$("endMain").textContent="ĐANG CHỜ..";$("endSub").textContent=`${G.turn}/${E.turns(G)}`;end.disabled=true;}
   else{$("endMain").textContent="KẾT THÚC LƯỢT";end.disabled=false;}
   end.classList.toggle("wait",!!(G.online&&OL.sub));end.classList.toggle("can",!!(G.online&&OL.sub&&!OL.locked));
@@ -116,7 +117,7 @@ function render0(){
   paintTimer();paintUndo();
   const rt=$("btnRetreat");rt.disabled=!play;
   const armed=play&&armRetreat>Date.now();
-  rt.classList.toggle("arm",armed);rt.innerHTML=armed?`MẤT ${G.stake} ${icn("gems")}?`:"RÚT LUI";
+  rt.classList.toggle("arm",armed);const rtH=armed?`<span class="rt-arm">MẤT ${G.stake}${icn("gems")}?</span>`:"RÚT LUI";if(rt._h!==rtH){rt._h=rtH;rt.innerHTML=rtH;}
   $("btnMute").classList.toggle("off",store.mute);$("btnFx").classList.toggle("off",reduced);
 }
 
@@ -163,9 +164,10 @@ let ddPlan=false;
   window.FFTURN = { start, stop, get on() { return FF.on; } }; /* endTurnUI (06) và onlineResolve (05) bọc phần diễn của lượt bằng start/stop */
 })();
 
-async function endTurnUI(auto){FFTURN.start();try{return await endTurnRun(auto);}finally{FFTURN.stop();}}
+/* fix55: một lượt chỉ được diễn một lần — bấm lại khi đang diễn (TURN_BUSY) thì bỏ qua; nút hiện "ĐANG DIỄN…", tay bài khoá, đồng hồ đứng tới hết băng "LƯỢT n" */
+async function endTurnUI(auto){if(TURN_BUSY||!G||G.phase!=="play")return;TURN_BUSY=true;FFTURN.start();try{return await endTurnRun(auto);}finally{FFTURN.stop();TURN_BUSY=false;if(G&&G.phase==="play"){tLast=0;render();}}}
 async function endTurnRun(auto){
-  if(!playing())return;
+  if(!G||G.phase!=="play")return;
   if(LVEIL===G){LVEIL=null;render();} /* gpu43: kết thúc lượt khi màn mở đầu chưa xong -> mở che ngay */
   if(G.online){onlineEnd();return;}
   sel=look=moveSel=null;
@@ -173,7 +175,7 @@ async function endTurnRun(auto){
   /* (0) Nếu vừa đặt/rút thẻ tức thì, chờ hoạt ảnh đặt thẻ (165ms) đáp xuống hoàn tất trước khi úp bài */
   if(!reduced&&window._placeLockUntil){
     const rem=window._placeLockUntil-performance.now();
-    if(rem>8){const g0=G;await new Promise(r=>setTimeout(r,rem));if(G!==g0||!playing())return;} /* ván đã đổi/kết thúc trong lúc chờ -> bỏ lệnh cũ */
+    if(rem>8){const g0=G;await new Promise(r=>setTimeout(r,rem));if(G!==g0||G.phase!=="play")return;} /* ván đã đổi/kết thúc trong lúc chờ -> bỏ lệnh cũ */
     window._placeLockUntil=0;
   }
   if(E.aiWantsRetreat(G,"a")){E.finish(G,"retreatA");showEnd();return;}
@@ -254,16 +256,20 @@ function showEnd(){
   let ps0=null;try{ps0=PS().xp;}catch(e){}
   psAdd(r.winner==="p"?50:25);
   let psGot=0;try{if(ps0!=null)psGot=Math.max(0,PS().xp-ps0);}catch(e){}
-  if(!G.mode){if(r.winner==="p")store.gems+=r.stake;else if(r.winner==="a")store.gems-=r.stake;}
+  /* fix55: kho ngọc không bao giờ âm (luật cược giữ nguyên; thua khi còn ít ngọc hơn mức cược thì chỉ về 0) */
+  if(!G.mode){if(r.winner==="p")store.gems+=r.stake;else if(r.winner==="a")store.gems=Math.max(0,(store.gems||0)-r.stake);}
+  if(!(store.gems>=0))store.gems=0;
   const misGot=misTick(r),rw=r.winner==="p"?[60,40,25]:r.winner==="a"?[25,15,10]:[35,20,15];store.gold+=rw[0];store.up+=rw[1];store.tok+=rw[2];
   save();
   const W=r.winner==="p"?"p":r.winner==="a"?"a":"d",cls=W==="p"?"win":W==="a"?"lose":"draw",word=W==="p"?"CHIẾN THẮNG":W==="a"?"THẤT BẠI":"HOÀ";
-  const foe=G.online?($("foeName").textContent||"Đối thủ"):"Máy";
+  const foe=(($("foeName").textContent||"").trim())||(G.online?"Đối thủ":"Máy"); /* fix55: cùng tên với thanh trên (Hắc Phong…) */
   const t=$("resTitle");t.className="res "+cls;t.textContent=word;
   const lanes=G.locs.map((L,i)=>({i,L,pp:E.locPower(G,i,"p"),pa:E.locPower(G,i,"a"),ld:E.lead(G,i)}));
   let wp=0,wa=0;for(const x of lanes){if(x.ld==="p")wp++;else if(x.ld==="a")wa++;}
   const why=G.online&&OL.note?OL.note:r.kind==="timeoutP"?"Bạn bỏ 3 lượt liên tiếp nên bị xử thua.":r.kind==="retreatA"?foe+" thấy cửa thua nên đã rút lui.":r.kind==="retreatP"?"Bạn đã rút lui để giữ ngọc.":(G.online&&OL.note)||"";
-  {const e=$("resSub");e.textContent=why;e.hidden=!why;}
+  /* fix55: hoà số chiến địa -> phân thắng thua theo tổng sức mạnh (E.outcome) — nói rõ trên màn kết quả */
+  let tie="";if(r.kind==="end"&&wp===wa&&r.winner!=="draw"){let tp=0,ta=0;for(const x of lanes){tp+=x.pp;ta+=x.pa;}tie=`Hoà chiến địa ${wp}–${wa} — ${r.winner==="p"?"thắng":"thua"} theo tổng sức mạnh ${tp}–${ta}`;}
+  {const e=$("resSub"),t2=[why,tie].filter(Boolean).join(" · ");e.textContent=t2;e.hidden=!t2;}
   const lname=x=>x.L.gone?"Đã bị huỷ":x.L.rvl?LOC[x.L.id].n:"Chưa lộ diện";
   const lk=x=>x.L.gone?"d":x.ld==="p"?"w":x.ld==="a"?"l":"d";
   $("resScore").className="re47-score "+cls;
@@ -915,6 +921,11 @@ $("infoAct").addEventListener("click",ev=>{
   else if(act==="move"){moveSel=uid;sel=null;}
   SFX.play("tap");render();
 });
+/* fix55: quả cầu năng lượng nhấp nháy (pulse "#orb" ở 05/06/08) phóng tối đa 1.16 — trước 1.42–1.5 tràn khỏi đáy màn và chồng nút RÚT LUI */
+(function(){const p0=window.pulse;if(typeof p0!=="function")return;window.pulse=function(sel,kf,ms){if(sel==="#orb"&&Array.isArray(kf))kf=kf.map(k=>k&&typeof k.transform==="string"?Object.assign({},k,{transform:k.transform.replace(/scale\(([\d.]+)\)/g,(m,v)=>`scale(${Math.min(+v,1.16)})`)}):k);return p0.call(this,sel,kf,ms);};})();
+/* fix55: --bar-b = khoảng từ mép trên thanh nút dưới tới đáy màn (dùng cho dòng "Chạm để…" nằm ngay trên thanh nút) — chỉ đo khi đổi cỡ */
+(function(){const bar=document.querySelector("#app > .bar,footer.bar");if(!bar)return;const set=()=>{const r=bar.getBoundingClientRect();if(r.height>0)document.documentElement.style.setProperty("--bar-b",Math.round(innerHeight-r.top)+"px");};
+  if(window.ResizeObserver)new ResizeObserver(set).observe(bar);addEventListener("resize",set,{passive:true});set();})();
 $("btnEnd").addEventListener("click",()=>{if(G.phase==="over"){if(G.mode)openModeHub(G.mode.k);else{newGame();runMatchIntro("LƯỢT 1/6","",true);}}else endTurnUI();});
 $("btnSnap").addEventListener("click",()=>{
   if(!playing()||G.snap.p||OL.sub)return;

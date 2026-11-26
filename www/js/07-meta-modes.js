@@ -525,7 +525,7 @@ function cqPlay(){const Q=store.conq;if(G&&G.mode&&G.mode.k==="conq"&&G.phase===
   const t=CQ[Q.cur.t],fd=pickFoeDeck();startModeGame({k:"conq",diff:t.diff},store.deck.slice(),fd,{},foeUpg(fd,DIFF[t.diff].upg));}
 /* ---- kết thúc trận theo chế độ: trả về chuỗi hiển thị ---- */
 function modeEnd(r){const m=G.mode;
-  if(m.k==="online"){const d=r.winner==="p"?r.stake:r.winner==="a"?-r.stake:0;store.gems+=d;return `<b>${d>0?"+":d<0?"−":""}${Math.abs(d)} ${icn("gems")}</b> (đấu online)<br>Kho ngọc của bạn: ${store.gems} ${icn("gems")}`;}
+  if(m.k==="online"){const d=r.winner==="p"?r.stake:r.winner==="a"?-r.stake:0;store.gems=Math.max(0,(store.gems||0)+d);return `<b>${d>0?"+":d<0?"−":""}${Math.abs(d)} ${icn("gems")}</b> (đấu online)<br>Kho ngọc của bạn: ${store.gems} ${icn("gems")}`;}
   if(m.k==="jr")return jrModeEnd(r);if(m.k==="wk")return wkModeEnd(r);
   if(m.k==="draft"){const R=store.run;if(!R||R.k!=="draft")return "";if(R.hp==null){R.hp=DR_HP;R.buy=0;}R.g++;let note="";
     if(r.winner==="p")R.w++;else if(r.winner==="a"){R.l++;R.hp--;note="Mất 1 máu. ";}
