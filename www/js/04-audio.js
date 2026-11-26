@@ -323,8 +323,8 @@ const SFX = (() => {
   }
   function loadSprite(name, optional) {
     return Promise.all([
-      fetch("sfx/" + name + ".json").then((r) => { if (!r.ok) throw new Error(name); return r.json(); }),
-      fetch("sfx/" + name + ".mp3").then((r) => { if (!r.ok) throw new Error(name); return r.arrayBuffer(); })
+      fetch("sfx/" + name + ".json?v=gpu55").then((r) => { if (!r.ok) throw new Error(name); return r.json(); }),
+      fetch("sfx/" + name + ".mp3?v=gpu55").then((r) => { if (!r.ok) throw new Error(name); return r.arrayBuffer(); })
     ])
       .then(([idx, ab]) => new Promise((res, rej) => {
         const p = ac.decodeAudioData(ab, (b) => res([idx, b]), rej);
@@ -543,6 +543,13 @@ const SFX = (() => {
       if (hk && hk.k && !o.skill) { const now = performance.now(); if (now - (lastK[hk.k] || -1e9) < 200) return; lastK[hk.k] = now; }
       if (sk && bufs["x_" + sk]) {
         if (VIB[n] && store.vib !== false && navigator.vibrate) { try { navigator.vibrate(VIB[n]); } catch (e) {} }
+        /* gpu55: có tiếng riêng theo hệ (x_<tình huống>_<hệ>, ElevenLabs) -> phát nguyên bản, không đổi cao độ/lọc, không chồng lớp nhấn hệ */
+        const kEl = el && bufs["x_" + sk + "_" + el] ? "x_" + sk + "_" + el : null;
+        if (kEl) {
+          playSample(kEl, vol, { rate: (SIT_RATE[key] || 1) * (o.rate || 1), delay: o.delay });
+          if (HEAVY[key] && bufs[n]) playSample(n, vol * 0.35, { rate: p ? p.r : 1, delay: (o.delay || 0) + 0.04 });
+          return;
+        }
         playSample("x_" + sk, vol, { rate: (p ? p.r : 1) * (SIT_RATE[key] || 1) * (o.rate || 1), hp: p && p.hp, lp: p && p.lp, delay: o.delay });
         if (HEAVY[key] && bufs[n]) playSample(n, vol * 0.45, { rate: p ? p.r : 1, delay: (o.delay || 0) + 0.04 });
         if (p && !o.noacc) playSample(p.a, vol * 0.4, { delay: (o.delay || 0) + 0.05, rate: 1 + (famIdx[key] % 2) * 0.06 });

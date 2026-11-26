@@ -133,6 +133,8 @@ def main():
     ds = json.load(open(os.path.join(here, "sfx_the.json")))["list"]
     s3 = os.path.join(here, "sfx_the_s3.json")   # thẻ bậc S3 (sinh bởi sfx_the_ds.mjs --s3)
     if os.path.exists(s3): ds = ds + json.load(open(s3))["list"]
+    thap = os.path.join(here, "sfx_the_thap.json")   # các bậc còn lại (sfx_the_ds.mjs --thap)
+    if os.path.exists(thap): ds = ds + json.load(open(thap))["list"]
     wav = os.path.join(work, "wav"); os.makedirs(wav, exist_ok=True)
     tmp = tempfile.mkdtemp()
     rows = []; done = []

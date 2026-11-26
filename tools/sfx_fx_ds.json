@@ -1,15 +1,605 @@
 {
- "_ghi_chu": "gpu51: 10 tiếng nền theo TÌNH HUỐNG hiệu ứng thẻ (FXR, www/js/13-fxr.js). Tạo: node tools/tao_sfx_elevenlabs.mjs <thư_mục_thô> --ds=sfx_fx_ds.json --ngan-sach=600 --per-sec=20; ghép: python3 tools/sfx_fx_build.py <thư_mục_thô> www/sfx (-> fx.mp3 + fx.json, một sprite). Lớp nhấn theo hệ dùng e_<hệ> có sẵn trong sfx3.",
+ "_ghi_chu": "gpu51: 10 tiếng nền theo TÌNH HUỐNG hiệu ứng thẻ (FXR, www/js/13-fxr.js). Tạo: node tools/tao_sfx_elevenlabs.mjs <thư_mục_thô> --ds=sfx_fx_ds.json --ngan-sach=600 --per-sec=20; ghép: python3 tools/sfx_fx_build.py <thư_mục_thô> www/sfx (-> fx.mp3 + fx.json, một sprite). Lớp nhấn theo hệ dùng e_<hệ> có sẵn trong sfx3. | gpu55: thêm 65 tiếng x_<tình huống>_<hệ> (huy/vut/trieu/tang/giam × 13 hệ), 04-audio ưu tiên tiếng theo hệ nếu có.",
  "list": [
-  {"k": "x_tang", "n": 2, "d": 1.0, "c": "vua", "dung": "+sức mạnh cho thẻ khác (luồng sáng tới đích)", "t": "fantasy card game power-up blessing: a bright rising shimmering magical whoosh that lands on a soft warm bronze bell chime, ascending pitch, clean and full mid-range, no harsh high frequencies"},
-  {"k": "x_giam", "n": 2, "d": 1.0, "c": "vua", "dung": "-sức mạnh (vệt quất, nứt)", "t": "fantasy card game curse debuff: a short heavy downward whip lash followed by a dull cracking stone fracture, descending pitch, dark and punchy mid-range, not shrill"},
-  {"k": "x_nl", "n": 2, "d": 1.0, "c": "nho", "dung": "+/- năng lượng, giá thẻ (đồng hồ, ngọc năng lượng)", "t": "fantasy game mana energy gain: two quick brass clock ticks followed by a soft glowing magical charge-up hum and a small crystal gem sparkle, warm and short"},
-  {"k": "x_tim", "n": 2, "d": 1.0, "c": "nho", "dung": "ủng hộ / hồi (trái tim, Duy Trì)", "t": "fantasy card game healing support: a soft warm double heartbeat thump with a gentle glowing magical shimmer swell, comforting, low-mid warm tone, no harsh highs"},
-  {"k": "x_huy", "n": 2, "d": 1.0, "c": "lon", "dung": "tiêu huỷ (thẻ vỡ vụn)", "t": "fantasy card game card destroyed: a sharp punchy shattering crunch of breaking stone and thick glass with short debris scatter, strong impact, mid-range, no shrill ringing tail"},
-  {"k": "x_vut", "n": 2, "d": 1.0, "c": "vua", "dung": "vứt bỏ (giấy cháy bay về chồng bỏ)", "t": "fantasy card game discard: a quick whoosh of fire igniting a paper card with a short crackling burn and a soft ember puff, short and clean"},
-  {"k": "x_kich", "n": 2, "d": 1.0, "c": "vua", "dung": "kích hoạt (ấn chú xoay dưới chân thẻ)", "t": "fantasy card game rune activation: a mystical stone seal clicking into place with a resonant low magical pulse and a brief swirling hum, mid-range, not piercing"},
-  {"k": "x_trieu", "n": 2, "d": 1.0, "c": "vua", "dung": "triệu hồi / tạo thẻ (cổng ấn mở)", "t": "fantasy card game summoning portal opening: a deep magical swirling whoosh rising into a soft bronze drum boom as a creature appears, warm mid-range"},
-  {"k": "x_hoi", "n": 2, "d": 1.0, "c": "vua", "dung": "hồi sinh (sen linh hồn trồi lên)", "t": "fantasy card game spirit resurrection: an ethereal rising airy magical swell with a soft bloom of warm light and a gentle low hum, smooth, no shrill highs"},
-  {"k": "x_chan", "n": 2, "d": 1.0, "c": "vua", "dung": "bị chặn (khiên)", "t": "fantasy card game magic shield block: a solid bronze shield clang with a short magical barrier hum, deflecting hit, mid-range, not piercing"}
+  {
+   "k": "x_tang",
+   "n": 2,
+   "d": 1.0,
+   "c": "vua",
+   "dung": "+sức mạnh cho thẻ khác (luồng sáng tới đích)",
+   "t": "fantasy card game power-up blessing: a bright rising shimmering magical whoosh that lands on a soft warm bronze bell chime, ascending pitch, clean and full mid-range, no harsh high frequencies"
+  },
+  {
+   "k": "x_giam",
+   "n": 2,
+   "d": 1.0,
+   "c": "vua",
+   "dung": "-sức mạnh (vệt quất, nứt)",
+   "t": "fantasy card game curse debuff: a short heavy downward whip lash followed by a dull cracking stone fracture, descending pitch, dark and punchy mid-range, not shrill"
+  },
+  {
+   "k": "x_nl",
+   "n": 2,
+   "d": 1.0,
+   "c": "nho",
+   "dung": "+/- năng lượng, giá thẻ (đồng hồ, ngọc năng lượng)",
+   "t": "fantasy game mana energy gain: two quick brass clock ticks followed by a soft glowing magical charge-up hum and a small crystal gem sparkle, warm and short"
+  },
+  {
+   "k": "x_tim",
+   "n": 2,
+   "d": 1.0,
+   "c": "nho",
+   "dung": "ủng hộ / hồi (trái tim, Duy Trì)",
+   "t": "fantasy card game healing support: a soft warm double heartbeat thump with a gentle glowing magical shimmer swell, comforting, low-mid warm tone, no harsh highs"
+  },
+  {
+   "k": "x_huy",
+   "n": 2,
+   "d": 1.0,
+   "c": "lon",
+   "dung": "tiêu huỷ (thẻ vỡ vụn)",
+   "t": "fantasy card game card destroyed: a sharp punchy shattering crunch of breaking stone and thick glass with short debris scatter, strong impact, mid-range, no shrill ringing tail"
+  },
+  {
+   "k": "x_vut",
+   "n": 2,
+   "d": 1.0,
+   "c": "vua",
+   "dung": "vứt bỏ (giấy cháy bay về chồng bỏ)",
+   "t": "fantasy card game discard: a quick whoosh of fire igniting a paper card with a short crackling burn and a soft ember puff, short and clean"
+  },
+  {
+   "k": "x_kich",
+   "n": 2,
+   "d": 1.0,
+   "c": "vua",
+   "dung": "kích hoạt (ấn chú xoay dưới chân thẻ)",
+   "t": "fantasy card game rune activation: a mystical stone seal clicking into place with a resonant low magical pulse and a brief swirling hum, mid-range, not piercing"
+  },
+  {
+   "k": "x_trieu",
+   "n": 2,
+   "d": 1.0,
+   "c": "vua",
+   "dung": "triệu hồi / tạo thẻ (cổng ấn mở)",
+   "t": "fantasy card game summoning portal opening: a deep magical swirling whoosh rising into a soft bronze drum boom as a creature appears, warm mid-range"
+  },
+  {
+   "k": "x_hoi",
+   "n": 2,
+   "d": 1.0,
+   "c": "vua",
+   "dung": "hồi sinh (sen linh hồn trồi lên)",
+   "t": "fantasy card game spirit resurrection: an ethereal rising airy magical swell with a soft bloom of warm light and a gentle low hum, smooth, no shrill highs"
+  },
+  {
+   "k": "x_chan",
+   "n": 2,
+   "d": 1.0,
+   "c": "vua",
+   "dung": "bị chặn (khiên)",
+   "t": "fantasy card game magic shield block: a solid bronze shield clang with a short magical barrier hum, deflecting hit, mid-range, not piercing"
+  },
+  {
+   "k": "x_huy_lua",
+   "n": 1,
+   "d": 0.8,
+   "c": "lon",
+   "dung": "huy — hệ Lửa",
+   "t": "fantasy card game sound effect, a card being destroyed: a sharp punchy shattering impact with short debris scatter, made of fire: crackling flames and a roaring ember burst. Short, punchy, clean mid-range, no music, no voice, no harsh high frequencies"
+  },
+  {
+   "k": "x_huy_bang",
+   "n": 1,
+   "d": 0.8,
+   "c": "lon",
+   "dung": "huy — hệ Băng",
+   "t": "fantasy card game sound effect, a card being destroyed: a sharp punchy shattering impact with short debris scatter, made of ice: crystalline frost shards and a cold glassy ring. Short, punchy, clean mid-range, no music, no voice, no harsh high frequencies"
+  },
+  {
+   "k": "x_huy_sam",
+   "n": 1,
+   "d": 0.8,
+   "c": "lon",
+   "dung": "huy — hệ Sấm",
+   "t": "fantasy card game sound effect, a card being destroyed: a sharp punchy shattering impact with short debris scatter, made of lightning: an electric crackle and a sharp thunder snap. Short, punchy, clean mid-range, no music, no voice, no harsh high frequencies"
+  },
+  {
+   "k": "x_huy_doc",
+   "n": 1,
+   "d": 0.8,
+   "c": "lon",
+   "dung": "huy — hệ Độc",
+   "t": "fantasy card game sound effect, a card being destroyed: a sharp punchy shattering impact with short debris scatter, made of poison: a bubbling acidic hiss and a toxic gurgle. Short, punchy, clean mid-range, no music, no voice, no harsh high frequencies"
+  },
+  {
+   "k": "x_huy_toi",
+   "n": 1,
+   "d": 0.8,
+   "c": "lon",
+   "dung": "huy — hệ Bóng tối",
+   "t": "fantasy card game sound effect, a card being destroyed: a sharp punchy shattering impact with short debris scatter, made of darkness: a deep shadowy whoosh with an ominous low reverb. Short, punchy, clean mid-range, no music, no voice, no harsh high frequencies"
+  },
+  {
+   "k": "x_huy_sang",
+   "n": 1,
+   "d": 0.8,
+   "c": "lon",
+   "dung": "huy — hệ Ánh sáng",
+   "t": "fantasy card game sound effect, a card being destroyed: a sharp punchy shattering impact with short debris scatter, made of holy light: a radiant shimmer and a bright angelic ring. Short, punchy, clean mid-range, no music, no voice, no harsh high frequencies"
+  },
+  {
+   "k": "x_huy_gio",
+   "n": 1,
+   "d": 0.8,
+   "c": "lon",
+   "dung": "huy — hệ Gió",
+   "t": "fantasy card game sound effect, a card being destroyed: a sharp punchy shattering impact with short debris scatter, made of wind: a swirling gust and an airy whoosh. Short, punchy, clean mid-range, no music, no voice, no harsh high frequencies"
+  },
+  {
+   "k": "x_huy_dat",
+   "n": 1,
+   "d": 0.8,
+   "c": "lon",
+   "dung": "huy — hệ Đất",
+   "t": "fantasy card game sound effect, a card being destroyed: a sharp punchy shattering impact with short debris scatter, made of earth: a heavy rock crunch and a deep ground rumble. Short, punchy, clean mid-range, no music, no voice, no harsh high frequencies"
+  },
+  {
+   "k": "x_huy_nuoc",
+   "n": 1,
+   "d": 0.8,
+   "c": "lon",
+   "dung": "huy — hệ Nước",
+   "t": "fantasy card game sound effect, a card being destroyed: a sharp punchy shattering impact with short debris scatter, made of water: a liquid splash and a flowing swirl. Short, punchy, clean mid-range, no music, no voice, no harsh high frequencies"
+  },
+  {
+   "k": "x_huy_mau",
+   "n": 1,
+   "d": 0.8,
+   "c": "lon",
+   "dung": "huy — hệ Huyết",
+   "t": "fantasy card game sound effect, a card being destroyed: a sharp punchy shattering impact with short debris scatter, made of blood magic: a deep pulsing heartbeat throb with a dark magical swell. Short, punchy, clean mid-range, no music, no voice, no harsh high frequencies"
+  },
+  {
+   "k": "x_huy_cokhi",
+   "n": 1,
+   "d": 0.8,
+   "c": "lon",
+   "dung": "huy — hệ Cơ khí",
+   "t": "fantasy card game sound effect, a card being destroyed: a sharp punchy shattering impact with short debris scatter, made of machinery: clanking bronze gears and a short steam hiss. Short, punchy, clean mid-range, no music, no voice, no harsh high frequencies"
+  },
+  {
+   "k": "x_huy_hon",
+   "n": 1,
+   "d": 0.8,
+   "c": "lon",
+   "dung": "huy — hệ Hồn",
+   "t": "fantasy card game sound effect, a card being destroyed: a sharp punchy shattering impact with short debris scatter, made of spirits: an ethereal ghostly whisper with a spectral echo. Short, punchy, clean mid-range, no music, no voice, no harsh high frequencies"
+  },
+  {
+   "k": "x_huy_moc",
+   "n": 1,
+   "d": 0.8,
+   "c": "lon",
+   "dung": "huy — hệ Mộc",
+   "t": "fantasy card game sound effect, a card being destroyed: a sharp punchy shattering impact with short debris scatter, made of wood and plants: a creaking wood snap and rustling leaves and vines. Short, punchy, clean mid-range, no music, no voice, no harsh high frequencies"
+  },
+  {
+   "k": "x_vut_lua",
+   "n": 1,
+   "d": 0.8,
+   "c": "vua",
+   "dung": "vut — hệ Lửa",
+   "t": "fantasy card game sound effect, a card being discarded: a quick whoosh as the card is tossed away and dissolves, made of fire: crackling flames and a roaring ember burst. Short, punchy, clean mid-range, no music, no voice, no harsh high frequencies"
+  },
+  {
+   "k": "x_vut_bang",
+   "n": 1,
+   "d": 0.8,
+   "c": "vua",
+   "dung": "vut — hệ Băng",
+   "t": "fantasy card game sound effect, a card being discarded: a quick whoosh as the card is tossed away and dissolves, made of ice: crystalline frost shards and a cold glassy ring. Short, punchy, clean mid-range, no music, no voice, no harsh high frequencies"
+  },
+  {
+   "k": "x_vut_sam",
+   "n": 1,
+   "d": 0.8,
+   "c": "vua",
+   "dung": "vut — hệ Sấm",
+   "t": "fantasy card game sound effect, a card being discarded: a quick whoosh as the card is tossed away and dissolves, made of lightning: an electric crackle and a sharp thunder snap. Short, punchy, clean mid-range, no music, no voice, no harsh high frequencies"
+  },
+  {
+   "k": "x_vut_doc",
+   "n": 1,
+   "d": 0.8,
+   "c": "vua",
+   "dung": "vut — hệ Độc",
+   "t": "fantasy card game sound effect, a card being discarded: a quick whoosh as the card is tossed away and dissolves, made of poison: a bubbling acidic hiss and a toxic gurgle. Short, punchy, clean mid-range, no music, no voice, no harsh high frequencies"
+  },
+  {
+   "k": "x_vut_toi",
+   "n": 1,
+   "d": 0.8,
+   "c": "vua",
+   "dung": "vut — hệ Bóng tối",
+   "t": "fantasy card game sound effect, a card being discarded: a quick whoosh as the card is tossed away and dissolves, made of darkness: a deep shadowy whoosh with an ominous low reverb. Short, punchy, clean mid-range, no music, no voice, no harsh high frequencies"
+  },
+  {
+   "k": "x_vut_sang",
+   "n": 1,
+   "d": 0.8,
+   "c": "vua",
+   "dung": "vut — hệ Ánh sáng",
+   "t": "fantasy card game sound effect, a card being discarded: a quick whoosh as the card is tossed away and dissolves, made of holy light: a radiant shimmer and a bright angelic ring. Short, punchy, clean mid-range, no music, no voice, no harsh high frequencies"
+  },
+  {
+   "k": "x_vut_gio",
+   "n": 1,
+   "d": 0.8,
+   "c": "vua",
+   "dung": "vut — hệ Gió",
+   "t": "fantasy card game sound effect, a card being discarded: a quick whoosh as the card is tossed away and dissolves, made of wind: a swirling gust and an airy whoosh. Short, punchy, clean mid-range, no music, no voice, no harsh high frequencies"
+  },
+  {
+   "k": "x_vut_dat",
+   "n": 1,
+   "d": 0.8,
+   "c": "vua",
+   "dung": "vut — hệ Đất",
+   "t": "fantasy card game sound effect, a card being discarded: a quick whoosh as the card is tossed away and dissolves, made of earth: a heavy rock crunch and a deep ground rumble. Short, punchy, clean mid-range, no music, no voice, no harsh high frequencies"
+  },
+  {
+   "k": "x_vut_nuoc",
+   "n": 1,
+   "d": 0.8,
+   "c": "vua",
+   "dung": "vut — hệ Nước",
+   "t": "fantasy card game sound effect, a card being discarded: a quick whoosh as the card is tossed away and dissolves, made of water: a liquid splash and a flowing swirl. Short, punchy, clean mid-range, no music, no voice, no harsh high frequencies"
+  },
+  {
+   "k": "x_vut_mau",
+   "n": 1,
+   "d": 0.8,
+   "c": "vua",
+   "dung": "vut — hệ Huyết",
+   "t": "fantasy card game sound effect, a card being discarded: a quick whoosh as the card is tossed away and dissolves, made of blood magic: a deep pulsing heartbeat throb with a dark magical swell. Short, punchy, clean mid-range, no music, no voice, no harsh high frequencies"
+  },
+  {
+   "k": "x_vut_cokhi",
+   "n": 1,
+   "d": 0.8,
+   "c": "vua",
+   "dung": "vut — hệ Cơ khí",
+   "t": "fantasy card game sound effect, a card being discarded: a quick whoosh as the card is tossed away and dissolves, made of machinery: clanking bronze gears and a short steam hiss. Short, punchy, clean mid-range, no music, no voice, no harsh high frequencies"
+  },
+  {
+   "k": "x_vut_hon",
+   "n": 1,
+   "d": 0.8,
+   "c": "vua",
+   "dung": "vut — hệ Hồn",
+   "t": "fantasy card game sound effect, a card being discarded: a quick whoosh as the card is tossed away and dissolves, made of spirits: an ethereal ghostly whisper with a spectral echo. Short, punchy, clean mid-range, no music, no voice, no harsh high frequencies"
+  },
+  {
+   "k": "x_vut_moc",
+   "n": 1,
+   "d": 0.8,
+   "c": "vua",
+   "dung": "vut — hệ Mộc",
+   "t": "fantasy card game sound effect, a card being discarded: a quick whoosh as the card is tossed away and dissolves, made of wood and plants: a creaking wood snap and rustling leaves and vines. Short, punchy, clean mid-range, no music, no voice, no harsh high frequencies"
+  },
+  {
+   "k": "x_trieu_lua",
+   "n": 1,
+   "d": 0.8,
+   "c": "vua",
+   "dung": "trieu — hệ Lửa",
+   "t": "fantasy card game sound effect, a creature being summoned: a swirling portal opening that lands on a solid arrival thump, made of fire: crackling flames and a roaring ember burst. Short, punchy, clean mid-range, no music, no voice, no harsh high frequencies"
+  },
+  {
+   "k": "x_trieu_bang",
+   "n": 1,
+   "d": 0.8,
+   "c": "vua",
+   "dung": "trieu — hệ Băng",
+   "t": "fantasy card game sound effect, a creature being summoned: a swirling portal opening that lands on a solid arrival thump, made of ice: crystalline frost shards and a cold glassy ring. Short, punchy, clean mid-range, no music, no voice, no harsh high frequencies"
+  },
+  {
+   "k": "x_trieu_sam",
+   "n": 1,
+   "d": 0.8,
+   "c": "vua",
+   "dung": "trieu — hệ Sấm",
+   "t": "fantasy card game sound effect, a creature being summoned: a swirling portal opening that lands on a solid arrival thump, made of lightning: an electric crackle and a sharp thunder snap. Short, punchy, clean mid-range, no music, no voice, no harsh high frequencies"
+  },
+  {
+   "k": "x_trieu_doc",
+   "n": 1,
+   "d": 0.8,
+   "c": "vua",
+   "dung": "trieu — hệ Độc",
+   "t": "fantasy card game sound effect, a creature being summoned: a swirling portal opening that lands on a solid arrival thump, made of poison: a bubbling acidic hiss and a toxic gurgle. Short, punchy, clean mid-range, no music, no voice, no harsh high frequencies"
+  },
+  {
+   "k": "x_trieu_toi",
+   "n": 1,
+   "d": 0.8,
+   "c": "vua",
+   "dung": "trieu — hệ Bóng tối",
+   "t": "fantasy card game sound effect, a creature being summoned: a swirling portal opening that lands on a solid arrival thump, made of darkness: a deep shadowy whoosh with an ominous low reverb. Short, punchy, clean mid-range, no music, no voice, no harsh high frequencies"
+  },
+  {
+   "k": "x_trieu_sang",
+   "n": 1,
+   "d": 0.8,
+   "c": "vua",
+   "dung": "trieu — hệ Ánh sáng",
+   "t": "fantasy card game sound effect, a creature being summoned: a swirling portal opening that lands on a solid arrival thump, made of holy light: a radiant shimmer and a bright angelic ring. Short, punchy, clean mid-range, no music, no voice, no harsh high frequencies"
+  },
+  {
+   "k": "x_trieu_gio",
+   "n": 1,
+   "d": 0.8,
+   "c": "vua",
+   "dung": "trieu — hệ Gió",
+   "t": "fantasy card game sound effect, a creature being summoned: a swirling portal opening that lands on a solid arrival thump, made of wind: a swirling gust and an airy whoosh. Short, punchy, clean mid-range, no music, no voice, no harsh high frequencies"
+  },
+  {
+   "k": "x_trieu_dat",
+   "n": 1,
+   "d": 0.8,
+   "c": "vua",
+   "dung": "trieu — hệ Đất",
+   "t": "fantasy card game sound effect, a creature being summoned: a swirling portal opening that lands on a solid arrival thump, made of earth: a heavy rock crunch and a deep ground rumble. Short, punchy, clean mid-range, no music, no voice, no harsh high frequencies"
+  },
+  {
+   "k": "x_trieu_nuoc",
+   "n": 1,
+   "d": 0.8,
+   "c": "vua",
+   "dung": "trieu — hệ Nước",
+   "t": "fantasy card game sound effect, a creature being summoned: a swirling portal opening that lands on a solid arrival thump, made of water: a liquid splash and a flowing swirl. Short, punchy, clean mid-range, no music, no voice, no harsh high frequencies"
+  },
+  {
+   "k": "x_trieu_mau",
+   "n": 1,
+   "d": 0.8,
+   "c": "vua",
+   "dung": "trieu — hệ Huyết",
+   "t": "fantasy card game sound effect, a creature being summoned: a swirling portal opening that lands on a solid arrival thump, made of blood magic: a deep pulsing heartbeat throb with a dark magical swell. Short, punchy, clean mid-range, no music, no voice, no harsh high frequencies"
+  },
+  {
+   "k": "x_trieu_cokhi",
+   "n": 1,
+   "d": 0.8,
+   "c": "vua",
+   "dung": "trieu — hệ Cơ khí",
+   "t": "fantasy card game sound effect, a creature being summoned: a swirling portal opening that lands on a solid arrival thump, made of machinery: clanking bronze gears and a short steam hiss. Short, punchy, clean mid-range, no music, no voice, no harsh high frequencies"
+  },
+  {
+   "k": "x_trieu_hon",
+   "n": 1,
+   "d": 0.8,
+   "c": "vua",
+   "dung": "trieu — hệ Hồn",
+   "t": "fantasy card game sound effect, a creature being summoned: a swirling portal opening that lands on a solid arrival thump, made of spirits: an ethereal ghostly whisper with a spectral echo. Short, punchy, clean mid-range, no music, no voice, no harsh high frequencies"
+  },
+  {
+   "k": "x_trieu_moc",
+   "n": 1,
+   "d": 0.8,
+   "c": "vua",
+   "dung": "trieu — hệ Mộc",
+   "t": "fantasy card game sound effect, a creature being summoned: a swirling portal opening that lands on a solid arrival thump, made of wood and plants: a creaking wood snap and rustling leaves and vines. Short, punchy, clean mid-range, no music, no voice, no harsh high frequencies"
+  },
+  {
+   "k": "x_tang_lua",
+   "n": 1,
+   "d": 0.8,
+   "c": "vua",
+   "dung": "tang — hệ Lửa",
+   "t": "fantasy card game sound effect, a power-up blessing: a bright rising magical swell landing on a warm chime, ascending pitch, made of fire: crackling flames and a roaring ember burst. Short, punchy, clean mid-range, no music, no voice, no harsh high frequencies"
+  },
+  {
+   "k": "x_tang_bang",
+   "n": 1,
+   "d": 0.8,
+   "c": "vua",
+   "dung": "tang — hệ Băng",
+   "t": "fantasy card game sound effect, a power-up blessing: a bright rising magical swell landing on a warm chime, ascending pitch, made of ice: crystalline frost shards and a cold glassy ring. Short, punchy, clean mid-range, no music, no voice, no harsh high frequencies"
+  },
+  {
+   "k": "x_tang_sam",
+   "n": 1,
+   "d": 0.8,
+   "c": "vua",
+   "dung": "tang — hệ Sấm",
+   "t": "fantasy card game sound effect, a power-up blessing: a bright rising magical swell landing on a warm chime, ascending pitch, made of lightning: an electric crackle and a sharp thunder snap. Short, punchy, clean mid-range, no music, no voice, no harsh high frequencies"
+  },
+  {
+   "k": "x_tang_doc",
+   "n": 1,
+   "d": 0.8,
+   "c": "vua",
+   "dung": "tang — hệ Độc",
+   "t": "fantasy card game sound effect, a power-up blessing: a bright rising magical swell landing on a warm chime, ascending pitch, made of poison: a bubbling acidic hiss and a toxic gurgle. Short, punchy, clean mid-range, no music, no voice, no harsh high frequencies"
+  },
+  {
+   "k": "x_tang_toi",
+   "n": 1,
+   "d": 0.8,
+   "c": "vua",
+   "dung": "tang — hệ Bóng tối",
+   "t": "fantasy card game sound effect, a power-up blessing: a bright rising magical swell landing on a warm chime, ascending pitch, made of darkness: a deep shadowy whoosh with an ominous low reverb. Short, punchy, clean mid-range, no music, no voice, no harsh high frequencies"
+  },
+  {
+   "k": "x_tang_sang",
+   "n": 1,
+   "d": 0.8,
+   "c": "vua",
+   "dung": "tang — hệ Ánh sáng",
+   "t": "fantasy card game sound effect, a power-up blessing: a bright rising magical swell landing on a warm chime, ascending pitch, made of holy light: a radiant shimmer and a bright angelic ring. Short, punchy, clean mid-range, no music, no voice, no harsh high frequencies"
+  },
+  {
+   "k": "x_tang_gio",
+   "n": 1,
+   "d": 0.8,
+   "c": "vua",
+   "dung": "tang — hệ Gió",
+   "t": "fantasy card game sound effect, a power-up blessing: a bright rising magical swell landing on a warm chime, ascending pitch, made of wind: a swirling gust and an airy whoosh. Short, punchy, clean mid-range, no music, no voice, no harsh high frequencies"
+  },
+  {
+   "k": "x_tang_dat",
+   "n": 1,
+   "d": 0.8,
+   "c": "vua",
+   "dung": "tang — hệ Đất",
+   "t": "fantasy card game sound effect, a power-up blessing: a bright rising magical swell landing on a warm chime, ascending pitch, made of earth: a heavy rock crunch and a deep ground rumble. Short, punchy, clean mid-range, no music, no voice, no harsh high frequencies"
+  },
+  {
+   "k": "x_tang_nuoc",
+   "n": 1,
+   "d": 0.8,
+   "c": "vua",
+   "dung": "tang — hệ Nước",
+   "t": "fantasy card game sound effect, a power-up blessing: a bright rising magical swell landing on a warm chime, ascending pitch, made of water: a liquid splash and a flowing swirl. Short, punchy, clean mid-range, no music, no voice, no harsh high frequencies"
+  },
+  {
+   "k": "x_tang_mau",
+   "n": 1,
+   "d": 0.8,
+   "c": "vua",
+   "dung": "tang — hệ Huyết",
+   "t": "fantasy card game sound effect, a power-up blessing: a bright rising magical swell landing on a warm chime, ascending pitch, made of blood magic: a deep pulsing heartbeat throb with a dark magical swell. Short, punchy, clean mid-range, no music, no voice, no harsh high frequencies"
+  },
+  {
+   "k": "x_tang_cokhi",
+   "n": 1,
+   "d": 0.8,
+   "c": "vua",
+   "dung": "tang — hệ Cơ khí",
+   "t": "fantasy card game sound effect, a power-up blessing: a bright rising magical swell landing on a warm chime, ascending pitch, made of machinery: clanking bronze gears and a short steam hiss. Short, punchy, clean mid-range, no music, no voice, no harsh high frequencies"
+  },
+  {
+   "k": "x_tang_hon",
+   "n": 1,
+   "d": 0.8,
+   "c": "vua",
+   "dung": "tang — hệ Hồn",
+   "t": "fantasy card game sound effect, a power-up blessing: a bright rising magical swell landing on a warm chime, ascending pitch, made of spirits: an ethereal ghostly whisper with a spectral echo. Short, punchy, clean mid-range, no music, no voice, no harsh high frequencies"
+  },
+  {
+   "k": "x_tang_moc",
+   "n": 1,
+   "d": 0.8,
+   "c": "vua",
+   "dung": "tang — hệ Mộc",
+   "t": "fantasy card game sound effect, a power-up blessing: a bright rising magical swell landing on a warm chime, ascending pitch, made of wood and plants: a creaking wood snap and rustling leaves and vines. Short, punchy, clean mid-range, no music, no voice, no harsh high frequencies"
+  },
+  {
+   "k": "x_giam_lua",
+   "n": 1,
+   "d": 0.8,
+   "c": "vua",
+   "dung": "giam — hệ Lửa",
+   "t": "fantasy card game sound effect, a curse debuff: a short heavy downward sapping hit, descending pitch, made of fire: crackling flames and a roaring ember burst. Short, punchy, clean mid-range, no music, no voice, no harsh high frequencies"
+  },
+  {
+   "k": "x_giam_bang",
+   "n": 1,
+   "d": 0.8,
+   "c": "vua",
+   "dung": "giam — hệ Băng",
+   "t": "fantasy card game sound effect, a curse debuff: a short heavy downward sapping hit, descending pitch, made of ice: crystalline frost shards and a cold glassy ring. Short, punchy, clean mid-range, no music, no voice, no harsh high frequencies"
+  },
+  {
+   "k": "x_giam_sam",
+   "n": 1,
+   "d": 0.8,
+   "c": "vua",
+   "dung": "giam — hệ Sấm",
+   "t": "fantasy card game sound effect, a curse debuff: a short heavy downward sapping hit, descending pitch, made of lightning: an electric crackle and a sharp thunder snap. Short, punchy, clean mid-range, no music, no voice, no harsh high frequencies"
+  },
+  {
+   "k": "x_giam_doc",
+   "n": 1,
+   "d": 0.8,
+   "c": "vua",
+   "dung": "giam — hệ Độc",
+   "t": "fantasy card game sound effect, a curse debuff: a short heavy downward sapping hit, descending pitch, made of poison: a bubbling acidic hiss and a toxic gurgle. Short, punchy, clean mid-range, no music, no voice, no harsh high frequencies"
+  },
+  {
+   "k": "x_giam_toi",
+   "n": 1,
+   "d": 0.8,
+   "c": "vua",
+   "dung": "giam — hệ Bóng tối",
+   "t": "fantasy card game sound effect, a curse debuff: a short heavy downward sapping hit, descending pitch, made of darkness: a deep shadowy whoosh with an ominous low reverb. Short, punchy, clean mid-range, no music, no voice, no harsh high frequencies"
+  },
+  {
+   "k": "x_giam_sang",
+   "n": 1,
+   "d": 0.8,
+   "c": "vua",
+   "dung": "giam — hệ Ánh sáng",
+   "t": "fantasy card game sound effect, a curse debuff: a short heavy downward sapping hit, descending pitch, made of holy light: a radiant shimmer and a bright angelic ring. Short, punchy, clean mid-range, no music, no voice, no harsh high frequencies"
+  },
+  {
+   "k": "x_giam_gio",
+   "n": 1,
+   "d": 0.8,
+   "c": "vua",
+   "dung": "giam — hệ Gió",
+   "t": "fantasy card game sound effect, a curse debuff: a short heavy downward sapping hit, descending pitch, made of wind: a swirling gust and an airy whoosh. Short, punchy, clean mid-range, no music, no voice, no harsh high frequencies"
+  },
+  {
+   "k": "x_giam_dat",
+   "n": 1,
+   "d": 0.8,
+   "c": "vua",
+   "dung": "giam — hệ Đất",
+   "t": "fantasy card game sound effect, a curse debuff: a short heavy downward sapping hit, descending pitch, made of earth: a heavy rock crunch and a deep ground rumble. Short, punchy, clean mid-range, no music, no voice, no harsh high frequencies"
+  },
+  {
+   "k": "x_giam_nuoc",
+   "n": 1,
+   "d": 0.8,
+   "c": "vua",
+   "dung": "giam — hệ Nước",
+   "t": "fantasy card game sound effect, a curse debuff: a short heavy downward sapping hit, descending pitch, made of water: a liquid splash and a flowing swirl. Short, punchy, clean mid-range, no music, no voice, no harsh high frequencies"
+  },
+  {
+   "k": "x_giam_mau",
+   "n": 1,
+   "d": 0.8,
+   "c": "vua",
+   "dung": "giam — hệ Huyết",
+   "t": "fantasy card game sound effect, a curse debuff: a short heavy downward sapping hit, descending pitch, made of blood magic: a deep pulsing heartbeat throb with a dark magical swell. Short, punchy, clean mid-range, no music, no voice, no harsh high frequencies"
+  },
+  {
+   "k": "x_giam_cokhi",
+   "n": 1,
+   "d": 0.8,
+   "c": "vua",
+   "dung": "giam — hệ Cơ khí",
+   "t": "fantasy card game sound effect, a curse debuff: a short heavy downward sapping hit, descending pitch, made of machinery: clanking bronze gears and a short steam hiss. Short, punchy, clean mid-range, no music, no voice, no harsh high frequencies"
+  },
+  {
+   "k": "x_giam_hon",
+   "n": 1,
+   "d": 0.8,
+   "c": "vua",
+   "dung": "giam — hệ Hồn",
+   "t": "fantasy card game sound effect, a curse debuff: a short heavy downward sapping hit, descending pitch, made of spirits: an ethereal ghostly whisper with a spectral echo. Short, punchy, clean mid-range, no music, no voice, no harsh high frequencies"
+  },
+  {
+   "k": "x_giam_moc",
+   "n": 1,
+   "d": 0.8,
+   "c": "vua",
+   "dung": "giam — hệ Mộc",
+   "t": "fantasy card game sound effect, a curse debuff: a short heavy downward sapping hit, descending pitch, made of wood and plants: a creaking wood snap and rustling leaves and vines. Short, punchy, clean mid-range, no music, no voice, no harsh high frequencies"
+  }
  ]
 }
