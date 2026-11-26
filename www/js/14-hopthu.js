@@ -95,7 +95,7 @@ function mailExpired(m){var d=toDate(m.expires_at);return !!(d&&d.getTime()<Date
 function mailDone(m){return !!m.claimed||store.mailGot.indexOf(String(m.id))>=0;}
 function mailClaimable(m){return !mailDone(m)&&!mailExpired(m)&&hasRw(m.rewards);}
 function mailCount(){return on()?M.items.filter(mailClaimable).length:0;}
-function mailBadge(){var b=$g("lbMail");if(!b)return;b.hidden=!on();var n=mailCount(),i=$g("lbMailN");
+function mailBadge(){var b=$g("lbMail");if(!b)return;b.hidden=false;var n=mailCount(),i=$g("lbMailN");
   if(i)i.textContent=n?String(n>99?"99+":n):"";
   b.setAttribute("aria-label",n?"Hộp thư, "+n+" thư chưa nhận":"Hộp thư");}
 function mailLoad(force){if(!on())return Promise.resolve();if(!force&&Date.now()-M.at<30000)return Promise.resolve();M.at=Date.now();
@@ -141,7 +141,7 @@ function claimAll(){var L=M.items.filter(mailClaimable);if(!L.length)return;var 
       next(i+1);});})(0);}
 function mailRender(){var o=ovMake("hthMail","Hộp thư","hth-mp");var b=o.querySelector(".body"),f=o.querySelector(".foot");b.textContent="";f.textContent="";
   var n=mailCount();
-  if(!M.items.length)b.appendChild(mk("p","hth-empty","Hộp thư trống."));
+  if(!M.items.length)b.appendChild(mk("p","hth-empty","Chưa có thư."));
   M.items.forEach(function(m){var id=String(m.id),done=mailDone(m),exp=!done&&mailExpired(m),open=M.open===id;
     var it=mk("div","hth-it"+(done?" done":"")+(exp?" exp":"")+(open?" open":""));
     var hd=mk("button","hth-hd");hd.type="button";hd.setAttribute("aria-expanded",open?"true":"false");
@@ -159,7 +159,7 @@ function mailRender(){var o=ovMake("hthMail","Hộp thư","hth-mp");var b=o.quer
     b.appendChild(it);});
   var c=mk("button","btn ghost","Đóng");c.type="button";c.setAttribute("data-close","");f.appendChild(c);
   var a=mk("button","btn end","Nhận tất cả"+(n?" ("+n+")":""));a.type="button";a.disabled=!n;a.addEventListener("click",claimAll);f.appendChild(a);}
-function mailOpen(){if(!on())return;sfx("tap");M.open=null;mailRender();$g("hthMail").classList.add("on");mailLoad(true);}
+function mailOpen(){sfx("tap");M.open=null;mailRender();$g("hthMail").classList.add("on");mailLoad(true);}
 
 /* ---------- 4. GIFTCODE (trong Cài đặt) ---------- */
 function gcBuild(){var adv=$g("setAdv");if(!adv||$g("hthGc"))return;
@@ -168,7 +168,7 @@ function gcBuild(){var adv=$g("setAdv");if(!adv||$g("hthGc"))return;
   var inp=mk("input","hth-gci");inp.id="hthGcIn";inp.type="text";inp.maxLength=40;inp.placeholder="Nhập giftcode";inp.autocomplete="off";inp.setAttribute("autocapitalize","characters");inp.spellcheck=false;inp.setAttribute("aria-label","Nhập giftcode");
   var bt=mk("button","btn end hth-gcb","Đổi");bt.type="button";bt.id="hthGcBtn";w.appendChild(inp);w.appendChild(bt);
   var msg=mk("div","hth-gcm");msg.id="hthGcMsg";msg.setAttribute("role","status");row.appendChild(w);row.appendChild(msg);s.appendChild(row);
-  adv.parentNode.insertBefore(s,adv);
+  adv.parentNode.insertBefore(s,adv.nextSibling);
   bt.addEventListener("click",gcRedeem);inp.addEventListener("keydown",function(ev){if(ev.key==="Enter"){ev.preventDefault();gcRedeem();}});}
 function gcMsg(t,ok){var m=$g("hthGcMsg");if(!m)return;m.textContent=t||"";m.className="hth-gcm"+(t?(ok?" ok":" bad"):"");}
 function gcErr(e){var s=e&&e.status,c=e&&e.code;
@@ -216,7 +216,7 @@ window.LTD_ONBAN=function(j){j=j||{};if(Date.now()-banShown<2000)return;banShown
 /* ---------- nối vào sảnh ---------- */
 var lastTok=null,lastOn=null;
 function sync(){var now=on();
-  var b=$g("lbMail");if(b)b.hidden=!now;
+  var b=$g("lbMail");if(b)b.hidden=false;
   if(CF&&CF.token!==lastTok){lastTok=CF.token;M.items=[];M.at=0;M.open=null;if(now){ping();pingStart();mailLoad(true);}else{clearInterval(P.t);P.t=0;}}
   if(now!==lastOn){lastOn=now;mailBadge();}
   gcSync();}

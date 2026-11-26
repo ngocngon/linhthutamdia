@@ -83,16 +83,14 @@
     <div class="sx-row sx-col"><span class="sx-t">Tốc độ hoạt ảnh</span><div class="sx-seg" id="setSpdSeg" role="radiogroup" aria-label="Tốc độ hoạt ảnh"></div><select id="setSpd" hidden><option value="cham">Chậm</option><option value="vua">Vừa</option><option value="nhanh">Nhanh</option></select></div>
     <div class="sx-row sx-col"><span class="sx-t">Khung hình</span><div class="sx-seg" id="setFpsSeg" role="radiogroup" aria-label="Khung hình" style="--n:3"><button type="button" role="radio" class="sx-pill" data-k="auto">Tự động</button><button type="button" role="radio" class="sx-pill" data-k="60">60</button><button type="button" role="radio" class="sx-pill" data-k="30">30</button></div><small class="sx-note" id="setFpsNote"></small></div>
     <label class="sx-row"><span class="sx-t">Hiệu ứng hình ảnh</span><input type="checkbox" class="sx-sw" id="setFx"></label>
+    <label class="sx-row"><span class="sx-t">Đồ hoạ GPU (mượt hơn)</span><input type="checkbox" class="sx-sw" id="setGpu"></label>
   </section>
-  <section class="sx-sec"><h3>Điều khiển</h3>
+  <section class="sx-sec" id="setAdv"><h3>Điều khiển &amp; khác</h3>
     <label class="sx-row"><span class="sx-t">Rung khi chạm, lật thẻ</span><input type="checkbox" class="sx-sw" id="setVib"></label>
     <label class="sx-row"><span class="sx-t">Nghiêng thẻ theo con quay</span><input type="checkbox" class="sx-sw" id="setGyro"></label>
-  </section>
-  <details class="sx-adv" id="setAdv"><summary>Nâng cao</summary>
-    <label class="sx-row"><span class="sx-t">Đồ hoạ GPU (mượt hơn)</span><input type="checkbox" class="sx-sw" id="setGpu"></label>
     <button class="btn ghost sx-btn" type="button" id="setArena">Đổi sàn đấu</button>
     <button class="btn ghost sx-btn" type="button" id="setReimg">Tải lại hình</button>
-  </details>
+  </section>
 </div><div class="foot"><button class="btn end" type="button" data-close>Xong</button></div></div></div>
 <div class="ov" id="ovHelp"><div class="panel">
   <h2>Linh Thú Tam Địa</h2>
@@ -164,7 +162,7 @@
   <div class="lb-row2">
     <button type="button" class="lbpass" id="lbPass" aria-label="Thẻ tháng"><span class="lbpt">THẺ THÁNG</span><span class="lbpb"><i id="lbPassBar"></i></span><span class="lbpl" id="lbPassLv">1</span><i class="nb" id="lbPassN"></i></button>
     <button type="button" class="lbmis" id="lbMisBtn"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="3"/><path d="M8 9l2 2 4-4M8 15.5h8"/></svg><span>Nhiệm vụ</span><i class="nb" id="lbMisN"></i></button>
-    <button type="button" class="hthmail" id="lbMail" aria-label="Hộp thư" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5.5" width="18" height="13" rx="2.5"/><path d="M3.8 7.5l8.2 6 8.2-6"/></svg><i class="nb" id="lbMailN"></i></button>
+    <button type="button" class="hthmail" id="lbMail" aria-label="Hộp thư"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5.5" width="18" height="13" rx="2.5"/><path d="M3.8 7.5l8.2 6 8.2-6"/></svg><i class="nb" id="lbMailN"></i></button>
   </div>
   <div class="hth-ann" id="hthAnn" role="region" aria-label="Thông báo từ quản trị" hidden><button type="button" class="hth-at" id="hthAt"><i class="hth-ai" aria-hidden="true"></i><span class="hth-tx" id="hthTx"></span></button><button type="button" class="hth-ax" id="hthAx" aria-label="Ẩn thông báo này">&times;</button></div>
   <div class="lb-res" id="lbRes" hidden></div>

@@ -32,3 +32,38 @@
 #ovSet .sx-btn.end{background:transparent;border:1px dashed rgba(255,210,90,.6);color:#ffd25a;box-shadow:none;font-size:13px}
 /* gpu22: dòng giải thích chế độ khung hình */
 .sx-note{display:block;font-size:12px;line-height:1.35;color:rgba(200,210,255,.72);padding:0 2px}
+
+/* ui55: gọn một màn hình, lưới 2 cột, không cần cuộn (điện thoại 360x740 đến máy tính) */
+#ovSet{padding:8px}
+#ovSet .panel.sx{max-width:480px;max-height:100%}
+#ovSet .panel.sx h2{font-size:19px;padding:8px 12px 2px}
+#ovSet .panel.sx .body{padding:0 10px 4px}
+#ovSet .sx-sec{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin:0 0 2px}
+#ovSet .sx-sec>h3{grid-column:1/-1;margin:6px 2px 0;font-size:11px;line-height:1.2}
+#ovSet .sx-row{min-height:40px;margin:0;padding:3px 9px;gap:8px;font-size:12.5px;border-radius:10px;min-width:0}
+#ovSet .sx-row .sx-t{line-height:1.15}
+#ovSet input.sx-sw{width:40px;height:24px;border-radius:12px}
+#ovSet input.sx-sw::after{width:18px;height:18px}
+#ovSet input.sx-sw:checked::after{transform:translateX(16px)}
+/* thanh trượt: nhãn + số ở trên, thanh ở dưới */
+#ovSet .sx-row.sx-sl{display:grid;grid-template-columns:1fr auto;grid-template-rows:auto 24px;column-gap:6px;row-gap:0;align-items:center;padding:5px 9px 2px}
+#ovSet .sx-row.sx-sl .sx-t{flex:none;min-width:0}
+#ovSet .sx-row.sx-sl b{flex:none;text-align:right;min-width:0;font-size:12px}
+#ovSet .sx-row.sx-sl input[type=range]{grid-column:1/-1;height:24px}
+/* tốc độ và khung hình: chiếm cả hàng, nhãn bên trái, nút chọn bên phải */
+#ovSet .sx-row.sx-col{grid-column:1/-1;display:grid;grid-template-columns:auto 1fr;align-items:center;gap:2px 10px;padding:4px 9px}
+#ovSet .sx-row.sx-col .sx-seg{gap:4px}
+#ovSet .sx-pill{min-height:34px;padding:2px 4px;font-size:13px;border-radius:8px}
+#ovSet .sx-row.sx-col .sx-note{grid-column:1/-1;font-size:11px;line-height:1.25;padding:0}
+#ovSet .sx-btn{min-height:40px;margin:0;font-size:13px;padding:0 8px}
+#ovSet .sx-btn.end{grid-column:1/-1;min-height:36px;font-size:12px}
+#ovSet .panel.sx .foot{padding:6px 12px 10px}
+#ovSet .panel.sx .foot .btn{min-height:42px}
+/* giftcode (14-hopthu.js) */
+#ovSet #hthGc .sx-row.sx-col{display:flex;flex-direction:column;align-items:stretch;gap:3px;padding:4px 9px}
+#ovSet .hth-gci,#ovSet .hth-gcb{height:36px}
+#ovSet .hth-gcm{min-height:0;font-size:11.5px}
+#ovSet .hth-gcm:empty{display:none}
+@media(max-width:380px){#ovSet .sx-row{padding:3px 8px;font-size:12px}#ovSet .sx-pill{font-size:12.5px}}
+#ovSet .sx-row.sx-col:has(#setSpdSeg){grid-template-columns:1fr;gap:3px}
+#ovSet #setSpdSeg .sx-pill{font-size:12px;padding:2px 1px;white-space:nowrap;overflow-wrap:normal}
