@@ -279,11 +279,17 @@ function paint() {
       const draw = () => { glob.innerHTML = arr.slice(0, nv).map(m => chipHTML(gm(m))).join("") + (nv < arr.length ? moreHTML(arr.length - nv, "g") : ""); };
       draw();
       const used = () => { let w = 0, n = 0; for (const e of glob.children) { w += e.offsetWidth; n++; } return w + Math.max(0, n - 1) * 3; };
-      while (nv > 1 && used() > glob.clientWidth - 8) { nv--; draw(); }
+      /* fix55: đo bề rộng mọi chip MỘT lần rồi tính số chip vừa dải (trước: xoá-vẽ-đo lặp từng chip, mỗi vòng buộc tính lại bố cục) */
+      const avail = glob.clientWidth - 8, ws = [...glob.children].map(e => e.offsetWidth);
+      if (ws.reduce((a, b) => a + b, 0) + Math.max(0, ws.length - 1) * 3 > avail && nv > 1) {
+        let acc = 0, k = 0; while (k < nv && acc + ws[k] + 3 * k + 40 <= avail) { acc += ws[k]; k++; }
+        nv = Math.max(1, k); draw();
+        while (nv > 1 && used() > avail) { nv--; draw(); }
+      }
       glob.dataset.dhs = gk; rebuilt = true;
     }
   }
-  if (rebuilt && !MT) MT = setTimeout(measure, 150); // lưu vị trí chip để diễn nhịp "đã chạy" khi nó biến mất
+  if (rebuilt && !MT) MT = setTimeout(() => requestAnimationFrame(measure), 150); /* fix55: đọc toạ độ gộp ở đầu khung */ // lưu vị trí chip để diễn nhịp "đã chạy" khi nó biến mất
   /* vào/ra: chip biến mất khi đã chạy -> nhịp nhỏ; chip mới đánh dấu để tắt hiệu ứng vào ở lần sau */
   if (sig !== SIG) {
     const nowKeys = new Set(ms.map(m => m.k));
@@ -341,7 +347,11 @@ function init() {
   /* vẽ lại khi bàn thay đổi (render/patchBoard) — gộp một lần mỗi khung hình */
   let q = 0; const sched = () => { if (q) return; q = requestAnimationFrame(() => { q = 0; try { paint(); } catch (e) {} }); };
   const b = document.getElementById("board");
-  if (b) new MutationObserver(ms => { if (ms.some(m => [...m.addedNodes, ...m.removedNodes].some(n => !(n.nodeType === 1 && (n.classList.contains("dh-f") || n.id === "dhGlob"))))) sched(); }).observe(b, { childList: true, subtree: true });
+  /* fix55: chỉ vẽ lại khi thêm/gỡ đúng thẻ (.mc) hoặc khung chiến địa (.lane/.side/.slot/.locw) — các nút VFX tạm thêm vào #board (vệt, hạt, nhãn bay…) không kích hoạt paint nữa.
+     render() đã tự gọi sched(), nên mọi thay đổi theo luật vẫn được vẽ. */
+  const REL = ".mc,.lane,.side,.slot,.locw,.loc";
+  const rel = n => n.nodeType === 1 && !n.classList.contains("dh-f") && n.id !== "dhGlob" && (n.matches(REL) || !!n.querySelector(".mc,.locw"));
+  if (b) new MutationObserver(ms => { for (const m of ms) { for (const n of m.addedNodes) if (rel(n)) return sched(); for (const n of m.removedNodes) if (rel(n)) return sched(); } }).observe(b, { childList: true, subtree: true });
   const r0 = window.render; if (typeof r0 === "function" && !r0.__dh) { const r1 = function () { const r = r0.apply(this, arguments); sched(); return r; }; r1.__dh = 1; window.render = r1; }
   sched();
   window.DauHieu = { compute, paint, pop, measure, cache: () => CACHE };

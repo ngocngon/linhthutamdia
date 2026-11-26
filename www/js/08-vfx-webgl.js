@@ -2488,7 +2488,7 @@
       k.style.cssText = `left:${r0.left.toFixed(1)}px;top:${r0.top.toFixed(1)}px;width:${r0.width.toFixed(1)}px;height:${r0.height.toFixed(1)}px;--lc:#3a376e`;
       /* lá lớn: cỡ + vị trí */
       const VW = innerWidth, VH = innerHeight, asp = r0.width / Math.max(1, r0.height);
-      const cw = Math.round(Math.min(VW * 0.78, VH * 0.4 * asp)), ch = Math.round(cw / asp);
+      const cw = Math.round(Math.min(VW * 0.78, VH * 0.4 * asp, Math.min(((document.getElementById("board") || {}).clientWidth || VW), 520))), ch = Math.round(cw / asp); /* fix55: máy tính không vượt bề rộng bàn / 520px */
       const rdc = parseFloat(getComputedStyle(lc).borderTopLeftRadius) || 16, rd = rdc * (cw / r0.width);
       const th = (typeof LTH !== "undefined" && LTH[L.id]) || "thieng";
       const col = (typeof LHUE !== "undefined" && LHUE[L.id]) || (typeof LTC !== "undefined" && LTC[th]) || "#ffd65a";

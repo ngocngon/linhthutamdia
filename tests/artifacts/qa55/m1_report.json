@@ -1,0 +1,1319 @@
+{
+ "tag": "m1",
+ "W": 390,
+ "H": 844,
+ "spd": {
+  "spd": 1,
+  "k": "nhanh",
+  "levels": "{\"cham\":1.6,\"vua\":1.3,\"nhanh\":1,\"ratcham\":2,\"dienanh\":2.5}"
+ },
+ "games": [
+  {
+   "gi": 0,
+   "strat": "ui",
+   "turns": [
+    {
+     "turn": 1,
+     "energy": 1,
+     "hand": 4,
+     "nodes": 1043,
+     "rvl": "truefalsefalse",
+     "played": [],
+     "resolveMs": 2783,
+     "ff": false,
+     "long": [
+      {
+       "d": 67,
+       "at": 14974,
+       "ctx": "t1-resolve",
+       "turn": 1,
+       "ph": "play"
+      },
+      {
+       "d": 367,
+       "at": 15541,
+       "ctx": "t1-resolve",
+       "turn": 1,
+       "ph": "reveal"
+      },
+      {
+       "d": 67,
+       "at": 15607,
+       "ctx": "t1-resolve",
+       "turn": 1,
+       "ph": "reveal"
+      },
+      {
+       "d": 117,
+       "at": 15874,
+       "ctx": "t1-resolve",
+       "turn": 1,
+       "ph": "reveal"
+      },
+      {
+       "d": 50,
+       "at": 16074,
+       "ctx": "t1-resolve",
+       "turn": 1,
+       "ph": "reveal"
+      },
+      {
+       "d": 400,
+       "at": 16791,
+       "ctx": "t1-resolve",
+       "turn": 2,
+       "ph": "play"
+      },
+      {
+       "d": 83,
+       "at": 17091,
+       "ctx": "t1-resolve",
+       "turn": 2,
+       "ph": "play"
+      },
+      {
+       "d": 67,
+       "at": 17157,
+       "ctx": "t1-resolve",
+       "turn": 2,
+       "ph": "play"
+      },
+      {
+       "d": 50,
+       "at": 17274,
+       "ctx": "t1-resolve",
+       "turn": 2,
+       "ph": "play"
+      },
+      {
+       "d": 67,
+       "at": 17391,
+       "ctx": "t1-resolve",
+       "turn": 2,
+       "ph": "play"
+      },
+      {
+       "d": 67,
+       "at": 17457,
+       "ctx": "t1-resolve",
+       "turn": 2,
+       "ph": "play"
+      },
+      {
+       "d": 67,
+       "at": 17557,
+       "ctx": "t1-resolve",
+       "turn": 2,
+       "ph": "play"
+      },
+      {
+       "d": 50,
+       "at": 17607,
+       "ctx": "t1-resolve",
+       "turn": 2,
+       "ph": "play"
+      }
+     ]
+    },
+    {
+     "turn": 2,
+     "energy": 2,
+     "hand": 5,
+     "nodes": 1087,
+     "rvl": "truetruefalse",
+     "played": [
+      {
+       "uid": 12,
+       "li": 0,
+       "ok": true
+      }
+     ],
+     "resolveMs": 6685,
+     "ff": false,
+     "long": [
+      {
+       "d": 1267,
+       "at": 23924,
+       "ctx": "t2-resolve",
+       "turn": 2,
+       "ph": "reveal"
+      },
+      {
+       "d": 700,
+       "at": 24624,
+       "ctx": "t2-resolve",
+       "turn": 2,
+       "ph": "reveal"
+      },
+      {
+       "d": 333,
+       "at": 24957,
+       "ctx": "t2-resolve",
+       "turn": 2,
+       "ph": "reveal"
+      },
+      {
+       "d": 100,
+       "at": 25107,
+       "ctx": "t2-resolve",
+       "turn": 2,
+       "ph": "reveal"
+      },
+      {
+       "d": 83,
+       "at": 25190,
+       "ctx": "t2-resolve",
+       "turn": 2,
+       "ph": "reveal"
+      },
+      {
+       "d": 133,
+       "at": 25324,
+       "ctx": "t2-resolve",
+       "turn": 2,
+       "ph": "reveal"
+      },
+      {
+       "d": 200,
+       "at": 25524,
+       "ctx": "t2-resolve",
+       "turn": 2,
+       "ph": "reveal"
+      },
+      {
+       "d": 167,
+       "at": 25690,
+       "ctx": "t2-resolve",
+       "turn": 2,
+       "ph": "reveal"
+      },
+      {
+       "d": 317,
+       "at": 26007,
+       "ctx": "t2-resolve",
+       "turn": 2,
+       "ph": "reveal"
+      },
+      {
+       "d": 250,
+       "at": 26257,
+       "ctx": "t2-resolve",
+       "turn": 2,
+       "ph": "reveal"
+      },
+      {
+       "d": 300,
+       "at": 26557,
+       "ctx": "t2-resolve",
+       "turn": 2,
+       "ph": "reveal"
+      },
+      {
+       "d": 150,
+       "at": 26707,
+       "ctx": "t2-resolve",
+       "turn": 2,
+       "ph": "reveal"
+      },
+      {
+       "d": 150,
+       "at": 26857,
+       "ctx": "t2-resolve",
+       "turn": 2,
+       "ph": "reveal"
+      },
+      {
+       "d": 300,
+       "at": 27157,
+       "ctx": "t2-resolve",
+       "turn": 2,
+       "ph": "reveal"
+      },
+      {
+       "d": 200,
+       "at": 27357,
+       "ctx": "t2-resolve",
+       "turn": 2,
+       "ph": "reveal"
+      },
+      {
+       "d": 283,
+       "at": 27640,
+       "ctx": "t2-resolve",
+       "turn": 2,
+       "ph": "reveal"
+      },
+      {
+       "d": 383,
+       "at": 28023,
+       "ctx": "t2-resolve",
+       "turn": 3,
+       "ph": "play"
+      },
+      {
+       "d": 400,
+       "at": 28423,
+       "ctx": "t2-resolve",
+       "turn": 3,
+       "ph": "play"
+      },
+      {
+       "d": 100,
+       "at": 28523,
+       "ctx": "t2-resolve",
+       "turn": 3,
+       "ph": "play"
+      },
+      {
+       "d": 100,
+       "at": 28673,
+       "ctx": "t2-resolve",
+       "turn": 3,
+       "ph": "play"
+      },
+      {
+       "d": 250,
+       "at": 28923,
+       "ctx": "t2-resolve",
+       "turn": 3,
+       "ph": "play"
+      },
+      {
+       "d": 83,
+       "at": 29007,
+       "ctx": "t2-resolve",
+       "turn": 3,
+       "ph": "play"
+      },
+      {
+       "d": 67,
+       "at": 29073,
+       "ctx": "t2-resolve",
+       "turn": 3,
+       "ph": "play"
+      },
+      {
+       "d": 100,
+       "at": 29173,
+       "ctx": "t2-resolve",
+       "turn": 3,
+       "ph": "play"
+      }
+     ]
+    },
+    {
+     "turn": 3,
+     "energy": 3,
+     "hand": 5,
+     "nodes": 1124,
+     "rvl": "truetruetrue",
+     "played": [
+      {
+       "uid": 9,
+       "li": 2,
+       "ok": true
+      }
+     ],
+     "resolveMs": 8560,
+     "ff": false,
+     "long": [
+      {
+       "d": 83,
+       "at": 34073,
+       "ctx": "t3-resolve",
+       "turn": 3,
+       "ph": "play"
+      },
+      {
+       "d": 550,
+       "at": 34623,
+       "ctx": "t3-resolve",
+       "turn": 3,
+       "ph": "play"
+      },
+      {
+       "d": 783,
+       "at": 35407,
+       "ctx": "t3-resolve",
+       "turn": 3,
+       "ph": "play"
+      },
+      {
+       "d": 400,
+       "at": 35806,
+       "ctx": "t3-resolve",
+       "turn": 3,
+       "ph": "reveal"
+      },
+      {
+       "d": 2450,
+       "at": 38256,
+       "ctx": "t3-resolve",
+       "turn": 3,
+       "ph": "reveal"
+      },
+      {
+       "d": 383,
+       "at": 38640,
+       "ctx": "t3-resolve",
+       "turn": 3,
+       "ph": "reveal"
+      },
+      {
+       "d": 167,
+       "at": 38806,
+       "ctx": "t3-resolve",
+       "turn": 3,
+       "ph": "reveal"
+      },
+      {
+       "d": 300,
+       "at": 39106,
+       "ctx": "t3-resolve",
+       "turn": 3,
+       "ph": "reveal"
+      },
+      {
+       "d": 600,
+       "at": 39706,
+       "ctx": "t3-resolve",
+       "turn": 3,
+       "ph": "reveal"
+      },
+      {
+       "d": 783,
+       "at": 40490,
+       "ctx": "t3-resolve",
+       "turn": 3,
+       "ph": "reveal"
+      },
+      {
+       "d": 433,
+       "at": 40923,
+       "ctx": "t3-resolve",
+       "turn": 3,
+       "ph": "reveal"
+      },
+      {
+       "d": 267,
+       "at": 41190,
+       "ctx": "t3-resolve",
+       "turn": 3,
+       "ph": "reveal"
+      },
+      {
+       "d": 133,
+       "at": 41323,
+       "ctx": "t3-resolve",
+       "turn": 3,
+       "ph": "reveal"
+      },
+      {
+       "d": 450,
+       "at": 41773,
+       "ctx": "t3-resolve",
+       "turn": 4,
+       "ph": "play"
+      }
+     ]
+    },
+    {
+     "turn": 4,
+     "energy": 4,
+     "hand": 5,
+     "nodes": 1132,
+     "rvl": "truetruetrue",
+     "played": [
+      {
+       "uid": 11,
+       "li": 1,
+       "ok": true
+      },
+      {
+       "uid": 8,
+       "li": 2,
+       "ok": true
+      }
+     ],
+     "resolveMs": 11324,
+     "ff": false,
+     "long": [
+      {
+       "d": 200,
+       "at": 54856,
+       "ctx": "t4-resolve",
+       "turn": 4,
+       "ph": "play"
+      },
+      {
+       "d": 83,
+       "at": 54939,
+       "ctx": "t4-resolve",
+       "turn": 4,
+       "ph": "play"
+      },
+      {
+       "d": 183,
+       "at": 55122,
+       "ctx": "t4-resolve",
+       "turn": 4,
+       "ph": "reveal"
+      },
+      {
+       "d": 2117,
+       "at": 57239,
+       "ctx": "t4-resolve",
+       "turn": 4,
+       "ph": "reveal"
+      },
+      {
+       "d": 183,
+       "at": 57422,
+       "ctx": "t4-resolve",
+       "turn": 4,
+       "ph": "reveal"
+      },
+      {
+       "d": 233,
+       "at": 57656,
+       "ctx": "t4-resolve",
+       "turn": 4,
+       "ph": "reveal"
+      },
+      {
+       "d": 450,
+       "at": 58106,
+       "ctx": "t4-resolve",
+       "turn": 4,
+       "ph": "reveal"
+      },
+      {
+       "d": 150,
+       "at": 58256,
+       "ctx": "t4-resolve",
+       "turn": 4,
+       "ph": "reveal"
+      },
+      {
+       "d": 317,
+       "at": 58572,
+       "ctx": "t4-resolve",
+       "turn": 4,
+       "ph": "reveal"
+      },
+      {
+       "d": 533,
+       "at": 59106,
+       "ctx": "t4-resolve",
+       "turn": 4,
+       "ph": "reveal"
+      },
+      {
+       "d": 367,
+       "at": 59472,
+       "ctx": "t4-resolve",
+       "turn": 4,
+       "ph": "reveal"
+      },
+      {
+       "d": 183,
+       "at": 59656,
+       "ctx": "t4-resolve",
+       "turn": 4,
+       "ph": "reveal"
+      },
+      {
+       "d": 467,
+       "at": 60122,
+       "ctx": "t4-resolve",
+       "turn": 4,
+       "ph": "reveal"
+      },
+      {
+       "d": 217,
+       "at": 60339,
+       "ctx": "t4-resolve",
+       "turn": 4,
+       "ph": "reveal"
+      },
+      {
+       "d": 83,
+       "at": 60455,
+       "ctx": "t4-resolve",
+       "turn": 4,
+       "ph": "reveal"
+      },
+      {
+       "d": 233,
+       "at": 60689,
+       "ctx": "t4-resolve",
+       "turn": 4,
+       "ph": "reveal"
+      },
+      {
+       "d": 200,
+       "at": 60889,
+       "ctx": "t4-resolve",
+       "turn": 4,
+       "ph": "reveal"
+      },
+      {
+       "d": 617,
+       "at": 61505,
+       "ctx": "t4-resolve",
+       "turn": 4,
+       "ph": "reveal"
+      },
+      {
+       "d": 300,
+       "at": 61805,
+       "ctx": "t4-resolve",
+       "turn": 4,
+       "ph": "reveal"
+      },
+      {
+       "d": 333,
+       "at": 62139,
+       "ctx": "t4-resolve",
+       "turn": 4,
+       "ph": "reveal"
+      },
+      {
+       "d": 317,
+       "at": 62455,
+       "ctx": "t4-resolve",
+       "turn": 4,
+       "ph": "reveal"
+      },
+      {
+       "d": 83,
+       "at": 62539,
+       "ctx": "t4-resolve",
+       "turn": 4,
+       "ph": "reveal"
+      },
+      {
+       "d": 133,
+       "at": 62672,
+       "ctx": "t4-resolve",
+       "turn": 4,
+       "ph": "reveal"
+      },
+      {
+       "d": 167,
+       "at": 62839,
+       "ctx": "t4-resolve",
+       "turn": 4,
+       "ph": "reveal"
+      },
+      {
+       "d": 683,
+       "at": 63522,
+       "ctx": "t4-resolve",
+       "turn": 4,
+       "ph": "reveal"
+      },
+      {
+       "d": 433,
+       "at": 63955,
+       "ctx": "t4-resolve",
+       "turn": 4,
+       "ph": "reveal"
+      },
+      {
+       "d": 183,
+       "at": 64139,
+       "ctx": "t4-resolve",
+       "turn": 4,
+       "ph": "reveal"
+      },
+      {
+       "d": 267,
+       "at": 64405,
+       "ctx": "t4-resolve",
+       "turn": 5,
+       "ph": "play"
+      }
+     ]
+    },
+    {
+     "turn": 5,
+     "energy": 5,
+     "hand": 4,
+     "nodes": 1162,
+     "rvl": "truetruetrue",
+     "played": [
+      {
+       "uid": 6,
+       "li": 2,
+       "ok": true
+      }
+     ],
+     "resolveMs": 12820,
+     "ff": false,
+     "long": [
+      {
+       "d": 317,
+       "at": 77205,
+       "ctx": "t5-resolve",
+       "turn": 5,
+       "ph": "play"
+      },
+      {
+       "d": 200,
+       "at": 77405,
+       "ctx": "t5-resolve",
+       "turn": 5,
+       "ph": "play"
+      },
+      {
+       "d": 83,
+       "at": 77488,
+       "ctx": "t5-resolve",
+       "turn": 5,
+       "ph": "play"
+      },
+      {
+       "d": 67,
+       "at": 77555,
+       "ctx": "t5-resolve",
+       "turn": 5,
+       "ph": "play"
+      },
+      {
+       "d": 100,
+       "at": 77655,
+       "ctx": "t5-resolve",
+       "turn": 5,
+       "ph": "play"
+      },
+      {
+       "d": 83,
+       "at": 77738,
+       "ctx": "t5-resolve",
+       "turn": 5,
+       "ph": "reveal"
+      },
+      {
+       "d": 1433,
+       "at": 79171,
+       "ctx": "t5-resolve",
+       "turn": 5,
+       "ph": "reveal"
+      },
+      {
+       "d": 117,
+       "at": 79288,
+       "ctx": "t5-resolve",
+       "turn": 5,
+       "ph": "reveal"
+      },
+      {
+       "d": 167,
+       "at": 79455,
+       "ctx": "t5-resolve",
+       "turn": 5,
+       "ph": "reveal"
+      },
+      {
+       "d": 500,
+       "at": 79955,
+       "ctx": "t5-resolve",
+       "turn": 5,
+       "ph": "reveal"
+      },
+      {
+       "d": 150,
+       "at": 80105,
+       "ctx": "t5-resolve",
+       "turn": 5,
+       "ph": "reveal"
+      },
+      {
+       "d": 633,
+       "at": 80738,
+       "ctx": "t5-resolve",
+       "turn": 5,
+       "ph": "reveal"
+      },
+      {
+       "d": 383,
+       "at": 81121,
+       "ctx": "t5-resolve",
+       "turn": 5,
+       "ph": "reveal"
+      },
+      {
+       "d": 217,
+       "at": 81338,
+       "ctx": "t5-resolve",
+       "turn": 5,
+       "ph": "reveal"
+      },
+      {
+       "d": 250,
+       "at": 81588,
+       "ctx": "t5-resolve",
+       "turn": 5,
+       "ph": "reveal"
+      },
+      {
+       "d": 400,
+       "at": 81988,
+       "ctx": "t5-resolve",
+       "turn": 5,
+       "ph": "reveal"
+      },
+      {
+       "d": 1283,
+       "at": 83271,
+       "ctx": "t5-resolve",
+       "turn": 5,
+       "ph": "reveal"
+      },
+      {
+       "d": 1017,
+       "at": 84288,
+       "ctx": "t5-resolve",
+       "turn": 5,
+       "ph": "reveal"
+      },
+      {
+       "d": 1733,
+       "at": 86021,
+       "ctx": "t5-resolve",
+       "turn": 5,
+       "ph": "reveal"
+      },
+      {
+       "d": 483,
+       "at": 86504,
+       "ctx": "t5-resolve",
+       "turn": 5,
+       "ph": "reveal"
+      },
+      {
+       "d": 233,
+       "at": 86738,
+       "ctx": "t5-resolve",
+       "turn": 5,
+       "ph": "reveal"
+      },
+      {
+       "d": 267,
+       "at": 87004,
+       "ctx": "t5-resolve",
+       "turn": 5,
+       "ph": "reveal"
+      },
+      {
+       "d": 150,
+       "at": 87154,
+       "ctx": "t5-resolve",
+       "turn": 5,
+       "ph": "reveal"
+      },
+      {
+       "d": 367,
+       "at": 87521,
+       "ctx": "t5-resolve",
+       "turn": 5,
+       "ph": "reveal"
+      },
+      {
+       "d": 567,
+       "at": 88088,
+       "ctx": "t5-resolve",
+       "turn": 5,
+       "ph": "reveal"
+      },
+      {
+       "d": 900,
+       "at": 88988,
+       "ctx": "t5-resolve",
+       "turn": 6,
+       "ph": "play"
+      }
+     ]
+    },
+    {
+     "turn": 6,
+     "energy": 6,
+     "hand": 4,
+     "nodes": 1166,
+     "rvl": "truetruetrue",
+     "played": [
+      {
+       "uid": 10,
+       "li": 0,
+       "ok": true
+      }
+     ],
+     "resolveMs": 9815,
+     "ff": false,
+     "long": [
+      {
+       "d": 300,
+       "at": 95571,
+       "ctx": "t6-resolve",
+       "turn": 6,
+       "ph": "play"
+      },
+      {
+       "d": 83,
+       "at": 95654,
+       "ctx": "t6-resolve",
+       "turn": 6,
+       "ph": "play"
+      },
+      {
+       "d": 117,
+       "at": 95771,
+       "ctx": "t6-resolve",
+       "turn": 6,
+       "ph": "play"
+      },
+      {
+       "d": 117,
+       "at": 95887,
+       "ctx": "t6-resolve",
+       "turn": 6,
+       "ph": "play"
+      },
+      {
+       "d": 200,
+       "at": 96087,
+       "ctx": "t6-resolve",
+       "turn": 6,
+       "ph": "reveal"
+      },
+      {
+       "d": 3167,
+       "at": 99254,
+       "ctx": "t6-resolve",
+       "turn": 6,
+       "ph": "reveal"
+      },
+      {
+       "d": 750,
+       "at": 100004,
+       "ctx": "t6-resolve",
+       "turn": 6,
+       "ph": "reveal"
+      },
+      {
+       "d": 150,
+       "at": 100154,
+       "ctx": "t6-resolve",
+       "turn": 6,
+       "ph": "reveal"
+      },
+      {
+       "d": 283,
+       "at": 100437,
+       "ctx": "t6-resolve",
+       "turn": 6,
+       "ph": "reveal"
+      },
+      {
+       "d": 200,
+       "at": 100637,
+       "ctx": "t6-resolve",
+       "turn": 6,
+       "ph": "reveal"
+      },
+      {
+       "d": 967,
+       "at": 101604,
+       "ctx": "t6-resolve",
+       "turn": 6,
+       "ph": "reveal"
+      },
+      {
+       "d": 317,
+       "at": 101920,
+       "ctx": "t6-resolve",
+       "turn": 6,
+       "ph": "reveal"
+      },
+      {
+       "d": 267,
+       "at": 102187,
+       "ctx": "t6-resolve",
+       "turn": 6,
+       "ph": "reveal"
+      },
+      {
+       "d": 433,
+       "at": 102620,
+       "ctx": "t6-resolve",
+       "turn": 6,
+       "ph": "reveal"
+      },
+      {
+       "d": 600,
+       "at": 103220,
+       "ctx": "t6-resolve",
+       "turn": 6,
+       "ph": "reveal"
+      },
+      {
+       "d": 350,
+       "at": 103570,
+       "ctx": "t6-resolve",
+       "turn": 6,
+       "ph": "reveal"
+      },
+      {
+       "d": 567,
+       "at": 104137,
+       "ctx": "t6-resolve",
+       "turn": 6,
+       "ph": "reveal"
+      },
+      {
+       "d": 67,
+       "at": 104204,
+       "ctx": "t6-resolve",
+       "turn": 6,
+       "ph": "reveal"
+      },
+      {
+       "d": 200,
+       "at": 104404,
+       "ctx": "t6-resolve",
+       "turn": 6,
+       "ph": "reveal"
+      },
+      {
+       "d": 117,
+       "at": 104520,
+       "ctx": "t6-resolve",
+       "turn": 6,
+       "ph": "reveal"
+      },
+      {
+       "d": 583,
+       "at": 105104,
+       "ctx": "t6-resolve",
+       "turn": 6,
+       "ph": "over"
+      }
+     ]
+    }
+   ],
+   "issues": [],
+   "layout": [
+    {
+     "turn": 3,
+     "k": "offscreen",
+     "el": "#orb.orb「3」",
+     "r": [
+      128,
+      767,
+      210,
+      849
+     ]
+    },
+    {
+     "turn": 3,
+     "k": "overlap",
+     "a": "#btnRetreat.bn.left「RÚT LUI」",
+     "b": "#orb.orb「3」",
+     "ox": 7,
+     "oy": 50
+    },
+    {
+     "turn": 5,
+     "k": "tiny-font",
+     "n": 1,
+     "ex": "「+4」 8.5px"
+    }
+   ],
+   "shots": [
+    "/home/claude/wt/qa55/tests/artifacts/qa55/m1_g0_01_intro.png",
+    "/home/claude/wt/qa55/tests/artifacts/qa55/m1_g0_t1_a_start.png",
+    "/home/claude/wt/qa55/tests/artifacts/qa55/m1_g0_t1_c_mid.png",
+    "/home/claude/wt/qa55/tests/artifacts/qa55/m1_g0_t1_d_locreveal.png",
+    "/home/claude/wt/qa55/tests/artifacts/qa55/m1_g0_t2_a_start.png",
+    "/home/claude/wt/qa55/tests/artifacts/qa55/m1_g0_t2_b_staged.png",
+    "/home/claude/wt/qa55/tests/artifacts/qa55/m1_g0_t2_c_mid.png",
+    "/home/claude/wt/qa55/tests/artifacts/qa55/m1_g0_t2_d_locreveal.png",
+    "/home/claude/wt/qa55/tests/artifacts/qa55/m1_g0_t3_a_start.png",
+    "/home/claude/wt/qa55/tests/artifacts/qa55/m1_g0_t3_b_staged.png",
+    "/home/claude/wt/qa55/tests/artifacts/qa55/m1_g0_t3_c_mid.png",
+    "/home/claude/wt/qa55/tests/artifacts/qa55/m1_g0_t4_a_start.png",
+    "/home/claude/wt/qa55/tests/artifacts/qa55/m1_g0_t4_b_staged.png",
+    "/home/claude/wt/qa55/tests/artifacts/qa55/m1_g0_t4_c_mid.png",
+    "/home/claude/wt/qa55/tests/artifacts/qa55/m1_g0_t5_a_start.png",
+    "/home/claude/wt/qa55/tests/artifacts/qa55/m1_g0_t5_b_staged.png",
+    "/home/claude/wt/qa55/tests/artifacts/qa55/m1_g0_t5_c_mid.png",
+    "/home/claude/wt/qa55/tests/artifacts/qa55/m1_g0_t6_a_start.png",
+    "/home/claude/wt/qa55/tests/artifacts/qa55/m1_g0_t6_b_staged.png",
+    "/home/claude/wt/qa55/tests/artifacts/qa55/m1_g0_t6_c_mid.png",
+    "/home/claude/wt/qa55/tests/artifacts/qa55/m1_g0_e1_endseq.png",
+    "/home/claude/wt/qa55/tests/artifacts/qa55/m1_g0_e2_result.png",
+    "/home/claude/wt/qa55/tests/artifacts/qa55/m1_g0_f_lobby.png"
+   ],
+   "result": {
+    "winner": "a",
+    "kind": "end",
+    "stake": 4,
+    "turn": 6,
+    "title": "THẤT BẠI",
+    "score": "1 Bạn – 2 Máy",
+    "rows": "Hang Tối 11–2 Đỉnh Phan Xi Păng 7–13 Miệng Núi Lửa 3–10",
+    "gem": "−4 +25 +10 +25 XP",
+    "lanes": [
+     [
+      11,
+      2,
+      "p"
+     ],
+     [
+      7,
+      13,
+      "a"
+     ],
+     [
+      3,
+      10,
+      "a"
+     ]
+    ],
+    "again": "Ván mới"
+   },
+   "enterMs": 508,
+   "introMs": 1621,
+   "endSeqMs": 2664,
+   "sawSeq": true,
+   "endLayout": [],
+   "lobbyAfter": {
+    "nodes": 1204,
+    "body": 60,
+    "heap": 22.9,
+    "lobby": true,
+    "stray": 0
+   }
+  }
+ ],
+ "perf": {
+  "frames": 896,
+  "fps": 8,
+  "p95": 483.3,
+  "p99": 1733.3,
+  "over50": 317,
+  "over100": 216,
+  "max": 3167,
+  "longByCtx": {
+   "boot": {
+    "n": 21,
+    "max": 433
+   },
+   "lobby": {
+    "n": 3,
+    "max": 267
+   },
+   "matchmaking": {
+    "n": 3,
+    "max": 300
+   },
+   "intro": {
+    "n": 5,
+    "max": 317
+   },
+   "t*-input": {
+    "n": 115,
+    "max": 2717
+   },
+   "t*-resolve": {
+    "n": 129,
+    "max": 3167
+   },
+   "endseq": {
+    "n": 32,
+    "max": 400
+   },
+   "toLobby": {
+    "n": 18,
+    "max": 467
+   }
+  },
+  "worst": [
+   {
+    "d": 3167,
+    "at": 99254,
+    "ctx": "t6-resolve",
+    "turn": 6,
+    "ph": "reveal"
+   },
+   {
+    "d": 2717,
+    "at": 53806,
+    "ctx": "t4-input",
+    "turn": 4,
+    "ph": "play"
+   },
+   {
+    "d": 2617,
+    "at": 76172,
+    "ctx": "t5-input",
+    "turn": 5,
+    "ph": "play"
+   },
+   {
+    "d": 2450,
+    "at": 38256,
+    "ctx": "t3-resolve",
+    "turn": 3,
+    "ph": "reveal"
+   },
+   {
+    "d": 2117,
+    "at": 57239,
+    "ctx": "t4-resolve",
+    "turn": 4,
+    "ph": "reveal"
+   },
+   {
+    "d": 1983,
+    "at": 47323,
+    "ctx": "t4-input",
+    "turn": 4,
+    "ph": "play"
+   },
+   {
+    "d": 1933,
+    "at": 66339,
+    "ctx": "t5-input",
+    "turn": 5,
+    "ph": "play"
+   },
+   {
+    "d": 1733,
+    "at": 50356,
+    "ctx": "t4-input",
+    "turn": 4,
+    "ph": "play"
+   },
+   {
+    "d": 1733,
+    "at": 86021,
+    "ctx": "t5-resolve",
+    "turn": 5,
+    "ph": "reveal"
+   },
+   {
+    "d": 1433,
+    "at": 79171,
+    "ctx": "t5-resolve",
+    "turn": 5,
+    "ph": "reveal"
+   }
+  ]
+ },
+ "sound": {
+  "total": 104,
+  "dup": 1,
+  "dupEx": [
+   "x_giam@t6-resolve Δ15ms"
+  ],
+  "top": [
+   [
+    "place",
+    13
+   ],
+   [
+    "f_xform",
+    10
+   ],
+   [
+    "x_giam",
+    7
+   ],
+   [
+    "pick",
+    6
+   ],
+   [
+    "x_tang",
+    6
+   ],
+   [
+    "turn",
+    5
+   ],
+   [
+    "e_sang",
+    5
+   ],
+   [
+    "e_cokhi",
+    5
+   ],
+   [
+    "rv_soft",
+    4
+   ],
+   [
+    "e_toi",
+    4
+   ],
+   [
+    "loc",
+    3
+   ],
+   [
+    "rv_b",
+    3
+   ],
+   [
+    "ra_mini",
+    3
+   ],
+   [
+    "rv_c",
+    3
+   ],
+   [
+    "e_moc",
+    3
+   ],
+   [
+    "gavel",
+    3
+   ],
+   [
+    "x_trieu",
+    2
+   ],
+   [
+    "rv_a",
+    2
+   ],
+   [
+    "e_dat",
+    2
+   ],
+   [
+    "ra_minib",
+    2
+   ]
+  ],
+  "endSfx": [
+   [
+    "win",
+    0
+   ],
+   [
+    "lose",
+    1
+   ],
+   [
+    "draw_game",
+    0
+   ]
+  ]
+ },
+ "errors": []
+}

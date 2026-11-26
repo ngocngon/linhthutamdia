@@ -1,0 +1,1875 @@
+{
+ "tag": "pc",
+ "W": 1280,
+ "H": 800,
+ "spd": {
+  "spd": 1,
+  "k": "nhanh",
+  "levels": "{\"cham\":1.6,\"vua\":1.3,\"nhanh\":1,\"ratcham\":2,\"dienanh\":2.5}"
+ },
+ "games": [
+  {
+   "gi": 0,
+   "strat": "ui",
+   "turns": [
+    {
+     "turn": 1,
+     "energy": 1,
+     "hand": 4,
+     "nodes": 1046,
+     "rvl": "truefalsefalse",
+     "played": [
+      {
+       "uid": 12,
+       "li": 1,
+       "ok": true
+      }
+     ],
+     "resolveMs": 10050,
+     "ff": false,
+     "long": [
+      {
+       "d": 383,
+       "at": 27602,
+       "ctx": "t1-resolve",
+       "turn": 1,
+       "ph": "play"
+      },
+      {
+       "d": 150,
+       "at": 27752,
+       "ctx": "t1-resolve",
+       "turn": 1,
+       "ph": "play"
+      },
+      {
+       "d": 167,
+       "at": 27918,
+       "ctx": "t1-resolve",
+       "turn": 1,
+       "ph": "reveal"
+      },
+      {
+       "d": 1783,
+       "at": 29702,
+       "ctx": "t1-resolve",
+       "turn": 1,
+       "ph": "reveal"
+      },
+      {
+       "d": 367,
+       "at": 30068,
+       "ctx": "t1-resolve",
+       "turn": 1,
+       "ph": "reveal"
+      },
+      {
+       "d": 317,
+       "at": 30385,
+       "ctx": "t1-resolve",
+       "turn": 1,
+       "ph": "reveal"
+      },
+      {
+       "d": 183,
+       "at": 30568,
+       "ctx": "t1-resolve",
+       "turn": 1,
+       "ph": "reveal"
+      },
+      {
+       "d": 800,
+       "at": 31368,
+       "ctx": "t1-resolve",
+       "turn": 1,
+       "ph": "reveal"
+      },
+      {
+       "d": 667,
+       "at": 32035,
+       "ctx": "t1-resolve",
+       "turn": 1,
+       "ph": "reveal"
+      },
+      {
+       "d": 717,
+       "at": 32752,
+       "ctx": "t1-resolve",
+       "turn": 1,
+       "ph": "reveal"
+      },
+      {
+       "d": 150,
+       "at": 32902,
+       "ctx": "t1-resolve",
+       "turn": 1,
+       "ph": "reveal"
+      },
+      {
+       "d": 483,
+       "at": 33385,
+       "ctx": "t1-resolve",
+       "turn": 1,
+       "ph": "reveal"
+      },
+      {
+       "d": 417,
+       "at": 33802,
+       "ctx": "t1-resolve",
+       "turn": 1,
+       "ph": "reveal"
+      },
+      {
+       "d": 83,
+       "at": 33885,
+       "ctx": "t1-resolve",
+       "turn": 2,
+       "ph": "play"
+      },
+      {
+       "d": 1167,
+       "at": 35052,
+       "ctx": "t1-resolve",
+       "turn": 2,
+       "ph": "play"
+      },
+      {
+       "d": 550,
+       "at": 35601,
+       "ctx": "t1-resolve",
+       "turn": 2,
+       "ph": "play"
+      },
+      {
+       "d": 550,
+       "at": 36151,
+       "ctx": "t1-resolve",
+       "turn": 2,
+       "ph": "play"
+      },
+      {
+       "d": 1117,
+       "at": 37268,
+       "ctx": "t1-resolve",
+       "turn": 2,
+       "ph": "play"
+      }
+     ]
+    },
+    {
+     "turn": 2,
+     "energy": 2,
+     "hand": 5,
+     "nodes": 1095,
+     "rvl": "truetruefalse",
+     "played": [],
+     "resolveMs": 13299,
+     "ff": false,
+     "long": [
+      {
+       "d": 2400,
+       "at": 47001,
+       "ctx": "t2-resolve",
+       "turn": 2,
+       "ph": "play"
+      },
+      {
+       "d": 617,
+       "at": 47618,
+       "ctx": "t2-resolve",
+       "turn": 2,
+       "ph": "play"
+      },
+      {
+       "d": 400,
+       "at": 48018,
+       "ctx": "t2-resolve",
+       "turn": 2,
+       "ph": "play"
+      },
+      {
+       "d": 800,
+       "at": 48818,
+       "ctx": "t2-resolve",
+       "turn": 2,
+       "ph": "reveal"
+      },
+      {
+       "d": 3067,
+       "at": 51884,
+       "ctx": "t2-resolve",
+       "turn": 2,
+       "ph": "reveal"
+      },
+      {
+       "d": 1433,
+       "at": 53317,
+       "ctx": "t2-resolve",
+       "turn": 2,
+       "ph": "reveal"
+      },
+      {
+       "d": 500,
+       "at": 53817,
+       "ctx": "t2-resolve",
+       "turn": 2,
+       "ph": "reveal"
+      },
+      {
+       "d": 1317,
+       "at": 55134,
+       "ctx": "t2-resolve",
+       "turn": 2,
+       "ph": "reveal"
+      },
+      {
+       "d": 500,
+       "at": 55634,
+       "ctx": "t2-resolve",
+       "turn": 3,
+       "ph": "play"
+      },
+      {
+       "d": 1550,
+       "at": 57184,
+       "ctx": "t2-resolve",
+       "turn": 3,
+       "ph": "play"
+      },
+      {
+       "d": 850,
+       "at": 58034,
+       "ctx": "t2-resolve",
+       "turn": 3,
+       "ph": "play"
+      },
+      {
+       "d": 617,
+       "at": 58651,
+       "ctx": "t2-resolve",
+       "turn": 3,
+       "ph": "play"
+      },
+      {
+       "d": 250,
+       "at": 58900,
+       "ctx": "t2-resolve",
+       "turn": 3,
+       "ph": "play"
+      },
+      {
+       "d": 717,
+       "at": 59617,
+       "ctx": "t2-resolve",
+       "turn": 3,
+       "ph": "play"
+      }
+     ]
+    },
+    {
+     "turn": 3,
+     "energy": 3,
+     "hand": 6,
+     "nodes": 1147,
+     "rvl": "truetruetrue",
+     "played": [],
+     "resolveMs": 12060,
+     "ff": false,
+     "long": [
+      {
+       "d": 2317,
+       "at": 67650,
+       "ctx": "t3-resolve",
+       "turn": 3,
+       "ph": "play"
+      },
+      {
+       "d": 733,
+       "at": 68383,
+       "ctx": "t3-resolve",
+       "turn": 3,
+       "ph": "play"
+      },
+      {
+       "d": 483,
+       "at": 68867,
+       "ctx": "t3-resolve",
+       "turn": 3,
+       "ph": "reveal"
+      },
+      {
+       "d": 4250,
+       "at": 73117,
+       "ctx": "t3-resolve",
+       "turn": 3,
+       "ph": "reveal"
+      },
+      {
+       "d": 633,
+       "at": 73750,
+       "ctx": "t3-resolve",
+       "turn": 3,
+       "ph": "reveal"
+      },
+      {
+       "d": 900,
+       "at": 74650,
+       "ctx": "t3-resolve",
+       "turn": 3,
+       "ph": "reveal"
+      },
+      {
+       "d": 1750,
+       "at": 76400,
+       "ctx": "t3-resolve",
+       "turn": 3,
+       "ph": "reveal"
+      },
+      {
+       "d": 333,
+       "at": 76733,
+       "ctx": "t3-resolve",
+       "turn": 3,
+       "ph": "reveal"
+      }
+     ]
+    },
+    {
+     "turn": 4,
+     "energy": 4,
+     "hand": 7,
+     "nodes": 1160,
+     "rvl": "truetruetrue",
+     "played": [
+      {
+       "uid": 9,
+       "li": 1,
+       "ok": true
+      }
+     ],
+     "resolveMs": 10469,
+     "ff": false,
+     "long": [
+      {
+       "d": 1117,
+       "at": 92149,
+       "ctx": "t4-resolve",
+       "turn": 4,
+       "ph": "play"
+      },
+      {
+       "d": 600,
+       "at": 92749,
+       "ctx": "t4-resolve",
+       "turn": 4,
+       "ph": "play"
+      },
+      {
+       "d": 383,
+       "at": 93132,
+       "ctx": "t4-resolve",
+       "turn": 4,
+       "ph": "play"
+      },
+      {
+       "d": 683,
+       "at": 93816,
+       "ctx": "t4-resolve",
+       "turn": 4,
+       "ph": "reveal"
+      },
+      {
+       "d": 1817,
+       "at": 95632,
+       "ctx": "t4-resolve",
+       "turn": 4,
+       "ph": "reveal"
+      },
+      {
+       "d": 183,
+       "at": 95816,
+       "ctx": "t4-resolve",
+       "turn": 4,
+       "ph": "reveal"
+      },
+      {
+       "d": 400,
+       "at": 96216,
+       "ctx": "t4-resolve",
+       "turn": 4,
+       "ph": "reveal"
+      },
+      {
+       "d": 533,
+       "at": 96749,
+       "ctx": "t4-resolve",
+       "turn": 4,
+       "ph": "reveal"
+      },
+      {
+       "d": 233,
+       "at": 96982,
+       "ctx": "t4-resolve",
+       "turn": 4,
+       "ph": "reveal"
+      },
+      {
+       "d": 217,
+       "at": 97199,
+       "ctx": "t4-resolve",
+       "turn": 4,
+       "ph": "reveal"
+      },
+      {
+       "d": 800,
+       "at": 97999,
+       "ctx": "t4-resolve",
+       "turn": 4,
+       "ph": "reveal"
+      },
+      {
+       "d": 367,
+       "at": 98366,
+       "ctx": "t4-resolve",
+       "turn": 4,
+       "ph": "reveal"
+      },
+      {
+       "d": 917,
+       "at": 99282,
+       "ctx": "t4-resolve",
+       "turn": 4,
+       "ph": "reveal"
+      },
+      {
+       "d": 1217,
+       "at": 100499,
+       "ctx": "t4-resolve",
+       "turn": 4,
+       "ph": "reveal"
+      },
+      {
+       "d": 467,
+       "at": 100966,
+       "ctx": "t4-resolve",
+       "turn": 4,
+       "ph": "reveal"
+      },
+      {
+       "d": 817,
+       "at": 101782,
+       "ctx": "t4-resolve",
+       "turn": 5,
+       "ph": "play"
+      }
+     ]
+    },
+    {
+     "turn": 5,
+     "energy": 5,
+     "hand": 7,
+     "nodes": 1187,
+     "rvl": "truetruetrue",
+     "played": [
+      {
+       "uid": 7,
+       "li": 2,
+       "ok": true
+      }
+     ],
+     "resolveMs": 15114,
+     "ff": false,
+     "long": [
+      {
+       "d": 583,
+       "at": 111215,
+       "ctx": "t5-resolve",
+       "turn": 5,
+       "ph": "play"
+      },
+      {
+       "d": 583,
+       "at": 111798,
+       "ctx": "t5-resolve",
+       "turn": 5,
+       "ph": "play"
+      },
+      {
+       "d": 917,
+       "at": 112715,
+       "ctx": "t5-resolve",
+       "turn": 5,
+       "ph": "play"
+      },
+      {
+       "d": 800,
+       "at": 113515,
+       "ctx": "t5-resolve",
+       "turn": 5,
+       "ph": "reveal"
+      },
+      {
+       "d": 5666,
+       "at": 119181,
+       "ctx": "t5-resolve",
+       "turn": 5,
+       "ph": "reveal"
+      },
+      {
+       "d": 3117,
+       "at": 122298,
+       "ctx": "t5-resolve",
+       "turn": 5,
+       "ph": "reveal"
+      },
+      {
+       "d": 1283,
+       "at": 123581,
+       "ctx": "t5-resolve",
+       "turn": 5,
+       "ph": "reveal"
+      }
+     ]
+    },
+    {
+     "turn": 6,
+     "energy": 6,
+     "hand": 7,
+     "nodes": 1204,
+     "rvl": "truetruetrue",
+     "played": [],
+     "resolveMs": 19389,
+     "ff": false,
+     "long": [
+      {
+       "d": 567,
+       "at": 136647,
+       "ctx": "t6-resolve",
+       "turn": 6,
+       "ph": "play"
+      },
+      {
+       "d": 983,
+       "at": 137631,
+       "ctx": "t6-resolve",
+       "turn": 6,
+       "ph": "play"
+      },
+      {
+       "d": 1817,
+       "at": 139447,
+       "ctx": "t6-resolve",
+       "turn": 6,
+       "ph": "play"
+      },
+      {
+       "d": 1383,
+       "at": 140831,
+       "ctx": "t6-resolve",
+       "turn": 6,
+       "ph": "play"
+      },
+      {
+       "d": 1217,
+       "at": 142047,
+       "ctx": "t6-resolve",
+       "turn": 6,
+       "ph": "reveal"
+      },
+      {
+       "d": 5566,
+       "at": 147614,
+       "ctx": "t6-resolve",
+       "turn": 6,
+       "ph": "reveal"
+      },
+      {
+       "d": 900,
+       "at": 148514,
+       "ctx": "t6-resolve",
+       "turn": 6,
+       "ph": "reveal"
+      },
+      {
+       "d": 1767,
+       "at": 150280,
+       "ctx": "t6-resolve",
+       "turn": 6,
+       "ph": "reveal"
+      },
+      {
+       "d": 1967,
+       "at": 152247,
+       "ctx": "t6-resolve",
+       "turn": 6,
+       "ph": "over"
+      }
+     ]
+    }
+   ],
+   "issues": [
+    "t2: không chạm được thẻ trên tay 5: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#hand [data",
+    "t3: không chạm được thẻ trên tay 11: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#hand [data",
+    "không bấm được Kết thúc lượt: locator.click: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#",
+    "không bấm được Kết thúc lượt: locator.click: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#",
+    "t6: không chạm được thẻ trên tay 8: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#hand [data",
+    "không bấm được Kết thúc lượt: locator.click: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#"
+   ],
+   "layout": [
+    {
+     "turn": 4,
+     "k": "offscreen",
+     "el": "#orb.orb「4」",
+     "r": [
+      564,
+      723,
+      647,
+      805
+     ]
+    },
+    {
+     "turn": 4,
+     "k": "overlap",
+     "a": "#btnRetreat.bn.left「RÚT LUI」",
+     "b": "#orb.orb「4」",
+     "ox": 7,
+     "oy": 50
+    },
+    {
+     "turn": 5,
+     "k": "offscreen",
+     "el": "#orb.orb「5」",
+     "r": [
+      564,
+      723,
+      647,
+      805
+     ]
+    },
+    {
+     "turn": 5,
+     "k": "overlap",
+     "a": "#btnRetreat.bn.left「RÚT LUI」",
+     "b": "#orb.orb「5」",
+     "ox": 7,
+     "oy": 50
+    }
+   ],
+   "shots": [
+    "/home/claude/wt/qa55/tests/artifacts/qa55/pc_g0_01_intro.png",
+    "/home/claude/wt/qa55/tests/artifacts/qa55/pc_g0_t1_a_start.png",
+    "/home/claude/wt/qa55/tests/artifacts/qa55/pc_g0_t1_b_staged.png",
+    "/home/claude/wt/qa55/tests/artifacts/qa55/pc_g0_t1_c_mid.png",
+    "/home/claude/wt/qa55/tests/artifacts/qa55/pc_g0_t1_d_locreveal.png",
+    "/home/claude/wt/qa55/tests/artifacts/qa55/pc_g0_t2_a_start.png",
+    "/home/claude/wt/qa55/tests/artifacts/qa55/pc_g0_t2_c_mid.png",
+    "/home/claude/wt/qa55/tests/artifacts/qa55/pc_g0_t2_d_locreveal.png",
+    "/home/claude/wt/qa55/tests/artifacts/qa55/pc_g0_t3_a_start.png",
+    "/home/claude/wt/qa55/tests/artifacts/qa55/pc_g0_t3_c_mid.png",
+    "/home/claude/wt/qa55/tests/artifacts/qa55/pc_g0_t4_a_start.png",
+    "/home/claude/wt/qa55/tests/artifacts/qa55/pc_g0_t4_b_staged.png",
+    "/home/claude/wt/qa55/tests/artifacts/qa55/pc_g0_t4_c_mid.png",
+    "/home/claude/wt/qa55/tests/artifacts/qa55/pc_g0_t5_a_start.png",
+    "/home/claude/wt/qa55/tests/artifacts/qa55/pc_g0_t5_b_staged.png",
+    "/home/claude/wt/qa55/tests/artifacts/qa55/pc_g0_t5_c_mid.png",
+    "/home/claude/wt/qa55/tests/artifacts/qa55/pc_g0_t6_a_start.png",
+    "/home/claude/wt/qa55/tests/artifacts/qa55/pc_g0_t6_c_mid.png",
+    "/home/claude/wt/qa55/tests/artifacts/qa55/pc_g0_e1_endseq.png",
+    "/home/claude/wt/qa55/tests/artifacts/qa55/pc_g0_e2_result.png",
+    "/home/claude/wt/qa55/tests/artifacts/qa55/pc_g0_f_lobby.png"
+   ],
+   "result": {
+    "winner": "a",
+    "kind": "end",
+    "stake": 4,
+    "turn": 6,
+    "title": "THẤT BẠI",
+    "score": "0 Bạn – 3 Máy",
+    "rows": "Đồng Rơm 0–7 Hồ Tây 12–26 Ải Chi Lăng 12–19",
+    "gem": "−4 +25 +10 +25 XP",
+    "lanes": [
+     [
+      0,
+      7,
+      "a"
+     ],
+     [
+      12,
+      26,
+      "a"
+     ],
+     [
+      12,
+      19,
+      "a"
+     ]
+    ],
+    "again": "Ván mới"
+   },
+   "enterMs": 94,
+   "introMs": 1972,
+   "endSeqMs": 5451,
+   "sawSeq": true,
+   "endLayout": [],
+   "lobbyAfter": {
+    "nodes": 1252,
+    "body": 60,
+    "heap": 37.2,
+    "lobby": true,
+    "stray": 0
+   }
+  },
+  {
+   "gi": 1,
+   "strat": "retreat",
+   "turns": [
+    {
+     "turn": 1,
+     "energy": 1,
+     "hand": 4,
+     "nodes": 1101,
+     "rvl": "truefalsefalse",
+     "played": [],
+     "resolveMs": 4233,
+     "ff": false,
+     "long": [
+      {
+       "d": 350,
+       "at": 184546,
+       "ctx": "t1-resolve",
+       "turn": 1,
+       "ph": "play"
+      },
+      {
+       "d": 67,
+       "at": 184612,
+       "ctx": "t1-resolve",
+       "turn": 1,
+       "ph": "play"
+      },
+      {
+       "d": 117,
+       "at": 184729,
+       "ctx": "t1-resolve",
+       "turn": 1,
+       "ph": "play"
+      },
+      {
+       "d": 83,
+       "at": 184812,
+       "ctx": "t1-resolve",
+       "turn": 1,
+       "ph": "reveal"
+      },
+      {
+       "d": 233,
+       "at": 185045,
+       "ctx": "t1-resolve",
+       "turn": 1,
+       "ph": "reveal"
+      },
+      {
+       "d": 83,
+       "at": 185129,
+       "ctx": "t1-resolve",
+       "turn": 1,
+       "ph": "reveal"
+      },
+      {
+       "d": 100,
+       "at": 185229,
+       "ctx": "t1-resolve",
+       "turn": 1,
+       "ph": "reveal"
+      },
+      {
+       "d": 267,
+       "at": 185496,
+       "ctx": "t1-resolve",
+       "turn": 1,
+       "ph": "reveal"
+      },
+      {
+       "d": 133,
+       "at": 185629,
+       "ctx": "t1-resolve",
+       "turn": 1,
+       "ph": "reveal"
+      },
+      {
+       "d": 83,
+       "at": 185712,
+       "ctx": "t1-resolve",
+       "turn": 1,
+       "ph": "reveal"
+      },
+      {
+       "d": 200,
+       "at": 185912,
+       "ctx": "t1-resolve",
+       "turn": 1,
+       "ph": "reveal"
+      },
+      {
+       "d": 233,
+       "at": 186145,
+       "ctx": "t1-resolve",
+       "turn": 1,
+       "ph": "reveal"
+      },
+      {
+       "d": 533,
+       "at": 186679,
+       "ctx": "t1-resolve",
+       "turn": 2,
+       "ph": "play"
+      },
+      {
+       "d": 567,
+       "at": 187245,
+       "ctx": "t1-resolve",
+       "turn": 2,
+       "ph": "play"
+      },
+      {
+       "d": 150,
+       "at": 187395,
+       "ctx": "t1-resolve",
+       "turn": 2,
+       "ph": "play"
+      },
+      {
+       "d": 267,
+       "at": 187662,
+       "ctx": "t1-resolve",
+       "turn": 2,
+       "ph": "play"
+      },
+      {
+       "d": 800,
+       "at": 188462,
+       "ctx": "t1-resolve",
+       "turn": 2,
+       "ph": "play"
+      }
+     ]
+    },
+    {
+     "turn": 2,
+     "energy": 2,
+     "hand": 5,
+     "nodes": 1133,
+     "rvl": "truetruefalse",
+     "played": [
+      {
+       "uid": 10,
+       "li": 0,
+       "ok": true
+      }
+     ],
+     "resolveMs": 10064,
+     "ff": false,
+     "long": [
+      {
+       "d": 350,
+       "at": 194845,
+       "ctx": "t2-resolve",
+       "turn": 2,
+       "ph": "play"
+      },
+      {
+       "d": 250,
+       "at": 195095,
+       "ctx": "t2-resolve",
+       "turn": 2,
+       "ph": "play"
+      },
+      {
+       "d": 117,
+       "at": 195212,
+       "ctx": "t2-resolve",
+       "turn": 2,
+       "ph": "play"
+      },
+      {
+       "d": 133,
+       "at": 195345,
+       "ctx": "t2-resolve",
+       "turn": 2,
+       "ph": "reveal"
+      },
+      {
+       "d": 1683,
+       "at": 197028,
+       "ctx": "t2-resolve",
+       "turn": 2,
+       "ph": "reveal"
+      },
+      {
+       "d": 817,
+       "at": 197845,
+       "ctx": "t2-resolve",
+       "turn": 2,
+       "ph": "reveal"
+      },
+      {
+       "d": 1200,
+       "at": 199045,
+       "ctx": "t2-resolve",
+       "turn": 2,
+       "ph": "reveal"
+      },
+      {
+       "d": 550,
+       "at": 199595,
+       "ctx": "t2-resolve",
+       "turn": 2,
+       "ph": "reveal"
+      },
+      {
+       "d": 583,
+       "at": 200178,
+       "ctx": "t2-resolve",
+       "turn": 2,
+       "ph": "reveal"
+      },
+      {
+       "d": 1233,
+       "at": 201412,
+       "ctx": "t2-resolve",
+       "turn": 3,
+       "ph": "play"
+      },
+      {
+       "d": 1600,
+       "at": 203011,
+       "ctx": "t2-resolve",
+       "turn": 3,
+       "ph": "play"
+      },
+      {
+       "d": 383,
+       "at": 203395,
+       "ctx": "t2-resolve",
+       "turn": 3,
+       "ph": "play"
+      },
+      {
+       "d": 883,
+       "at": 204278,
+       "ctx": "t2-resolve",
+       "turn": 3,
+       "ph": "play"
+      }
+     ]
+    }
+   ],
+   "issues": [],
+   "layout": [],
+   "shots": [
+    "/home/claude/wt/qa55/tests/artifacts/qa55/pc_g1_01_intro.png",
+    "/home/claude/wt/qa55/tests/artifacts/qa55/pc_g1_t1_a_start.png",
+    "/home/claude/wt/qa55/tests/artifacts/qa55/pc_g1_t1_c_mid.png",
+    "/home/claude/wt/qa55/tests/artifacts/qa55/pc_g1_t2_a_start.png",
+    "/home/claude/wt/qa55/tests/artifacts/qa55/pc_g1_t2_b_staged.png",
+    "/home/claude/wt/qa55/tests/artifacts/qa55/pc_g1_t2_c_mid.png",
+    "/home/claude/wt/qa55/tests/artifacts/qa55/pc_g1_t2_d_locreveal.png",
+    "/home/claude/wt/qa55/tests/artifacts/qa55/pc_g1_t3_a_start.png",
+    "/home/claude/wt/qa55/tests/artifacts/qa55/pc_g1_t3_retreat_arm.png",
+    "/home/claude/wt/qa55/tests/artifacts/qa55/pc_g1_e1_endseq.png",
+    "/home/claude/wt/qa55/tests/artifacts/qa55/pc_g1_e2_result.png",
+    "/home/claude/wt/qa55/tests/artifacts/qa55/pc_g1_f_lobby.png"
+   ],
+   "result": {
+    "winner": "a",
+    "kind": "retreatP",
+    "stake": 1,
+    "turn": 3,
+    "title": "THẤT BẠI",
+    "score": "1 Bạn – 1 Máy",
+    "rows": "Núi Ngũ Hành 4–0 Văn Miếu 0–6 Đỉnh Phan Xi Păng 0–0",
+    "gem": "−1 +25 +10 +25 XP",
+    "lanes": [
+     [
+      4,
+      0,
+      "p"
+     ],
+     [
+      0,
+      6,
+      "a"
+     ],
+     [
+      0,
+      0,
+      null
+     ]
+    ],
+    "again": "Ván mới"
+   },
+   "enterMs": 4187,
+   "introMs": 7,
+   "endSeqMs": 2491,
+   "sawSeq": true,
+   "endLayout": [],
+   "lobbyAfter": {
+    "nodes": 1164,
+    "body": 60,
+    "heap": 37.3,
+    "lobby": true,
+    "stray": 0
+   }
+  },
+  {
+   "gi": 2,
+   "strat": "skipend",
+   "turns": [
+    {
+     "turn": 1,
+     "energy": 1,
+     "hand": 4,
+     "nodes": 1102,
+     "rvl": "truefalsefalse",
+     "played": [],
+     "resolveMs": 4893,
+     "ff": false,
+     "long": [
+      {
+       "d": 167,
+       "at": 232727,
+       "ctx": "t1-resolve",
+       "turn": 1,
+       "ph": "play"
+      },
+      {
+       "d": 83,
+       "at": 232810,
+       "ctx": "t1-resolve",
+       "turn": 1,
+       "ph": "play"
+      },
+      {
+       "d": 133,
+       "at": 232944,
+       "ctx": "t1-resolve",
+       "turn": 1,
+       "ph": "reveal"
+      },
+      {
+       "d": 667,
+       "at": 233610,
+       "ctx": "t1-resolve",
+       "turn": 1,
+       "ph": "reveal"
+      },
+      {
+       "d": 483,
+       "at": 234093,
+       "ctx": "t1-resolve",
+       "turn": 1,
+       "ph": "reveal"
+      },
+      {
+       "d": 1267,
+       "at": 235360,
+       "ctx": "t1-resolve",
+       "turn": 2,
+       "ph": "play"
+      },
+      {
+       "d": 233,
+       "at": 235594,
+       "ctx": "t1-resolve",
+       "turn": 2,
+       "ph": "play"
+      },
+      {
+       "d": 733,
+       "at": 236327,
+       "ctx": "t1-resolve",
+       "turn": 2,
+       "ph": "play"
+      },
+      {
+       "d": 550,
+       "at": 236877,
+       "ctx": "t1-resolve",
+       "turn": 2,
+       "ph": "play"
+      },
+      {
+       "d": 500,
+       "at": 237377,
+       "ctx": "t1-resolve",
+       "turn": 2,
+       "ph": "play"
+      }
+     ]
+    },
+    {
+     "turn": 2,
+     "energy": 2,
+     "hand": 5,
+     "nodes": 1147,
+     "rvl": "truetruefalse",
+     "played": [
+      {
+       "uid": 12,
+       "li": 1,
+       "ok": true
+      }
+     ],
+     "resolveMs": 12752,
+     "ff": false,
+     "long": [
+      {
+       "d": 283,
+       "at": 244026,
+       "ctx": "t2-resolve",
+       "turn": 2,
+       "ph": "play"
+      },
+      {
+       "d": 667,
+       "at": 244693,
+       "ctx": "t2-resolve",
+       "turn": 2,
+       "ph": "play"
+      },
+      {
+       "d": 333,
+       "at": 245026,
+       "ctx": "t2-resolve",
+       "turn": 2,
+       "ph": "play"
+      },
+      {
+       "d": 117,
+       "at": 245143,
+       "ctx": "t2-resolve",
+       "turn": 2,
+       "ph": "reveal"
+      },
+      {
+       "d": 2283,
+       "at": 247426,
+       "ctx": "t2-resolve",
+       "turn": 2,
+       "ph": "reveal"
+      },
+      {
+       "d": 500,
+       "at": 247926,
+       "ctx": "t2-resolve",
+       "turn": 2,
+       "ph": "reveal"
+      },
+      {
+       "d": 617,
+       "at": 248543,
+       "ctx": "t2-resolve",
+       "turn": 2,
+       "ph": "reveal"
+      },
+      {
+       "d": 1583,
+       "at": 250126,
+       "ctx": "t2-resolve",
+       "turn": 2,
+       "ph": "reveal"
+      },
+      {
+       "d": 533,
+       "at": 250660,
+       "ctx": "t2-resolve",
+       "turn": 2,
+       "ph": "reveal"
+      },
+      {
+       "d": 1067,
+       "at": 251726,
+       "ctx": "t2-resolve",
+       "turn": 2,
+       "ph": "reveal"
+      },
+      {
+       "d": 517,
+       "at": 252243,
+       "ctx": "t2-resolve",
+       "turn": 3,
+       "ph": "play"
+      },
+      {
+       "d": 2950,
+       "at": 255193,
+       "ctx": "t2-resolve",
+       "turn": 3,
+       "ph": "play"
+      },
+      {
+       "d": 167,
+       "at": 255359,
+       "ctx": "t2-resolve",
+       "turn": 3,
+       "ph": "play"
+      },
+      {
+       "d": 233,
+       "at": 255593,
+       "ctx": "t2-resolve",
+       "turn": 3,
+       "ph": "play"
+      },
+      {
+       "d": 650,
+       "at": 256243,
+       "ctx": "t2-resolve",
+       "turn": 3,
+       "ph": "play"
+      }
+     ]
+    },
+    {
+     "turn": 3,
+     "energy": 3,
+     "hand": 5,
+     "nodes": 1174,
+     "rvl": "truetruetrue",
+     "played": [
+      {
+       "uid": 10,
+       "li": 2,
+       "ok": true
+      }
+     ],
+     "resolveMs": 15143,
+     "ff": false,
+     "long": [
+      {
+       "d": 933,
+       "at": 266376,
+       "ctx": "t3-resolve",
+       "turn": 3,
+       "ph": "play"
+      },
+      {
+       "d": 1283,
+       "at": 267659,
+       "ctx": "t3-resolve",
+       "turn": 3,
+       "ph": "play"
+      },
+      {
+       "d": 983,
+       "at": 268642,
+       "ctx": "t3-resolve",
+       "turn": 3,
+       "ph": "play"
+      },
+      {
+       "d": 900,
+       "at": 269542,
+       "ctx": "t3-resolve",
+       "turn": 3,
+       "ph": "play"
+      },
+      {
+       "d": 783,
+       "at": 270325,
+       "ctx": "t3-resolve",
+       "turn": 3,
+       "ph": "play"
+      },
+      {
+       "d": 317,
+       "at": 270642,
+       "ctx": "t3-resolve",
+       "turn": 3,
+       "ph": "reveal"
+      },
+      {
+       "d": 3650,
+       "at": 274292,
+       "ctx": "t3-resolve",
+       "turn": 3,
+       "ph": "reveal"
+      },
+      {
+       "d": 1483,
+       "at": 275775,
+       "ctx": "t3-resolve",
+       "turn": 3,
+       "ph": "reveal"
+      },
+      {
+       "d": 1450,
+       "at": 277225,
+       "ctx": "t3-resolve",
+       "turn": 3,
+       "ph": "reveal"
+      },
+      {
+       "d": 2500,
+       "at": 279725,
+       "ctx": "t3-resolve",
+       "turn": 4,
+       "ph": "play"
+      },
+      {
+       "d": 1017,
+       "at": 280742,
+       "ctx": "t3-resolve",
+       "turn": 4,
+       "ph": "play"
+      }
+     ]
+    },
+    {
+     "turn": 4,
+     "energy": 4,
+     "hand": 5,
+     "nodes": 1193,
+     "rvl": "truetruetrue",
+     "played": [
+      {
+       "uid": 11,
+       "li": 0,
+       "ok": true
+      }
+     ],
+     "resolveMs": 13531,
+     "ff": false,
+     "long": [
+      {
+       "d": 917,
+       "at": 296174,
+       "ctx": "t4-resolve",
+       "turn": 4,
+       "ph": "play"
+      },
+      {
+       "d": 1300,
+       "at": 297474,
+       "ctx": "t4-resolve",
+       "turn": 4,
+       "ph": "play"
+      },
+      {
+       "d": 1150,
+       "at": 298624,
+       "ctx": "t4-resolve",
+       "turn": 4,
+       "ph": "play"
+      },
+      {
+       "d": 483,
+       "at": 299108,
+       "ctx": "t4-resolve",
+       "turn": 4,
+       "ph": "play"
+      },
+      {
+       "d": 717,
+       "at": 299824,
+       "ctx": "t4-resolve",
+       "turn": 4,
+       "ph": "play"
+      },
+      {
+       "d": 783,
+       "at": 300608,
+       "ctx": "t4-resolve",
+       "turn": 4,
+       "ph": "reveal"
+      },
+      {
+       "d": 2450,
+       "at": 303057,
+       "ctx": "t4-resolve",
+       "turn": 4,
+       "ph": "reveal"
+      },
+      {
+       "d": 1500,
+       "at": 304557,
+       "ctx": "t4-resolve",
+       "turn": 4,
+       "ph": "reveal"
+      },
+      {
+       "d": 1217,
+       "at": 305774,
+       "ctx": "t4-resolve",
+       "turn": 4,
+       "ph": "reveal"
+      },
+      {
+       "d": 933,
+       "at": 306707,
+       "ctx": "t4-resolve",
+       "turn": 4,
+       "ph": "reveal"
+      },
+      {
+       "d": 1350,
+       "at": 308057,
+       "ctx": "t4-resolve",
+       "turn": 5,
+       "ph": "play"
+      }
+     ]
+    },
+    {
+     "turn": 5,
+     "energy": 5,
+     "hand": 5,
+     "nodes": 1218,
+     "rvl": "truetruetrue",
+     "played": [],
+     "resolveMs": 16727,
+     "ff": false,
+     "long": [
+      {
+       "d": 1200,
+       "at": 317024,
+       "ctx": "t5-resolve",
+       "turn": 5,
+       "ph": "play"
+      },
+      {
+       "d": 1050,
+       "at": 318074,
+       "ctx": "t5-resolve",
+       "turn": 5,
+       "ph": "play"
+      },
+      {
+       "d": 1150,
+       "at": 319223,
+       "ctx": "t5-resolve",
+       "turn": 5,
+       "ph": "reveal"
+      },
+      {
+       "d": 1433,
+       "at": 320657,
+       "ctx": "t5-resolve",
+       "turn": 5,
+       "ph": "reveal"
+      },
+      {
+       "d": 1733,
+       "at": 322390,
+       "ctx": "t5-resolve",
+       "turn": 5,
+       "ph": "reveal"
+      },
+      {
+       "d": 2950,
+       "at": 325340,
+       "ctx": "t5-resolve",
+       "turn": 5,
+       "ph": "reveal"
+      },
+      {
+       "d": 2100,
+       "at": 327440,
+       "ctx": "t5-resolve",
+       "turn": 5,
+       "ph": "reveal"
+      },
+      {
+       "d": 850,
+       "at": 328290,
+       "ctx": "t5-resolve",
+       "turn": 5,
+       "ph": "reveal"
+      },
+      {
+       "d": 1633,
+       "at": 329923,
+       "ctx": "t5-resolve",
+       "turn": 5,
+       "ph": "reveal"
+      },
+      {
+       "d": 900,
+       "at": 330823,
+       "ctx": "t5-resolve",
+       "turn": 6,
+       "ph": "play"
+      }
+     ]
+    },
+    {
+     "turn": 6,
+     "energy": 6,
+     "hand": 6,
+     "nodes": 1238,
+     "rvl": "truetruetrue",
+     "played": [],
+     "resolveMs": 14511,
+     "ff": false,
+     "long": [
+      {
+       "d": 1050,
+       "at": 342873,
+       "ctx": "t6-resolve",
+       "turn": 6,
+       "ph": "play"
+      },
+      {
+       "d": 533,
+       "at": 343406,
+       "ctx": "t6-resolve",
+       "turn": 6,
+       "ph": "play"
+      },
+      {
+       "d": 1100,
+       "at": 344506,
+       "ctx": "t6-resolve",
+       "turn": 6,
+       "ph": "play"
+      },
+      {
+       "d": 383,
+       "at": 344889,
+       "ctx": "t6-resolve",
+       "turn": 6,
+       "ph": "reveal"
+      },
+      {
+       "d": 3717,
+       "at": 348606,
+       "ctx": "t6-resolve",
+       "turn": 6,
+       "ph": "reveal"
+      },
+      {
+       "d": 2050,
+       "at": 350656,
+       "ctx": "t6-resolve",
+       "turn": 6,
+       "ph": "reveal"
+      },
+      {
+       "d": 2817,
+       "at": 353472,
+       "ctx": "t6-resolve",
+       "turn": 6,
+       "ph": "reveal"
+      },
+      {
+       "d": 1450,
+       "at": 354922,
+       "ctx": "t6-resolve",
+       "turn": 6,
+       "ph": "reveal"
+      },
+      {
+       "d": 1600,
+       "at": 356522,
+       "ctx": "t6-resolve",
+       "turn": 6,
+       "ph": "over"
+      }
+     ]
+    }
+   ],
+   "issues": [
+    "không bấm được Kết thúc lượt: locator.click: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#",
+    "không bấm được Kết thúc lượt: locator.click: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#",
+    "t5: không chạm được thẻ trên tay 9: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#hand [data",
+    "t6: không chạm được thẻ trên tay 9: locator.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#hand [data",
+    "không bấm được Kết thúc lượt: locator.click: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#"
+   ],
+   "layout": [],
+   "shots": [
+    "/home/claude/wt/qa55/tests/artifacts/qa55/pc_g2_01_intro.png",
+    "/home/claude/wt/qa55/tests/artifacts/qa55/pc_g2_t1_a_start.png",
+    "/home/claude/wt/qa55/tests/artifacts/qa55/pc_g2_t1_c_mid.png",
+    "/home/claude/wt/qa55/tests/artifacts/qa55/pc_g2_t2_a_start.png",
+    "/home/claude/wt/qa55/tests/artifacts/qa55/pc_g2_t2_b_staged.png",
+    "/home/claude/wt/qa55/tests/artifacts/qa55/pc_g2_t2_c_mid.png",
+    "/home/claude/wt/qa55/tests/artifacts/qa55/pc_g2_t2_d_locreveal.png",
+    "/home/claude/wt/qa55/tests/artifacts/qa55/pc_g2_t3_a_start.png",
+    "/home/claude/wt/qa55/tests/artifacts/qa55/pc_g2_t3_b_staged.png",
+    "/home/claude/wt/qa55/tests/artifacts/qa55/pc_g2_t3_c_mid.png",
+    "/home/claude/wt/qa55/tests/artifacts/qa55/pc_g2_t4_a_start.png",
+    "/home/claude/wt/qa55/tests/artifacts/qa55/pc_g2_t4_b_staged.png",
+    "/home/claude/wt/qa55/tests/artifacts/qa55/pc_g2_t4_c_mid.png",
+    "/home/claude/wt/qa55/tests/artifacts/qa55/pc_g2_t5_a_start.png",
+    "/home/claude/wt/qa55/tests/artifacts/qa55/pc_g2_t5_c_mid.png",
+    "/home/claude/wt/qa55/tests/artifacts/qa55/pc_g2_t6_a_start.png",
+    "/home/claude/wt/qa55/tests/artifacts/qa55/pc_g2_t6_c_mid.png",
+    "/home/claude/wt/qa55/tests/artifacts/qa55/pc_g2_e1_endseq.png",
+    "/home/claude/wt/qa55/tests/artifacts/qa55/pc_g2_e2_result.png",
+    "/home/claude/wt/qa55/tests/artifacts/qa55/pc_g2_f_lobby.png"
+   ],
+   "result": {
+    "winner": "a",
+    "kind": "end",
+    "stake": 4,
+    "turn": 6,
+    "title": "THẤT BẠI",
+    "score": "0 Bạn – 3 Máy",
+    "rows": "Cao Nguyên Đá 10–28 Thung Lũng Tình Yêu 6–10 Đồi Gió 0–6",
+    "gem": "−4 +75 +10 +25 XP",
+    "lanes": [
+     [
+      10,
+      28,
+      "a"
+     ],
+     [
+      6,
+      10,
+      "a"
+     ],
+     [
+      0,
+      6,
+      "a"
+     ]
+    ],
+    "again": "Ván mới"
+   },
+   "enterMs": 2876,
+   "introMs": 319,
+   "endSeqMs": 7200,
+   "sawSeq": true,
+   "endLayout": [],
+   "lobbyAfter": {
+    "nodes": 1245,
+    "body": 61,
+    "heap": 45.1,
+    "lobby": true,
+    "stray": 0
+   }
+  }
+ ],
+ "perf": {
+  "frames": 613,
+  "fps": 1.7,
+  "p95": 1966.6,
+  "p99": 3116.6,
+  "over50": 562,
+  "over100": 490,
+  "max": 5666,
+  "longByCtx": {
+   "boot": {
+    "n": 83,
+    "max": 1233
+   },
+   "lobby": {
+    "n": 10,
+    "max": 333
+   },
+   "intro": {
+    "n": 32,
+    "max": 1283
+   },
+   "t*-input": {
+    "n": 187,
+    "max": 2917
+   },
+   "t*-resolve": {
+    "n": 172,
+    "max": 5666
+   },
+   "endseq": {
+    "n": 41,
+    "max": 4133
+   },
+   "toLobby": {
+    "n": 52,
+    "max": 2450
+   },
+   "matchmaking": {
+    "n": 12,
+    "max": 1517
+   }
+  },
+  "worst": [
+   {
+    "d": 5666,
+    "at": 119181,
+    "ctx": "t5-resolve",
+    "turn": 5,
+    "ph": "reveal"
+   },
+   {
+    "d": 5566,
+    "at": 147614,
+    "ctx": "t6-resolve",
+    "turn": 6,
+    "ph": "reveal"
+   },
+   {
+    "d": 4250,
+    "at": 73117,
+    "ctx": "t3-resolve",
+    "turn": 3,
+    "ph": "reveal"
+   },
+   {
+    "d": 4133,
+    "at": 156380,
+    "ctx": "endseq",
+    "turn": 6,
+    "ph": "over"
+   },
+   {
+    "d": 3717,
+    "at": 348606,
+    "ctx": "t6-resolve",
+    "turn": 6,
+    "ph": "reveal"
+   },
+   {
+    "d": 3650,
+    "at": 274292,
+    "ctx": "t3-resolve",
+    "turn": 3,
+    "ph": "reveal"
+   },
+   {
+    "d": 3117,
+    "at": 122298,
+    "ctx": "t5-resolve",
+    "turn": 5,
+    "ph": "reveal"
+   },
+   {
+    "d": 3067,
+    "at": 51884,
+    "ctx": "t2-resolve",
+    "turn": 2,
+    "ph": "reveal"
+   },
+   {
+    "d": 2950,
+    "at": 255193,
+    "ctx": "t2-resolve",
+    "turn": 3,
+    "ph": "play"
+   },
+   {
+    "d": 2950,
+    "at": 325340,
+    "ctx": "t5-resolve",
+    "turn": 5,
+    "ph": "reveal"
+   }
+  ]
+ },
+ "sound": {
+  "total": 209,
+  "dup": 4,
+  "dupEx": [
+   "e_hon@t4-resolve Δ13ms",
+   "gavel@t6-resolve Δ50ms",
+   "e_cokhi@t1-resolve Δ41ms",
+   "gavel@t6-resolve Δ2ms"
+  ],
+  "top": [
+   [
+    "place",
+    21
+   ],
+   [
+    "x_tang",
+    18
+   ],
+   [
+    "turn",
+    14
+   ],
+   [
+    "e_dat",
+    12
+   ],
+   [
+    "pick",
+    11
+   ],
+   [
+    "move",
+    11
+   ],
+   [
+    "e_sang",
+    10
+   ],
+   [
+    "loc",
+    9
+   ],
+   [
+    "rv_a",
+    7
+   ],
+   [
+    "rv_b",
+    6
+   ],
+   [
+    "e_moc",
+    6
+   ],
+   [
+    "e_cokhi",
+    6
+   ],
+   [
+    "rv_c",
+    6
+   ],
+   [
+    "rv_soft",
+    6
+   ],
+   [
+    "e_gio",
+    6
+   ],
+   [
+    "f_xform",
+    6
+   ],
+   [
+    "gavel",
+    5
+   ],
+   [
+    "e_hon",
+    4
+   ],
+   [
+    "snap",
+    4
+   ],
+   [
+    "ra_s4",
+    3
+   ]
+  ],
+  "endSfx": [
+   [
+    "win",
+    0
+   ],
+   [
+    "lose",
+    3
+   ],
+   [
+    "draw_game",
+    0
+   ]
+  ]
+ },
+ "errors": []
+}

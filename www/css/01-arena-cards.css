@@ -151,6 +151,9 @@ button:disabled{cursor:default}
 .bn small{font-weight:700;opacity:.9;text-shadow:none}
 .bn.left{clip-path:polygon(0 0,86% 0,100% 100%,0 100%);padding-right:14px;margin-right:-8px}
 .bn.left.arm{background:linear-gradient(180deg,#ffd27a,#ff5d2b);color:#2a0a00;text-shadow:none}
+/* fix55: "MẤT n [ngọc] ?" nằm trọn một dòng (trước bị .bn flex-direction:column bẻ 3 dòng, mất dấu "?") */
+.bn.left.arm .rt-arm{display:inline-flex;flex-direction:row;align-items:center;white-space:nowrap;font-size:clamp(13px,4.1vw,18px);letter-spacing:0}
+.bn.left.arm .rt-arm .ico{width:1.05em;height:1.05em;margin:0 .12em 0 .18em;vertical-align:0}
 .bn.right{clip-path:polygon(12% 0,100% 0,100% 100%,0 100%);padding-left:14px;margin-left:-8px}
 .bn:disabled{color:#9a96c4;text-shadow:none}
 .bn:not(:disabled):active{filter:brightness(1.25)}
@@ -222,7 +225,7 @@ button:disabled{cursor:default}
 #endSeq.lose{--bc:rgba(16,24,58,.7);--bl:rgba(110,128,180,.7);--bt:#aab6d8;--bs:#080d26}
 #endSeq.draw{--bc:rgba(40,36,110,.55);--bl:rgba(169,164,255,.7);--bt:#e4e0ff;--bs:#1c1850}
 .es-gold{left:0;top:0;width:5px;height:5px;border-radius:50%;background:#ffd65a;opacity:0;z-index:30;will-change:transform,opacity}
-.es-tap{left:0;right:0;bottom:max(18px,env(safe-area-inset-bottom));text-align:center;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#cfcbf3;opacity:0;z-index:32;text-shadow:0 1px 0 #000}
+.es-tap{left:0;right:0;bottom:calc(var(--bar-b,78px) + 12px);width:max-content;max-width:92vw;margin:0 auto;padding:3px 12px;border-radius:999px;background:rgba(6,6,30,.72);text-align:center;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#cfcbf3;opacity:0;z-index:32;text-shadow:0 1px 0 #000}
 
 .chips{display:flex;gap:6px;overflow-x:auto;padding:2px 16px 8px;flex:none;scrollbar-width:none}
 .chip{flex:none;height:28px;border:1px solid var(--vien);background:rgba(7,6,26,.6);font-size:11.5px;font-weight:600;color:#dcd9ff;border-left:4px solid var(--hc,var(--mo))}
@@ -692,3 +695,6 @@ body.rm .ov.on,body.rm .ov.on>.panel,body.rm #lobby::before,body.rm #lobby::afte
 .spk i:nth-child(1){left:4%;top:12%}.spk i:nth-child(2){right:2%;top:38%;animation-delay:.6s}.spk i:nth-child(3){left:10%;top:66%;animation-delay:1.1s}.spk i:nth-child(4){right:12%;top:4%;animation-delay:.3s;width:5px;height:5px}
 @keyframes spk{0%,100%{transform:scale(0) rotate(0)}50%{transform:scale(1) rotate(90deg)}}
 body.rm .qf.q3,body.rm .qf.q4,body.rm .qf.q5,body.rm .qf.q6,body.rm .spk i,body.rm .qf>.cst{animation:none!important}
+
+/* fix55: "Chạm để tiếp tục" / "Chạm để bỏ qua" nằm trên thanh nút (--bar-b = khoảng từ mép trên thanh nút tới đáy màn, đặt từ 06), không đè quả cầu năng lượng */
+body .uc5 .uc-tap{bottom:calc(var(--bar-b,78px) + 12px);left:0;right:0;width:max-content;max-width:92vw;margin:0 auto;padding:3px 12px;border-radius:999px;background:rgba(6,6,30,.72)}
