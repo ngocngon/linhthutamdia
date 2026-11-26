@@ -740,3 +740,26 @@ body.rm #board .mc.staged.qnudge,body.rm #board .mc.staged.qhint{animation:none!
 .fxr-ic{filter:drop-shadow(0 0 4px var(--a))}
 .fxr-ic.lg{filter:drop-shadow(0 0 7px var(--a))}
 body.rm .fxr{display:none!important}
+/* vfx55: ô kích hoạt kỹ năng — chọn/kéo thẻ có điều kiện vị trí (13-fxr.js vkSync đặt data-vk / data-vks / --vk theo luật engine).
+   Chiến địa đủ điều kiện: viền phát sáng màu hệ; ô sẽ nhận thẻ: khung thở + hạt bay lên; chiến địa không đủ điều kiện: mờ đi.
+   Chỉ hoạt ảnh transform/opacity; body.rm (giảm hiệu ứng): giữ viền tĩnh, không hạt. */
+.lane[data-vk="off"] .side.me{opacity:.42}
+.lane[data-vk="on"] .side.me,body.dragging .lane[data-vk="on"] .side.me{box-shadow:inset 0 0 0 2.5px var(--vk),inset 0 0 22px color-mix(in srgb,var(--vk) 35%,transparent),0 0 24px color-mix(in srgb,var(--vk) 75%,transparent)!important;background:color-mix(in srgb,var(--vk) 16%,transparent)!important}
+.lane[data-vk="on"].dhov .side.me{box-shadow:inset 0 0 0 3px var(--vk),0 0 30px var(--vk)!important}
+.lane[data-vk="on"] .locw{filter:drop-shadow(0 0 8px color-mix(in srgb,var(--vk) 60%,transparent))}
+.slot[data-vks]{animation:none!important}
+.slot[data-vks]::before{content:"";position:absolute;inset:-3px;border-radius:10px;border:2.5px solid var(--vk);background:color-mix(in srgb,var(--vk) 20%,transparent);box-shadow:0 0 16px var(--vk),inset 0 0 16px color-mix(in srgb,var(--vk) 70%,transparent);pointer-events:none;z-index:2;animation:vkTho 1.5s ease-in-out infinite;will-change:transform,opacity}
+.slot[data-vks]::after{content:"";position:absolute;left:6%;right:6%;bottom:4%;height:62%;pointer-events:none;z-index:2;opacity:0;will-change:transform,opacity;
+  background:radial-gradient(circle,#fff 0 1.2px,var(--vk) 1.8px,transparent 3px) 12% 92%/34% 30% no-repeat,radial-gradient(circle,var(--vk) 0 1.6px,transparent 2.6px) 82% 80%/30% 28% no-repeat,
+    radial-gradient(circle,#fff 0 1px,var(--vk) 1.6px,transparent 2.6px) 46% 100%/30% 26% no-repeat,radial-gradient(circle,var(--vk) 0 1.4px,transparent 2.4px) 64% 60%/28% 26% no-repeat,
+    radial-gradient(circle,var(--vk) 0 1.2px,transparent 2.2px) 26% 52%/26% 24% no-repeat;animation:vkHat 1.9s linear infinite}
+@keyframes vkTho{0%,100%{opacity:.55;transform:scale(.97)}50%{opacity:1;transform:scale(1.03)}}
+@keyframes vkHat{0%{opacity:0;transform:translateY(10%)}22%{opacity:1}75%{opacity:.8}100%{opacity:0;transform:translateY(-55%)}}
+body.rm .slot[data-vks]::after{display:none}
+body.rm .slot[data-vks]::before{opacity:.9}
+/* vfx55: năng lực Duy Trì phủ cả chiến địa — viền mờ thường trực quanh chiến địa (tĩnh, không tốn khung hình) */
+.lane[data-vko]{box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--vko) 45%,transparent),0 0 14px color-mix(in srgb,var(--vko) 28%,transparent)}
+/* vfx55: sóng phủ chiến địa — màn sáng tròn lan từ thẻ nguồn ra kín khung chiến địa (cả hai phía) + gợn sóng viền, màu hệ */
+.fxr.fxr-phu{overflow:hidden;border-radius:14px;z-index:38;opacity:0}
+.fxr-phu-s{position:absolute;inset:0;will-change:transform;transform:scale(.04);
+  background:radial-gradient(farthest-corner ellipse at var(--gx) var(--gy),color-mix(in srgb,var(--b) 34%,transparent) 0,color-mix(in srgb,var(--a) 40%,transparent) 34%,color-mix(in srgb,var(--a) 26%,transparent) 50%,color-mix(in srgb,var(--b) 85%,transparent) 54%,color-mix(in srgb,var(--a) 55%,transparent) 57%,transparent 62%)}
