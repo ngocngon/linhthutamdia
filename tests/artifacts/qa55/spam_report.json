@@ -1,0 +1,502 @@
+{
+ "tag": "spam",
+ "W": 390,
+ "H": 844,
+ "spd": {
+  "spd": 1,
+  "k": "nhanh",
+  "levels": "{\"cham\":1.6,\"vua\":1.3,\"nhanh\":1,\"ratcham\":2,\"dienanh\":2.5}"
+ },
+ "games": [
+  {
+   "gi": 0,
+   "strat": "spam",
+   "turns": [
+    {
+     "turn": 1,
+     "energy": 1,
+     "hand": 4,
+     "nodes": 1043,
+     "rvl": "truefalsefalse",
+     "played": [
+      {
+       "uid": 10,
+       "li": 1,
+       "ok": true
+      }
+     ],
+     "resolveMs": 3777,
+     "ff": false,
+     "cpuMsPerS": 772,
+     "layouts": 35,
+     "styles": 353,
+     "long": [
+      {
+       "d": 83,
+       "at": 14604,
+       "ctx": "t1-resolve",
+       "turn": 1,
+       "ph": "play"
+      },
+      {
+       "d": 67,
+       "at": 14670,
+       "ctx": "t1-resolve",
+       "turn": 1,
+       "ph": "play"
+      },
+      {
+       "d": 67,
+       "at": 14737,
+       "ctx": "t1-resolve",
+       "turn": 1,
+       "ph": "play"
+      },
+      {
+       "d": 67,
+       "at": 14837,
+       "ctx": "t1-resolve",
+       "turn": 1,
+       "ph": "play"
+      },
+      {
+       "d": 100,
+       "at": 14937,
+       "ctx": "t1-resolve",
+       "turn": 1,
+       "ph": "reveal"
+      },
+      {
+       "d": 633,
+       "at": 15570,
+       "ctx": "t1-resolve",
+       "turn": 1,
+       "ph": "reveal"
+      },
+      {
+       "d": 83,
+       "at": 15770,
+       "ctx": "t1-resolve",
+       "turn": 1,
+       "ph": "reveal"
+      },
+      {
+       "d": 117,
+       "at": 15887,
+       "ctx": "t1-resolve",
+       "turn": 1,
+       "ph": "reveal"
+      },
+      {
+       "d": 50,
+       "at": 15937,
+       "ctx": "t1-resolve",
+       "turn": 1,
+       "ph": "reveal"
+      },
+      {
+       "d": 433,
+       "at": 16420,
+       "ctx": "t1-resolve",
+       "turn": 1,
+       "ph": "reveal"
+      },
+      {
+       "d": 67,
+       "at": 16570,
+       "ctx": "t1-resolve",
+       "turn": 1,
+       "ph": "reveal"
+      },
+      {
+       "d": 283,
+       "at": 16937,
+       "ctx": "t1-resolve",
+       "turn": 1,
+       "ph": "reveal"
+      },
+      {
+       "d": 67,
+       "at": 17004,
+       "ctx": "t1-resolve",
+       "turn": 1,
+       "ph": "reveal"
+      },
+      {
+       "d": 83,
+       "at": 17137,
+       "ctx": "t1-resolve",
+       "turn": 1,
+       "ph": "reveal"
+      },
+      {
+       "d": 117,
+       "at": 17320,
+       "ctx": "t1-resolve",
+       "turn": 1,
+       "ph": "reveal"
+      },
+      {
+       "d": 83,
+       "at": 17437,
+       "ctx": "t1-resolve",
+       "turn": 2,
+       "ph": "play"
+      },
+      {
+       "d": 233,
+       "at": 17920,
+       "ctx": "t1-resolve",
+       "turn": 2,
+       "ph": "play"
+      },
+      {
+       "d": 83,
+       "at": 18003,
+       "ctx": "t1-resolve",
+       "turn": 2,
+       "ph": "play"
+      },
+      {
+       "d": 67,
+       "at": 18070,
+       "ctx": "t1-resolve",
+       "turn": 2,
+       "ph": "play"
+      },
+      {
+       "d": 67,
+       "at": 18137,
+       "ctx": "t1-resolve",
+       "turn": 2,
+       "ph": "play"
+      },
+      {
+       "d": 67,
+       "at": 18237,
+       "ctx": "t1-resolve",
+       "turn": 2,
+       "ph": "play"
+      },
+      {
+       "d": 100,
+       "at": 18337,
+       "ctx": "t1-resolve",
+       "turn": 2,
+       "ph": "play"
+      }
+     ]
+    },
+    {
+     "turn": 2,
+     "spam": true,
+     "conc": 2
+    },
+    {
+     "turn": 3,
+     "spam": true,
+     "conc": 2
+    },
+    {
+     "turn": 4,
+     "spam": true,
+     "conc": 2
+    },
+    {
+     "turn": 5,
+     "spam": true,
+     "conc": 2
+    },
+    {
+     "turn": 6,
+     "spam": true,
+     "conc": 2
+    }
+   ],
+   "issues": [
+    "endTurnRun chạy chồng 2 lớp (bấm Kết thúc lượt lúc màn đầu lượt chưa xong)"
+   ],
+   "layout": [],
+   "shots": [
+    "/home/claude/wt/qa55/tests/artifacts/qa55/spam_g0_01_intro.png",
+    "/home/claude/wt/qa55/tests/artifacts/qa55/spam_g0_t1_a_start.png",
+    "/home/claude/wt/qa55/tests/artifacts/qa55/spam_g0_t1_b_staged.png",
+    "/home/claude/wt/qa55/tests/artifacts/qa55/spam_g0_t1_c_mid.png",
+    "/home/claude/wt/qa55/tests/artifacts/qa55/spam_g0_t1_d_locreveal.png",
+    "/home/claude/wt/qa55/tests/artifacts/qa55/spam_g0_t2_spam.png",
+    "/home/claude/wt/qa55/tests/artifacts/qa55/spam_g0_t3_spam.png",
+    "/home/claude/wt/qa55/tests/artifacts/qa55/spam_g0_t4_spam.png",
+    "/home/claude/wt/qa55/tests/artifacts/qa55/spam_g0_t5_spam.png",
+    "/home/claude/wt/qa55/tests/artifacts/qa55/spam_g0_t6_spam.png",
+    "/home/claude/wt/qa55/tests/artifacts/qa55/spam_g0_e1_endseq.png",
+    "/home/claude/wt/qa55/tests/artifacts/qa55/spam_g0_e2_result.png",
+    "/home/claude/wt/qa55/tests/artifacts/qa55/spam_g0_f_lobby.png"
+   ],
+   "result": {
+    "winner": "p",
+    "kind": "end",
+    "stake": 3,
+    "turn": 6,
+    "title": "CHIẾN THẮNG",
+    "score": "2 Bạn – 1 Máy",
+    "rows": "Chòi Canh 5–16 Kho Báu 26–19 Làng Gốm Bát Tràng 15–4",
+    "gem": "+3 +160 +25 +50 XP",
+    "lanes": [
+     [
+      5,
+      16,
+      "a"
+     ],
+     [
+      26,
+      19,
+      "p"
+     ],
+     [
+      15,
+      4,
+      "p"
+     ]
+    ],
+    "again": "Ván mới"
+   },
+   "enterMs": 111,
+   "introMs": 1717,
+   "endSeqMs": 3105,
+   "sawSeq": true,
+   "endLayout": [],
+   "maxConc": 2,
+   "lobbyAfter": {
+    "nodes": 1227,
+    "body": 60,
+    "heap": 36.9,
+    "lobby": true,
+    "stray": 0
+   }
+  }
+ ],
+ "load": [
+  7.15,
+  7.28,
+  6.78
+ ],
+ "perf": {
+  "frames": 753,
+  "fps": 12.4,
+  "p95": 366.6,
+  "p99": 950,
+  "over50": 203,
+  "over100": 106,
+  "max": 1883,
+  "longByCtx": {
+   "boot": {
+    "n": 19,
+    "max": 350
+   },
+   "lobby": {
+    "n": 2,
+    "max": 150
+   },
+   "matchmaking": {
+    "n": 2,
+    "max": 183
+   },
+   "intro": {
+    "n": 3,
+    "max": 200
+   },
+   "t*-input": {
+    "n": 13,
+    "max": 217
+   },
+   "t*-resolve": {
+    "n": 125,
+    "max": 1883
+   },
+   "endseq": {
+    "n": 33,
+    "max": 950
+   },
+   "toLobby": {
+    "n": 17,
+    "max": 600
+   }
+  },
+  "worst": [
+   {
+    "d": 1883,
+    "at": 30353,
+    "ctx": "t1-resolve",
+    "turn": 4,
+    "ph": "reveal"
+   },
+   {
+    "d": 1500,
+    "at": 41986,
+    "ctx": "t1-resolve",
+    "turn": 5,
+    "ph": "reveal"
+   },
+   {
+    "d": 1417,
+    "at": 50369,
+    "ctx": "t1-resolve",
+    "turn": 6,
+    "ph": "reveal"
+   },
+   {
+    "d": 1283,
+    "at": 37186,
+    "ctx": "t1-resolve",
+    "turn": 5,
+    "ph": "reveal"
+   },
+   {
+    "d": 1200,
+    "at": 40119,
+    "ctx": "t1-resolve",
+    "turn": 5,
+    "ph": "reveal"
+   },
+   {
+    "d": 1033,
+    "at": 31570,
+    "ctx": "t1-resolve",
+    "turn": 4,
+    "ph": "reveal"
+   },
+   {
+    "d": 983,
+    "at": 47719,
+    "ctx": "t1-resolve",
+    "turn": 6,
+    "ph": "reveal"
+   },
+   {
+    "d": 950,
+    "at": 54719,
+    "ctx": "endseq",
+    "turn": 6,
+    "ph": "over"
+   },
+   {
+    "d": 900,
+    "at": 35036,
+    "ctx": "t1-resolve",
+    "turn": 5,
+    "ph": "play"
+   },
+   {
+    "d": 883,
+    "at": 52335,
+    "ctx": "t1-resolve",
+    "turn": 6,
+    "ph": "reveal"
+   }
+  ]
+ },
+ "sound": {
+  "total": 82,
+  "dup": 1,
+  "dupEx": [
+   "gavel@endseq Δ51ms"
+  ],
+  "top": [
+   [
+    "place",
+    7
+   ],
+   [
+    "turn",
+    6
+   ],
+   [
+    "x_tang",
+    6
+   ],
+   [
+    "rv_c",
+    4
+   ],
+   [
+    "e_moc",
+    4
+   ],
+   [
+    "rv_b",
+    4
+   ],
+   [
+    "e_toi",
+    4
+   ],
+   [
+    "loc",
+    3
+   ],
+   [
+    "rv_soft",
+    3
+   ],
+   [
+    "rv_a",
+    3
+   ],
+   [
+    "move",
+    3
+   ],
+   [
+    "e_dat",
+    3
+   ],
+   [
+    "e_cokhi",
+    3
+   ],
+   [
+    "e_gio",
+    3
+   ],
+   [
+    "gavel",
+    3
+   ],
+   [
+    "e_hon",
+    2
+   ],
+   [
+    "e_sang",
+    2
+   ],
+   [
+    "ra_mini",
+    2
+   ],
+   [
+    "ra_minib",
+    2
+   ],
+   [
+    "x_trieu",
+    2
+   ]
+  ],
+  "endSfx": [
+   [
+    "win",
+    1
+   ],
+   [
+    "lose",
+    0
+   ],
+   [
+    "draw_game",
+    0
+   ]
+  ]
+ },
+ "errors": []
+}
