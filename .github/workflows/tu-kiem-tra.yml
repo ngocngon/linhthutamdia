@@ -1,0 +1,63 @@
+name: Tự kiểm tra trang và máy chủ
+
+# 6 giờ một lần (và bấm tay được ở tab Actions): kiểm trang game, máy chủ online, link cũ.
+# Hỏng -> mở (hoặc bình luận vào) issue "[Tự kiểm tra] ..." gắn nhãn su-co: GitHub gửi email + thông báo ứng dụng GitHub.
+# Ổn lại -> tự bình luận và đóng issue.
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "23 */6 * * *"
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Kiểm tra
+        id: k
+        shell: bash
+        run: |
+          set -u
+          LOI=""
+          lay() { # lay <url> -> in thân trang, thử 3 lần
+            for i in 1 2 3; do
+              if OUT="$(curl -fsS -m 25 -L "$1" 2>&1)"; then printf '%s' "$OUT"; return 0; fi
+              sleep 20
+            done
+            printf '%s' "$OUT"; return 1
+          }
+          T0=$(date +%s%3N)
+          if B="$(lay https://tamdia.pages.dev/)" && grep -q "Linh Thú Tam Địa" <<<"$B"; then echo "Trang game: OK"; else LOI+="- Trang game https://tamdia.pages.dev không mở được hoặc sai nội dung."$'\n'; fi
+          if H="$(lay https://tamdia.pages.dev/api/health)" && grep -q '"ok":true' <<<"$H"; then echo "Máy chủ: OK ($(( $(date +%s%3N) - T0 )) ms tổng)"; else LOI+="- Máy chủ online (/api/health) không trả lời đúng: ${H:0:200}"$'\n'; fi
+          if C="$(lay https://ngocngon.github.io/linhthutamdia/)" && grep -q "tamdia.pages.dev" <<<"$C"; then echo "Link cũ: OK"; else LOI+="- Link cũ ngocngon.github.io/linhthutamdia không còn chuyển tiếp."$'\n'; fi
+          { echo "loi<<EOF"; printf '%s' "$LOI"; echo "EOF"; } >> "$GITHUB_OUTPUT"
+      - name: Báo sự cố hoặc đóng sự cố
+        uses: actions/github-script@v7
+        env:
+          LOI: ${{ steps.k.outputs.loi }}
+        with:
+          script: |
+            const loi = (process.env.LOI || "").trim();
+            const TIEU_DE = "[Tự kiểm tra] Trang game hoặc máy chủ đang lỗi";
+            const { owner, repo } = context.repo;
+            const mo = (await github.rest.issues.listForRepo({ owner, repo, state: "open", labels: "su-co", per_page: 20 })).data
+              .find(i => i.title === TIEU_DE);
+            const gio = new Date().toLocaleString("vi-VN", { timeZone: "Asia/Ho_Chi_Minh" });
+            const chay = `${context.serverUrl}/${owner}/${repo}/actions/runs/${context.runId}`;
+            if (loi) {
+              const body = `Lúc ${gio} (giờ Việt Nam):\n\n${loi}\n\nLần chạy: ${chay}\n\nXem cách xử lý trong tài liệu Quy trình bảo mật, mục "Xử lý sự cố".`;
+              if (mo) await github.rest.issues.createComment({ owner, repo, issue_number: mo.number, body });
+              else {
+                try { await github.rest.issues.createLabel({ owner, repo, name: "su-co", color: "d73a4a" }); } catch (e) {}
+                await github.rest.issues.create({ owner, repo, title: TIEU_DE, body, labels: ["su-co"], assignees: [owner] });
+              }
+              core.setFailed(loi);
+            } else if (mo) {
+              await github.rest.issues.createComment({ owner, repo, issue_number: mo.number, body: `Đã ổn lại lúc ${gio}. Tự đóng sự cố.` });
+              await github.rest.issues.update({ owner, repo, issue_number: mo.number, state: "closed" });
+            }
