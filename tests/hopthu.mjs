@@ -114,7 +114,11 @@ const anns = [
   const S = mkServer({ ann: anns, mail: [] });
   const { ctx, page } = await open(S, { token: "" });
   await page.waitForFunction(() => document.getElementById("hthAnn") && !document.getElementById("hthAnn").hidden, null, { timeout: 15000 });
-  ck(await page.locator("#lbMail").isHidden(), "A: chưa đăng nhập vẫn thấy nút hộp thư");
+  ck(await page.locator("#lbMail").isVisible(), "A: nút hộp thư phải luôn hiện kể cả chưa đăng nhập");
+  ck((await page.locator("#lbMailN").textContent()) === "", "A: chưa có thư thì không có chấm đỏ");
+  await page.click("#lbMail"); await page.waitForSelector("#hthMail.on");
+  ck(/Chưa có thư/.test(await page.locator("#hthMail .body").textContent()), "A: hộp thư rỗng phải hiện 'Chưa có thư'");
+  await page.click("#hthMail [data-close]");
   await page.waitForTimeout(800);
   ck(S.count("POST", "/api/ping") === 0, "A: chưa đăng nhập mà vẫn ping");
   ck(S.count("GET", "/api/mail") === 0, "A: chưa đăng nhập mà vẫn tải thư");
@@ -285,7 +289,7 @@ for (const [ep, label] of [["/api/ping", "ping"], ["/api/mail", "mail"]]) {
   ck(await page.evaluate(() => !LTD_CF.token && !localStorage.getItem("ltd.cf.token")), `D(${label}): chưa đăng xuất phiên online`);
   ck(await page.evaluate(() => !!localStorage.getItem(KEY) && store.gold > 0 && store.own.length > 0), `D(${label}): mất tiến trình trên máy`);
   await page.click("#hthBan [data-close]");
-  ck(await page.locator("#lbMail").isHidden(), `D(${label}): nút hộp thư phải ẩn sau khi bị khoá`);
+  ck(await page.locator("#lbMail").isVisible() && (await page.locator("#lbMailN").textContent()) === "", `D(${label}): nút hộp thư vẫn hiện, hết chấm đỏ sau khi bị khoá`);
   ck(await page.locator("#lbPlay").isVisible(), `D(${label}): game offline phải còn chơi được`);
   await ctx.close();
 }
