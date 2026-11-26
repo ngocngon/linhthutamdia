@@ -89,6 +89,7 @@ function handler(mode) {
     if (p === "/api/admin/flags") return J(E ? { ...flags, items: [] } : flags);
     if (p === "/api/admin/realtime") return J(E ? { ...realtime, online: 0, players: [], measured: false } : realtime);
     if (p === "/api/admin/health") return J(health);
+    if (p === "/api/admin/backups") return J({ ok: true, giu: 12, items: E ? [] : [0, 1, 2].map((i) => ({ key: "saoluu/2026-11-" + (23 - 7 * i) + "T20:17:00.000Z", t: NOW - i * 7 * 864e5, nguon: i ? "cron" : "tay", json: 812345, gz: 151234 - i * 9000, bang: 15, hang: 4210 - i * 300 })) });
     if (p === "/api/admin/log") return J(E ? page(url, []) : page(url, logs));
     return J({ ok: false, error: "not_found" }, 404);
   };
@@ -96,7 +97,7 @@ function handler(mode) {
 
 const SCREENS = [["tong-quan", "#/tong-quan"], ["tra-cuu", "#/tra-cuu"], ["tra-cuu-loc", "#/tra-cuu?q=an"], ["nguoi-choi", "#/p/105"], ["nguoi-choi-tien-trinh", "#/p/105/tien-trinh"], ["nguoi-choi-tran", "#/p/105/tran"], ["nguoi-choi-thu", "#/p/105/thu"], ["nguoi-choi-nhat-ky", "#/p/105/nhat-ky"], ["nguoi-choi-co", "#/p/105/co"],
   ["khoa", "#/khoa"], ["co", "#/co"], ["tao", "#/tao"], ["thu", "#/thu"], ["giftcode", "#/giftcode"], ["thong-bao", "#/thong-bao"], ["cai-dat", "#/cai-dat"],
-  ["realtime", "#/realtime"], ["dau", "#/dau"], ["giu-chan", "#/giu-chan"], ["tran", "#/tran"], ["nen-tang", "#/nen-tang"], ["suc-khoe", "#/suc-khoe"], ["nhat-ky", "#/nhat-ky"]];
+  ["realtime", "#/realtime"], ["dau", "#/dau"], ["giu-chan", "#/giu-chan"], ["tran", "#/tran"], ["nen-tang", "#/nen-tang"], ["suc-khoe", "#/suc-khoe"], ["sao-luu", "#/sao-luu"], ["nhat-ky", "#/nhat-ky"]];
 const errors = [];
 const browser = await chromium.launch({ executablePath: process.env.CHROME || "/usr/bin/google-chrome", args: ["--no-sandbox"] });
 async function open(vw, vh, tag, mode) {

@@ -386,7 +386,7 @@ const NAV=[
   ["Người chơi",[["tra-cuu","Tra cứu","search"],["khoa","Khoá tài khoản","lock"],["co","Cờ gian lận","flag"],["tao","Tạo tài khoản","plus"]]],
   ["Vận hành",[["thu","Gửi thư","mail"],["giftcode","Giftcode","gift"],["thong-bao","Thông báo","bell"],["cai-dat","Cài đặt","gear"]]],
   ["Phân tích",[["realtime","Thời gian thực","live"],["dau","Người chơi & DAU","users"],["giu-chan","Giữ chân D1–D30","ret"],["tran","Trận đấu & Elo","sword"],["nen-tang","Nền tảng & phiên bản","dev"]]],
-  ["Hệ thống",[["suc-khoe","Sức khoẻ máy chủ","pulse"],["nhat-ky","Nhật ký quản trị","log"]]]
+  ["Hệ thống",[["suc-khoe","Sức khoẻ máy chủ","pulse"],["sao-luu","Sao lưu dữ liệu","log"],["nhat-ky","Nhật ký quản trị","log"]]]
 ];
 function buildNav(){const n=$("nav");n.textContent="";for(const [g,items] of NAV){if(g!=="Tổng quan")n.append(h("div",{class:"grp"},g));for(const [k,l,i] of items){const a=h("a",{href:"#/"+k,"data-k":k,html:ico(i)+"<span></span>"});a.querySelector("span").textContent=l;n.append(a);}}}
 function navInfo(key){if(key==="p")key="tra-cuu";for(const [g,items] of NAV)for(const it of items)if(it[0]===key)return {group:g,label:it[1]};return {group:"",label:""};}
@@ -1012,6 +1012,22 @@ PAGES["suc-khoe"]=async(o)=>{
     card("Số dòng các bảng",dtable([{t:"Bảng",f:r=>h("span",{},TBL[r[0]]||r[0]," ",h("small",{class:"note mono"},r[0])),s:r=>TBL[r[0]]||r[0]},{t:"Số dòng",n:1,f:r=>num(r[1]),s:r=>r[1]}],Object.entries(j.counts),{sort:[1,-1]})),
     h("div",{},card("Cấu hình",kv("Đăng ký mở",j.config.registerOpen?"bật":"tắt","Đăng nhập Google",j.config.google?"bật":"chưa bật","SESSION_SECRET",j.config.sessionSecret?"đã đặt":"tự sinh trong D1","Nguồn được phép",j.config.allowedOrigins.join(", ")||"–")),
       card("Migration đã áp",j.migrations?dtable([{t:"Tên",f:r=>h("span",{class:"mono"},r.name),s:r=>r.name},{t:"Lúc",f:r=>r.applied_at||"–",s:r=>r.applied_at||""}],j.migrations,{pageSize:10}):h("p",{class:"note"},"Không đọc được bảng d1_migrations (bình thường khi chạy thử).")))));
+};
+PAGES["sao-luu"]=async(o)=>{
+  const j=await api("GET","/api/admin/backups");
+  const tao=h("button",{class:"btn sm",onclick:async()=>{tao.disabled=true;try{const r=await api("POST","/api/admin/backups");toast("Đã tạo bản sao "+fTime(r.t));route();}catch(e){toast(e.message,false);tao.disabled=false;}}},"Sao lưu ngay");
+  o.append(page("Sao lưu dữ liệu","Tự động mỗi thứ Hai 03:17 giờ Việt Nam · giữ "+j.giu+" bản gần nhất · lưu riêng tư trên Cloudflare, không có trên GitHub",tao));
+  const tai=async(key,btn)=>{btn.disabled=true;try{const r=await fetch(base()+"/api/admin/backups/download?key="+encodeURIComponent(key),{headers:{"x-admin-token":TOK}});if(!r.ok)throw new Error("Lỗi "+r.status);const b=await r.blob();const a=h("a",{href:URL.createObjectURL(b),download:"linhthu-"+key.slice(7).replace(/[:.]/g,"-")+".json.gz"});document.body.append(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},2000);}catch(e){toast(e.message,false);}btn.disabled=false;};
+  const kb=n=>n==null?"–":num(Math.max(1,Math.round(n/1024)))+" KB";
+  o.append(card(j.items.length?"Các bản sao ("+j.items.length+")":"Chưa có bản sao nào",
+    j.items.length?dtable([
+      {t:"Thời điểm",f:r=>fTime(r.t),s:r=>r.t},
+      {t:"Nguồn",f:r=>r.nguon==="tay"?"tạo tay":r.nguon==="cron"?"tự động":(r.nguon||"–"),s:r=>r.nguon||""},
+      {t:"Số bảng",n:1,f:r=>num(r.bang||0),s:r=>r.bang||0},
+      {t:"Số dòng",n:1,f:r=>num(r.hang||0),s:r=>r.hang||0},
+      {t:"Dung lượng nén",n:1,f:r=>kb(r.gz),s:r=>r.gz||0},
+      {t:"",f:r=>{const b=h("button",{class:"btn sm"},"Tải về");b.onclick=()=>tai(r.key,b);return b;}}],j.items,{sort:[0,-1]}):h("p",{class:"note"},"Bản đầu tiên sẽ tự tạo vào sáng thứ Hai, hoặc bấm “Sao lưu ngay”."),
+    h("p",{class:"note"},"Bản sao chứa mật khẩu đã băm và IP người chơi: chỉ cất ở nơi riêng tư, không gửi qua chat hay đưa lên GitHub. Khôi phục: xem tools/khoi_phuc_saoluu.mjs.")));
 };
 PAGES["nhat-ky"]=async(o,_,params)=>{
   const q=params.get("q")||"",pg=+params.get("page")||1;
