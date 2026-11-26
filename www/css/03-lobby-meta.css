@@ -696,6 +696,10 @@ body.rm #orb::after,body.rm #btnEnd::after{animation:none}
 .loc .ln{font-size:12px;line-height:1.05}
 .loc .lt{font-size:9px;line-height:1.14;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 @media (max-width:380px){.loc .ln{font-size:11px}.loc .lt{font-size:8.5px}}
+/* fix55: mô tả chiến địa dễ đọc trên ảnh sáng — nền tối mờ sau chữ; máy tính (≥900px) chữ 11px, bàn rộng hơn */
+.loc .lt{background:rgba(4,4,24,.62);border-radius:5px;padding:1px 4px;margin:0 2px;box-shadow:0 0 6px rgba(4,4,24,.55);text-shadow:0 1px 1px #000}
+@media (min-width:900px){.loc .ln{font-size:13px}.loc .lt{font-size:11px;line-height:1.18;padding:2px 6px}}
+@media (min-width:900px) and (min-height:640px){#app{max-width:min(680px,86vh)}}
 #zoom .brk,.brk{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;box-sizing:border-box}
 .brk>div,.brk>p{box-sizing:border-box;width:auto!important;text-align:left}
 .brk{align-items:start;height:auto!important}.brk>div{height:auto!important;min-height:0!important}
