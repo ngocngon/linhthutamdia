@@ -180,7 +180,8 @@ print(json.dumps(res))
   /* tối đa 4 ván / 8 phút; dừng sớm khi đã có đủ mẫu (≥4 luồng ±sức mạnh, ≥2 tiếng riêng) sau ít nhất 2 ván */
   const enough = () => page.evaluate(() => (window.__beams.filter(b => /^(tang|giam|x2)$/.test(b.kind)).length + FXR.log.filter(b => b.k === "beam").length) >= 4 && window.__snd.filter(s => s.n.startsWith("the:")).length >= 2);
   while (Date.now() - t0 < 8 * 60000 && g < 4) {
-    const ph = await page.evaluate(() => G.phase);
+    /* fix55: lượt đang diễn (TURN_BUSY: lộ diện/rút bài/băng LƯỢT n sau E.startTurn) thì chờ — không chen aiPlan/đổi tay bài giữa nhịp rút bài */
+    const ph = await page.evaluate(() => G.phase === "play" && typeof TURN_BUSY !== "undefined" && TURN_BUSY ? "busy" : G.phase);
     if (ph === "over") { g++; if (g >= 4 || (g >= 2 && await enough())) break; await page.evaluate(() => document.getElementById("btnEnd").click()); await page.waitForFunction(() => G.phase === "play", null, { timeout: 30000 }); lastTurn = -1; continue; }
     if (ph === "play") {
       await page.evaluate(({ lt, pool }) => {
