@@ -2644,7 +2644,36 @@ function randomDeck(R) {
   return out;
 }
 
-const API = { abs, modPow, anyInst, ongMult, hiddenOrder, revealHidden, HE, DANG, C, COLLECT, LOC, TURNS, HAND_MAX, SIDES, other, rnd, pick, mk, basePow, shown, boardCards, locOf, find, cap, space, power, locPower, lead, hurt, draw, destroy, discard, summon, revive, moveCard, transform, cost, canPlay, queuePlay, queueAct, queueMove, unqueue, canUnqueue, lastQueued, undoLast, queued, canActivate, moveRight, newGame, startTurn, beginReveal, doStep, beginEndTurn, stepEndTurn, finishEndTurn, endTurn, runTurn, outcome, finish, priority, clone, sideStats, evaluate, aiPlan, aiWantsSnap, aiWantsRetreat, themedDeck, randomDeck, REV, ACT, END, DESTROYED, DISCARDED, MOVED, PARTNER, ab, is, turns, endGame, toHand, questScan };
+/* vfx55: hàm ĐỌC THUẦN cho VFX "ô kích hoạt kỹ năng" (không đổi G, không đổi luật).
+   Thử đặt thẻ uid (đang trên tay side) vào chiến địa li trên BẢN SAO của G và chạy pha lật thật (beginReveal/doStep)
+   tới hết thẻ đó — hai lần: kỹ năng bình thường và kỹ năng bị xoá; thẻ Cuối Lượt chạy thêm kỹ năng Cuối Lượt của nó.
+   Kỹ năng "kích hoạt" ở ô này khi hai bản sao khác nhau (trạng thái bàn/tay/bộ bài) hoặc điểm thế trận của side tăng.
+   Lệnh chờ của đối thủ bị bỏ qua (thông tin ẩn). Trả { slot, kich, d } hoặc null nếu không đặt được. */
+function duDoanKichHoat(G, side, uid, li) {
+  if (!G || !G.hand || !G.hand[side] || !G.hand[side].some(c => c.uid === uid)) return null;
+  const run = sil => {
+    const S = cloneAI(G); S.q[other(side)] = [];
+    const h = S.hand[side].find(c => c.uid === uid);
+    S.energy[side] = Math.max(S.energy[side], cost(S, h, li));
+    let slot = S.locs[li].cards[side].length; for (const a of S.q[side]) if (a.t === "play" && a.li === li && a.row === side) slot++;
+    if (!queuePlay(S, side, uid, li)) return null;
+    if (sil) h.sil = true;
+    const steps = beginReveal(S);
+    for (const st of steps) { doStep(S, st); if (st.uid === uid && st.t === "play") break; }
+    const l2 = locOf(S, h);
+    if (!sil && l2 >= 0 && h.rev && !h.sil && END[ab(h)]) END[ab(h)](S, h, l2);
+    let sc = 0; for (let k = 0; k < 3; k++) sc += locPower(S, k, side) - locPower(S, k, other(side));
+    const cc = c => [c.uid, c.id, c.side, c.bonus, c.bp, c.cm, c.rev, c === h ? 0 : c.sil, c.ab || ""].join(",");
+    const fp = JSON.stringify([S.locs.map(L => [L.id, !!L.gone, L.cards.p.map(cc), L.cards.a.map(cc)]),
+      SIDES.map(s => [G.hand[s] && S.hand[s].map(cc), S.deck[s].map(cc), S.disc[s].length, S.dead[s].length, S.energy[s], S.nextBonus[s]]), S.shuri]);
+    return { slot, sc, fp };
+  };
+  const A = run(false); if (!A) return null;
+  const B = run(true);
+  return { slot: A.slot, kich: !!B && (A.fp !== B.fp || A.sc > B.sc), d: B ? A.sc - B.sc : 0 };
+}
+
+const API = { duDoanKichHoat, abs, modPow, anyInst, ongMult, hiddenOrder, revealHidden, HE, DANG, C, COLLECT, LOC, TURNS, HAND_MAX, SIDES, other, rnd, pick, mk, basePow, shown, boardCards, locOf, find, cap, space, power, locPower, lead, hurt, draw, destroy, discard, summon, revive, moveCard, transform, cost, canPlay, queuePlay, queueAct, queueMove, unqueue, canUnqueue, lastQueued, undoLast, queued, canActivate, moveRight, newGame, startTurn, beginReveal, doStep, beginEndTurn, stepEndTurn, finishEndTurn, endTurn, runTurn, outcome, finish, priority, clone, sideStats, evaluate, aiPlan, aiWantsSnap, aiWantsRetreat, themedDeck, randomDeck, REV, ACT, END, DESTROYED, DISCARDED, MOVED, PARTNER, ab, is, turns, endGame, toHand, questScan };
 for (const fn of ["doStep", "stepEndTurn", "endTurn", "startTurn", "revealHidden"]) { const f0 = API[fn]; API[fn] = function (G) { if (G.evs) { track(G); G.lsk = 0; } const r = f0.apply(null, arguments); track(G); return r; }; }
 API.cntOn = cntOn;
 if (typeof module !== "undefined" && module.exports) module.exports = API; else root.LT = API;
