@@ -42,6 +42,7 @@ async function open(withVoice) {
     const n = new URL(r.request().url()).pathname.split("/").pop();
     await r.fulfill({ status: 200, contentType: n.endsWith(".json") ? "application/json" : "audio/mpeg", body: await readFile(path.join(tmp, "out", n)) });
   });
+  else await page.route(/\/sfx\/thoai(\.json|-\d+\.mp3)/, r => r.fulfill({ status: 404, body: "nf" })); // giả lập thiếu file thoại
   await page.goto(url, { waitUntil: "domcontentloaded" });
   await page.waitForSelector("#ldr12", { state: "detached", timeout: 120000 });
   await page.evaluate(() => document.getElementById("lbPlay").click());
