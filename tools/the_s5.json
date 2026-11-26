@@ -1,0 +1,1748 @@
+[
+ {
+  "id": "dichcuongcot",
+  "ten": "Ám Cốt",
+  "mota": "Bộ xương khổng lồ bị chất nhầy đen bao bọc như cơ bắp, đứng dậy từ đất mộ, mắt đỏ. ",
+  "kyNang": "Lật: Trục xuất thẻ này để hồi sinh thẻ bị tiêu huỷ có sức mạnh cao nhất của bạn tại đây với sức mạnh gấp đôi.",
+  "loai": "rev",
+  "chiPhi": 4,
+  "sucManh": 0
+ },
+ {
+  "id": "conhansu",
+  "ten": "Huyền Nhãn Chân Nhân",
+  "mota": "Gương mặt thầy pháp cổ nhãn có con mắt thứ ba dọc giữa trán phát sáng xanh lục, râu bạc, khăn đỏ. ",
+  "kyNang": "Đầu Ván: Xáo 4 Cổ Thuật vào bộ bài của bạn.",
+  "loai": "start",
+  "chiPhi": 5,
+  "sucManh": 10
+ },
+ {
+  "id": "hacdichbinh",
+  "ten": "Ám Binh",
+  "mota": "Lính nhầy đen lao tới, cánh tay biến thành lưỡi giáo nhầy đâm thẳng ống kính; tiền cảnh là giọt nhầy đen bắn sát máy, nhoè. ",
+  "kyNang": "Lật: Chỉnh sức mạnh của tất cả thẻ trong bộ bài của bạn thành 3.",
+  "loai": "rev",
+  "chiPhi": 2,
+  "sucManh": 5
+ },
+ {
+  "id": "kevocam",
+  "ten": "Kẻ Vô Cảm",
+  "mota": "Người đàn ông vô cảm mặc áo the xám, mặt không biểu cảm, đứng giữa những bóng người đang khóc mờ xung quanh. ",
+  "kyNang": "Duy Trì: +1 sức mạnh cho mỗi thẻ trên bàn đang bị trừ sức mạnh.",
+  "loai": "on",
+  "chiPhi": 5,
+  "sucManh": 7
+ },
+ {
+  "id": "maynuotthoigian",
+  "ten": "Mây Nuốt Thời Gian",
+  "mota": "Đám mây khổng lồ có khuôn mặt và cái miệng há rộng, đang nuốt những chiếc đồng hồ mặt trời và đồng hồ cát. ",
+  "kyNang": "Lật: Xoá kỹ năng của tất cả nhân vật địch chưa được lật tại đây.",
+  "loai": "rev",
+  "chiPhi": 6,
+  "sucManh": 7
+ },
+ {
+  "id": "nghichtuvuong",
+  "ten": "Phi Thạch Chủ",
+  "mota": "Đạo sĩ áo nâu đất râu dài đứng trên một tảng đá bay, phất mạnh tay áo khiến ba tảng đá núi phủ rêu cùng bay vụt sang ba hướng, trên mỗi tảng đá là một chiến binh tí hon; khung nghi",
+  "kyNang": "Lật: Thêm 1 thẻ 3 hoặc 4 năng lượng từ tay bạn vào mỗi chiến địa khác.",
+  "loai": "rev",
+  "chiPhi": 6,
+  "sucManh": 8
+ },
+ {
+  "id": "bachdich",
+  "ten": "Bạch Thể",
+  "mota": "Nhà sư trẻ gầy guộc mặc áo nâu sồng, nửa người đang hoá thành lớp thạch cao trắng mịn như pho tượng chùa chưa tô màu, những vết rạn trắng lan từ bàn tay lên vai, tay kia lần chuỗi ",
+  "kyNang": "Lật: Chỉnh năng lượng và sức mạnh của thẻ trên cùng bộ bài của bạn thành 0.",
+  "loai": "rev",
+  "chiPhi": 4,
+  "sucManh": 7
+ },
+ {
+  "id": "nhennon",
+  "ten": "Nhện Non",
+  "mota": "Chú nhện non bé xíu nhìn nghiêng trên chiếc lá, nhả sợi tơ đầu tiên bay theo gió. ",
+  "kyNang": "Kích Hoạt: Sau khi bạn đặt thẻ tiếp theo, cho nó +1 sức mạnh và di chuyển nó sang phải.",
+  "loai": "act",
+  "chiPhi": 1,
+  "sucManh": 2
+ },
+ {
+  "id": "kysituduc",
+  "ten": "Ô Nha Kỵ",
+  "mota": "Kỵ sĩ giáp đen cưỡi con quạ khổng lồ đang đáp xuống, đôi cánh đen xoè rộng, lông vũ rơi; tiền cảnh: lông quạ nhoè sát máy. ",
+  "kyNang": "Nhiệm Vụ: Thẻ của bạn bị tiêu huỷ 4 lần → Hồi sinh 1 thẻ tại đây với +5 sức mạnh. (0/4)",
+  "loai": "pas",
+  "chiPhi": 2,
+  "sucManh": 4
+ },
+ {
+  "id": "chienthan",
+  "ten": "Chiến Thần",
+  "mota": "Chiến thần cao lớn, mũ giáp sừng trâu, cầm giáo và khiên tròn trống đồng, đứng trên đỉnh núi, mây bão quanh. ",
+  "kyNang": "Lật: So sánh sức mạnh của 3 thẻ trên cùng của cả hai bộ bài. Nếu tổng của bạn cao hơn, +6 sức mạnh.",
+  "loai": "rev",
+  "chiPhi": 4,
+  "sucManh": 7
+ },
+ {
+  "id": "phanquanthiengioi",
+  "ten": "Phán Quan Trời",
+  "mota": "Phán quan trời khổng lồ ngồi trên mây, tay cầm sổ thiên mệnh và bút lông, nhìn xuống. ",
+  "kyNang": "Đầu Ván: Xáo 12 thẻ mới vào bộ bài của bạn. Ở lượt 3, nhận +1 năng lượng tối đa.",
+  "loai": "start",
+  "chiPhi": 7,
+  "sucManh": 7
+ },
+ {
+  "id": "cucquang",
+  "ten": "Cực Quang",
+  "mota": "Nữ thần cực quang nhìn nghiêng, tóc dài là dải cực quang xanh lục hồng chảy ngược lên trời, áo trắng. ",
+  "kyNang": "Lật: Cho 1 thẻ Lật khác của bạn ở mỗi chiến địa +2 sức mạnh. Lặp lại với Duy Trì, Kích Hoạt và Cuối Lượt.",
+  "loai": "rev",
+  "chiPhi": 6,
+  "sucManh": 5
+ },
+ {
+  "id": "namtuocmatna",
+  "ten": "Mặt Nạ Tuồng",
+  "mota": "Gương mặt quý tộc đeo mặt nạ tuồng nửa đỏ nửa trắng, mắt thật lộ ra sau mặt nạ, mũ cánh chuồn. ",
+  "kyNang": "Lật: Chiêu mộ thẻ có năng lượng thấp nhất từ bộ bài đối thủ về phía bạn ở chiến địa này.",
+  "loai": "rev",
+  "chiPhi": 3,
+  "sucManh": 5
+ },
+ {
+  "id": "phaodaimay",
+  "ten": "Pháo Đài Máy",
+  "mota": "Pháo đài máy di động trên bốn chân cơ khí, nhiều nòng pháo đồng chĩa ra, khói phụt. ",
+  "kyNang": "Lật: Thêm bản sao các thẻ khác của bạn tại đây vào tay bạn. Chỉnh năng lượng của chúng thành 2 và sức mạnh thành 3.",
+  "loai": "rev",
+  "chiPhi": 4,
+  "sucManh": 3
+ },
+ {
+  "id": "thienngaden",
+  "ten": "Thiên Nga Đen",
+  "mota": "Thiên nga đen duyên dáng nhìn nghiêng, cổ cong, đang múa trên mặt hồ đêm, cánh xoè. ",
+  "kyNang": "Kích Hoạt: Cho đến hết lượt sau, các thẻ 1 năng lượng của bạn có năng lượng 0.",
+  "loai": "act",
+  "chiPhi": 2,
+  "sucManh": 3
+ },
+ {
+  "id": "thiemnu",
+  "ten": "Thiểm Ảnh",
+  "mota": "Nữ ảo ảnh xuất hiện thành ba hình nhoè ở ba vị trí khác nhau như đang dịch chuyển tức thời, khung nghiêng. ",
+  "kyNang": "Lật: Hoán đổi thẻ cuối cùng bạn đặt với 1 thẻ có năng lượng bằng hoặc cao hơn từ bộ bài của bạn.",
+  "loai": "rev",
+  "chiPhi": 5,
+  "sucManh": 8
+ },
+ {
+  "id": "phitieuhoi",
+  "ten": "Phi Tiêu Trăng Khuyết",
+  "mota": "Nữ sát thủ ném chiếc phi tiêu hình trăng khuyết về phía ống kính, phi tiêu xoay tròn. ",
+  "kyNang": "Khi thẻ này trở về tay bạn, lấy ngẫu nhiên 4 sức mạnh từ các nhân vật trên tay đối thủ. Kích Hoạt: Trả thẻ này về tay bạn.",
+  "loai": "pas",
+  "chiPhi": 2,
+  "sucManh": 2
+ },
+ {
+  "id": "tiensigamma",
+  "ten": "Thư Sinh Hoá Cuồng",
+  "mota": "Anh thư sinh gầy khăn đóng áo dài the xanh chàm, kính tròn gọng đồi mồi văng khỏi mặt, quyển sách bung trang; nửa người bên phải đang phình to thành cơ bắp màu đồng hun như tượng h",
+  "kyNang": "Cuối Lượt: Nếu bạn còn năng lượng chưa dùng, 33% cơ hội HOÁ CUỒNG!",
+  "loai": "end",
+  "chiPhi": 2,
+  "sucManh": 1
+ },
+ {
+  "id": "hongtam",
+  "ten": "Bách Phát",
+  "mota": "Cung thủ áo đỏ trái tim nghiêng người bắn liền ba mũi tên đầu hình trái tim, quân bài lá thấp rơi rách quanh chân. ",
+  "kyNang": "Kích Hoạt: Vứt bỏ tất cả thẻ có năng lượng từ 1 trở xuống khỏi tay bạn. Trừ 2 sức mạnh cho chừng đó thẻ địch khác nhau.",
+  "loai": "act",
+  "chiPhi": 3,
+  "sucManh": 2
+ },
+ {
+  "id": "thachlucnu",
+  "ten": "Phá Sơn",
+  "mota": "Nữ lực sĩ đá cao lớn, da là đá xám vân rạn, hai tay nâng một cột đá lên quá đầu, mặt kiên định. ",
+  "kyNang": "Duy Trì: Các thẻ 1 và 6 năng lượng của bạn không thể bị tiêu huỷ.",
+  "loai": "on",
+  "chiPhi": 3,
+  "sucManh": 5
+ },
+ {
+  "id": "kysidichkhuyen",
+  "ten": "Ôn Dịch Kỵ",
+  "mota": "Kỵ sĩ áo tơi rách cưỡi con chó săn khổng lồ lở loét phát lục, cả hai lao thẳng về phía ống kính, nhớt độc bắn ra; tiền cảnh: giọt nhớt nhoè sát máy. ",
+  "kyNang": "Nhiệm Vụ: Có 3 thẻ từ 4 năng lượng trở lên trên bàn → Trừ 6 sức mạnh cho thẻ địch có năng lượng cao nhất. (0/3)",
+  "loai": "pas",
+  "chiPhi": 3,
+  "sucManh": 4
+ },
+ {
+  "id": "kysidaoquoc",
+  "ten": "Hải Kỵ",
+  "mota": "Kỵ sĩ đảo quốc nhìn nghiêng cưỡi con ngựa biển lớn vảy xanh, giáp làm từ vỏ ốc xà cừ, cầm ngọn giáo san hô, bọt sóng tung quanh. ",
+  "kyNang": "Sau khi bạn đặt 1 thẻ từ 4 năng lượng trở lên, cho nó +1 sức mạnh và cho 1 thẻ trên tay bạn -1 năng lượng.",
+  "loai": "pas",
+  "chiPhi": 2,
+  "sucManh": 2
+ },
+ {
+  "id": "nuthuantuong",
+  "ten": "Kim Thuẫn",
+  "mota": "Nữ tướng tóc tết vấn khăn, mặc giáp vảy trắng bạc, quỳ một gối, hai tay dựng tấm khiên chữ nhật cao bằng gỗ lim viền vàng kim chạm rồng thời Lý, che cho ba người lính nhỏ nấp phía ",
+  "kyNang": "Duy Trì: Cộng sức mạnh của thẻ này vào các thẻ hàng sau của bạn tại đây. (không cộng cho chính nó)",
+  "loai": "on",
+  "chiPhi": 3,
+  "sucManh": 2
+ },
+ {
+  "id": "tammanu",
+  "ten": "Tâm Ma",
+  "mota": "Nữ tâm ma bò ra từ một vũng bóng tối, tóc đen dài che kín mặt, tay gầy bám đất, khung nghiêng rùng rợn; tiền cảnh: tóc nhoè sát máy. ",
+  "kyNang": "Lật: Lấy 1 sức mạnh từ mỗi thẻ trong bộ bài đối thủ.",
+  "loai": "rev",
+  "chiPhi": 3,
+  "sucManh": 0
+ },
+ {
+  "id": "longuclua",
+  "ten": "Võ Sĩ Ngực Lửa",
+  "mota": "Võ sĩ cởi trần, lồng ngực là cửa lò đồng đang mở cháy rực, tung cú đấm lửa thẳng vào ống kính; tiền cảnh: tàn lửa. ",
+  "kyNang": "Kích Hoạt: +2 sức mạnh cho mỗi thẻ từ 5 năng lượng trở lên bạn có tại đây và trên tay.",
+  "loai": "act",
+  "chiPhi": 2,
+  "sucManh": 1
+ },
+ {
+  "id": "daitaxacsong",
+  "ten": "Thi Soái",
+  "mota": "Gương mặt đại tá xác sống, da xanh nhợt, một mắt chảy xệ, mũ quân đội cũ, huân chương gỉ. ",
+  "kyNang": "Duy Trì: Các thẻ khác của bạn tại đây có +1 sức mạnh cho mỗi lượt bạn đã vứt bỏ thẻ. (0 lượt.)",
+  "loai": "on",
+  "chiPhi": 3,
+  "sucManh": 4
+ },
+ {
+  "id": "nhaihinh",
+  "ten": "Thiên Biến",
+  "mota": "Sinh vật nhại hình đang biến dạng giữa chừng: nửa trái là một bà lão bán hàng, nửa phải là con tắc kè xanh, khung nghiêng; tiền cảnh: vảy rơi nhoè. ",
+  "kyNang": "Khi bạn rút thẻ này, sao chép kỹ năng của thẻ dưới cùng bộ bài đối thủ.",
+  "loai": "pas",
+  "chiPhi": 3,
+  "sucManh": 5
+ },
+ {
+  "id": "matocvutru",
+  "ten": "Tinh Tốc Ảnh",
+  "mota": "Ma tốc độ vũ trụ nhìn nghiêng, cơ thể như khói ánh sao, lướt nhanh để lại vệt sáng dài giữa các vì sao. ",
+  "kyNang": "Lật: Xoá kỹ năng của các thẻ địch hàng trước tại đây.",
+  "loai": "rev",
+  "chiPhi": 5,
+  "sucManh": 6
+ },
+ {
+  "id": "tuthanmienvien",
+  "ten": "Vô Thường",
+  "mota": "Bạch Vô Thường cao lêu nghêu mặc áo tang trắng, đội mũ cao chóp vuông trắng trơn, mặt trắng bệch với nụ cười hiền kỳ lạ, tay cầm lá phướn trắng và sợi xích hồn, bước thẳng về phía ",
+  "kyNang": "Lật: Hồi sinh tất cả nhân vật bị tiêu huỷ của bạn đến các chiến địa ngẫu nhiên.",
+  "loai": "rev",
+  "chiPhi": 5,
+  "sucManh": 9
+ },
+ {
+  "id": "kimcuongxa",
+  "ten": "Kim Cương Xà",
+  "mota": "Rắn kim cương khổng lồ cuộn mình, vảy là kim cương lấp lánh, há miệng nanh ngọc. ",
+  "kyNang": "Duy Trì: Các thẻ địch tại đây đang bị trừ sức mạnh chịu thêm -2 sức mạnh.",
+  "loai": "on",
+  "chiPhi": 3,
+  "sucManh": 3
+ },
+ {
+  "id": "baochuahauthe",
+  "ten": "Thiết Diện Đế",
+  "mota": "Gương mặt hoàng đế đeo nửa mặt nạ sắt rèn che từ mũi trở lên, chạm hình rồng cuộn thời Lý, cằm để râu đen ngắn, đội mũ bình thiên có rèm châu, ánh mắt lạnh nhìn thẳng ống kính, cạn",
+  "kyNang": "Cuối Lượt: Thêm 1 Bạo Cơ Hậu Thế vào một chiến địa ngẫu nhiên nếu bạn đã đặt (đúng) 1 thẻ.",
+  "loai": "end",
+  "chiPhi": 4,
+  "sucManh": 6
+ },
+ {
+  "id": "nguyetlong",
+  "ten": "Rồng Trăng",
+  "mota": "Rồng trăng nhìn nghiêng, thân uốn quanh vầng trăng tròn, vảy bạc lấp lánh, râu dài. ",
+  "kyNang": "Lật: Lấy 1 sức mạnh từ các thẻ có năng lượng chẵn trong TẤT CẢ các tay.",
+  "loai": "rev",
+  "chiPhi": 3,
+  "sucManh": 4
+ },
+ {
+  "id": "phatuongsinhlinh",
+  "ten": "Hồn Phá Tướng",
+  "mota": "Linh hồn phá tướng nhìn nghiêng, chiến binh sương khói, giơ chuỳ lên định đập. ",
+  "kyNang": "Cuối Lượt: +3 sức mạnh nếu đối thủ đã đặt 1 thẻ có sức mạnh cao hơn trong lượt này. Di chuyển đến thẻ đó nếu bạn sẽ thắng ở chiến địa của nó.",
+  "loai": "end",
+  "chiPhi": 3,
+  "sucManh": 3
+ },
+ {
+  "id": "linhduoc",
+  "ten": "Lương Y Thần Dược",
+  "mota": "Lương y già cao lớn, râu dài, cầm bình gốm men lam phát sáng xanh lục, thảo dược và lá cây bay xoáy quanh. ",
+  "kyNang": "Lật: 1 thẻ của bạn bị tiêu huỷ ở lượt trước được hồi sinh tại đây.",
+  "loai": "rev",
+  "chiPhi": 2,
+  "sucManh": 3
+ },
+ {
+  "id": "songsinhtamlinh",
+  "ten": "Song Sinh Tâm Linh",
+  "mota": "Hai chị em sinh đôi đứng tựa lưng vào nhau, một người áo lam một người áo hồng, người phía trước ngoái lại qua vai, sợi chỉ sáng nối hai bàn tay. ",
+  "kyNang": "Lật: Sao chép 1 thẻ từ bộ bài vào tay bạn. Chỉnh năng lượng của nó thành 3 và sức mạnh thành 4.",
+  "loai": "rev",
+  "chiPhi": 3,
+  "sucManh": 4
+ },
+ {
+  "id": "thienthantimkiem",
+  "ten": "Thiên Sứ Tầm Đạo",
+  "mota": "Thiên thần tìm kiếm khổng lồ có tấm áo choàng như bầu trời sao, mặt ẩn sau mũ trùm, tay giơ ngọn đèn rọi xuống. ",
+  "kyNang": "Cuối Lượt: Đặt 1 thẻ được tạo ra từ tay bạn vào đây.",
+  "loai": "end",
+  "chiPhi": 6,
+  "sucManh": 10
+ },
+ {
+  "id": "laonhen",
+  "ten": "Lão Nhện",
+  "mota": "Lão nhện râu dài trắng, có tám cánh tay gầy, ngồi trên khung tơ đan dở, các tay cùng lúc đan sợi tơ bạc; tiền cảnh: sợi tơ nhoè sát máy. ",
+  "kyNang": "Sau khi bạn đặt 1 thẻ có sức mạnh cao hơn tại đây, cho thẻ này +2 sức mạnh và di chuyển nó đến chiến địa khác.",
+  "loai": "pas",
+  "chiPhi": 2,
+  "sucManh": 2
+ },
+ {
+  "id": "kesanga",
+  "ten": "Kẻ Sa Ngã",
+  "mota": "Thiên thần sa ngã quỳ trên đất, đôi cánh trắng bị cháy xém, ngước nhìn lên trời, áo trắng nhuốm tro. ",
+  "kyNang": "Lật: Đặt năng lượng tối đa của bạn bằng sức mạnh của thẻ này.",
+  "loai": "rev",
+  "chiPhi": 5,
+  "sucManh": 5
+ },
+ {
+  "id": "aosi",
+  "ten": "Ảo Thuật Sư",
+  "mota": "Ảo thuật gia gầy cao, áo the đen, tay tung những đồng xu biến thành bướm, bóng của ông là một con hổ. ",
+  "kyNang": "Kích Hoạt: Nếu bạn đã có thẻ bị vứt bỏ và bị tiêu huỷ, trừ 2 sức mạnh cho các thẻ địch hàng trước ở mỗi chiến địa.",
+  "loai": "act",
+  "chiPhi": 4,
+  "sucManh": 7
+ },
+ {
+  "id": "langthan",
+  "ten": "Lang Thần",
+  "mota": "Thần sói lông bạc khổng lồ nhìn nghiêng, đứng trên đỉnh đồi đá, ngửa cổ hú về trăng tròn, gió thổi lông dựng. ",
+  "kyNang": "Kích Hoạt: Hồi sinh thẻ bị vứt bỏ hoặc bị tiêu huỷ có sức mạnh cao nhất của đối thủ về phía bạn ở chiến địa này.",
+  "loai": "act",
+  "chiPhi": 3,
+  "sucManh": 4
+ },
+ {
+  "id": "culongco",
+  "ten": "Cự Long Cổ",
+  "mota": "Cự long cổ đại khổng lồ, vảy đá rêu phủ, mắt vàng, đầu ngẩng cao trên vách núi, nhìn xuống. ",
+  "kyNang": "Lật: Nhận sức mạnh của 1 thẻ địch hàng trước tại đây.",
+  "loai": "rev",
+  "chiPhi": 7,
+  "sucManh": 14
+ },
+ {
+  "id": "toclua",
+  "ten": "Hoả Phát",
+  "mota": "Thiếu nữ tóc lửa dài quay lưng, ngoái lại qua vai với ánh mắt buồn, mái tóc đang cháy nhẹ thành ngọn lửa đỏ cam bay lên, áo nâu giản dị. ",
+  "kyNang": "Khi một thẻ của bạn bị tiêu huỷ, thẻ này dùng kỹ năng Lật của thẻ đó.",
+  "loai": "pas",
+  "chiPhi": 2,
+  "sucManh": 4
+ },
+ {
+  "id": "hoatinhnu",
+  "ten": "Hoả Tiên",
+  "mota": "Nàng tiên sao hoả nhỏ ngồi trên một viên than hồng, tóc lửa, ngước lên ước, tay chụm chờ ngôi sao rơi. ",
+  "kyNang": "Sau lần tới bạn đặt một thẻ 6 năng lượng, nhân đôi sức mạnh của thẻ này.",
+  "loai": "pas",
+  "chiPhi": 2,
+  "sucManh": 3
+ },
+ {
+  "id": "huyetdichhangxom",
+  "ten": "Gã Đầu Ngõ",
+  "mota": "Gã hàng xóm hiền lành bụng phệ đứng trong ngõ, sau lưng mọc ra những xúc tu máu đỏ đang kéo các vật dụng sang bên; tiền cảnh: chậu cây vỡ sát máy. ",
+  "kyNang": "Lật: Di chuyển các thẻ khác của bạn tại đây sang phải. +2 sức mạnh cho mỗi thẻ được di chuyển.",
+  "loai": "rev",
+  "chiPhi": 3,
+  "sucManh": 4
+ },
+ {
+  "id": "mauhau",
+  "ten": "Mẫu Hậu",
+  "mota": "Mẫu hậu đẫy đà phúc hậu, vương miện vàng ngọc, ôm hài nhi phát sáng trong lòng, áo đỏ thêu phượng; tiền cảnh: cánh hoa sen. ",
+  "kyNang": "Lật: Thêm 1 bản sao của thẻ cuối cùng bạn đặt vào tay bạn. (nếu có thể)",
+  "loai": "rev",
+  "chiPhi": 3,
+  "sucManh": 3
+ },
+ {
+  "id": "ainunuotsao",
+  "ten": "Ái Nữ Thiên Hà",
+  "mota": "Thiếu nữ si tình ôm một ngôi sao nhỏ phát sáng trước ngực như ôm người yêu, má ửng hồng, áo yếm hồng nhạt. ",
+  "kyNang": "Mỗi lượt, thẻ đầu tiên bạn đặt ở chiến địa khác được lật với +2 sức mạnh.",
+  "loai": "pas",
+  "chiPhi": 4,
+  "sucManh": 6
+ },
+ {
+  "id": "kenuotsao",
+  "ten": "Thôn Thiên",
+  "mota": "Cự thần da xanh đen như bầu trời đêm, đầu trọc, bụng to như vò rượu, ngồi xổm trên đỉnh núi, há miệng thật rộng hút cả dải ngân hà và vầng trăng khuyết vào bụng, hai tay ôm những h",
+  "kyNang": "Lật: Nếu bạn đang thắng ở chiến địa này và đây là thẻ duy nhất của bạn tại đây, tiêu huỷ tất cả chiến địa khác.",
+  "loai": "rev",
+  "chiPhi": 6,
+  "sucManh": 6
+ },
+ {
+  "id": "kysibaitu",
+  "ten": "Kỵ Sĩ Lá Bài",
+  "mota": "Kỵ sĩ áo choàng ghép từ những lá bài cũ quay lưng trên con ngựa xếp bằng giấy dó, ngoái lại qua vai, tay giơ một lá bài đang bốc cháy; tiền cảnh: lá bài rơi nhoè sát máy. ",
+  "kyNang": "Nhiệm Vụ: Đặt tổng cộng 6 năng lượng thẻ được tạo ra → Tiêu huỷ ngẫu nhiên các thẻ địch có tổng năng lượng tối đa 3. (0/6)",
+  "loai": "pas",
+  "chiPhi": 4,
+  "sucManh": 6
+ },
+ {
+  "id": "vuongbathu",
+  "ten": "Vương Bất Hủ",
+  "mota": "Vương bất hủ ngồi trên ngai đá trắng giữa trời, vương miện ánh sáng, áo choàng xanh ngọc phủ bậc thềm, nhìn xuống bình thản. ",
+  "kyNang": "Lật: +1 sức mạnh cho mỗi thẻ khác của bạn trên bàn được tăng sức mạnh.",
+  "loai": "rev",
+  "chiPhi": 5,
+  "sucManh": 9
+ },
+ {
+  "id": "cunhan",
+  "ten": "Gã Khổng Lồ",
+  "mota": "Người khổng lồ hiền lành nhỏ con nhất bộ tộc, ngồi bó gối trên đồi, ngước lên cười ngượng, tay cầm bông hoa. ",
+  "kyNang": "Duy Trì: +1 sức mạnh cho mỗi thẻ Duy Trì khác bạn có trên bàn.",
+  "loai": "on",
+  "chiPhi": 2,
+  "sucManh": 1
+ },
+ {
+  "id": "dothan",
+  "ten": "Chủ Bút Sơn Hà",
+  "mota": "Đồ thần to lớn mặc áo choàng nâu, tay cầm cây bút lông khổng lồ vẽ lên bầu trời những bản đồ phát sáng. ",
+  "kyNang": "Duy Trì: +2 sức mạnh cho MỖI thẻ Lật trên bàn.",
+  "loai": "on",
+  "chiPhi": 6,
+  "sucManh": 1
+ },
+ {
+  "id": "hongnutinhquai",
+  "ten": "Hồng Nữ Tinh Quái",
+  "mota": "Nữ tinh quái tóc hồng quay lưng, ngoái lại nháy mắt, tung ba viên xúc xắc phát sáng qua vai; tiền cảnh: một viên xúc xắc nhoè sát máy. ",
+  "kyNang": "Lật: Chọn ngẫu nhiên 1 nhân vật trên tay bạn 3 lần. Mỗi lần cho +2 sức mạnh.",
+  "loai": "rev",
+  "chiPhi": 4,
+  "sucManh": 5
+ },
+ {
+  "id": "daubay",
+  "ten": "Đầu Bay",
+  "mota": "Chiếc đầu người bay có tai như cánh dơi, tóc dài kéo theo, cười láu lỉnh, ngước nhìn lên từ dưới. ",
+  "kyNang": "Khi Bị Tiêu Huỷ: Trả thẻ này về tay bạn, rồi cho tất cả thẻ trên tay bạn +1 sức mạnh.",
+  "loai": "react",
+  "chiPhi": 1,
+  "sucManh": 1
+ },
+ {
+  "id": "trolymay",
+  "ten": "Mộc Nô",
+  "mota": "Người hầu bằng gỗ mít thô mộc như tượng nhà mồ, khớp tay chân buộc dây mây, mặt khắc nụ cười ngây ngô, bốn cánh tay gỗ cầm khay trà, chổi rơm, quạt nan và đèn lồng, chạy lao về phí",
+  "kyNang": "Mỗi lượt thẻ này ở trên bàn, đổi sang một kỹ năng Kích Hoạt mới cho đến khi một kỹ năng được dùng.",
+  "loai": "pas",
+  "chiPhi": 2,
+  "sucManh": 3
+ },
+ {
+  "id": "tienhoasu",
+  "ten": "Tiến Hoá Sư",
+  "mota": "Tiến hoá sư cao gầy đứng giữa phòng thí nghiệm, tay cầm ống nghiệm phát sáng, phía sau là các bộ xương thú đang biến đổi. ",
+  "kyNang": "Đầu Ván: Mở khoá tiềm năng của các thẻ không có kỹ năng của bạn.",
+  "loai": "start",
+  "chiPhi": 4,
+  "sucManh": 7
+ },
+ {
+  "id": "hyvong",
+  "ten": "Hy Vọng",
+  "mota": "Cô bé cầm đèn lồng giấy ông sao phát sáng, mắt sáng ngời, đứng giữa đêm tối; tiền cảnh: đom đóm nhoè. ",
+  "kyNang": "Sau khi bạn đặt một thẻ tại đây, lượt sau bạn nhận +1 năng lượng.",
+  "loai": "pas",
+  "chiPhi": 3,
+  "sucManh": 4
+ },
+ {
+  "id": "tieukhonglo",
+  "ten": "Tiểu Khổng Lồ",
+  "mota": "Người khổng lồ thu nhỏ ngồi xổm trên nắp hũ, ngước nhìn lên, cười. ",
+  "kyNang": "Đầu Ván: Sao chép kỹ năng của 1 thẻ 6 năng lượng ngẫu nhiên.",
+  "loai": "start",
+  "chiPhi": 6,
+  "sucManh": 12
+ },
+ {
+  "id": "hoanhansokhai",
+  "ten": "Ngọn Đuốc Sống",
+  "mota": "Chàng trai Tây Nguyên đóng khố, tóc dài buộc dây cườm, nhìn nghiêng đứng cạnh đống lửa trước nhà rông, hai tay giơ cao bó đuốc nứa lớn, lửa cháy loang theo cánh tay thành dải như t",
+  "kyNang": "Cuối Lượt: +1 sức mạnh. Một lần mỗi ván, nếu phía bạn tại đây đã đầy, thay vào đó nhân đôi sức mạnh của thẻ này.",
+  "loai": "end",
+  "chiPhi": 3,
+  "sucManh": 2
+ },
+ {
+  "id": "linhchindau",
+  "ten": "Cửu Đầu Binh",
+  "mota": "Người lính đang hoá thành rắn chín đầu, thân trên còn áo giáp, từ cổ vươn ra chín đầu rắn chĩa mọi hướng; khung nghiêng hỗn loạn. ",
+  "kyNang": "Cuối Lượt: Thẻ này di chuyển nếu có người chơi đã Snap.",
+  "loai": "end",
+  "chiPhi": 1,
+  "sucManh": 4
+ },
+ {
+  "id": "giapdam",
+  "ten": "Giáp Dậm Đất",
+  "mota": "Bộ giáp đồng bước dậm chân lao tới, mặt đất rung, bụi bốc, nắm đấm đồng đấm thẳng ống kính. ",
+  "kyNang": "Duy Trì: +1 sức mạnh cho mỗi lần một thẻ của bạn di chuyển trong ván này.",
+  "loai": "on",
+  "chiPhi": 3,
+  "sucManh": 3
+ },
+ {
+  "id": "cohoangvocuc",
+  "ten": "Hoàng Đế Cơ Khí",
+  "mota": "Cơ hoàng uy nghi bằng đồng xanh, mặt nạ vua, ngực có lõi phát sáng, hai tay nâng hai viên đá phát sáng. ",
+  "kyNang": "Lật: Thêm 2 Viên đá của Cơ Hoàng vào tay bạn.",
+  "loai": "rev",
+  "chiPhi": 5,
+  "sucManh": 6
+ },
+ {
+  "id": "annusokhai",
+  "ten": "Ẩn Nữ Rừng Trúc",
+  "mota": "Nữ ẩn sĩ khoác áo tơi rơm quay lưng giữa rừng trúc, ngoái lại, đèn lồng giấy nhỏ trong tay. ",
+  "kyNang": "Kích Hoạt: Trong lượt này, các kỹ năng Cuối Lượt của bạn được lặp lại.",
+  "loai": "act",
+  "chiPhi": 3,
+  "sucManh": 3
+ },
+ {
+  "id": "thietaiquoc",
+  "ten": "Hộ Quốc Binh",
+  "mota": "Người lính hộ quốc thời Trần mặc giáp da trâu sơn then đen, đội nón dấu, cánh tay buộc khăn chàm, quay lưng 3/4 rồi ngoái lại qua vai, vác ngọn giáo dài treo lá cờ đuôi nheo xanh l",
+  "kyNang": "Lật: Thêm một thẻ ngẫu nhiên có năng lượng từ 4 trở lên vào tay bạn. Nếu bạn đang thắng tại đây sau lượt tiếp theo, giảm 3 năng lượng của nó.",
+  "loai": "rev",
+  "chiPhi": 2,
+  "sucManh": 3
+ },
+ {
+  "id": "batbainu",
+  "ten": "Bất Bại Nữ Hiệp",
+  "mota": "Nữ đấu sĩ bất bại đầy vết thương nhưng vẫn lao lên, chém thanh đao về phía ống kính, máu và bụi bay. ",
+  "kyNang": "Cuối Lượt: Nếu bạn đang thua ở chiến địa này, nhân đôi sức mạnh của thẻ này.",
+  "loai": "end",
+  "chiPhi": 4,
+  "sucManh": 2
+ },
+ {
+  "id": "cosi",
+  "ten": "Chưởng Kỳ",
+  "mota": "Cờ sĩ trẻ tay vẫy lá cờ lệnh lớn, áo lính đỏ, miệng hô to, tóc buộc khăn. ",
+  "kyNang": "Duy Trì: Các thẻ của bạn tại đây đã được tăng sức mạnh có thêm +2 sức mạnh.",
+  "loai": "on",
+  "chiPhi": 3,
+  "sucManh": 3
+ },
+ {
+  "id": "nuloimienvien",
+  "ten": "Pháp Lôi",
+  "mota": "Bà Pháp Lôi trong Tứ Pháp: nữ thần trung niên phúc hậu đội mũ tỳ lư vàng, áo cà sa đỏ thắm phủ hoa văn mây, ngồi trên toà sen, một tay cầm chiếc khánh đồng phóng tia sét bạc, tay k",
+  "kyNang": "Lật: Phán xét 4 nhân vật ngẫu nhiên khác. +1 sức mạnh (nếu là của bạn) hoặc -1 sức mạnh (thẻ địch). Rút Nhanh: Phán xét lại những kẻ xứng đáng.",
+  "loai": "rev",
+  "chiPhi": 3,
+  "sucManh": 3
+ },
+ {
+  "id": "caheocon",
+  "ten": "Cá Heo Con",
+  "mota": "",
+  "kyNang": "Các thẻ của bạn được lật tại đây với +1 sức mạnh. Có thể di chuyển một lần.",
+  "loai": "pas",
+  "chiPhi": 2,
+  "sucManh": 2
+ },
+ {
+  "id": "camapcan",
+  "ten": "Cá Mập Cạn",
+  "mota": "Cá mập đứng hai chân trên cạn, đội nón lá, há hàm răng lao về phía ống kính, vây lưng rẽ đất như rẽ nước. ",
+  "kyNang": "Có thể di chuyển một lần. Không gì có thể ngăn bạn di chuyển hoặc đặt thẻ này đến bất kỳ chiến địa nào.",
+  "loai": "pas",
+  "chiPhi": 2,
+  "sucManh": 4
+ },
+ {
+  "id": "hoanhanmay",
+  "ten": "Ông Táo Con",
+  "mota": "Ông Táo con mũm mĩm đội mũ cánh chuồn, áo thụng đỏ, cưỡi con cá chép vàng nhỏ, ngồi trên miệng chiếc kiềng ba chân đang đỏ lửa, ngước nhìn người xem, tay vung ra những đồng xu hồng",
+  "kyNang": "Đầu Lượt: +1 sức mạnh cho mỗi năng lượng thưởng bạn có.",
+  "loai": "pas",
+  "chiPhi": 1,
+  "sucManh": 2
+ },
+ {
+  "id": "phiungtre",
+  "ten": "Phi Ưng Trẻ",
+  "mota": "Chàng trai trẻ có cánh chim ưng sau lưng, nhìn nghiêng khi đang bay lượn. ",
+  "kyNang": "Duy Trì: Các kỹ năng Lật của thẻ 1 năng lượng của bạn tại đây được lặp lại.",
+  "loai": "on",
+  "chiPhi": 2,
+  "sucManh": 3
+ },
+ {
+  "id": "nuco",
+  "ten": "Búp Bê Máy",
+  "mota": "Gương mặt nữ cơ khí sứ trắng như búp bê, đôi mắt thuỷ tinh xanh, vết nứt mảnh trên má, bánh răng nhỏ hiện sau gáy. ",
+  "kyNang": "Kích Hoạt: Lập tức Kích Hoạt các thẻ khác của bạn tại đây. (không tiêu hao kỹ năng Kích Hoạt của chúng)",
+  "loai": "act",
+  "chiPhi": 3,
+  "sucManh": 3
+ },
+ {
+  "id": "phaohoanganha",
+  "ten": "Pháo Hoa Ngân Hà",
+  "mota": "Thiếu niên ném quả pháo hoa bạc về phía ống kính, pháo nổ thành chòm sao. ",
+  "kyNang": "Khi bạn rút một thẻ, cộng sức mạnh của thẻ này vào nó.",
+  "loai": "pas",
+  "chiPhi": 4,
+  "sucManh": 3
+ },
+ {
+  "id": "kysichienxa",
+  "ten": "Chiến Xa Tướng",
+  "mota": "Kỵ sĩ râu quai nón đứng trên chiến xa đồng chạm trống đồng do hai ngựa chiến kéo, bánh xe lao qua đá, một tay giơ cờ lệnh, tay kia ghì cương; tiền cảnh: đá văng và bụi sát máy. ",
+  "kyNang": "Nhiệm Vụ: Có 6 mức sức mạnh khác nhau trong số các thẻ khác của bạn trên bàn → +6 sức mạnh. (0/6)",
+  "loai": "pas",
+  "chiPhi": 2,
+  "sucManh": 2
+ },
+ {
+  "id": "phonglinhnu",
+  "ten": "Phong Linh",
+  "mota": "Nữ phong linh xoay tròn giữa cơn gió, chuông gió đồng treo quanh người kêu leng keng. ",
+  "kyNang": "Lật: Mỗi thẻ trên tay bạn cộng 1 sức mạnh cho một thẻ khác của bạn trên bàn.",
+  "loai": "rev",
+  "chiPhi": 4,
+  "sucManh": 7
+ },
+ {
+  "id": "thukydungcam",
+  "ten": "Cô Thư Lại",
+  "mota": "Gương mặt cô thư ký gan dạ đeo kính tròn, tóc búi, kẹp bút lông sau tai, ánh mắt kiên quyết. ",
+  "kyNang": "Lật: Cộng 2 sức mạnh cho mỗi nhân vật 1, 2 và 3 năng lượng của bạn (mỗi loại một thẻ).",
+  "loai": "rev",
+  "chiPhi": 4,
+  "sucManh": 5
+ },
+ {
+  "id": "nuthantien",
+  "ten": "Thiện Xạ",
+  "mota": "Thiếu nữ cung thủ ngồi trên cành cây, ống tên tre sau lưng, ngước lên cười, kẹp một mũi tên trên môi. ",
+  "kyNang": "Lật: Thêm 2 Mũi Tên vào tay bạn.",
+  "loai": "rev",
+  "chiPhi": 2,
+  "sucManh": 3
+ },
+ {
+  "id": "nguyetthan",
+  "ten": "Nguyệt Thần",
+  "mota": "Thần mặt trăng nhìn nghiêng, ông lão cao gầy râu bạc chấm đất, tay nâng chiếc đèn lồng hình trăng khuyết, áo choàng xanh đêm có hoa văn mây. ",
+  "kyNang": "Khi Bị Vứt Bỏ: Trở lại ở pha tiếp theo. Lật: Hồi sinh một nhân vật bạn đã vứt bỏ đến một chiến địa khác với sức mạnh đặt thành 5.",
+  "loai": "rev",
+  "chiPhi": 6,
+  "sucManh": 5
+ },
+ {
+  "id": "tamlinhtu",
+  "ten": "Linh Môi Sư",
+  "mota": "Thầy tâm linh cao gầy áo dài trắng, đứng giữa nghĩa địa, tay xoè ra, những linh hồn nhỏ như đom đóm bay vào lòng bàn tay. ",
+  "kyNang": "Kích Hoạt: Tiêu huỷ thẻ tiếp theo bạn đặt trong lượt này để nhận sức mạnh của nó.",
+  "loai": "act",
+  "chiPhi": 2,
+  "sucManh": 1
+ },
+ {
+  "id": "cuongnhanxam",
+  "ten": "Lãnh Diện Cự Nhân",
+  "mota": "Người khổng lồ già trầm lặng, mặt vẽ tuồng trắng xám lạnh như sương, tóc bạc búi cao, khoác áo tơi lá màu tro, nhìn nghiêng, một tay ôm tảng đá núi phủ sương giá, hơi thở thành làn",
+  "kyNang": "Lật: MỖI người chơi ngẫu nhiên giảm 1 năng lượng của một thẻ trên tay họ cho mỗi mức năng lượng khác nhau trong số các thẻ của họ trên bàn.",
+  "loai": "rev",
+  "chiPhi": 5,
+  "sucManh": 11
+ },
+ {
+  "id": "tieuthu",
+  "ten": "Xạ Thủ Nỏ",
+  "mota": "Gương mặt xạ thủ trung niên áp má vào báng nỏ, một mắt nheo nhìn qua ống ngắm bằng đồng, mắt kia mở to, mồ hôi trên thái dương, khăn quấn đầu nâu. ",
+  "kyNang": "Lật: Trục xuất thẻ trên cùng bộ bài bạn. Nếu nó có năng lượng từ 4 trở lên, lượt sau +2 năng lượng, ngược lại cộng 4 sức mạnh cho thẻ này.",
+  "loai": "rev",
+  "chiPhi": 3,
+  "sucManh": 5
+ },
+ {
+  "id": "nuhongtam",
+  "ten": "Xích Tiễn",
+  "mota": "Nữ xạ thủ áo đỏ bắn liên tiếp những mũi tên đỏ về phía ống kính. ",
+  "kyNang": "Lật: Trừ 2 sức mạnh của một thẻ địch. Lặp lại trên một thẻ địch khác cho mỗi năng lượng chưa dùng của bạn.",
+  "loai": "rev",
+  "chiPhi": 2,
+  "sucManh": 3
+ },
+ {
+  "id": "kysiho",
+  "ten": "Hồ Kiếm Tiên",
+  "mota": "Nữ kỵ sĩ hồ nước đứng trên mặt hồ phẳng như gương, vừa rút thanh kiếm sáng từ nước lên, nước nhỏ giọt thành chuỗi, áo giáp vảy bạc; tiền cảnh: lá sen nhoè sát máy. ",
+  "kyNang": "Duy Trì: Các thẻ đã được tăng sức mạnh của bạn có thêm +1 sức mạnh.",
+  "loai": "on",
+  "chiPhi": 4,
+  "sucManh": 6
+ },
+ {
+  "id": "kiemquyen",
+  "ten": "Kiếm Quyền",
+  "mota": "Võ sư kiếm–quyền trẻ, một nắm đấm và một thanh kiếm ngắn đặt chéo trước mặt, mắt sắc. ",
+  "kyNang": "Lật: Thêm Kiếm Phục Hy vào một chiến địa khác.",
+  "loai": "rev",
+  "chiPhi": 2,
+  "sucManh": 3
+ },
+ {
+  "id": "tieulong",
+  "ten": "Tiểu Long",
+  "mota": "Rồng con xanh ngọc mũm mĩm cuộn trên tảng đá rêu, đầu ngẩng lên phun một đốm lửa nhỏ cam, sừng non mới nhú, đuôi quấn quanh viên ngọc; tiền cảnh: lá dương xỉ nhoè sát máy. ",
+  "kyNang": "Cuối Lượt: Nếu bạn đã đặt một thẻ 1 năng lượng trong lượt này, trừ 2 sức mạnh của một thẻ địch tại đây.",
+  "loai": "end",
+  "chiPhi": 2,
+  "sucManh": 2
+ },
+ {
+  "id": "bangca",
+  "ten": "Ca Nữ Băng Giá",
+  "mota": "Cô bé hát băng ngồi trên khối băng, miệng hát ra những bông tuyết, ngước lên, khăn len đỏ. ",
+  "kyNang": "Lật: Thêm một Khối Băng vào mỗi phía của chiến địa này.",
+  "loai": "rev",
+  "chiPhi": 3,
+  "sucManh": 6
+ },
+ {
+  "id": "bato",
+  "ten": "Bà Quay Tơ",
+  "mota": "Bà lão quay tơ ngồi bên guồng quay gỗ, sợi tơ bạc kéo dài từ tay bà ra xa, mắt híp cười hiền. ",
+  "kyNang": "Duy Trì: Mỗi lượt, một thẻ khác của bạn tại đây có thể di chuyển. (bạn chọn)",
+  "loai": "on",
+  "chiPhi": 2,
+  "sucManh": 1
+ },
+ {
+  "id": "hacthuatsi",
+  "ten": "Hắc Thuật Sĩ",
+  "mota": "Gương mặt thầy bùa trẻ gầy, nửa mặt che bởi bóng tối, mắt phản chiếu những lá bùa đang cháy, môi lẩm nhẩm; tiền cảnh: lá bùa giấy vàng nhoè sát máy. ",
+  "kyNang": "Kích Hoạt: Sao chép kỹ năng của một nhân vật trong bộ bài bạn có năng lượng bằng số năng lượng chưa dùng của bạn. (không kích hoạt Lật của nó)",
+  "loai": "act",
+  "chiPhi": 2,
+  "sucManh": 4
+ },
+ {
+  "id": "thantocnu",
+  "ten": "Truy Phong",
+  "mota": "Nữ thần tốc chạy như bay về phía ống kính, chân để lại vệt lửa vàng, tóc bay thẳng ra sau; tiền cảnh: bụi xoáy. ",
+  "kyNang": "Cuối Lượt: Chạy từ tay bạn đến một chiến địa ngẫu nhiên. (nếu có thể)",
+  "loai": "end",
+  "chiPhi": 3,
+  "sucManh": 3
+ },
+ {
+  "id": "vuatienhac",
+  "ten": "Ám Tiên Vương",
+  "mota": "Vua tiên hắc ám nhỏ bé đứng trên chiếc nấm đen, cánh chuồn chuồn đen, vương miện gai, ngước lên cười gian, tay cầm cây trượng nhánh khô. ",
+  "kyNang": "Lật: Thêm một thẻ có năng lượng từ 3 trở xuống từ bộ bài bạn vào đây, nhưng không lật nó cho đến khi ván đấu kết thúc.",
+  "loai": "rev",
+  "chiPhi": 4,
+  "sucManh": 6
+ },
+ {
+  "id": "nhannhenquai",
+  "ten": "Lục Tý Ma",
+  "mota": "Quỷ sứ sáu tay da chàm thẫm, mặt vẽ tuồng xanh đỏ, các tay cầm chuỳ, xích, đinh ba, mõ, đèn lồng, lá bùa, lao về phía ống kính, hai tay trước vươn ra chộp lấy một chiến binh tí hon",
+  "kyNang": "Lật: Hợp thể thẻ cuối cùng bạn đã đặt vào thẻ này. Khi thẻ này hợp thể, nhân đôi sức mạnh của nó.",
+  "loai": "rev",
+  "chiPhi": 5,
+  "sucManh": 1
+ },
+ {
+  "id": "kydong",
+  "ten": "Kỳ Đồng",
+  "mota": "Kỳ Đồng nhỏ tuổi ngồi trên lưng con cóc to, cầm cờ lệnh nhỏ, ngước lên cười. ",
+  "kyNang": "Cuối Lượt: Cộng 1 sức mạnh cho 3 thẻ 1 năng lượng của bạn.",
+  "loai": "end",
+  "chiPhi": 3,
+  "sucManh": 2
+ },
+ {
+  "id": "nangtocdo",
+  "ten": "Nàng Tóc Đỏ",
+  "mota": "Nàng tóc đỏ rực chạy lướt về phía ống kính, tóc bay như lửa, áo bà ba xanh lá; tiền cảnh: cánh hoa bay. ",
+  "kyNang": "Cuối Lượt: Cộng 1 sức mạnh cho mỗi thẻ của bạn đã di chuyển trong lượt này.",
+  "loai": "end",
+  "chiPhi": 3,
+  "sucManh": 3
+ },
+ {
+  "id": "linhdondoc",
+  "ten": "Tàn Binh",
+  "mota": "Người lính đơn độc quay lưng giữa chiến trường hoang, ngoái lại qua vai, ngọn giáo gãy, lá cờ rách cắm bên cạnh; tiền cảnh: cỏ khô nhoè. ",
+  "kyNang": "Kích Hoạt: Cho thẻ tiếp theo bạn đặt sức mạnh bằng sức mạnh của thẻ này.",
+  "loai": "act",
+  "chiPhi": 3,
+  "sucManh": 2
+ },
+ {
+  "id": "phapsudaomong",
+  "ten": "Pháp Sư Giấc Mơ",
+  "mota": "Pháp sư mộng mơ lùn béo ngồi trên đám mây gối, ôm cuốn sổ vẽ bản đồ giấc mơ, ngước lên. ",
+  "kyNang": "Lật: Thêm Đại Đồ Án vào tay bạn.",
+  "loai": "rev",
+  "chiPhi": 1,
+  "sucManh": 2
+ },
+ {
+  "id": "sautham",
+  "ten": "Sầu Lão",
+  "mota": "Người đàn ông trung niên u sầu ngồi bó gối trên bậc đá dưới mưa, ngước lên trời xám, áo tơi lá rách, những giọt mưa đọng thành vệt sáng; tiền cảnh: giọt mưa nhoè sát máy. ",
+  "kyNang": "Lật: Lặp lại các kỹ năng Lật của các thẻ khác của bạn tại đây, sau đó tiêu huỷ chúng.",
+  "loai": "rev",
+  "chiPhi": 4,
+  "sucManh": 8
+ },
+ {
+  "id": "chimnhai",
+  "ten": "Chim Nhại",
+  "mota": "Chim nhại đậu trên cành tre nhỏ, ngửa cổ hót, quanh nó là bóng mờ của những con chim khác mà nó bắt chước, ngước nhìn lên. ",
+  "kyNang": "Giảm 1 năng lượng cho mỗi thẻ được tạo ra của bạn trên bàn.",
+  "loai": "pas",
+  "chiPhi": 6,
+  "sucManh": 9
+ },
+ {
+  "id": "muoikiepnu",
+  "ten": "Luân Hồi Nương",
+  "mota": "Thiếu nữ đứng giữa, quanh cô là mười bóng mờ của chính cô từ bé đến già xếp thành vòng, cô ngước lên. ",
+  "kyNang": "Khi Bị Tiêu Huỷ: Nhận một bản sao của tay bài ban đầu của bạn.",
+  "loai": "react",
+  "chiPhi": 1,
+  "sucManh": 2
+ },
+ {
+  "id": "battykhonglo",
+  "ten": "Tám Tay Khổng Lồ",
+  "mota": "",
+  "kyNang": "Năng lượng của thẻ này được giảm bằng năng lượng của thẻ trên cùng bộ bài bạn.",
+  "loai": "pas",
+  "chiPhi": 8,
+  "sucManh": 8
+ },
+ {
+  "id": "nguyetlongnu",
+  "ten": "Nguyệt Long Nữ",
+  "mota": "Thiếu nữ rồng trăng nhỏ nhắn ngồi trên chiếc sừng của con rồng bạc đang cuộn bên dưới, ngước nhìn trăng, sừng nhỏ trên trán, áo trắng bạc; tiền cảnh: vảy rồng lấp lánh nhoè sát máy",
+  "kyNang": "Cuối Lượt: +2 sức mạnh nếu bạn đã đặt 1 thẻ trong lượt này và dùng hết năng lượng.",
+  "loai": "end",
+  "chiPhi": 2,
+  "sucManh": 1
+ },
+ {
+  "id": "yeuhau",
+  "ten": "Yêu Hậu",
+  "mota": "Yêu hậu cao lớn đội vương miện sừng, áo đen đỏ, tay nâng một chiếc bình đựng linh hồn đang bay ra. ",
+  "kyNang": "Lật: Trả tất cả thẻ đã bị vứt bỏ và bị tiêu huỷ của bạn về tay với +3 sức mạnh.",
+  "loai": "rev",
+  "chiPhi": 3,
+  "sucManh": 4
+ },
+ {
+  "id": "deonhansokhai",
+  "ten": "Trường Tý Lang",
+  "mota": "Chàng trai dẻo như cao su, cánh tay vươn dài vòng thẳng về phía ống kính, chân quấn quanh cột tre. ",
+  "kyNang": "Cuối Lượt: Giảm 1 năng lượng hoặc cộng 3 sức mạnh cho một thẻ trên tay bạn.",
+  "loai": "end",
+  "chiPhi": 3,
+  "sucManh": 5
+ },
+ {
+  "id": "hoasat",
+  "ten": "Quỷ Hoạ",
+  "mota": "Hoạ sĩ sát thủ cao gầy đứng trên đống tranh rách, cây bút lông khổng lồ như ngọn giáo nhỏ mực đỏ; tiền cảnh: vệt mực bắn sát máy. ",
+  "kyNang": "Duy Trì: +3 sức mạnh cho mỗi chiến địa có thẻ của bạn đã bị tiêu huỷ.",
+  "loai": "on",
+  "chiPhi": 3,
+  "sucManh": 3
+ },
+ {
+  "id": "thuyhau",
+  "ten": "Thuỷ Hậu",
+  "mota": "Nữ hoàng nước đứng trên ngọn sóng xoắn ốc, vương miện san hô, quyền trượng ba mũi, khung nghiêng. ",
+  "kyNang": "Lật: Cộng 5 sức mạnh cho mỗi thẻ của bạn đứng một mình ở một chiến địa khác.",
+  "loai": "rev",
+  "chiPhi": 5,
+  "sucManh": 7
+ },
+ {
+  "id": "thuynu",
+  "ten": "Thuỷ Linh",
+  "mota": "Thiếu nữ làm từ nước nhìn nghiêng, tóc chảy như thác, đứng trên mặt hồ. ",
+  "kyNang": "Khi bạn rút một thẻ, giảm 1 năng lượng của nó nếu đây là thẻ duy nhất của bạn tại đây.",
+  "loai": "pas",
+  "chiPhi": 3,
+  "sucManh": 5
+ },
+ {
+  "id": "acmong",
+  "ten": "Ác Mộng",
+  "mota": "",
+  "kyNang": "Lật: Thay kỹ năng của mỗi thẻ trên tay bạn bằng kỹ năng của một thẻ ngẫu nhiên có cùng năng lượng.",
+  "loai": "rev",
+  "chiPhi": 3,
+  "sucManh": 1
+ },
+ {
+  "id": "dakhuc",
+  "ten": "Dạ Khúc",
+  "mota": "Nhạc công dạ khúc nhìn nghiêng, thổi sáo trúc dưới trăng, nốt nhạc phát sáng bay ra thành những cánh cửa nhỏ. ",
+  "kyNang": "Có thể di chuyển một lần. Khi thẻ này di chuyển, thay chiến địa của nó bằng một chiến địa mới ngẫu nhiên.",
+  "loai": "pas",
+  "chiPhi": 3,
+  "sucManh": 5
+ },
+ {
+  "id": "nhencogiap",
+  "ten": "Cậu Thợ Khéo",
+  "mota": "Cậu bé thợ mộc tóc ba chỏm, áo nâu xắn tay, bút than giắt tai, đang ngồi gõ búa lắp dở một con giáp tám chân nhỏ bằng tre và đồng trên bàn thợ, phoi bào bay; tiền cảnh: đục bào nho",
+  "kyNang": "Lật: Thêm Cơ Giáp Nhện vào tay bạn. Khi thẻ này hợp thể, lượt sau bạn nhận +1 năng lượng.",
+  "loai": "rev",
+  "chiPhi": 2,
+  "sucManh": 3
+ },
+ {
+  "id": "kysitudich",
+  "ten": "Tử Thi Kỵ",
+  "mota": "Gương mặt kỵ sĩ chết đội mũ giáp rỉ sét sứt mẻ, nửa mặt da khô nửa đầu lâu, mắt lửa xanh, nhầy đen rỉ ra từ khe giáp. ",
+  "kyNang": "Nhiệm Vụ: Các thẻ trên bàn bị trừ 5 sức mạnh → Đặt một thẻ từ tay bạn vào đây. (0/5)",
+  "loai": "pas",
+  "chiPhi": 2,
+  "sucManh": 2
+ },
+ {
+  "id": "thandong",
+  "ten": "Thần Đồng",
+  "mota": "Thần đồng tóc trái đào quay lưng đứng trước tấm bảng chữ Hán khổng lồ, ngoái lại cười, tay cầm bút lông. ",
+  "kyNang": "Lật: Nếu thẻ này ở hàng sau, sao chép kỹ năng của thẻ phía trước nó.",
+  "loai": "rev",
+  "chiPhi": 3,
+  "sucManh": 4
+ },
+ {
+  "id": "dathuongnu",
+  "ten": "Dạ Thương",
+  "mota": "Nữ đạo tặc đêm, khăn che mặt, cầm thanh đoản đao ngược, áo đen ôm, nhìn sắc lạnh. ",
+  "kyNang": "Khi Bị Vứt Bỏ: Thẻ này nhảy đến chiến địa có sức mạnh thấp nhất của bạn. (chưa đầy)",
+  "loai": "react",
+  "chiPhi": 4,
+  "sucManh": 7
+ },
+ {
+  "id": "tamkiemmienvien",
+  "ten": "Hồng Liên Kiếm",
+  "mota": "Nữ kiếm khách áo tứ thân hồng sen, tóc búi cài trâm, nhìn nghiêng, đứng trên lá sen giữa đầm, dựng thẳng trước mặt thanh kiếm có chuôi hình búp sen, lưỡi kiếm toả ra những cánh sen",
+  "kyNang": "Lật: Giảm 1 năng lượng của các thẻ trên tay bạn có năng lượng từ 5 trở lên. Rút Nhanh: Thay vào đó áp dụng cho toàn bộ tay bạn.",
+  "loai": "rev",
+  "chiPhi": 3,
+  "sucManh": 4
+ },
+ {
+  "id": "vuathoigian",
+  "ten": "Vua Thời Gian",
+  "mota": "Vua thời gian nhìn nghiêng, ông lão vương miện bánh xe đồng hồ, chống trượng hình kim đồng hồ, áo bào thêu cung hoàng đạo, đồng hồ cát lơ lửng phía trước. ",
+  "kyNang": "Lật: Dùng 3 kỹ năng Lật từ các thẻ ra mắt trước thời của Vua Thời Gian.",
+  "loai": "rev",
+  "chiPhi": 4,
+  "sucManh": 5
+ },
+ {
+  "id": "hongve",
+  "ten": "Trường Côn Vệ",
+  "mota": "Vệ binh áo đỏ mặt nạ đồng, cầm gậy trường côn chặn ngang, vững chãi; tiền cảnh: bụi đỏ sát chân. ",
+  "kyNang": "Lật: Trừ 2 sức mạnh của thẻ đối thủ có sức mạnh thấp nhất tại đây và xoá kỹ năng của nó.",
+  "loai": "rev",
+  "chiPhi": 3,
+  "sucManh": 2
+ },
+ {
+  "id": "cuongnhando",
+  "ten": "Nộ Diện Cự Nhân",
+  "mota": "Gã khổng lồ cởi trần, mặt vẽ kép tuồng mặt đỏ với lông mày xếch rậm, râu đen dài, quấn khố vải điều, hai tay vác ngang cây chày giã gạo bằng gỗ lim khổng lồ, hơi nóng bốc khỏi vai,",
+  "kyNang": "Cuối Lượt: Nếu đối thủ còn năng lượng chưa dùng, +3 sức mạnh. (khi ở trên tay hoặc trên bàn)",
+  "loai": "end",
+  "chiPhi": 6,
+  "sucManh": 10
+ },
+ {
+  "id": "cuongdomienvien",
+  "ten": "Cuồng Phủ Hán",
+  "mota": "Chiến binh cuồng nộ đỏ tóc rực, lao tới ống kính vung rìu, mắt đỏ, miệng gầm. ",
+  "kyNang": "Lật: -1 sức mạnh cho mỗi thẻ đối thủ tại đây. Rút Nhanh: Thay vào đó +1 sức mạnh.",
+  "loai": "rev",
+  "chiPhi": 3,
+  "sucManh": 8
+ },
+ {
+  "id": "soidomienvien",
+  "ten": "Hoả Lang",
+  "mota": "Sói đỏ khổng lồ lông như lửa lao thẳng về phía ống kính, nanh nhe, móng trước giương, đất bắn tung; tiền cảnh: đất đá nhoè. ",
+  "kyNang": "Lật: +1 sức mạnh cho mỗi thẻ trên tay bạn. Rút Nhanh: Cộng 1 sức mạnh cho các thẻ trên tay bạn.",
+  "loai": "rev",
+  "chiPhi": 2,
+  "sucManh": 1
+ },
+ {
+  "id": "chimcanhdo",
+  "ten": "Chim Cánh Đỏ",
+  "mota": "Chim cánh đỏ nhìn nghiêng đang lao xuống, cánh xoè đỏ như lửa, mỏ vàng. ",
+  "kyNang": "Lần đầu thẻ này di chuyển, thêm một thẻ từ tay bạn vào chiến địa cũ.",
+  "loai": "pas",
+  "chiPhi": 3,
+  "sucManh": 5
+ },
+ {
+  "id": "chonvacay",
+  "ten": "Đôi Bạn Rừng Xanh",
+  "mota": "Đôi bạn rừng xanh: chú khỉ đuôi dài lông nâu vàng quàng chiếc khăn rằn nhỏ ngồi trên lưng chú gấu ngựa con lông đen có vầng trăng trắng trước ngực, cả hai ngồi giữa đám dương xỉ ng",
+  "kyNang": "Có thể di chuyển 1 lần. Sau khi đối thủ đặt một thẻ tại đây, lấy 1 sức mạnh từ thẻ đó.",
+  "loai": "pas",
+  "chiPhi": 3,
+  "sucManh": 3
+ },
+ {
+  "id": "haplucchiare",
+  "ten": "Ly Gián Ma Nữ",
+  "mota": "Nữ pháp sư chia đôi: nửa người trái áo trắng, nửa phải áo đen, hai tay kéo căng một sợi sáng giữa hai nửa đang tách; phía sau là bóng mờ của chính bà. ",
+  "kyNang": "Lật: Lấy kỹ năng của thẻ có năng lượng cao nhất trên tay đối thủ.",
+  "loai": "rev",
+  "chiPhi": 5,
+  "sucManh": 5
+ },
+ {
+  "id": "trinu",
+  "ten": "Tiểu Trạng Nguyên",
+  "mota": "Cô bé thông thái đeo kính tròn ngồi xếp bằng giữa những chồng sách cao ngất, quyển sách mở trên đùi, ngước nhìn lên người xem, bút lông giắt tóc. ",
+  "kyNang": "Lật: +2 sức mạnh cho mỗi giá trị sức mạnh khác nhau trong số các thẻ khác tại đây.",
+  "loai": "rev",
+  "chiPhi": 3,
+  "sucManh": 0
+ },
+ {
+  "id": "nhendotham",
+  "ten": "Song Ảnh Hiệp",
+  "mota": "Hiệp khách áo the đen tuyền, đai lưng đỏ son, đội nón chóp, quay lưng 3/4 rồi ngoái lại qua vai; từ người hắn tách ra một bóng phân thân giống hệt bằng mực nhạt đang bước sang hướn",
+  "kyNang": "Kích Hoạt: Thêm một bản sao y hệt thẻ này vào một chiến địa khác.",
+  "loai": "act",
+  "chiPhi": 4,
+  "sucManh": 5
+ },
+ {
+  "id": "khinhdich",
+  "ten": "Tiểu Nhuyễn",
+  "mota": "Sinh vật nhầy nhỏ trong suốt bật nảy về phía ống kính như quả bóng, mặt cười. ",
+  "kyNang": "Khi Bị Vứt Bỏ: Đặt thẻ này trở lại và cộng 2 sức mạnh cho chính nó và một thẻ của bạn trên bàn.",
+  "loai": "react",
+  "chiPhi": 1,
+  "sucManh": 2
+ },
+ {
+  "id": "bocapngaymoi",
+  "ten": "Yểm Sư",
+  "mota": "Yểm Sư: nữ pháp sư yểm bùa áo tứ thân đỏ thẫm, khăn mỏ quạ, tay kẹp lá bùa chú đỏ và hình nhân rơm, khói độc lục quấn quanh. ",
+  "kyNang": "Duy Trì: Nhân đôi lượng sức mạnh bị giảm trên tất cả thẻ đối thủ.",
+  "loai": "on",
+  "chiPhi": 6,
+  "sucManh": 6
+ },
+ {
+  "id": "thetdich",
+  "ten": "Quỷ Khiếu",
+  "mota": "Ma nữ gào khóc nhìn nghiêng, tóc dài xanh rêu bay ngược, miệng há thét tạo những vòng sóng âm đồng tâm loang ra như mặt nước, vạt áo trắng rách hoá thành khói xanh. ",
+  "kyNang": "Khi một thẻ địch di chuyển, lấy 2 sức mạnh từ nó. (một lần mỗi lượt)",
+  "loai": "pas",
+  "chiPhi": 2,
+  "sucManh": 1
+ },
+ {
+  "id": "kysinguyetyeu",
+  "ten": "Nguyệt Thố Kỵ",
+  "mota": "Kỵ sĩ yêu tinh trăng nhỏ bé, tai nhọn, cưỡi con thỏ trắng to lớn, ngước lên trăng tròn, tay cầm cây thương nhỏ bằng nhành quế. ",
+  "kyNang": "Nhiệm Vụ: Có 3 thẻ không có kỹ năng trên bàn → Lấy 5 sức mạnh từ một thẻ đối thủ tại đây. (0/3)",
+  "loai": "pas",
+  "chiPhi": 4,
+  "sucManh": 4
+ },
+ {
+  "id": "hoavatnu",
+  "ten": "Vạn Hoá",
+  "mota": "Nữ pháp sư biến hoá vung tay về phía ống kính, quanh bàn tay các con vật đang hoá thành đồ vật và ngược lại (chim thành quạt, cá thành dao); tiền cảnh: lông chim bay sát máy. ",
+  "kyNang": "Lật: Biến các nhân vật khác của bạn tại đây thành nhân vật ngẫu nhiên có năng lượng cao hơn 1. (nếu có thể)",
+  "loai": "rev",
+  "chiPhi": 5,
+  "sucManh": 7
+ },
+ {
+  "id": "vouyamdia",
+  "ten": "Hiệp Sĩ Địa Ngục",
+  "mota": "Chiến binh bịt mắt quay lưng giữa âm phủ, ngoái lại qua vai, sau lưng là ba con quỷ nhỏ đang bám theo, dải băng đỏ trên mắt. ",
+  "kyNang": "Lật: Xáo 3 Quỷ vào bộ bài. Khi bạn rút một thẻ có 6 sức mạnh trở lên, +2 sức mạnh.",
+  "loai": "rev",
+  "chiPhi": 2,
+  "sucManh": 3
+ },
+ {
+  "id": "longbattu",
+  "ten": "Rồng Bất Tử",
+  "mota": "Rồng bất tử bằng xương cuộn mình bay lên, lửa xanh cháy trong lồng ngực, móng vuốt cào không khí. ",
+  "kyNang": "Lật: Tăng cho nhân vật cuối cùng bạn đặt +2 sức mạnh cho mỗi lượt bạn đã đặt 2 thẻ trở lên. (+0)",
+  "loai": "rev",
+  "chiPhi": 5,
+  "sucManh": 8
+ },
+ {
+  "id": "ngansat",
+  "ten": "Sát Thủ Bạc",
+  "mota": "Sát thủ bạc gầy quay lưng, ngoái lại, kẹp ba phi tiêu bạc giữa các ngón tay, khăn che mặt bạc. ",
+  "kyNang": "Lật: Lấy 2 sức mạnh từ nhân vật trên cùng của bộ bài đối thủ.",
+  "loai": "rev",
+  "chiPhi": 1,
+  "sucManh": 0
+ },
+ {
+  "id": "chomay",
+  "ten": "Cơ Khuyển",
+  "mota": "Chú chó máy bằng đồng thau và gỗ, chạy nhảy về phía ống kính, đuôi là lò xo, mắt đèn xanh. ",
+  "kyNang": "Kích Hoạt: Cộng 2 sức mạnh cho thẻ của bạn vừa di chuyển gần nhất và di chuyển nó về chiến địa trước đó.",
+  "loai": "act",
+  "chiPhi": 2,
+  "sucManh": 2
+ },
+ {
+  "id": "toctu",
+  "ten": "Cậu Bé Tốc Độ",
+  "mota": "Cậu bé tốc độ nhỏ con chạy lao thẳng về phía ống kính, chân mờ thành vệt, áo vàng phấp phới, tóc dựng, miệng cười toe; tiền cảnh: bụi đường cuộn lên. ",
+  "kyNang": "Duy Trì: +1 sức mạnh cho mỗi lượt bạn đã dùng hết năng lượng.",
+  "loai": "on",
+  "chiPhi": 3,
+  "sucManh": 3
+ },
+ {
+  "id": "nhenngaymoi",
+  "ten": "Ráng Hồng",
+  "mota": "Thiếu nữ áo tứ thân hồng đào, khăn mỏ quạ trắng, nhìn nghiêng khi đứng nhón chân trên mũi thuyền nan, hai tay tung dải lụa hồng thật dài uốn thành vòng cung như ráng trời bình minh",
+  "kyNang": "Có thể di chuyển 2 lần. Sau khi thẻ này di chuyển đến một chiến địa, cộng 1 sức mạnh cho một thẻ khác của bạn ở đó. (kể cả thẻ chưa lật)",
+  "loai": "pas",
+  "chiPhi": 1,
+  "sucManh": 2
+ },
+ {
+  "id": "nhenbongdem",
+  "ten": "Dạ Chu",
+  "mota": "Nữ nhện bóng đêm quay lưng bò trên vách tường, ngoái lại qua vai, đôi mắt đỏ, áo đen như mực, tám chân đen mảnh sau lưng. ",
+  "kyNang": "Lật: Chỉnh sức mạnh của nhân vật trên cùng bộ bài bạn thành 8. Nếu các thẻ khác của bạn trên bàn có tổng năng lượng đúng bằng 8, thêm nó vào đây. (0/8)",
+  "loai": "rev",
+  "chiPhi": 4,
+  "sucManh": 5
+ },
+ {
+  "id": "nhennoiloan",
+  "ten": "Loạn Ca Tử",
+  "mota": "Gương mặt chàng hát xẩm ngổ ngáo, tóc rối buộc khăn rằn lệch, một bên má vẽ vạch chàm, miệng đang gào hát, cây đàn nguyệt sứt quai vác ngang vai, mắt loé tinh nghịch. ",
+  "kyNang": "Có thể di chuyển 1 lần. Khi thẻ này di chuyển đến một chiến địa, lấy 2 sức mạnh từ thẻ đối thủ có sức mạnh cao nhất ở đó.",
+  "loai": "pas",
+  "chiPhi": 3,
+  "sucManh": 3
+ },
+ {
+  "id": "ansao",
+  "ten": "Phong Ấn Sao",
+  "mota": "",
+  "kyNang": "Duy Trì: Đối thủ có +3 sức mạnh ở mỗi chiến địa khác.",
+  "loai": "on",
+  "chiPhi": 3,
+  "sucManh": 10
+ },
+ {
+  "id": "buisao",
+  "ten": "Bụi Sao",
+  "mota": "Đứa trẻ bụi sao lơ lửng xoay vòng giữa không trung, thân thể lấp lánh như vũ trụ, bụi sao toả thành vòng xoắn. ",
+  "kyNang": "Duy Trì: Không thể thêm thẻ vào chiến địa trừ khi đặt hoặc di chuyển chúng.",
+  "loai": "on",
+  "chiPhi": 4,
+  "sucManh": 6
+ },
+ {
+  "id": "tinhchuathaiduong",
+  "ten": "Chúa Mặt Trời",
+  "mota": "Tinh chúa mặt trời cao lớn, áo choàng đỏ cam như lửa, đứng giữa một vầng mặt trời khổng lồ hình trống đồng toả tia, hai tay dang rộng; tiền cảnh: tàn lửa sát máy. ",
+  "kyNang": "Lật: Lượt sau, bạn nhận +1 năng lượng cho mỗi lượt bạn đã kết thúc mà còn năng lượng chưa dùng. (0 lượt.)",
+  "loai": "rev",
+  "chiPhi": 5,
+  "sucManh": 7
+ },
+ {
+  "id": "kysidoibao",
+  "ten": "Cơ Hàn Kỵ",
+  "mota": "Kỵ sĩ đói khát gầy trơ xương, mặt hốc hác, cưỡi con ngựa gầy guộc giữa bão cát, giơ cái cân đồng rỗng; khung nghiêng tạo cảm giác lảo đảo, cát quất ngang. ",
+  "kyNang": "Nhiệm Vụ: Kết thúc 2 lượt liên tiếp mà còn năng lượng chưa dùng → Cộng 2 sức mạnh cho các thẻ khác của bạn tại đây và trên tay bạn. (0/2)",
+  "loai": "pas",
+  "chiPhi": 3,
+  "sucManh": 1
+ },
+ {
+  "id": "diphaptoithuong",
+  "ten": "Chưởng Giáo",
+  "mota": "Vị chưởng giáo đạo quán râu dài trắng, đạo bào xanh chàm thêu bát quái, đội mũ đạo sĩ, tay cầm phất trần, đứng giữa sân đạo quán; quanh ông những lá bùa vàng nhỏ đang bay tụ vào ng",
+  "kyNang": "Nhận +2 sức mạnh từ việc hợp thể. Cuối Lượt: Hợp thể một thẻ được tạo ra của bạn vào thẻ này.",
+  "loai": "end",
+  "chiPhi": 2,
+  "sucManh": 2
+ },
+ {
+  "id": "nhenthuongdang",
+  "ten": "Kim Chu Soái",
+  "mota": "Vị nguyên soái trung niên mặc giáp vảy vàng kim kiểu Đại Việt, mũ trụ chóp nhọn tua đỏ, áo choàng gấm, đứng trên tường thành; sau lưng tám ngọn kỳ lệnh vàng cắm xoè thành hình nan ",
+  "kyNang": "Đầu Lượt: +1 năng lượng nếu bạn có thẻ nào được tăng sức mạnh trên bàn.",
+  "loai": "pas",
+  "chiPhi": 3,
+  "sucManh": 4
+ },
+ {
+  "id": "diennu",
+  "ten": "Lôi Quang Tiên",
+  "mota": "Thiếu nữ tóc ngắn dựng vì tĩnh điện, tia điện nhỏ chạy trên ngón tay đặt cạnh má, cười tinh nghịch. ",
+  "kyNang": "Lật: Cho thẻ trên cùng bộ bài của bạn -1 năng lượng và +1 sức mạnh. Sau khi bạn đặt nó, lặp lại kỹ năng này.",
+  "loai": "rev",
+  "chiPhi": 2,
+  "sucManh": 1
+ },
+ {
+  "id": "hoamavuong",
+  "ten": "Hoả Ma Vương",
+  "mota": "Vua quỷ lửa bụng phệ, râu bằng lửa, cười hả hê, nâng chén rượu sôi sục; tiền cảnh: than hồng sát máy. ",
+  "kyNang": "Sau khi bạn đặt một thẻ có 10 sức mạnh trở lên, thẻ này nhận +2 sức mạnh.",
+  "loai": "pas",
+  "chiPhi": 3,
+  "sucManh": 5
+ },
+ {
+  "id": "nhenhacdich",
+  "ten": "Mặc Chu",
+  "mota": "Yêu nhện mực khổng lồ, thân và tám chân như những nét mực tàu loang, trên lưng mang chiếc mặt nạ tuồng đen trắng, đứng trên mái đình cong, những sợi mực nhỏ giọt xuống sân gạch. ",
+  "kyNang": "Kích Hoạt: Hợp thể thẻ có năng lượng thấp nhất của bạn tại đây vào thẻ này. Sao chép kỹ năng của nó như thể nó vừa được lật.",
+  "loai": "act",
+  "chiPhi": 4,
+  "sucManh": 7
+ },
+ {
+  "id": "nhenlong",
+  "ten": "Nhện Lông",
+  "mota": "Con nhện lông xù to bằng con mèo, lông nâu vàng mềm, ngồi trong tổ, tám mắt tròn to ngước nhìn lên, dễ thương. ",
+  "kyNang": "Cuối Lượt: Nếu bạn có sức mạnh cao nhất trong số các thẻ trên bàn, cộng 1 sức mạnh cho thẻ này và 2 nhân vật trên tay bạn.",
+  "loai": "end",
+  "chiPhi": 2,
+  "sucManh": 2
+ },
+ {
+  "id": "virutcosinh",
+  "ten": "Vi-rút Cơ Giới",
+  "mota": "Gương mặt sinh vật cơ khí bị nhiễm: nửa mặt kim loại đồng, nửa mặt mọc những sợi tơ xanh lục như nấm lan dần, mắt đèn đỏ chập chờn. ",
+  "kyNang": "Lật: Lây nhiễm các thẻ khác của bạn tại đây (thay kỹ năng của chúng). Sao chép thẻ này vào tay bạn.",
+  "loai": "rev",
+  "chiPhi": 2,
+  "sucManh": 0
+ },
+ {
+  "id": "tuongquan",
+  "ten": "Tướng Quân",
+  "mota": "Vị tướng quân trung niên râu ngắn, giáp Đại Việt đỏ đồng, tay đặt lên chuôi kiếm, tay kia chỉ về phía trước ra lệnh, khăn đỏ bay; tiền cảnh: ngọn cờ nhoè. ",
+  "kyNang": "Cuối Lượt: Nếu đối thủ còn năng lượng chưa dùng, rút một thẻ có 10 sức mạnh trở lên.",
+  "loai": "end",
+  "chiPhi": 2,
+  "sucManh": 2
+ },
+ {
+  "id": "bavuongtim",
+  "ten": "Lục Chung Tôn Giả",
+  "mota": "Bá vương khổng lồ da xám xanh, cằm nhiều nếp, đeo găng đồng khảm sáu viên đá màu, ngồi trên ngai đá nhìn xuống. ",
+  "kyNang": "Đầu Ván: Xáo sáu Đá Vô Cực vào bộ bài của bạn.",
+  "loai": "start",
+  "chiPhi": 6,
+  "sucManh": 12
+ },
+ {
+  "id": "conhan",
+  "ten": "Cổ Nhân",
+  "mota": "Ông cổ nhân râu dài quay lưng, ngoái lại, tay ôm cuộn bản đồ cổ phát sáng, gậy chống. ",
+  "kyNang": "Lật: Thêm Đạo Đồ vào tay bạn.",
+  "loai": "rev",
+  "chiPhi": 3,
+  "sucManh": 5
+ },
+ {
+  "id": "thachquaisokhai",
+  "ten": "Thạch Tổ",
+  "mota": "Tượng đá ông tổ cổ xưa khổng lồ như tượng quan hầu lăng mộ, đá xanh phong rêu, mũ cánh chuồn bằng đá, hai tay cầm hốt đá, đang bước ra khỏi bệ, mảnh bệ đá vỡ tung quanh chân. ",
+  "kyNang": "Cuối Lượt: +2 sức mạnh. Một lần mỗi ván, nếu phía bạn tại đây đã đầy, tiêu huỷ một thẻ đối thủ tại đây có sức mạnh thấp hơn.",
+  "loai": "end",
+  "chiPhi": 5,
+  "sucManh": 6
+ },
+ {
+  "id": "nuchienbathu",
+  "ten": "Bất Hoại Nữ Tướng",
+  "mota": "Nữ chiến binh bất tử, vết sẹo khắp người, cầm hai thanh đao chéo trước ngực, ánh mắt bình thản; tiền cảnh: lá vàng rơi. ",
+  "kyNang": "Cuối Lượt: +3 sức mạnh nếu bạn đã đặt (đúng) 2 thẻ.",
+  "loai": "end",
+  "chiPhi": 2,
+  "sucManh": 0
+ },
+ {
+  "id": "docdich",
+  "ten": "Độc Thể",
+  "mota": "Con quái nhầy độc xanh lục nhỏ ngồi trong vũng nhớt, nhiều mắt, ngước nhìn lên, cười. ",
+  "kyNang": "Lật: Trả các thẻ khác của bạn tại đây về tay. +2 sức mạnh cho mỗi thẻ được trả về.",
+  "loai": "rev",
+  "chiPhi": 2,
+  "sucManh": 2
+ },
+ {
+  "id": "dacvuquocgia",
+  "ten": "Ám Hương",
+  "mota": "Nữ đặc vụ quay lưng, ngoái qua vai, áo dài đen, tay giấu khẩu súng hoả mai ngắn, mũ nồi. ",
+  "kyNang": "Duy Trì: Các thẻ 4 năng lượng trở lên tại đây có -3 sức mạnh.",
+  "loai": "on",
+  "chiPhi": 2,
+  "sucManh": 3
+ },
+ {
+  "id": "huyetmenu",
+  "ten": "Huyết Phi",
+  "mota": "Nữ huyết thuật vươn tay về ống kính, những sợi máu đỏ bay từ nhiều hướng tụ vào lòng bàn tay; tiền cảnh: giọt máu nhoè sát máy. ",
+  "kyNang": "Lật: Với mỗi mức năng lượng khác nhau trong số các thẻ của bạn trên bàn, lấy 1 sức mạnh từ một thẻ đối thủ tại đây.",
+  "loai": "rev",
+  "chiPhi": 6,
+  "sucManh": 7
+ },
+ {
+  "id": "huyetsatvuong",
+  "ten": "Huyết Sát Vương",
+  "mota": "Vua huyết sát lùn béo ngồi trên rương vàng, cầm cây giáo hút máu nhỏ, ngước lên cười gian. ",
+  "kyNang": "Cuối Lượt: Nếu bạn đã dùng hết năng lượng, nhận một Giáo Hút Máu.",
+  "loai": "end",
+  "chiPhi": 2,
+  "sucManh": 2
+ },
+ {
+  "id": "taysatnu",
+  "ten": "Thiết Thủ",
+  "mota": "Nữ thợ rèn có cánh tay phải bằng sắt rèn, tay trái cầm búa, đứng bên đe đang rèn một lưỡi đao đỏ rực; tiền cảnh: tia lửa. ",
+  "kyNang": "Duy Trì: Các thẻ của bạn được tạo ra trên tay có +2 sức mạnh.",
+  "loai": "on",
+  "chiPhi": 2,
+  "sucManh": 2
+ },
+ {
+  "id": "huyenconu",
+  "ten": "Huyễn Cơ",
+  "mota": "Nữ ảo thuật máy nhìn nghiêng, nửa thân là bộ khung đồng hở lộ bánh răng, tay giơ chiếc gương phản chiếu ảo ảnh. ",
+  "kyNang": "Đầu Lượt: Cộng 1 sức mạnh cho tất cả thẻ trên tay bạn nếu bạn đang thắng tại đây. Nếu không, di chuyển thẻ này đến một chiến địa khác.",
+  "loai": "pas",
+  "chiPhi": 3,
+  "sucManh": 4
+ },
+ {
+  "id": "comaychien",
+  "ten": "Phá Trận Tướng",
+  "mota": "Phá Trận Tướng: mãnh tướng giáp đồng nặng ôm cột gỗ lim bịt đầu đồng hình đầu voi, húc phá cổng thành, rào chông vỡ tung. ",
+  "kyNang": "Duy Trì: Không gì có thể ngăn bạn đặt thẻ ở bất kỳ đâu.",
+  "loai": "on",
+  "chiPhi": 5,
+  "sucManh": 9
+ },
+ {
+  "id": "cosinhthe",
+  "ten": "Cơ Sinh Thể",
+  "mota": "Người nửa máy nửa cây: thân gỗ có bánh răng và dây leo, đang tự sửa chữa cánh tay, mạch nhựa sáng. ",
+  "kyNang": "Kích Hoạt: Với mỗi năng lượng chưa dùng, giảm 1 năng lượng của một thẻ trên tay bạn.",
+  "loai": "act",
+  "chiPhi": 3,
+  "sucManh": 4
+ },
+ {
+  "id": "vukhih",
+  "ten": "Huyền Thiết Binh",
+  "mota": "Pho tượng hộ pháp bằng gang đen cao lớn vừa thức dậy giữa sân chùa đổ nát, mặt tượng trợn mắt, đôi mắt là hai hòn than hồng, một tay cầm chày kim cương, tay kia cầm cây giản sắt, r",
+  "kyNang": "Khi Bị Vứt Bỏ: Đặt thẻ này trở lại với -2 năng lượng.",
+  "loai": "react",
+  "chiPhi": 7,
+  "sucManh": 14
+ },
+ {
+  "id": "vukhix",
+  "ten": "Đồng Trảo",
+  "mota": "Thợ săn hổ người Mường vạm vỡ, tóc búi, áo chàm cộc tay, hai bàn tay đeo bao da gắn năm móng hổ đồng cong ngắn ôm sát đầu ngón, nhìn nghiêng khom người rình mồi giữa lau sậy, mắt h",
+  "kyNang": "Sau khi một thẻ khác của bạn bị tiêu huỷ, +1 sức mạnh. Sau mỗi 3 lần, mức cộng này tăng thêm 1. (0/3)",
+  "loai": "pas",
+  "chiPhi": 2,
+  "sucManh": 3
+ },
+ {
+  "id": "docnutrang",
+  "ten": "Bạch Độc Cơ",
+  "mota": "Nữ độc dược sư áo trắng quay lưng, ngoái qua vai, thổi một nụ hôn ra làn khói độc xanh nhạt. ",
+  "kyNang": "Lật: Thêm một Nụ Hôn Độc vào phía đối thủ ở chiến địa này.",
+  "loai": "rev",
+  "chiPhi": 2,
+  "sucManh": 2
+ },
+ {
+  "id": "phuthuytre",
+  "ten": "Phù Thuỷ Trẻ",
+  "mota": "Phù thuỷ trẻ áo xanh lá, cầm cây chổi rơm, mỉm cười, quả cầu phép bay quanh. ",
+  "kyNang": "Lật: Nếu bạn đã dùng hết năng lượng ở các lượt trước, +2 năng lượng tối đa.",
+  "loai": "rev",
+  "chiPhi": 4,
+  "sucManh": 6
+ },
+ {
+  "id": "trumthanhpho",
+  "ten": "Bá Hộ",
+  "mota": "Ông bá hộ béo tròn áo the đen, khăn xếp, ngồi chễm chệ trên sập gụ khảm xà cừ giữa sân gạch, phe phẩy quạt giấy, nhẫn vàng đầy tay, ngước nhìn người xem vênh váo, xung quanh thóc v",
+  "kyNang": "Có năng lượng 3 nếu bạn có sức mạnh cao nhất trong số các thẻ trên bàn.",
+  "loai": "pas",
+  "chiPhi": 5,
+  "sucManh": 8
+ },
+ {
+  "id": "kysivuottu",
+  "ten": "Cốt Trảo Kỵ",
+  "mota": "Kỵ sĩ tử thần lao tới ống kính trên lưng ngựa xương, cánh tay phải là bộ móng vuốt xương dài giương ra; tiền cảnh: bụi xương vụn. ",
+  "kyNang": "Nhiệm Vụ: Thẻ này có 6 sức mạnh trở lên → Cộng 4 sức mạnh cho một thẻ của bạn ở mỗi chiến địa. (4/6)",
+  "loai": "pas",
+  "chiPhi": 4,
+  "sucManh": 4
+ },
+ {
+  "id": "saotrongdau",
+  "ten": "Sao Trong Đầu",
+  "mota": "Gương mặt cô gái có bầu trời sao bên trong hộp sọ trong suốt, mắt nhắm. ",
+  "kyNang": "Sau khi BẤT KỲ thẻ 3 hoặc 4 năng lượng nào được đặt tại đây, di chuyển nó đến một chiến địa khác.",
+  "loai": "pas",
+  "chiPhi": 2,
+  "sucManh": 3
+ },
+ {
+  "id": "xachacmieu",
+  "ten": "Xác Mèo Đen",
+  "mota": "Xác mèo đen gầy trơ xương nhìn nghiêng, đứng trên tường đổ, đuôi dài cong, mắt lửa xanh. ",
+  "kyNang": "Khi Bị Vứt Bỏ: Vứt bỏ một thẻ Khi Bị Vứt Bỏ khác. Nhảy tới chiến địa của bạn có ít thẻ nhất.",
+  "loai": "react",
+  "chiPhi": 3,
+  "sucManh": 5
+ },
+ {
+  "id": "xacdao",
+  "ten": "Xác Đao Phủ",
+  "mota": "Xác sống đao phủ cầm đại đao gỉ, đầu nghiêng, áo rách, khung nghiêng, phía sau thấp thoáng bầy xác; tiền cảnh: bàn tay xác nhoè sát máy. ",
+  "kyNang": "Cuối Lượt: Nếu bạn đã đặt một thẻ Lật, Zombie Bầy Xác của bạn lấy 1 sức mạnh từ một nhân vật trên tay đối thủ. (Tạo Bầy Xác trước nếu cần)",
+  "loai": "end",
+  "chiPhi": 2,
+  "sucManh": 3
+ },
+ {
+  "id": "xactinhquang",
+  "ten": "Thây Ma Ánh Sao",
+  "mota": "Xác nữ tinh quang tóc trắng, mắt sao, lao về phía ống kính, tay toả luồng sáng sao lạnh. ",
+  "kyNang": "Kích Hoạt: Tiêu huỷ các thẻ khác của bạn tại đây để nhận +3 sức mạnh cho mỗi thẻ. Di chuyển tới một chiến địa bạn đang thua.",
+  "loai": "act",
+  "chiPhi": 4,
+  "sucManh": 6
+ },
+ {
+  "id": "bayxacnuotsao",
+  "ten": "Cương Thi Nuốt Sao",
+  "mota": "",
+  "kyNang": "Đầu Ván: Chọn 6 nhân vật khác trong bộ bài bạn. Lật: Biến các thẻ đó thành bản sao của thẻ này.",
+  "loai": "start",
+  "chiPhi": 7,
+  "sucManh": 5
+ },
+ {
+  "id": "xacdeo",
+  "ten": "Thây Ma Cao Su",
+  "mota": "Xác sống dẻo như cao su ngồi bệt dưới đất, tay chân kéo dài uốn éo, ngước lên cười ngớ ngẩn. ",
+  "kyNang": "Lật: Bầy Xác +2. Kích Hoạt: Cộng 1 sức mạnh cho 4 thẻ được tạo ra của bạn.",
+  "loai": "rev",
+  "chiPhi": 2,
+  "sucManh": 2
+ },
+ {
+  "id": "xachongphuthuy",
+  "ten": "Xác Bà Đồng",
+  "mota": "Xác bà đồng già trong bộ áo hầu đồng sặc sỡ đã bạc màu rách tả tơi, khăn chầu đỏ phủ đầu, vung quạt giấy và bó hương cháy về phía ống kính, dưới đất những bàn tay xương trồi lên th",
+  "kyNang": "Sau khi bạn đặt một thẻ tại đây, Bầy Xác +2.",
+  "loai": "pas",
+  "chiPhi": 3,
+  "sucManh": 4
+ },
+ {
+  "id": "xachacdich",
+  "ten": "Mặc Thi",
+  "mota": "Xác cương thi mặc áo tấc đen rách, khăn vấn bạc màu, đứng chụm chân trên nấm mộ, nửa người bị bóng mực đen quấn lấy thành những dải lụa đen bay phần phật, ngước nhìn người xem với ",
+  "kyNang": "Lật: Tiêu huỷ thẻ khác đầu tiên của bạn tại đây. Sau khi một thẻ khác của bạn bị tiêu huỷ, Bầy Xác +3.",
+  "loai": "rev",
+  "chiPhi": 3,
+  "sucManh": 3
+ },
+ {
+  "id": "hoathuatnu",
+  "ten": "Hoả Thuật Sư",
+  "mota": "Thiếu nữ phép lửa, đốm lửa nhỏ nhảy múa trên đầu ngón tay đặt trước môi như thổi, mắt phản chiếu lửa; tiền cảnh: tàn lửa nhoè. ",
+  "kyNang": "Khi thẻ này được Cường Hoá, thêm Lửa Hắc Diệm vào tay bạn. (nếu ở trên tay hoặc trên bàn)",
+  "loai": "pas",
+  "chiPhi": 1,
+  "sucManh": 3
+ },
+ {
+  "id": "lanvuong",
+  "ten": "Vua Thợ Lặn",
+  "mota": "Vua thợ lặn nhỏ con đội mũ lặn đồng tròn có kính, ngồi trên vỏ sò khổng lồ, ngước lên, bong bóng bay quanh, tay cầm ngọc trai. ",
+  "kyNang": "Khi thẻ này được cường hoá, thêm một nhân vật 1 năng lượng ngẫu nhiên vào tay bạn với cùng mức tăng đó. (khi ở trên tay hoặc trên bàn)",
+  "loai": "pas",
+  "chiPhi": 1,
+  "sucManh": 2
+ },
+ {
+  "id": "thanai",
+  "ten": "Tơ Hồng",
+  "mota": "Ông Tơ râu tóc bạc phơ, má hồng, áo the hồng đào, ngồi dưới gốc đa dưới trăng, tay se những sợi chỉ hồng buộc nối hai chiếc vòng cỏ, cuộn chỉ đỏ lăn bên chân, ngước nhìn người xem ",
+  "kyNang": "Khi các thẻ của bạn trên bàn được cường hoá, tăng thêm +1 sức mạnh cho các thẻ đó.",
+  "loai": "pas",
+  "chiPhi": 3,
+  "sucManh": 2
+ },
+ {
+  "id": "hacdiemchua",
+  "ten": "Hắc Diệm Đế",
+  "mota": "Chúa lửa đen khổng lồ ngồi trên ngai đá núi lửa, sừng dài, lửa đen liếm quanh vai, một tay cầm cuộn bùa triệu hồi đang cháy; tiền cảnh: tàn tro bay sát máy. ",
+  "kyNang": "Đầu Ván: Bắt đầu Nghi thức Triệu hồi. (Thêm bước 1 vào tay.)",
+  "loai": "start",
+  "chiPhi": 7,
+  "sucManh": 13
+ },
+ {
+  "id": "khoinguyenvuong",
+  "ten": "Khai Nguyên Tổ",
+  "mota": "Vua khởi nguyên trung niên đội vương miện hình mầm cây, đứng giữa vòng tròn đá cổ, tay chống quyền trượng gỗ có rễ. ",
+  "kyNang": "Nhiệm Vụ: Có từ 2 thẻ trở lên ở mỗi chiến địa → Biến thành Mạt Thế Thiên Tuyển.",
+  "loai": "pas",
+  "chiPhi": 4,
+  "sucManh": 5
+ },
+ {
+  "id": "kechinhphatthoigian",
+  "ten": "Kẻ Chinh Phạt",
+  "mota": "Kẻ chinh phạt thời gian mặc giáp đồng, áo choàng xanh, đứng trên những bánh răng đồng hồ khổng lồ, phía sau là bốn bóng của chính hắn ở bốn thời đại. ",
+  "kyNang": "Đầu Ván: Thay thẻ này bằng 4 Kẻ Chinh Phạt Thời Gian mang kỹ năng của các thẻ ngẫu nhiên có năng lượng từ 3 trở lên.",
+  "loai": "start",
+  "chiPhi": 3,
+  "sucManh": 4
+ },
+ {
+  "id": "lucac",
+  "ten": "Sáu Ác Quỷ",
+  "mota": "Sáu tiểu quỷ đủ màu đang trèo lên nhau hợp thành một ác quỷ khổng lồ, khung nghiêng hỗn loạn, mặt quỷ nhe răng. ",
+  "kyNang": "Đầu Ván: 6 nhân vật đầu tiên bạn rút trở nên ÁC. Sau khi bạn đặt hết chúng, hợp thể chúng vào thẻ này và thêm thẻ này vào chiến địa của thẻ cuối cùng.",
+  "loai": "start",
+  "chiPhi": 6,
+  "sucManh": 12
+ },
+ {
+  "id": "phapsugia",
+  "ten": "Pháp Sư Già",
+  "mota": "Gương mặt pháp sư già râu dài trắng, mắt kính tròn, cái nón chóp đầy bùa, mỉm cười bí ẩn. ",
+  "kyNang": "Đầu Lượt: Thêm một Thần Chú ngẫu nhiên vào tay bạn.",
+  "loai": "pas",
+  "chiPhi": 2,
+  "sucManh": 2
+ },
+ {
+  "id": "chutruongnu",
+  "ten": "Tiểu Phù Sư",
+  "mota": "Nữ pháp sư trẻ cầm cây trượng gỗ có đầu là đá đổi màu, đặt sát má, mắt một màu xanh một màu đỏ. ",
+  "kyNang": "Lật: Sau khi bạn đặt thẻ tiếp theo, niệm một phép lên thẻ đó. Phép đổi theo lượt: hoá Quỷ / tiêu huỷ để rút 2 thẻ / dời sang phải / +2 sức mạnh / thay chiến địa / thêm bản sao vào tay / nhân đôi sức mạnh thẻ này.",
+  "loai": "rev",
+  "chiPhi": 1,
+  "sucManh": 2
+ },
+ {
+  "id": "quyensuthaphoan",
+  "ten": "Càn Khôn Võ Thánh",
+  "mota": "Võ thánh trung niên cởi trần, quần võ đen thắt đai vàng, đứng trên đỉnh núi đá, một tay giơ cao chiếc vòng càn khôn bằng vàng duy nhất đang xoay toả sáng, tay kia thủ thế, sau lưng",
+  "kyNang": "Đầu Ván: Thập Hoàn bắt đầu trên tay bạn. Lật: Khai mở tiềm năng của chúng.",
+  "loai": "rev",
+  "chiPhi": 3,
+  "sucManh": 5
+ },
+ {
+  "id": "kerinh",
+  "ten": "Kẻ Rình",
+  "mota": "Kẻ rình rập nhìn nghiêng, cúi thấp sau góc tường, khăn đen che mặt, tay cầm bộ dụng cụ mở khoá. ",
+  "kyNang": "Lật: Thêm 2 Đồ Nghề Trộm vào tay bạn. Chỉnh năng lượng của chúng thành 0 nếu có thẻ đã di chuyển ở lượt trước.",
+  "loai": "rev",
+  "chiPhi": 3,
+  "sucManh": 4
+ },
+ {
+  "id": "thuanung",
+  "ten": "Ưng Non",
+  "mota": "Chú chim ưng nhỏ đậu trên tấm khiên tròn lớn, ngước lên, lông vũ xù. ",
+  "kyNang": "Lật: Thêm Khiên Tướng vào một chiến địa khác. Duy Trì: Khiên Tướng có thể di chuyển.",
+  "loai": "rev",
+  "chiPhi": 2,
+  "sucManh": 2
+ },
+ {
+  "id": "huyettruonglao",
+  "ten": "Trưởng Lão Máu",
+  "mota": "Gương mặt trưởng lão máu già nhăn nheo, đồng tử đỏ, râu bạc dài, nanh nhỏ, phía sau thấp thoáng bóng một con thú đỏ khổng lồ. ",
+  "kyNang": "Nhiệm Vụ: 3 thẻ của bạn có sức mạnh lấy được → Biến thành Cự Thú Đỏ Thẫm. (0/3)",
+  "loai": "pas",
+  "chiPhi": 4,
+  "sucManh": 5
+ },
+ {
+  "id": "tamtudo",
+  "ten": "Tam Nhãn",
+  "mota": "Gương mặt người đàn ông có ba con mắt đỏ, con mắt giữa trán đang mở, đường gân đỏ toả ra, môi mím. ",
+  "kyNang": "Duy Trì: Có 3 kỹ năng Duy Trì ngẫu nhiên.",
+  "loai": "on",
+  "chiPhi": 4,
+  "sucManh": 4
+ },
+ {
+  "id": "nuhoanghonmang",
+  "ten": "Hỗn Mang Hậu",
+  "mota": "Nữ hoàng hỗn mang ngồi lệch trên ngai, vương miện lệch, xung quanh các vật thể ngẫu nhiên bay lộn xộn (ấm trà, con cá, cái ô). ",
+  "kyNang": "Đầu Lượt: Thêm một kỹ năng CỰC KỲ ngẫu nhiên vào tay bạn. Nó có năng lượng 0 trong lượt này.",
+  "loai": "pas",
+  "chiPhi": 3,
+  "sucManh": 4
+ },
+ {
+  "id": "loantuong",
+  "ten": "Tướng Loạn Trí",
+  "mota": "Gương mặt vị tướng loạn trí tóc rối, mũ giáp méo lệch, cười điên dại, vết máu trên má, mắt mở to. ",
+  "kyNang": "Nhiệm Vụ: Đặt 3 thẻ Lật → Kích hoạt thẻ Lật có năng lượng cao nhất trên tay bạn. (0/3)",
+  "loai": "pas",
+  "chiPhi": 4,
+  "sucManh": 6
+ },
+ {
+  "id": "trungphatcogiap",
+  "ten": "Giáp Trừng Phạt",
+  "mota": "Cỗ giáp gỗ lim sơn then của quan coi ngục, ngực chạm mặt hổ phù đỏ son, trên vai gắn khẩu thần công đồng nhỏ, hai tay cầm cái gông gỗ và roi mây; khung nghiêng; tiền cảnh: dây xích",
+  "kyNang": "Khi được rút, đánh dấu một chiến địa bạn chưa có thẻ. Nhiệm Vụ: Thắng chiến địa đó → +1 năng lượng tối đa.",
+  "loai": "pas",
+  "chiPhi": 2,
+  "sucManh": 2
+ },
+ {
+  "id": "bavuongmienvien",
+  "ten": "Hậu Nghệ",
+  "mota": "Bá vương xạ thủ nhìn nghiêng, giương cây cung lớn, ống tên sau lưng đầy mũi tên đủ màu, áo choàng ngắn. ",
+  "kyNang": "Đầu Ván: Các thẻ của bạn có \"Rút Nhanh: nạp một Phát Bắn ngẫu nhiên.\" Lật: Bắn tất cả Phát Bắn đã nạp (rút 1 thẻ / +3 sức mạnh / chép thẻ rẻ nhất tại đây / tiêu huỷ thẻ địch yếu nhất tại đây / +1 sức mạnh và dời được ở lượt sau / tay bạn -1 năng lượng).",
+  "loai": "rev",
+  "chiPhi": 5,
+  "sucManh": 7
+ },
+ {
+  "id": "nguyetthach",
+  "ten": "Nguyệt Thạch",
+  "mota": "Khối đá trăng khổng lồ hình người ngồi tĩnh toạ, thân đá có những hõm phát sáng xanh lam như mặt trăng, rêu bạc phủ vai; tiền cảnh: đá vụn sát máy. ",
+  "kyNang": "Duy Trì: Có các kỹ năng Duy Trì của các thẻ có năng lượng từ 3 trở xuống của bạn tại đây.",
+  "loai": "on",
+  "chiPhi": 4,
+  "sucManh": 6
+ },
+ {
+  "id": "thietgiapthuongdang",
+  "ten": "Thái Dương Giáp",
+  "mota": "Võ tướng đứng vững trên mỏm đá, khoác bộ giáp lá đồng xanh gỉ xếp vảy cá, ngực mang tấm hộ tâm kính hình mặt trời trống đồng nhiều cánh đang toả nắng, mũ trụ cắm lông chim lạc, hai",
+  "kyNang": "Nhân đôi lượng giảm năng lượng cho thẻ này. Duy Trì: Nhân đôi lượng tăng sức mạnh cho thẻ này.",
+  "loai": "pas",
+  "chiPhi": 5,
+  "sucManh": 8
+ },
+ {
+  "id": "kenuotsaosokhai",
+  "ten": "Gã Hái Sao",
+  "mota": "Kẻ nuốt sao đời đầu quay lưng, ngoái lại, áo choàng tím sẫm như bầu trời đêm, vai mang bình gốm đựng sao. ",
+  "kyNang": "Sứ Giả của ta là nhân vật tiếp theo ta thấy ngươi đặt. Cuối Lượt: +2 sức mạnh nếu bạn đang thắng ở chiến địa của Sứ Giả. (nếu ở trên tay hoặc trên bàn)",
+  "loai": "pas",
+  "chiPhi": 6,
+  "sucManh": 11
+ },
+ {
+  "id": "dihien",
+  "ten": "Dì Hiền",
+  "mota": "Người dì hiền đẫy đà, áo bà ba, quấn khăn, tay xách giỏ trái cây, tay kia vẫy, mỉm cười. ",
+  "kyNang": "Cuối Lượt: Nếu bạn đã dùng kỹ năng Dời Được, cho 1 thẻ Dời Được trên tay bạn -1 năng lượng và +2 sức mạnh.",
+  "loai": "end",
+  "chiPhi": 2,
+  "sucManh": 4
+ }
+]

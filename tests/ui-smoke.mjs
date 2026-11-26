@@ -29,9 +29,9 @@ const ctx = await browser.newContext({ viewport: { width: 412, height: 915 }, de
 const page = await ctx.newPage();
 await page.route(/^https:\/\/([^/]*workers\.dev|tamdia\.pages\.dev)\//, r => r.fulfill({ status: 200, contentType: "application/json", body: '{"ok":false,"items":[]}' })); /* gpu52: không gọi máy chủ online thật */
 page.on("pageerror", e => errors.push("pageerror: " + e.message));
-page.on("console", m => { if (m.type() === "error" && !/ERR_TUNNEL_CONNECTION_FAILED|ERR_PROXY/.test(m.text()) && !/\/sfx\/thoai/.test(m.location().url || "")) errors.push("console.error: " + m.text()); });
+page.on("console", m => { if (m.type() === "error" && !/ERR_TUNNEL_CONNECTION_FAILED|ERR_PROXY/.test(m.text())) errors.push("console.error: " + m.text()); });
 page.on("requestfailed", r => { if (r.url().startsWith(url.replace(/index\.html$/, ""))) errors.push("requestfailed: " + r.url()); }); // bỏ qua host ngoài (Google Fonts) khi chạy offline
-page.on("response", r => { if (r.status() >= 400 && !/\/sfx\/thoai/.test(r.url())) errors.push("http " + r.status() + ": " + r.url()); });
+page.on("response", r => { if (r.status() >= 400) errors.push("http " + r.status() + ": " + r.url()); });
 const shot = n => page.screenshot({ path: path.join(out, n + ".png") }).catch(() => {});
 const step = s => console.log("• " + s);
 const click = id => page.evaluate(i => document.getElementById(i).click(), id);

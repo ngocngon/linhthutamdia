@@ -16,7 +16,8 @@ GAP = 0.1
 
 
 def run(cmd):
-    return subprocess.run(cmd, capture_output=True, text=True)
+    try: return subprocess.run(cmd, capture_output=True, text=True, timeout=60)
+    except subprocess.TimeoutExpired: return subprocess.CompletedProcess(cmd, 1, "", "")
 
 
 def decode(path):
@@ -27,16 +28,22 @@ def decode(path):
 
 def process(src, tmp):
     """Trả mảng float (mono 44,1 kHz) đã hậu kỳ hoặc None."""
-    sil = "silenceremove=start_periods=1:start_threshold=-48dB:start_silence=0.03:stop_periods=1:stop_threshold=-48dB:stop_silence=0.12"
+    # chỉ cắt lặng ĐẦU và CUỐI câu (stop_periods cắt luôn sau chỗ ngắt hơi giữa câu -> câu cụt/rỗng)
+    one = "silenceremove=start_periods=1:start_threshold=-48dB:start_silence=0.03"
+    sil = f"{one},areverse,{one},areverse"  # apad+loudnorm làm ffmpeg treo -> đệm lặng bằng numpy
     pre = f"highpass=f=70,{sil}"
-    r = run(["ffmpeg", "-hide_banner", "-i", src, "-ac", "1", "-ar", str(SR), "-af", pre + ",loudnorm=I=-16:TP=-1.5:LRA=7:print_format=json", "-f", "null", "-"])
+    # bước 1: cắt lặng ra wav tạm (gộp areverse + loudnorm một lệnh làm ffmpeg treo)
+    trim = os.path.join(tmp, "t.wav")
+    r = run(["ffmpeg", "-v", "error", "-y", "-i", src, "-ac", "1", "-ar", str(SR), "-af", pre, trim])
+    if r.returncode or not os.path.exists(trim): return None
+    r = run(["ffmpeg", "-hide_banner", "-i", trim, "-af", "loudnorm=I=-16:TP=-1.5:LRA=7:print_format=json", "-f", "null", "-"])
     m = re.search(r"\{[^{}]*\"input_i\"[^{}]*\}", r.stderr, re.S)
     if not m: return None
     j = json.loads(m.group(0))
     ln = (f"loudnorm=I=-16:TP=-1.5:LRA=7:measured_I={j['input_i']}:measured_TP={j['input_tp']}:measured_LRA={j['input_lra']}"
           f":measured_thresh={j['input_thresh']}:offset={j['target_offset']}:linear=true")
     out = os.path.join(tmp, "n.wav")
-    r = run(["ffmpeg", "-v", "error", "-y", "-i", src, "-ac", "1", "-ar", str(SR), "-af", f"{pre},{ln},aresample={SR}", out])
+    r = run(["ffmpeg", "-v", "error", "-y", "-i", trim, "-af", f"{ln},aresample={SR}", "-ac", "1", out])
     if r.returncode or not os.path.exists(out): return None
     y = decode(out)
     if len(y) < int(0.25 * SR) or np.max(np.abs(y)) < 0.01: return None
@@ -44,7 +51,7 @@ def process(src, tmp):
     if pk > lim: y = y * (lim / pk)                     # đỉnh <= -1 dBFS
     a = int(0.008 * SR); b = min(len(y) // 2, int(0.04 * SR))
     y[:a] *= np.linspace(0, 1, a); y[-b:] *= np.linspace(1, 0, b)
-    return y
+    return np.concatenate([y, np.zeros(int(0.12 * SR))])
 
 
 def write_wav(path, y):
