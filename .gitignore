@@ -7,3 +7,4 @@ node_modules/
 tools/fx_atlas/*_xem.png
 www/img/fx/*_xem.png
 __pycache__/
+trang/dist/

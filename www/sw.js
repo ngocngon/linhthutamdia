@@ -42,6 +42,7 @@ self.addEventListener("fetch", e => {
   if (u.origin !== self.location.origin || !/^https?:$/.test(u.protocol)) return;
   if (u.searchParams.has("rt")) return;             /* ảnh thử lại có tham số chống cache: để trình duyệt tự xử lý */
   if (u.pathname.endsWith("/sw.js")) return;
+  if (u.pathname.startsWith("/api/")) return;       /* máy chủ online (cùng địa chỉ qua Pages Functions): không bao giờ cache */
   if (req.mode === "navigate") { e.respondWith(networkFirst(req)); return; }
   if (STATIC.test(u.pathname) || ["image", "font", "style", "script", "audio"].includes(req.destination)) e.respondWith(cacheFirst(req));
 });
@@ -54,7 +55,7 @@ self.addEventListener("message", e => {
     for (const url of d.urls.slice(0, 400)) {
       try {
         const u = new URL(url);
-        if (u.origin !== self.location.origin || u.searchParams.has("rt")) continue;
+        if (u.origin !== self.location.origin || u.searchParams.has("rt") || u.pathname.startsWith("/api/")) continue;
         if (await c.match(url)) continue;
         const res = await fetch(url);
         if (res.ok && res.status === 200) await c.put(url, res);

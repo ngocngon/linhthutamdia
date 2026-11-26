@@ -5,7 +5,7 @@
    db (doc().get()/set()) và user (id()), nên các hàm OL trong 05-vfx-core.js giữ nguyên. */
 (function(){
 "use strict";
-var DEFAULT_SERVER="https://linhthu-server.likiop00.workers.dev"; /* máy chủ Cloudflare đã triển khai (gpu23) */
+var DEFAULT_SERVER=(location.hostname==="tamdia.pages.dev")?location.origin:"https://tamdia.pages.dev"; /* máy chủ đi qua tamdia.pages.dev/api (Pages Functions → Worker), không lộ địa chỉ workers.dev */
 var LS=null;try{LS=window.localStorage;}catch(e){}
 function lsGet(k){try{return LS&&LS.getItem(k);}catch(e){return null;}}
 function lsSet(k,v){try{if(LS){if(v==null)LS.removeItem(k);else LS.setItem(k,v);}}catch(e){}}

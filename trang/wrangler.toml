@@ -1,0 +1,11 @@
+# Cấu hình Cloudflare Pages cho trang game https://tamdia.pages.dev
+# dist/ được workflow deploy-trang.yml dựng từ www/ trước khi triển khai.
+name = "tamdia"
+pages_build_output_dir = "./dist"
+compatibility_date = "2025-10-01"
+
+# Nối nội bộ tới Worker máy chủ: /api/* trên tamdia.pages.dev được chuyển thẳng sang linhthu-server
+# (không qua Internet, giữ nguyên IP người chơi trong cf-connecting-ip, giấu địa chỉ workers.dev).
+[[services]]
+binding = "SERVER"
+service = "linhthu-server"
