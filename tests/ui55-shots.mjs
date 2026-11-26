@@ -6,7 +6,7 @@ const b = await chromium.launch({ executablePath: "/usr/bin/google-chrome", args
 for (const [n, w, h] of sizes) {
   const ctx = await b.newContext({ viewport: { width: w, height: h }, hasTouch: w < 800, isMobile: w < 800 });
   const p = await ctx.newPage();
-  await p.route(/^https:\/\/[^/]*workers\.dev\//, r => r.fulfill({ status: 200, contentType: "application/json", body: '{"ok":false,"items":[]}' }));
+  await p.route(/^https:\/\/([^/]*workers\.dev|tamdia\.pages\.dev)\//, r => r.fulfill({ status: 200, contentType: "application/json", body: '{"ok":false,"items":[]}' }));
   await p.goto(url, { waitUntil: "domcontentloaded" });
   await p.waitForSelector("#ldr12", { state: "detached", timeout: 120000 }); await p.waitForTimeout(1500);
   await p.screenshot({ path: `tests/artifacts/ui55/${pre}-lobby-${n}.png` });

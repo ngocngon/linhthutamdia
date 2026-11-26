@@ -12,7 +12,7 @@ let bad = 0; const chk = (ok, m) => { console.log((ok ? "  ✓ " : "  ✗ ") + m
 const errs = [];
 for (const vp of (process.env.ONLYB ? [] : [[360, 640], [412, 915], [768, 1024], [1280, 720]])) {
   const ctx = await browser.newContext({ viewport: { width: vp[0], height: vp[1] }, deviceScaleFactor: 1, isMobile: vp[0] < 700, hasTouch: vp[0] < 700 });
-  const page = await ctx.newPage(); await page.route(/^https:\/\/[^/]*workers\.dev\//, r => r.fulfill({ status: 200, contentType: "application/json", body: '{"ok":false,"items":[]}' })); page.on("pageerror", e => errs.push(e.message)); page.on("console", m => { if (m.type() === "error") errs.push(m.text()); });
+  const page = await ctx.newPage(); await page.route(/^https:\/\/([^/]*workers\.dev|tamdia\.pages\.dev)\//, r => r.fulfill({ status: 200, contentType: "application/json", body: '{"ok":false,"items":[]}' })); page.on("pageerror", e => errs.push(e.message)); page.on("console", m => { if (m.type() === "error" && !/ERR_TUNNEL_CONNECTION_FAILED|ERR_PROXY/.test(m.text())) errs.push(m.text()); });
   await page.goto(BASE + "index.html", { waitUntil: "domcontentloaded" });
   await page.waitForSelector("#ldr12", { state: "detached", timeout: 180000 });
   await page.waitForFunction(() => document.getElementById("lobby").classList.contains("on"));
@@ -61,7 +61,7 @@ for (const vp of (process.env.ONLYB ? [] : [[360, 640], [412, 915], [768, 1024],
 }
 /* (b) giữ hoạt ảnh lật khi thẻ đang lật bị dựng lại trong lúc vẽ bàn */
 {
-  const ctx = await browser.newContext({ viewport: { width: 412, height: 915 }, isMobile: true, hasTouch: true }); const page = await ctx.newPage(); await page.route(/^https:\/\/[^/]*workers\.dev\//, r => r.fulfill({ status: 200, contentType: "application/json", body: '{"ok":false,"items":[]}' })); page.on("pageerror", e => errs.push(e.message));
+  const ctx = await browser.newContext({ viewport: { width: 412, height: 915 }, isMobile: true, hasTouch: true }); const page = await ctx.newPage(); await page.route(/^https:\/\/([^/]*workers\.dev|tamdia\.pages\.dev)\//, r => r.fulfill({ status: 200, contentType: "application/json", body: '{"ok":false,"items":[]}' })); page.on("pageerror", e => errs.push(e.message));
   await page.goto(BASE + "index.html", { waitUntil: "domcontentloaded" }); await page.waitForSelector("#ldr12", { state: "detached", timeout: 180000 });
   await page.evaluate(() => document.getElementById("lbPlay").click());
   await page.waitForFunction(() => typeof G !== "undefined" && G && G.phase === "play" && !document.getElementById("lobby").classList.contains("on"), null, { timeout: 120000 });

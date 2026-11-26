@@ -27,9 +27,9 @@ const errors = [];
 const browser = await chromium.launch({ headless: true, executablePath: process.env.CHROME_PATH || undefined, args: ["--no-sandbox", "--autoplay-policy=no-user-gesture-required"] });
 const ctx = await browser.newContext({ viewport: { width: 412, height: 915 }, deviceScaleFactor: 1, isMobile: true, hasTouch: true });
 const page = await ctx.newPage();
-await page.route(/^https:\/\/[^/]*workers\.dev\//, r => r.fulfill({ status: 200, contentType: "application/json", body: '{"ok":false,"items":[]}' })); /* gpu52: không gọi máy chủ online thật */
+await page.route(/^https:\/\/([^/]*workers\.dev|tamdia\.pages\.dev)\//, r => r.fulfill({ status: 200, contentType: "application/json", body: '{"ok":false,"items":[]}' })); /* gpu52: không gọi máy chủ online thật */
 page.on("pageerror", e => errors.push("pageerror: " + e.message));
-page.on("console", m => { if (m.type() === "error") errors.push("console.error: " + m.text()); });
+page.on("console", m => { if (m.type() === "error" && !/ERR_TUNNEL_CONNECTION_FAILED|ERR_PROXY/.test(m.text())) errors.push("console.error: " + m.text()); });
 page.on("requestfailed", r => { if (r.url().startsWith(url.replace(/index\.html$/, ""))) errors.push("requestfailed: " + r.url()); }); // bỏ qua host ngoài (Google Fonts) khi chạy offline
 page.on("response", r => { if (r.status() >= 400) errors.push("http " + r.status() + ": " + r.url()); });
 const shot = n => page.screenshot({ path: path.join(out, n + ".png") }).catch(() => {});
@@ -151,7 +151,7 @@ try {
 
   /* (b) Hoàn tác theo ngăn xếp: đặt 3 thẻ, kéo thẻ 1 -> bị chặn; chạm rút 3, 2, 1 lần lượt -> được */
   step("hoàn tác theo ngăn xếp: đặt 3 thẻ, kéo thẻ đầu bị chặn, rút 3-2-1");
-  await page.waitForFunction(() => G.phase === "play", null, { timeout: 30000 });
+  await page.waitForFunction(() => G.phase === "play" && !TURN_BUSY, null, { timeout: 30000 }); /* fix55: chờ hết lượt đang diễn */
   const ud = await page.evaluate(() => {
     for (const L of G.locs) { L.cards.p = []; L.cards.a = []; L.id = "meadow"; L.rvl = true; }
     G.q.p = []; G.hand.p = []; G.energy.p = 10;

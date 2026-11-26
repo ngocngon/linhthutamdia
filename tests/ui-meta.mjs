@@ -28,11 +28,11 @@ const ctx = await browser.newContext({ viewport: { width: W, height: H }, device
 const page = await ctx.newPage();
 const errs = []; let cur = "";
 page.on("pageerror", e => errs.push(`[${cur}] pageerror: ${e.message} @${(e.stack || "").split("\n").slice(1, 3).join(" | ")}`));
-page.on("console", m => { if (m.type() === "error") errs.push(`[${cur}] console.error: ${m.text()}`); });
+page.on("console", m => { if (m.type() === "error" && !/ERR_TUNNEL_CONNECTION_FAILED|ERR_PROXY/.test(m.text())) errs.push(`[${cur}] console.error: ${m.text()}`); });
 page.on("response", r => { if (r.status() >= 400 && r.url().startsWith(BASE)) errs.push(`[${cur}] http ${r.status()}: ${r.url()}`); });
 page.on("dialog", d => d.dismiss().catch(() => {}));
 /* không gọi máy chủ online thật: giả lập cấu hình công khai, chặn mọi gọi khác tới máy chủ */
-await page.route(/^https:\/\/[^/]*workers\.dev\//, r => r.fulfill(/\/api\/config$/.test(new URL(r.request().url()).pathname)
+await page.route(/^https:\/\/([^/]*workers\.dev|tamdia\.pages\.dev)\//, r => r.fulfill(/\/api\/config$/.test(new URL(r.request().url()).pathname)
   ? { status: 200, contentType: "application/json", body: '{"ok":true,"googleClientId":"","registerOpen":true}' }
   : { status: 200, contentType: "application/json", body: '{"ok":false,"error":"offline"}' }));
 page.on("popup", p => p.close().catch(() => {}));

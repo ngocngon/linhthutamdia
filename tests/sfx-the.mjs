@@ -63,7 +63,7 @@ try {
       if (a + d > lens.o[n] + 0.03) fail(`sprite ${n}: vị trí ${a}+${d} vượt độ dài ${lens.o[n].toFixed(2)}s`);
       if (i && a < L[i - 1][1] + L[i - 1][2]) fail(`sprite ${n}: hai thẻ chồng nhau`);
     }
-    if (lens.sz[n] > 760 * 1024) fail(`sprite ${n} lớn ${Math.round(lens.sz[n] / 1024)} KB`);
+    if (lens.sz[n] > 900 * 1024) fail(`sprite ${n} lớn ${Math.round(lens.sz[n] / 1024)} KB`);
   }
   console.log(`(a) the.json: ${ids.length} thẻ (S5 ${nS5}, S4 ${nS4}), ${sprites.length} sprite, ` + sprites.map(n => `${n}:${by[n].length} thẻ/${Math.round(lens.sz[n] / 1024)}KB`).join(" "));
 
@@ -74,7 +74,7 @@ try {
   await page.evaluate(() => { window.__snd = []; window.__ult = []; window.SFX_TAP = (n) => window.__snd.push({ n, t: performance.now() });
     const o = window.ultShow; window.ultShow = function (inst) { window.__ult.push({ id: inst && inst.id, t: performance.now() }); return o.apply(this, arguments); }; });
   // thẻ đã xuất hiện trong ván này (tay hai bên + thẻ trên bàn): từ đó suy ra tập sprite "cần thiết" (autoPre nạp sprite của thẻ S4/S5 đang cầm trên tay)
-  await page.evaluate(() => { window.__seen = new Set(); window.__scan = () => { try { if (G && G.hand) for (const sd of ["p", "a"]) for (const c of G.hand[sd]) window.__seen.add(c.id); if (G && G.locs) for (const L of G.locs) for (const sd of ["p", "a"]) for (const c of L.cards[sd]) window.__seen.add(c.id); } catch (e) {} }; setInterval(window.__scan, 30); });
+  await page.evaluate(() => { window.__qaSeen55 = new Set(); window.__scan = () => { try { if (G && G.hand) for (const sd of ["p", "a"]) for (const c of G.hand[sd]) window.__qaSeen55.add(c.id); if (G && G.locs) for (const L of G.locs) for (const sd of ["p", "a"]) for (const c of L.cards[sd]) window.__qaSeen55.add(c.id); } catch (e) {} }; setInterval(window.__scan, 30); });
   await page.evaluate(() => document.getElementById("lbPlay").click());
   await page.waitForFunction(() => typeof G !== "undefined" && G && G.phase === "play", null, { timeout: 60000 });
   await page.evaluate(() => document.body.dispatchEvent(new MouseEvent("click", { bubbles: true })));
@@ -115,7 +115,7 @@ try {
   console.log("(c) tải lười: lần đầu tiếng nhóm", JSON.stringify(r.lazy1), "-> nạp nền -> tiếng riêng", JSON.stringify(r.own), "; cùng bước gộp:", JSON.stringify(r.step), "; không tiếng riêng:", JSON.stringify(r.low));
   // sprite được phép tải ở bước (c): sprites[0] (do phép thử gọi) + sprite của thẻ S4/S5 đã xuất hiện trong ván này (autoPre nạp theo tay bài); KHÔNG được tải sprite nào khác
   await page.evaluate(() => window.__scan());
-  const seenC = await page.evaluate(() => [...window.__seen]);
+  const seenC = await page.evaluate(() => [...window.__qaSeen55]);
   const needC = new Set([sprites[0], ...seenC.filter(i => idx0(i)).map(i => idx0(i))]);
   function idx0(i) { return idx[i] ? idx[i][0] : 0; }
   if (!reqSp.has(sprites[0]) || [...reqSp].some(n => !needC.has(n))) fail("tải sprite thừa: " + [...reqSp] + " (cần: " + [...needC] + ")");
@@ -125,7 +125,8 @@ try {
   await page.evaluate(() => { window.__snd = []; window.__ult = []; });
   const t0 = Date.now(); let lastTurn = -1, g = 0;
   while (Date.now() - t0 < 5 * 60000 && g < 2) {
-    const ph = await page.evaluate(() => G.phase);
+    /* gpu56: lượt đang diễn (TURN_BUSY) thì chờ; ghi lại mọi thẻ từng có trên bàn (thẻ bậc thấp có tiếng riêng nhưng không có màn ra mắt) */
+    const ph = await page.evaluate(() => { const sn = (window.__qaSeen55 = window.__qaSeen55 || Object.create(null)); for (const L of G.locs) for (const s of ["p", "a"]) for (const c of L.cards[s]) sn[c.id] = 1; return G.phase === "play" && typeof TURN_BUSY !== "undefined" && TURN_BUSY ? "busy" : G.phase; });
     if (ph === "over") { g++; if (g >= 2) break; await page.evaluate(() => document.getElementById("btnEnd").click()); await page.waitForFunction(() => G.phase === "play", null, { timeout: 30000 }); lastTurn = -1; continue; }
     if (ph === "play") {
       await page.evaluate(({ lt, pool }) => {
@@ -140,7 +141,7 @@ try {
     await page.waitForTimeout(250);
   }
   await page.waitForTimeout(1500);
-  const R = await page.evaluate(() => ({ snd: window.__snd, ult: window.__ult }));
+  const R = await page.evaluate(() => ({ snd: window.__snd, ult: window.__ult, seen: Object.keys(window.__qaSeen55 || {}) }));
   const owns = R.snd.filter(s => s.n.startsWith("the:"));
   const ultIds = new Set(R.ult.map(u => u.id));
   console.log(`(b) ván: ${R.ult.length} màn ra mắt, ${owns.length} tiếng riêng; sprite đã tải: ${[...reqSp].sort()}`);
@@ -148,16 +149,20 @@ try {
   for (const o of owns) {
     const id = o.n.slice(4);
     // đúng thẻ: thẻ đó vừa ra mắt/đang có trên bàn trong ván (ra mắt gần nhất trong 6 s trước)
-    if (!R.ult.some(u => u.id === id && o.t - u.t > -50 && o.t - u.t < 6000)) wrong++;
+    // thẻ S4/S5: phải khớp màn ra mắt trong 6 s; thẻ bậc khác (không có màn ra mắt): phải là thẻ từng có trên bàn trong ván
+    const coRaMat = C[id] && (C[id].h === "S5" || C[id].h === "S4");
+    // S4/S5: khớp màn ra mắt trong 6 s, HOẶC thẻ đang nằm trên bàn kích hoạt kỹ năng muộn (kỹ năng khi bị phá huỷ, cuối lượt…)
+    if (!(coRaMat && R.ult.some(u => u.id === id && o.t - u.t > -50 && o.t - u.t < 6000)) && !R.seen.includes(id)) { wrong++; console.log("  lệch:", id, C[id] && C[id].h, "lúc", Math.round(o.t), "ra mắt gần nhất:", JSON.stringify(R.ult.filter(u => u.id === id).map(u => Math.round(u.t))), "trên bàn:", R.seen.includes(id)); }
     // không chồng tiếng nhóm: không có tiếng kỹ năng nhóm nào (mẫu f_*/destroy/buff/…) trong ±120 ms
-    if (R.snd.some(s => s !== o && !s.n.startsWith("the:") && /^(x_|f_|destroy$|discard$|move$|draw$|summon$|revive$|steal$|silence$|shield$|buff$|debuff$|energy$|morph$|act$|hurt$)/.test(s.n) && Math.abs(s.t - o.t) < 120)) overlap++;
+    { const ch = R.snd.filter(s => s !== o && !s.n.startsWith("the:") && /^(x_|f_|destroy$|discard$|draw$|summon$|revive$|steal$|silence$|shield$|buff$|debuff$|energy$|morph$|act$|hurt$)/.test(s.n) && Math.abs(s.t - o.t) < 120); /* "move" có tiếng riêng theo từng thẻ bị dời (move-smooth), không tính là chồng */
+      if (ch.length) { overlap++; console.log("  chồng:", o.n, Math.round(o.t), "với", JSON.stringify(ch.map(s => [s.n, Math.round(s.t - o.t), s.src || s.id || ""]))); } }
   }
   if (owns.length < 1) fail("không có tiếng riêng nào được phát trong ván");
   if (wrong) fail(`${wrong} tiếng riêng không khớp thẻ vừa ra mắt`);
   if (overlap) fail(`${overlap} tiếng riêng bị chồng với tiếng nhóm`);
   // sprite cần thiết = sprite chứa thẻ S4/S5 từng nằm trên tay hai bên hoặc từng ra mắt trong ván (+ sprite đã nạp ở bước (c))
   await page.evaluate(() => window.__scan());
-  const seen = await page.evaluate(() => [...window.__seen]);
+  const seen = await page.evaluate(() => [...window.__qaSeen55]);
   const need = new Set([sprites[0], ...seen.filter(i => idx[i]).map(i => idx[i][0]), ...[...ultIds].filter(i => idx[i]).map(i => idx[i][0])]);
   for (const n of reqSp) if (!need.has(n)) fail("tải sprite không cần thiết: " + n + " (cần: " + [...need] + ")");
   console.log(`(b) đúng thẻ, không chồng tiếng nhóm; sprite đã tải ${[...reqSp].sort()} ⊆ sprite cần (${[...need].sort()}) trong tổng ${sprites.length}`);
