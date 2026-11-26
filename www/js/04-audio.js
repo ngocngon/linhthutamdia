@@ -305,6 +305,7 @@ const SFX = (() => {
   let lastH = null; /* âm vừa phát (để màn ra mắt có thể tắt dần tiếng ra mắt trước) */
   let loadState = 0; // 0 chưa tải, 1 đang tải, 2 xong, 3 lỗi
   const recent = {};
+  const recentP = {}; /* fix55: mốc phát gần nhất theo tên (ms, performance.now + delay) để bỏ tiếng trùng < 30 ms */
   let voices = 0;
   const live = []; /* thời điểm bắt đầu của các âm đang phát */
   const DUCK = { ra_s5: 1.2, ra_s5b: 1.2, ra_s4: 0.9, boom: 0.7, destroy: 0.6, snap: 0.8, win: 1.6, lose: 1.4, horn: 0.6, e_sam: 0.4, e_dat: 0.4, gacha3: 1.4, loc: 0.6, timeout: 0.5, f_bigup: 0.4, f_bigdn: 0.5, f_exile: 0.5 };
@@ -453,6 +454,13 @@ const SFX = (() => {
     /* Mẫu thường tối đa 2 lần trong 0,12 s. Tiếng thẻ dời đã được gộp theo UID ở bước hiệu ứng. */
     const r = (recent[n] = (recent[n] || []).filter((t) => now - t < 0.12 && t <= now));
     if (!o.pri && (voices >= MAXV || (o.moveUid == null && r.length >= 2))) return true; // nuốt bớt, không rơi về synth
+    /* fix55: cùng một tiếng (cùng tên, cùng thời điểm phát kể cả delay) gọi lại trong < 30 ms là trùng (vd x_giam, x_trieu, gavel cách 1–2 ms) -> bỏ lần sau.
+       Không áp cho tiếng dời thẻ có moveUid (2 thẻ cùng bay phải có 2 tiếng). Đo bằng performance.now vì ac.currentTime nhảy theo khối ~3 ms. */
+    if (o.moveUid == null) {
+      const tp = performance.now() + (o.delay || 0) * 1000, lp = recentP[n];
+      if (lp != null && Math.abs(tp - lp) < 30) return true;
+      recentP[n] = tp;
+    }
     r.push(now);
     /* chồng nhiều âm -> mỗi âm nhỏ đi (tổng không dồn lên chói) */
     const stack = 1 / Math.sqrt(1 + 0.3 * voices) * (r.length > 1 ? 0.7 : 1);
