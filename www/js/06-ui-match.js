@@ -955,6 +955,7 @@ function syncSetUi(){const seg=$("setSpdSeg");if(seg)seg.querySelectorAll(".sx-p
 if($("setSpdSeg"))$("setSpdSeg").addEventListener("click",e=>{const b=e.target.closest(".sx-pill");if(!b)return;$("setSpd").value=b.dataset.k;$("setSpd").dispatchEvent(new Event("change"));SFX.play("tap");});
 ['setMute','setBgm'].forEach(i=>{if($(i))$(i).addEventListener("change",()=>setTimeout(syncSetUi,0));});
 $("setFx").addEventListener("change",e=>{store.fx=e.target.checked?"on":"off";reduced=store.fx==="off";document.body.classList.toggle("rm",reduced);save();if(G)render();});
+if($("setVoice"))$("setVoice").addEventListener("change",e=>{SFX.voiceSet(e.target.checked);});
 $("setVib").addEventListener("change",e=>{store.vib=e.target.checked;save();});
 $("setGyro").addEventListener("change",e=>{store.gyro=e.target.checked;save();if(!store.gyro){$("hand").style.removeProperty("--gx");$("hand").style.removeProperty("--gy");}});
 $("orb").addEventListener("click",ev=>{ev.stopPropagation();SFX.play("tap");openEnergy();});

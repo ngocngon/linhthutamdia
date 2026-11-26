@@ -67,3 +67,5 @@
 @media(max-width:380px){#ovSet .sx-row{padding:3px 8px;font-size:12px}#ovSet .sx-pill{font-size:12.5px}}
 #ovSet .sx-row.sx-col:has(#setSpdSeg){grid-template-columns:1fr;gap:3px}
 #ovSet #setSpdSeg .sx-pill{font-size:12px;padding:2px 1px;white-space:nowrap;overflow-wrap:normal}
+/* gpu57: thêm công tắc "Lời thoại thẻ" (một hàng nữa) -> màn thấp (<= 760 px) siết hàng để vẫn không phải cuộn */
+@media(max-height:760px){#ovSet .sx-row{min-height:36px}#ovSet .sx-pill{min-height:30px}#ovSet .sx-btn{min-height:36px}#ovSet .sx-btn.end{min-height:32px}#ovSet .sx-sec>h3{margin-top:4px}}

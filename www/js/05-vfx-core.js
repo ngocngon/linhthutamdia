@@ -231,7 +231,7 @@ function ultShow(inst,done,nth){
   an(z.querySelector(".uc-lb"),tx,{duration:T});an(z.querySelector(".uc-who"),tx,{duration:T});
   an(z.querySelector(".uc-tap"),[{opacity:0},{opacity:0,offset:oi},{opacity:.7,offset:Math.min(oh,oi+.1)},{opacity:.7,offset:oh},{opacity:0,offset:Math.min(1,oh+.05)},{opacity:0}],{duration:T});
   holdFx(R(T+90));
-  try{SFX.launch(mini?3:s5?5:4,{el:elOf(id),uid:inst.uid,nth:nth|0,foe:!mine});}catch(e){}
+  try{SFX.launch(mini?3:s5?5:4,{el:elOf(id),uid:inst.uid,id:id,nth:nth|0,foe:!mine});}catch(e){}
   const t0=performance.now();let ended=false,sk1=false,tm=0;
   /* gpu40: không bắn hạt lên mặt thẻ — chỉ một vòng sáng toả RA NGOÀI viền thẻ lúc đáp; S5 rung nhẹ */
   const tA=setTimeout(()=>{if(ended||lo5)return;FXBIG=true;try{FX.ring(cx,cy,c2,W*.8,s5?5:3);if(s5)FX.shake(4);}finally{FXBIG=false;}},TIN*.8);
@@ -793,7 +793,7 @@ function drawNew40(H0){if(reduced||!H0)return 0;let k=0;document.querySelectorAl
 function hideNewHand40(H0){if(reduced||!H0)return 0;const L=[];document.querySelectorAll("#hand [data-hc]").forEach(el=>{if(!H0.has(+el.dataset.hc)){el.style.opacity="0";L.push(el);}});if(L.length)setTimeout(()=>L.forEach(e=>{if(e.style.opacity==="0")e.style.opacity="";}),4000*SPD);return L.length;}
 function dealIn(){warmMatch12();try{for(const sd of ["p","a"])for(const k of (G.start&&G.start[sd])||[]){spLoad(k);for(const t of LINKS[k]||[])spLoad(t);}}catch(e){}if(reduced)return;let k=0;document.querySelectorAll("#hand [data-hc]").forEach(el=>CFX.drawIn(el,false,k++));}
 /* ---- cài đặt ---- */
-function openSet(){$("setVol").value=store.vol??100;$("setVolV").textContent=(store.vol??100)+"%";if($("setBgmVol")){$("setBgmVol").value=store.bgmVol??55;$("setBgmVolV").textContent=(store.bgmVol??55)+"%";}if($("setBgm"))$("setBgm").checked=store.bgm!==false;$("setMute").checked=!!store.mute;$("setFx").checked=store.fx!=="off";$("setGpu").checked=!!store.gpu;$("setSpd").value=SPDV[store.spd]?store.spd:"vua";$("setVib").checked=store.vib!==false;$("setGyro").checked=store.gyro!==false;$("ovSet").classList.add("on");
+function openSet(){$("setVol").value=store.vol??100;$("setVolV").textContent=(store.vol??100)+"%";if($("setBgmVol")){$("setBgmVol").value=store.bgmVol??55;$("setBgmVolV").textContent=(store.bgmVol??55)+"%";}if($("setBgm"))$("setBgm").checked=store.bgm!==false;$("setMute").checked=!!store.mute;$("setFx").checked=store.fx!=="off";$("setGpu").checked=!!store.gpu;$("setSpd").value=SPDV[store.spd]?store.spd:"vua";$("setVib").checked=store.vib!==false;if($("setVoice"))$("setVoice").checked=SFX.voiceOn();$("setGyro").checked=store.gyro!==false;$("ovSet").classList.add("on");
   renderSetSpd();syncSetUi();if($("setBgm"))$("setBgm").checked=!!store.battleBgm;const b=$("setReimg");if(b)b.textContent="Tải lại hình"+(IMGRT.bad.size?` (${IMGRT.bad.size} ảnh lỗi)`:"");
   if(window.FPSMODE)FPSMODE.syncUi();}
 
