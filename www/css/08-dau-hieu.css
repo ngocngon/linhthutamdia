@@ -147,7 +147,9 @@ body.rm .hand .hc .hda{box-shadow:none}
 @container (max-width:49.9px){.hand .hc .hda{padding:0!important;background:none!important;box-shadow:none!important;font-size:9px!important;text-shadow:0 0 2px #000,0 0 2px #000,0 1px 0 #000}
   .hand .hc .hda.c{left:calc(max(14px,22cqw) - 3.5cqw - .5px)!important}.hand .hc .hda.p{right:1px!important;top:calc(max(14px,22cqw) - 3.5cqw - 1px)!important}}
 /* (6) tổng điểm chiến địa 3–4 chữ số: nhãn ×2/+N và cột chip dấu hiệu lùi ra khỏi lục giác */
-.mx.d3{left:calc(50% + 27px)}.mx.d4{left:calc(50% + 32px)}
+/* fix55: nhãn +n/×n đứng hẳn bên phải lục giác sức mạnh (lục giác rộng ~42–46px khi dẫn điểm, phóng 1.08) — không đè mép; chữ ≥11px; nhịp phóng tính từ mép trái */
+.locw .mx{left:calc(50% + 26px);font-size:max(11px,15px);transform-origin:0 50%}
+.locw .mx.d3{left:calc(50% + 31px)}.locw .mx.d4{left:calc(50% + 36px)}
 .dh-f{width:calc(50% - 27px)}.dh-f.w3{width:calc(50% - 33px)}.dh-f.w4{width:calc(50% - 38px)}
 /* (7) thẻ úp đến cuối ván: chữ ≥9px, phông hẹp */
 #board .mc.back.hidc>.hidb{font:italic 800 min(29cqw,11px)/1.04 "LTName","Barlow Condensed",sans-serif;letter-spacing:0;padding:2px 2px;transform:scaleX(.9)}
