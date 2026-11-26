@@ -1,0 +1,3553 @@
+{
+ "_ghi_chu": "Thoại chia giai đoạn: dauvan (màn mở đầu, trước lật chiến địa 1), ramat (thẻ lật + phóng lớn), kynang (phát động kỹ năng). nguon: giu = câu cũ trong tools/thoai_s5.json (đã chuẩn hoá dấu … thành ... và : thành —), moi = câu mới. kynang null = thẻ không có kỹ năng phát động trong trận.",
+ "list": [
+  {
+   "k": "dichcuongcot",
+   "ten": "Ám Cốt",
+   "giong": "WnNS4zlYd1VXynGbdq4M",
+   "tenGiong": "Kai - Playful & Expressive",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Xương cốt này, chưa chịu chết!",
+    "tag": "[growls]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Mộ mở rồi! Kẻ mạnh nhất, đứng dậy!",
+    "tag": "[growls]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "conhansu",
+   "ten": "Huyền Nhãn Chân Nhân",
+   "giong": "MugHa7C5tESbPq5Jrv8i",
+   "tenGiong": "Toàn ",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Huyền Nhãn đã nhìn thấu!",
+    "tag": "[commanding]",
+    "nguon": "moi"
+   },
+   "kynang": null,
+   "dauvan": {
+    "cau": "Mắt thứ ba đã mở! Bốn lá Thần Phù, vào bài!",
+    "tag": "[commanding]",
+    "nguon": "moi"
+   }
+  },
+  {
+   "k": "hacdichbinh",
+   "ten": "Ám Binh",
+   "giong": "imB6RuS55RmshZs8gk0O",
+   "tenGiong": "Long - Fun, Friendly & High-energy",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Ám Binh, hàng ngũ chỉnh tề!",
+    "tag": "[aggressive]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Cả đạo quân — đúc lại thành ba!",
+    "tag": "[aggressive]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "kevocam",
+   "ten": "Kẻ Vô Cảm",
+   "giong": "kyWPawcLE727zSyf3yY6",
+   "tenGiong": "Vũ - Northern region",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Chẳng gì lay động ta. Khóc đi!",
+    "tag": "[coldly] [threatening]",
+    "nguon": "giu"
+   },
+   "kynang": {
+    "cau": "Mỗi kẻ bị suy yếu — ta thêm sức!",
+    "tag": "[coldly]",
+    "nguon": "moi"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "maynuotthoigian",
+   "ten": "Mây Nuốt Thời Gian",
+   "giong": "G9RE9RtQlitrTAYed3Mg",
+   "tenGiong": "Phat Nguyen - Classy",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Hết giờ rồi!",
+    "tag": "[growls] [shouting]",
+    "nguon": "giu"
+   },
+   "kynang": {
+    "cau": "Chưa kịp lật à? Chiêu thức, xoá sạch!",
+    "tag": "[growls]",
+    "nguon": "moi"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "nghichtuvuong",
+   "ten": "Phi Thạch Chủ",
+   "giong": "EVrmXYJtN1IV4SK0JLro",
+   "tenGiong": "Phuc Anh",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Núi non nghe lệnh ta!",
+    "tag": "[war cry]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Đá bay! Đè nát mọi chiến địa!",
+    "tag": "[war cry]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "bachdich",
+   "ten": "Bạch Thể",
+   "giong": "aJLoOQa6aQPHQyK0cNeU",
+   "tenGiong": "Tony Chung - Vietnamese Sales Review",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Bạch Thể tới, lùi lại!",
+    "tag": "[coldly]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Về số không — rồi phá tan tất cả!",
+    "tag": "[coldly]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "nhennon",
+   "ten": "Nhện Non",
+   "giong": "U6R1j7cDbKnbieZAMbBX",
+   "tenGiong": "NgocMmo - Casual",
+   "gioiGiong": "female",
+   "ramat": {
+    "cau": "Nhỏ thôi — nhưng đừng xem thường!",
+    "tag": "[determined]",
+    "nguon": "giu"
+   },
+   "kynang": {
+    "cau": "Lá tiếp theo — thêm sức, nhảy sang phải!",
+    "tag": "[excited]",
+    "nguon": "moi"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "kysituduc",
+   "ten": "Ô Nha Kỵ",
+   "giong": "K7ewtjKRNtwwt3lKQ6M0",
+   "tenGiong": "Tony Hoang ",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Kỵ sĩ bóng đêm đã tới!",
+    "tag": "[menacing]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Quạ đã đếm xác! Đủ bốn, ta trỗi dậy!",
+    "tag": "[menacing]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "chienthan",
+   "ten": "Chiến Thần",
+   "giong": "TIQkE9DDukawEm00ejgd",
+   "tenGiong": "Triet Ngo - Authoritative and Confident",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Đứng sau ta! Trận này ta lo!",
+    "tag": "[battle cry]",
+    "nguon": "giu"
+   },
+   "kynang": {
+    "cau": "Lật ba lá đầu — so xem ai mạnh!",
+    "tag": "[shouting]",
+    "nguon": "moi"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "phanquanthiengioi",
+   "ten": "Phán Quan Trời",
+   "giong": "RHlXKoO5f2lh4LJLPmoL",
+   "tenGiong": "Quang Tien - Sports Commentator",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Phán quyết — các ngươi thua!",
+    "tag": "[commanding]",
+    "nguon": "giu"
+   },
+   "kynang": null,
+   "dauvan": {
+    "cau": "Sổ thiên mệnh đã ghi — mười hai lá mới, vào bài!",
+    "tag": "[commanding]",
+    "nguon": "moi"
+   }
+  },
+  {
+   "k": "cucquang",
+   "ten": "Cực Quang",
+   "giong": "zYnH9CW4Vfh7aJx0S0Tt",
+   "tenGiong": "Alice - Education",
+   "gioiGiong": "female",
+   "ramat": {
+    "cau": "Cực Quang rực sáng bầu trời!",
+    "tag": "[proudly]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Nhìn lên đi — và quỳ xuống!",
+    "tag": "[commanding]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "namtuocmatna",
+   "ten": "Mặt Nạ Tuồng",
+   "giong": "TqkkccUg3tobDj5LbKlt",
+   "tenGiong": "TuHau - Conversational",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Màn tuồng bắt đầu, vỗ tay đi!",
+    "tag": "[laughs]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Sau mặt nạ này, quân ngươi là của ta!",
+    "tag": "[sarcastic]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "phaodaimay",
+   "ten": "Pháo Đài Máy",
+   "giong": "WnNS4zlYd1VXynGbdq4M",
+   "tenGiong": "Kai - Playful & Expressive",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Thành sắt di động, tiến!",
+    "tag": "[shouting]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Nạp pháo! Nhân bản cả đội — khai hoả!",
+    "tag": "[commanding] [shouting]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "thienngaden",
+   "ten": "Thiên Nga Đen",
+   "giong": "g2Dg3l1IfbzR3AoSy9jg",
+   "tenGiong": "Ly Bình - Presentation",
+   "gioiGiong": "female",
+   "ramat": {
+    "cau": "Thiên Nga Đen giương cánh!",
+    "tag": "[coldly]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Vũ điệu tử thần! Quân nhỏ, miễn phí!",
+    "tag": "[coldly]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "thiemnu",
+   "ten": "Thiểm Ảnh",
+   "giong": "nEhDMwIfsaozFyu41OZe",
+   "tenGiong": "Thanh - Vlogs",
+   "gioiGiong": "female",
+   "ramat": {
+    "cau": "Bóng nhanh như sét, ta đây!",
+    "tag": "[threatening]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Chớp mắt thôi — ngươi đã mất dấu ta!",
+    "tag": "[threatening]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "phitieuhoi",
+   "ten": "Phi Tiêu Trăng Khuyết",
+   "giong": "Pbcl0sptptBURvzWNLs5",
+   "tenGiong": "Nhung",
+   "gioiGiong": "female",
+   "ramat": {
+    "cau": "Phi tiêu đã sẵn trong tay!",
+    "tag": "[coldly]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Trăng khuyết bay đi — mang sức ngươi về!",
+    "tag": "[coldly]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "tiensigamma",
+   "ten": "Thư Sinh Hoá Cuồng",
+   "giong": "imB6RuS55RmshZs8gk0O",
+   "tenGiong": "Long - Fun, Friendly & High-energy",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Thư sinh hiền lành... chưa chắc đâu!",
+    "tag": "[sarcastic]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Còn dư sức à? Hoá cuồng thôi!",
+    "tag": "[furious]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "hongtam",
+   "ten": "Bách Phát",
+   "giong": "7iUjM4919D20JYbu4ISi",
+   "tenGiong": "Linh Sensei - Teacher",
+   "gioiGiong": "female",
+   "ramat": {
+    "cau": "Cung đã giương, nín thở!",
+    "tag": "[aggressive]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Bỏ bài nhẹ! Trăm mũi tên, trúng hết!",
+    "tag": "[aggressive]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "thachlucnu",
+   "ten": "Phá Sơn",
+   "giong": "cn9QbYLDiF52pxTcyPCR",
+   "tenGiong": "Thảo - Sweet Southern Female",
+   "gioiGiong": "female",
+   "ramat": {
+    "cau": "Phá Sơn giáng thế, núi phải nứt!",
+    "tag": "[shouting]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Cột đá còn đây — không ai được ngã!",
+    "tag": "[determined]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "kysidichkhuyen",
+   "ten": "Ôn Dịch Kỵ",
+   "giong": "G9RE9RtQlitrTAYed3Mg",
+   "tenGiong": "Phat Nguyen - Classy",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Ngựa đen mang tai hoạ tới!",
+    "tag": "[growls]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Kẻ to nhất của ngươi — dịch xé trước!",
+    "tag": "[growls]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "kysidaoquoc",
+   "ten": "Hải Kỵ",
+   "giong": "FRYq6nepIbR0lbu7Lus4",
+   "tenGiong": "Anh Thu - Sweet & Engaging",
+   "gioiGiong": "female",
+   "ramat": {
+    "cau": "Chiến mã biển, xông lên!",
+    "tag": "[battle cry]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Quân lớn ra trận! Sóng dữ, tiến lên!",
+    "tag": "[battle cry]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "nuthuantuong",
+   "ten": "Kim Thuẫn",
+   "giong": "qByVAGjXwGlkcRDJoiHg",
+   "tenGiong": "Kiều Linh",
+   "gioiGiong": "female",
+   "ramat": {
+    "cau": "Kim Thuẫn trấn giữ trận tuyến!",
+    "tag": "[commanding]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Hàng sau đứng vững! Khiên ta đã dựng!",
+    "tag": "[commanding]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "tammanu",
+   "ten": "Tâm Ma",
+   "giong": "ZlVlUEsl3JykOGluaNu1",
+   "tenGiong": "Thuy Tien – Vietnamese Narrator",
+   "gioiGiong": "female",
+   "ramat": {
+    "cau": "Tâm Ma thì thầm bên tai...",
+    "tag": "[whispers]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Từng lá bài của ngươi... ta rút cạn!",
+    "tag": "[menacing]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "longuclua",
+   "ten": "Võ Sĩ Ngực Lửa",
+   "giong": "aJLoOQa6aQPHQyK0cNeU",
+   "tenGiong": "Tony Chung - Vietnamese Sales Review",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Võ sĩ ngực trần, vào sàn!",
+    "tag": "[roars]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Lò ngực bùng cháy! Quân lớn, tiếp lửa!",
+    "tag": "[roars]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "daitaxacsong",
+   "ten": "Thi Soái",
+   "giong": "RHlXKoO5f2lh4LJLPmoL",
+   "tenGiong": "Quang Tien - Sports Commentator",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Thi Soái điểm binh!",
+    "tag": "[commanding]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Vứt bài đi, lính! Mỗi lượt một huân chương!",
+    "tag": "[commanding]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "nhaihinh",
+   "ten": "Thiên Biến",
+   "giong": "TqkkccUg3tobDj5LbKlt",
+   "tenGiong": "TuHau - Conversational",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Ta là ai? Đoán thử xem!",
+    "tag": "[laughs]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Bài ngươi giấu gì? Ta cướp hết!",
+    "tag": "[sarcastic]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "matocvutru",
+   "ten": "Tinh Tốc Ảnh",
+   "giong": "5vqV9IG7sDpzgzKOIZAv",
+   "tenGiong": "Kenh",
+   "gioiGiong": "female",
+   "ramat": {
+    "cau": "Nhanh hơn cả sao băng!",
+    "tag": "[coldly]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Hàng đầu các ngươi — câm lặng!",
+    "tag": "[coldly]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "tuthanmienvien",
+   "ten": "Vô Thường",
+   "giong": "MugHa7C5tESbPq5Jrv8i",
+   "tenGiong": "Toàn ",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Vô Thường đến đón đây!",
+    "tag": "[menacing]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Hà hà! Người đã khuất, theo ta trở về!",
+    "tag": "[laughs maniacally]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "kimcuongxa",
+   "ten": "Kim Cương Xà",
+   "giong": "kyWPawcLE727zSyf3yY6",
+   "tenGiong": "Vũ - Northern region",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Rắn kim cương tới đây!",
+    "tag": "[threatening]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Đã yếu rồi à? Nanh ta cắn sâu hơn!",
+    "tag": "[threatening]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "baochuahauthe",
+   "ten": "Thiết Diện Đế",
+   "giong": "oAvm5cbNCsMTdnhtmIs4",
+   "tenGiong": "Nguyet - Clear, Steady and Professional",
+   "gioiGiong": "female",
+   "ramat": {
+    "cau": "Thiết Diện Đế giá lâm!",
+    "tag": "[commanding]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Một lệnh thôi! Hậu thế, xuất trận!",
+    "tag": "[commanding]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "nguyetlong",
+   "ten": "Rồng Trăng",
+   "giong": "EVrmXYJtN1IV4SK0JLro",
+   "tenGiong": "Phuc Anh",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Rồng trăng gầm giữa đêm!",
+    "tag": "[roars]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Số chẵn à? Phần đó là của ta!",
+    "tag": "[menacing]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "phatuongsinhlinh",
+   "ten": "Hồn Phá Tướng",
+   "giong": "K7ewtjKRNtwwt3lKQ6M0",
+   "tenGiong": "Tony Hoang ",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Hồn tướng chưa tan, tái chiến!",
+    "tag": "[growls]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Kẻ nào mạnh hơn? Chuỳ này đập tới!",
+    "tag": "[growls]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "linhduoc",
+   "ten": "Lương Y Thần Dược",
+   "giong": "TIQkE9DDukawEm00ejgd",
+   "tenGiong": "Triet Ngo - Authoritative and Confident",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Thần y tới, đừng sợ chết!",
+    "tag": "[confident]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Ngã xuống ư? Uống thuốc, đánh tiếp!",
+    "tag": "[determined]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "songsinhtamlinh",
+   "ten": "Song Sinh Tâm Linh",
+   "giong": "KpzB5RgCRuVkUlZeY6wb",
+   "tenGiong": "Trinh - Bright, Clear and Steady",
+   "gioiGiong": "female",
+   "ramat": {
+    "cau": "Song sinh giáng trần!",
+    "tag": "[confident]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Chị em ta — một hoá hai, đánh gấp đôi!",
+    "tag": "[confident]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "thienthantimkiem",
+   "ten": "Thiên Sứ Tầm Đạo",
+   "giong": "WnNS4zlYd1VXynGbdq4M",
+   "tenGiong": "Kai - Playful & Expressive",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Thiên sứ hạ cánh!",
+    "tag": "[proudly]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Đèn đã rọi! Kẻ được tạo, bước ra!",
+    "tag": "[commanding]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "laonhen",
+   "ten": "Lão Nhện",
+   "giong": "aJLoOQa6aQPHQyK0cNeU",
+   "tenGiong": "Tony Chung - Vietnamese Sales Review",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Già mà dai, nhớ đấy!",
+    "tag": "[laughs]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Kẻ mạnh hơn đến? Lão giăng lưới chỗ khác!",
+    "tag": "[laughs maniacally]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "kesanga",
+   "ten": "Kẻ Sa Ngã",
+   "giong": "imB6RuS55RmshZs8gk0O",
+   "tenGiong": "Long - Fun, Friendly & High-energy",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Từ trời rơi xuống, vẫn hiên ngang!",
+    "tag": "[intense]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Cánh đã cháy — sức ta hoá năng lượng!",
+    "tag": "[intense]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "aosi",
+   "ten": "Ảo Thuật Sư",
+   "giong": "RHlXKoO5f2lh4LJLPmoL",
+   "tenGiong": "Quang Tien - Sports Commentator",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Thưa quý vị, màn ảo thuật!",
+    "tag": "[sarcastic]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Xu hoá bướm — còn ngươi thì thua!",
+    "tag": "[sarcastic]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "langthan",
+   "ten": "Lang Thần",
+   "giong": "G9RE9RtQlitrTAYed3Mg",
+   "tenGiong": "Phat Nguyen - Classy",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Hú! Lang Thần xuống núi!",
+    "tag": "[roars]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Xác của ngươi — giờ chạy theo bầy ta!",
+    "tag": "[roars]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "culongco",
+   "ten": "Cự Long Cổ",
+   "giong": "TqkkccUg3tobDj5LbKlt",
+   "tenGiong": "TuHau - Conversational",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Cự Long thức giấc!",
+    "tag": "[roars]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Sức của ngươi? Giờ là của ta!",
+    "tag": "[roars]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "toclua",
+   "ten": "Hoả Phát",
+   "giong": "U6R1j7cDbKnbieZAMbBX",
+   "tenGiong": "NgocMmo - Casual",
+   "gioiGiong": "female",
+   "ramat": {
+    "cau": "Tóc đỏ tung bay, tránh ra!",
+    "tag": "[intense]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Ai ngã xuống — lửa ta phản đòn thay!",
+    "tag": "[intense]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "hoatinhnu",
+   "ten": "Hoả Tiên",
+   "giong": "zYnH9CW4Vfh7aJx0S0Tt",
+   "tenGiong": "Alice - Education",
+   "gioiGiong": "female",
+   "ramat": {
+    "cau": "Hoả Tiên bừng cháy!",
+    "tag": "[fierce]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Chờ sao lớn rơi — ta nhân đôi sức mạnh!",
+    "tag": "[fierce]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "huyetdichhangxom",
+   "ten": "Gã Đầu Ngõ",
+   "giong": "MugHa7C5tESbPq5Jrv8i",
+   "tenGiong": "Toàn ",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Hàng xóm ghé chơi đây!",
+    "tag": "[laughs]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Dịch sang phải hết! Mạnh lên nào!",
+    "tag": "[laughs maniacally]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "mauhau",
+   "ten": "Mẫu Hậu",
+   "giong": "g2Dg3l1IfbzR3AoSy9jg",
+   "tenGiong": "Ly Bình - Presentation",
+   "gioiGiong": "female",
+   "ramat": {
+    "cau": "Quỳ xuống! Mẫu nghi thiên hạ đến!",
+    "tag": "[commanding]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Con ta vừa ra trận — mẫu hậu ban thêm!",
+    "tag": "[commanding]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "ainunuotsao",
+   "ten": "Ái Nữ Thiên Hà",
+   "giong": "nEhDMwIfsaozFyu41OZe",
+   "tenGiong": "Thanh - Vlogs",
+   "gioiGiong": "female",
+   "ramat": {
+    "cau": "Ái Nữ Thiên Hà giáng thế!",
+    "tag": "[determined]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Sao ta chiếu tới đâu, quân ta lật tới đó!",
+    "tag": "[determined]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "kenuotsao",
+   "ten": "Thôn Thiên",
+   "giong": "EVrmXYJtN1IV4SK0JLro",
+   "tenGiong": "Phuc Anh",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Trời đất, run lên!",
+    "tag": "[roars]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Một mình ta thắng — nuốt trọn thiên hạ!",
+    "tag": "[roars]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "kysibaitu",
+   "ten": "Kỵ Sĩ Lá Bài",
+   "giong": "kyWPawcLE727zSyf3yY6",
+   "tenGiong": "Vũ - Northern region",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Kỵ sĩ phất cờ, xông trận!",
+    "tag": "[war cry]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Bài giấy đủ sáu — quân thù tan xác!",
+    "tag": "[war cry]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "vuongbathu",
+   "ten": "Vương Bất Hủ",
+   "giong": "K7ewtjKRNtwwt3lKQ6M0",
+   "tenGiong": "Tony Hoang ",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Vương giả bất diệt đã về!",
+    "tag": "[proudly]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Ai được ban phước — đều phải tôn ta!",
+    "tag": "[proudly]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "cunhan",
+   "ten": "Gã Khổng Lồ",
+   "giong": "WnNS4zlYd1VXynGbdq4M",
+   "tenGiong": "Kai - Playful & Expressive",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Đứng xa ra, ta tới!",
+    "tag": "[determined]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Nhỏ con thì sao? Có đồng đội, ta khổng lồ!",
+    "tag": "[determined]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "dothan",
+   "ten": "Chủ Bút Sơn Hà",
+   "giong": "TIQkE9DDukawEm00ejgd",
+   "tenGiong": "Triet Ngo - Authoritative and Confident",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Bút thần trong tay ta!",
+    "tag": "[commanding]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Lật bài đi! Mỗi lá — một nét sơn hà!",
+    "tag": "[commanding]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "hongnutinhquai",
+   "ten": "Hồng Nữ Tinh Quái",
+   "giong": "7iUjM4919D20JYbu4ISi",
+   "tenGiong": "Linh Sensei - Teacher",
+   "gioiGiong": "female",
+   "ramat": {
+    "cau": "Tinh quái tới chơi đây!",
+    "tag": "[laughs]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Ba lần xúc xắc — vận may là của ta!",
+    "tag": "[confident]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "daubay",
+   "ten": "Đầu Bay",
+   "giong": "Pbcl0sptptBURvzWNLs5",
+   "tenGiong": "Nhung",
+   "gioiGiong": "female",
+   "ramat": {
+    "cau": "Hi hi, ai thấy ta chưa?",
+    "tag": "[laughs]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Chém đầu ta à? Ta bay về, mạnh hơn!",
+    "tag": "[laughs maniacally]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "trolymay",
+   "ten": "Mộc Nô",
+   "giong": "imB6RuS55RmshZs8gk0O",
+   "tenGiong": "Long - Fun, Friendly & High-energy",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Mộc Nô sẵn sàng phục vụ!",
+    "tag": "[determined]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Mỗi lượt một chiêu mới — chờ đó!",
+    "tag": "[determined]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "tienhoasu",
+   "ten": "Tiến Hoá Sư",
+   "giong": "aJLoOQa6aQPHQyK0cNeU",
+   "tenGiong": "Tony Chung - Vietnamese Sales Review",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Phòng thí nghiệm mở cửa!",
+    "tag": "[intense]",
+    "nguon": "moi"
+   },
+   "kynang": null,
+   "dauvan": {
+    "cau": "Bài trơn à? Tiến hoá đi — ngay bây giờ!",
+    "tag": "[intense]",
+    "nguon": "giu"
+   }
+  },
+  {
+   "k": "hyvong",
+   "ten": "Hy Vọng",
+   "giong": "FRYq6nepIbR0lbu7Lus4",
+   "tenGiong": "Anh Thu - Sweet & Engaging",
+   "gioiGiong": "female",
+   "ramat": {
+    "cau": "Hy vọng chưa bao giờ tắt!",
+    "tag": "[determined]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Đèn còn sáng — lượt sau ta mạnh hơn!",
+    "tag": "[determined]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "tieukhonglo",
+   "ten": "Tiểu Khổng Lồ",
+   "giong": "G9RE9RtQlitrTAYed3Mg",
+   "tenGiong": "Phat Nguyen - Classy",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Hũ mở ra, ta bước ra!",
+    "tag": "[confident]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Chiêu của gã khổng lồ — tung ra!",
+    "tag": "[shouting]",
+    "nguon": "moi"
+   },
+   "dauvan": {
+    "cau": "Nhỏ con? Ta mượn sức kẻ khổng lồ!",
+    "tag": "[confident]",
+    "nguon": "giu"
+   }
+  },
+  {
+   "k": "hoanhansokhai",
+   "ten": "Ngọn Đuốc Sống",
+   "giong": "RHlXKoO5f2lh4LJLPmoL",
+   "tenGiong": "Quang Tien - Sports Commentator",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Ngọn đuốc sống đã cháy!",
+    "tag": "[war cry]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Lửa bùng lên! Càng đông càng rực!",
+    "tag": "[war cry]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "linhchindau",
+   "ten": "Cửu Đầu Binh",
+   "giong": "TqkkccUg3tobDj5LbKlt",
+   "tenGiong": "TuHau - Conversational",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Một thân, ngàn tiếng gầm!",
+    "tag": "[growls]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Dám tăng cược? Chín đầu ta quay sang!",
+    "tag": "[growls]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "giapdam",
+   "ten": "Giáp Dậm Đất",
+   "giong": "MugHa7C5tESbPq5Jrv8i",
+   "tenGiong": "Toàn ",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Sấm rền dưới chân ta!",
+    "tag": "[roars]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Mỗi bước dời quân — đất rung, ta mạnh!",
+    "tag": "[roars]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "cohoangvocuc",
+   "ten": "Hoàng Đế Cơ Khí",
+   "giong": "kyWPawcLE727zSyf3yY6",
+   "tenGiong": "Vũ - Northern region",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Hoàng Đế Cơ Khí đăng cơ!",
+    "tag": "[commanding]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Máy đã chạy! Nhận sức đi!",
+    "tag": "[commanding]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "annusokhai",
+   "ten": "Ẩn Nữ Rừng Trúc",
+   "giong": "ZlVlUEsl3JykOGluaNu1",
+   "tenGiong": "Thuy Tien – Vietnamese Narrator",
+   "gioiGiong": "female",
+   "ramat": {
+    "cau": "Ẩn trong trúc, xuất như gió.",
+    "tag": "[coldly]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Cuối lượt này — đòn đánh vang hai lần.",
+    "tag": "[coldly]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "thietaiquoc",
+   "ten": "Hộ Quốc Binh",
+   "giong": "TIQkE9DDukawEm00ejgd",
+   "tenGiong": "Triet Ngo - Authoritative and Confident",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Hộ quốc binh, có mặt!",
+    "tag": "[battle cry]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Giữ đất này! Quân lớn sắp tới!",
+    "tag": "[battle cry]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "batbainu",
+   "ten": "Bất Bại Nữ Hiệp",
+   "giong": "cn9QbYLDiF52pxTcyPCR",
+   "tenGiong": "Thảo - Sweet Southern Female",
+   "gioiGiong": "female",
+   "ramat": {
+    "cau": "Bất bại, nghe rõ chưa?",
+    "tag": "[fierce]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Thua à? Càng thua ta càng mạnh!",
+    "tag": "[furious]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "cosi",
+   "ten": "Chưởng Kỳ",
+   "giong": "EVrmXYJtN1IV4SK0JLro",
+   "tenGiong": "Phuc Anh",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Trống trận vang, Chưởng Kỳ tới!",
+    "tag": "[war cry]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Cờ lệnh phất cao! Đã mạnh, mạnh thêm!",
+    "tag": "[war cry]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "nuloimienvien",
+   "ten": "Pháp Lôi",
+   "giong": "qByVAGjXwGlkcRDJoiHg",
+   "tenGiong": "Kiều Linh",
+   "gioiGiong": "female",
+   "ramat": {
+    "cau": "Trời gầm, ta giáng!",
+    "tag": "[commanding]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Sấm phán xét! Ta thêm, địch bớt!",
+    "tag": "[commanding]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "caheocon",
+   "ten": "Cá Heo Con",
+   "giong": "5vqV9IG7sDpzgzKOIZAv",
+   "tenGiong": "Kenh",
+   "gioiGiong": "female",
+   "ramat": {
+    "cau": "Cá heo nhỏ tung tăng!",
+    "tag": "[laughs]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Lật bài chỗ ta — lá nào cũng mạnh thêm!",
+    "tag": "[confident]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "camapcan",
+   "ten": "Cá Mập Cạn",
+   "giong": "K7ewtjKRNtwwt3lKQ6M0",
+   "tenGiong": "Tony Hoang ",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Hàm răng sắc, lên bờ!",
+    "tag": "[aggressive]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Cạn hay nước — không gì cản nổi ta!",
+    "tag": "[aggressive]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "hoanhanmay",
+   "ten": "Ông Táo Con",
+   "giong": "WnNS4zlYd1VXynGbdq4M",
+   "tenGiong": "Kai - Playful & Expressive",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Cá chép đưa ta về!",
+    "tag": "[confident]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Năng lượng thừa? Táo con ăn hết!",
+    "tag": "[confident]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "phiungtre",
+   "ten": "Phi Ưng Trẻ",
+   "giong": "imB6RuS55RmshZs8gk0O",
+   "tenGiong": "Long - Fun, Friendly & High-energy",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Phi Ưng sải cánh!",
+    "tag": "[battle cry]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Quân nhỏ lật bài — ta cho lật lần nữa!",
+    "tag": "[battle cry]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "nuco",
+   "ten": "Búp Bê Máy",
+   "giong": "oAvm5cbNCsMTdnhtmIs4",
+   "tenGiong": "Nguyet - Clear, Steady and Professional",
+   "gioiGiong": "female",
+   "ramat": {
+    "cau": "Tích tắc... búp bê thức dậy.",
+    "tag": "[coldly]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Lên dây cót. Tất cả — kích hoạt!",
+    "tag": "[coldly]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "phaohoanganha",
+   "ten": "Pháo Hoa Ngân Hà",
+   "giong": "G9RE9RtQlitrTAYed3Mg",
+   "tenGiong": "Phat Nguyen - Classy",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Bầu trời này, ta thắp sáng!",
+    "tag": "[shouting]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Rút bài đi! Pháo hoa nổ thành sức mạnh!",
+    "tag": "[shouting]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "kysichienxa",
+   "ten": "Chiến Xa Tướng",
+   "giong": "aJLoOQa6aQPHQyK0cNeU",
+   "tenGiong": "Tony Chung - Vietnamese Sales Review",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Bánh sắt lăn, mặt đất nứt!",
+    "tag": "[war cry]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Sáu mức sức mạnh! Chiến xa, xung phong!",
+    "tag": "[war cry]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "phonglinhnu",
+   "ten": "Phong Linh",
+   "giong": "KpzB5RgCRuVkUlZeY6wb",
+   "tenGiong": "Trinh - Bright, Clear and Steady",
+   "gioiGiong": "female",
+   "ramat": {
+    "cau": "Chuông reo leng keng, ta đến!",
+    "tag": "[fierce]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Gió nổi lên rồi — thổi sức ra trận!",
+    "tag": "[fierce]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "thukydungcam",
+   "ten": "Cô Thư Lại",
+   "giong": "U6R1j7cDbKnbieZAMbBX",
+   "tenGiong": "NgocMmo - Casual",
+   "gioiGiong": "female",
+   "ramat": {
+    "cau": "Sổ sách sẵn sàng!",
+    "tag": "[determined]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Một, hai, ba — ai cũng được ghi công!",
+    "tag": "[determined]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "nuthantien",
+   "ten": "Thiện Xạ",
+   "giong": "zYnH9CW4Vfh7aJx0S0Tt",
+   "tenGiong": "Alice - Education",
+   "gioiGiong": "female",
+   "ramat": {
+    "cau": "Thiện Xạ, ngắm chuẩn!",
+    "tag": "[confident]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Thêm hai mũi tên — không trượt phát nào!",
+    "tag": "[confident]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "nguyetthan",
+   "ten": "Nguyệt Thần",
+   "giong": "RHlXKoO5f2lh4LJLPmoL",
+   "tenGiong": "Quang Tien - Sports Commentator",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Nguyệt Thần hiện giữa đêm!",
+    "tag": "[menacing]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Kẻ bị vứt bỏ — trăng gọi về chiến đấu!",
+    "tag": "[menacing]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "tamlinhtu",
+   "ten": "Linh Môi Sư",
+   "giong": "TqkkccUg3tobDj5LbKlt",
+   "tenGiong": "TuHau - Conversational",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Linh môi đã mở cõi âm!",
+    "tag": "[menacing]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Đặt bài tiếp đi — hồn nó thuộc về ta!",
+    "tag": "[menacing]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "cuongnhanxam",
+   "ten": "Lãnh Diện Cự Nhân",
+   "giong": "MugHa7C5tESbPq5Jrv8i",
+   "tenGiong": "Toàn ",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Người khổng lồ bước tới.",
+    "tag": "[coldly]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Sương lạnh phủ tay bài — không ai thoát!",
+    "tag": "[coldly]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "tieuthu",
+   "ten": "Xạ Thủ Nỏ",
+   "giong": "kyWPawcLE727zSyf3yY6",
+   "tenGiong": "Vũ - Northern region",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Mắt tinh, tay vững!",
+    "tag": "[intense]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Một mũi nỏ — đổi lấy năng lượng!",
+    "tag": "[intense]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "nuhongtam",
+   "ten": "Xích Tiễn",
+   "giong": "g2Dg3l1IfbzR3AoSy9jg",
+   "tenGiong": "Ly Bình - Presentation",
+   "gioiGiong": "female",
+   "ramat": {
+    "cau": "Xích Tiễn, nhắm vào ngươi!",
+    "tag": "[coldly]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Còn sức thừa? Thêm một mũi nữa!",
+    "tag": "[coldly]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "kysiho",
+   "ten": "Hồ Kiếm Tiên",
+   "giong": "nEhDMwIfsaozFyu41OZe",
+   "tenGiong": "Thanh - Vlogs",
+   "gioiGiong": "female",
+   "ramat": {
+    "cau": "Tiên kiếm bay khỏi mặt nước!",
+    "tag": "[commanding]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Gươm hồ đã rút! Mạnh lại càng mạnh!",
+    "tag": "[commanding]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "kiemquyen",
+   "ten": "Kiếm Quyền",
+   "giong": "K7ewtjKRNtwwt3lKQ6M0",
+   "tenGiong": "Tony Hoang ",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Một người, hai tuyệt kỹ!",
+    "tag": "[fierce]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Quyền ở đây — kiếm chờ bên kia!",
+    "tag": "[fierce]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "tieulong",
+   "ten": "Tiểu Long",
+   "giong": "EVrmXYJtN1IV4SK0JLro",
+   "tenGiong": "Phuc Anh",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Tiểu Long vẫy đuôi!",
+    "tag": "[roars]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Quân nhỏ ra trận? Lửa rồng thiêu địch!",
+    "tag": "[roars]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "bangca",
+   "ten": "Ca Nữ Băng Giá",
+   "giong": "Pbcl0sptptBURvzWNLs5",
+   "tenGiong": "Nhung",
+   "gioiGiong": "female",
+   "ramat": {
+    "cau": "Giọng ca từ xứ tuyết.",
+    "tag": "[coldly]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Hát một khúc — băng phong hai phía!",
+    "tag": "[coldly]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "bato",
+   "ten": "Bà Quay Tơ",
+   "giong": "7iUjM4919D20JYbu4ISi",
+   "tenGiong": "Linh Sensei - Teacher",
+   "gioiGiong": "female",
+   "ramat": {
+    "cau": "Guồng quay đã chạy, các con!",
+    "tag": "[commanding]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Sợi tơ đã kéo! Quân ta, dời trận!",
+    "tag": "[commanding]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "hacthuatsi",
+   "ten": "Hắc Thuật Sĩ",
+   "giong": "G9RE9RtQlitrTAYed3Mg",
+   "tenGiong": "Phat Nguyen - Classy",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Hắc thuật sư, hiện thân!",
+    "tag": "[menacing]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Còn bao năng lượng — bùa chép bấy nhiêu!",
+    "tag": "[menacing]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "thantocnu",
+   "ten": "Truy Phong",
+   "giong": "FRYq6nepIbR0lbu7Lus4",
+   "tenGiong": "Anh Thu - Sweet & Engaging",
+   "gioiGiong": "female",
+   "ramat": {
+    "cau": "Truy Phong như cơn lốc!",
+    "tag": "[shouting]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Khỏi cần gọi! Ta tự lao vào trận!",
+    "tag": "[shouting]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "vuatienhac",
+   "ten": "Ám Tiên Vương",
+   "giong": "TqkkccUg3tobDj5LbKlt",
+   "tenGiong": "TuHau - Conversational",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Ám Tiên Vương ngự giá!",
+    "tag": "[menacing]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Một lá úp sẵn — cuối ván mới biết!",
+    "tag": "[sarcastic]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "nhannhenquai",
+   "ten": "Lục Tý Ma",
+   "giong": "ZlVlUEsl3JykOGluaNu1",
+   "tenGiong": "Thuy Tien – Vietnamese Narrator",
+   "gioiGiong": "female",
+   "ramat": {
+    "cau": "Sáu tay ma đã tới!",
+    "tag": "[menacing]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Sáu tay ôm trọn — nuốt rồi nhân đôi!",
+    "tag": "[roars]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "kydong",
+   "ten": "Kỳ Đồng",
+   "giong": "TIQkE9DDukawEm00ejgd",
+   "tenGiong": "Triet Ngo - Authoritative and Confident",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Kỳ Đồng cưỡi sóng tới!",
+    "tag": "[battle cry]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Quân nhỏ đâu? Theo ta xông lên!",
+    "tag": "[battle cry]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "nangtocdo",
+   "ten": "Nàng Tóc Đỏ",
+   "giong": "qByVAGjXwGlkcRDJoiHg",
+   "tenGiong": "Kiều Linh",
+   "gioiGiong": "female",
+   "ramat": {
+    "cau": "Nàng Tóc Đỏ, đuổi kịp không?",
+    "tag": "[shouting]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Chạy lên! Ai di chuyển, kẻ đó mạnh!",
+    "tag": "[shouting]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "linhdondoc",
+   "ten": "Tàn Binh",
+   "giong": "WnNS4zlYd1VXynGbdq4M",
+   "tenGiong": "Kai - Playful & Expressive",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Một mình, vẫn là đạo binh!",
+    "tag": "[determined]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Giáo gãy cũng không lùi! Người sau, cầm lấy!",
+    "tag": "[determined]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "phapsudaomong",
+   "ten": "Pháp Sư Giấc Mơ",
+   "giong": "imB6RuS55RmshZs8gk0O",
+   "tenGiong": "Long - Fun, Friendly & High-energy",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Mở mắt ra, ảo cảnh tới!",
+    "tag": "[confident]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Một giấc mơ — vẽ nên đại đồ án!",
+    "tag": "[confident]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "sautham",
+   "ten": "Sầu Lão",
+   "giong": "aJLoOQa6aQPHQyK0cNeU",
+   "tenGiong": "Tony Chung - Vietnamese Sales Review",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Sầu Lão bước lên sân khấu.",
+    "tag": "[intense]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Diễn lại lần cuối — rồi cùng tan xác!",
+    "tag": "[intense]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "chimnhai",
+   "ten": "Chim Nhại",
+   "giong": "5vqV9IG7sDpzgzKOIZAv",
+   "tenGiong": "Kenh",
+   "gioiGiong": "female",
+   "ramat": {
+    "cau": "Chíp chíp! Ta tới rồi!",
+    "tag": "[laughs]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Bắt chước ai cũng được — ta càng rẻ!",
+    "tag": "[sarcastic]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "muoikiepnu",
+   "ten": "Luân Hồi Nương",
+   "giong": "cn9QbYLDiF52pxTcyPCR",
+   "tenGiong": "Thảo - Sweet Southern Female",
+   "gioiGiong": "female",
+   "ramat": {
+    "cau": "Mười kiếp, chưa kiếp nào thua!",
+    "tag": "[threatening]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Giết ta à? Ta làm lại từ đầu!",
+    "tag": "[threatening]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "battykhonglo",
+   "ten": "Tám Tay Khổng Lồ",
+   "giong": "RHlXKoO5f2lh4LJLPmoL",
+   "tenGiong": "Quang Tien - Sports Commentator",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Tám tay ra đòn! Ai cản nổi?",
+    "tag": "[growls]",
+    "nguon": "giu"
+   },
+   "kynang": {
+    "cau": "Bài trên cùng nặng bao nhiêu, ta nhẹ bấy nhiêu!",
+    "tag": "[growls]",
+    "nguon": "moi"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "nguyetlongnu",
+   "ten": "Nguyệt Long Nữ",
+   "giong": "oAvm5cbNCsMTdnhtmIs4",
+   "tenGiong": "Nguyet - Clear, Steady and Professional",
+   "gioiGiong": "female",
+   "ramat": {
+    "cau": "Long nữ dưới ánh nguyệt!",
+    "tag": "[fierce]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Một lá, dồn hết sức — trăng tiếp lửa!",
+    "tag": "[fierce]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "yeuhau",
+   "ten": "Yêu Hậu",
+   "giong": "KpzB5RgCRuVkUlZeY6wb",
+   "tenGiong": "Trinh - Bright, Clear and Steady",
+   "gioiGiong": "female",
+   "ramat": {
+    "cau": "Yêu Hậu đã giáng lâm!",
+    "tag": "[menacing]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Hồn đã mất — về tay ta, mạnh hơn!",
+    "tag": "[menacing]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "deonhansokhai",
+   "ten": "Trường Tý Lang",
+   "giong": "MugHa7C5tESbPq5Jrv8i",
+   "tenGiong": "Toàn ",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Trường Tý Lang có mặt!",
+    "tag": "[confident]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Tay ta vươn tới — giảm giá hay thêm sức!",
+    "tag": "[confident]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "hoasat",
+   "ten": "Quỷ Hoạ",
+   "giong": "kyWPawcLE727zSyf3yY6",
+   "tenGiong": "Vũ - Northern region",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Quỷ Hoạ cầm cọ máu!",
+    "tag": "[menacing]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Mỗi nơi có xác — một bức tranh đẹp!",
+    "tag": "[laughs maniacally]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "thuyhau",
+   "ten": "Thuỷ Hậu",
+   "giong": "U6R1j7cDbKnbieZAMbBX",
+   "tenGiong": "NgocMmo - Casual",
+   "gioiGiong": "female",
+   "ramat": {
+    "cau": "Nữ hoàng nước đã tới!",
+    "tag": "[commanding]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Kẻ đứng một mình — biển ban năm phần!",
+    "tag": "[commanding]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "thuynu",
+   "ten": "Thuỷ Linh",
+   "giong": "zYnH9CW4Vfh7aJx0S0Tt",
+   "tenGiong": "Alice - Education",
+   "gioiGiong": "female",
+   "ramat": {
+    "cau": "Thuỷ Linh trong veo, lạnh buốt!",
+    "tag": "[coldly]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Một mình bên hồ — bài rút nhẹ đi.",
+    "tag": "[coldly]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "acmong",
+   "ten": "Ác Mộng",
+   "giong": "nEhDMwIfsaozFyu41OZe",
+   "tenGiong": "Thanh - Vlogs",
+   "gioiGiong": "female",
+   "ramat": {
+    "cau": "Đêm nay, ngươi đừng mong yên!",
+    "tag": "[whispers]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Ngủ đi... tỉnh dậy, tay bài đã khác!",
+    "tag": "[threatening]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "dakhuc",
+   "ten": "Dạ Khúc",
+   "giong": "EVrmXYJtN1IV4SK0JLro",
+   "tenGiong": "Phuc Anh",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Dạ Khúc dạo lên trong đêm.",
+    "tag": "[intense]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Tiếng sáo vang — chiến địa đổi chủ!",
+    "tag": "[intense]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "nhencogiap",
+   "ten": "Cậu Thợ Khéo",
+   "giong": "RHlXKoO5f2lh4LJLPmoL",
+   "tenGiong": "Quang Tien - Sports Commentator",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Thợ khéo vào việc nào!",
+    "tag": "[shouting]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Gõ thêm mấy nhát — cơ giáp nhện xuất trận!",
+    "tag": "[shouting]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "kysitudich",
+   "ten": "Tử Thi Kỵ",
+   "giong": "K7ewtjKRNtwwt3lKQ6M0",
+   "tenGiong": "Tony Hoang ",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Vó ngựa từ cõi chết!",
+    "tag": "[coldly]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Đủ năm vết thương — kỵ binh xác tiến lên!",
+    "tag": "[coldly]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "thandong",
+   "ten": "Thần Đồng",
+   "giong": "TqkkccUg3tobDj5LbKlt",
+   "tenGiong": "TuHau - Conversational",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Tuổi nhỏ, chí lớn!",
+    "tag": "[confident]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Đứng sau mà học — học là đánh được!",
+    "tag": "[confident]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "dathuongnu",
+   "ten": "Dạ Thương",
+   "giong": "Pbcl0sptptBURvzWNLs5",
+   "tenGiong": "Nhung",
+   "gioiGiong": "female",
+   "ramat": {
+    "cau": "Thương đêm, đâm không tiếng.",
+    "tag": "[coldly]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Vứt ta đi? Ta nhảy tới chỗ yếu nhất!",
+    "tag": "[coldly]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "tamkiemmienvien",
+   "ten": "Hồng Liên Kiếm",
+   "giong": "FRYq6nepIbR0lbu7Lus4",
+   "tenGiong": "Anh Thu - Sweet & Engaging",
+   "gioiGiong": "female",
+   "ramat": {
+    "cau": "Hồng Liên Kiếm, rút ra!",
+    "tag": "[fierce]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Sen nở một nhát — quân nặng nhẹ đi!",
+    "tag": "[fierce]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "vuathoigian",
+   "ten": "Vua Thời Gian",
+   "giong": "TIQkE9DDukawEm00ejgd",
+   "tenGiong": "Triet Ngo - Authoritative and Confident",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Thời gian, quỳ trước ta!",
+    "tag": "[commanding]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Quay ngược kim! Ba phép xưa, trở lại!",
+    "tag": "[commanding]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "hongve",
+   "ten": "Trường Côn Vệ",
+   "giong": "WnNS4zlYd1VXynGbdq4M",
+   "tenGiong": "Kai - Playful & Expressive",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Trường côn quét ngang!",
+    "tag": "[shouting]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Đứng yên! Kẻ yếu nhất, câm miệng!",
+    "tag": "[shouting]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "cuongnhando",
+   "ten": "Nộ Diện Cự Nhân",
+   "giong": "imB6RuS55RmshZs8gk0O",
+   "tenGiong": "Long - Fun, Friendly & High-energy",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Nộ Diện Cự Nhân gầm thét!",
+    "tag": "[furious]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Còn để dành sức à? Ta nổi giận đây!",
+    "tag": "[furious]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "cuongdomienvien",
+   "ten": "Cuồng Phủ Hán",
+   "giong": "G9RE9RtQlitrTAYed3Mg",
+   "tenGiong": "Phat Nguyen - Classy",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Cuồng phủ khát máu!",
+    "tag": "[war cry]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Ra sớm thì mạnh! Rìu đâu, xông lên!",
+    "tag": "[war cry]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "soidomienvien",
+   "ten": "Hoả Lang",
+   "giong": "aJLoOQa6aQPHQyK0cNeU",
+   "tenGiong": "Tony Chung - Vietnamese Sales Review",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Hoả Lang tru giữa đêm!",
+    "tag": "[growls]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Tay bài càng đầy, lửa ta càng dữ!",
+    "tag": "[growls]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "chimcanhdo",
+   "ten": "Chim Cánh Đỏ",
+   "giong": "kyWPawcLE727zSyf3yY6",
+   "tenGiong": "Vũ - Northern region",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Cánh đỏ rợp trời!",
+    "tag": "[battle cry]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Ta bay đi — đồng đội thế chỗ!",
+    "tag": "[battle cry]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "chonvacay",
+   "ten": "Đôi Bạn Rừng Xanh",
+   "giong": "MugHa7C5tESbPq5Jrv8i",
+   "tenGiong": "Toàn ",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Đôi bạn rừng xanh tới!",
+    "tag": "[laughs]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Đặt đây hả? Tụi ta lấy phần trước!",
+    "tag": "[sarcastic]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "haplucchiare",
+   "ten": "Ly Gián Ma Nữ",
+   "giong": "7iUjM4919D20JYbu4ISi",
+   "tenGiong": "Linh Sensei - Teacher",
+   "gioiGiong": "female",
+   "ramat": {
+    "cau": "Ly gián là nghề của ta.",
+    "tag": "[sarcastic]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Lá mạnh nhất của ngươi? Giờ là của ta!",
+    "tag": "[sarcastic]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "trinu",
+   "ten": "Tiểu Trạng Nguyên",
+   "giong": "g2Dg3l1IfbzR3AoSy9jg",
+   "tenGiong": "Ly Bình - Presentation",
+   "gioiGiong": "female",
+   "ramat": {
+    "cau": "Tiểu Trạng Nguyên vào thi!",
+    "tag": "[proudly]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Mỗi con số khác nhau — ta cộng hết!",
+    "tag": "[proudly]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "nhendotham",
+   "ten": "Song Ảnh Hiệp",
+   "giong": "EVrmXYJtN1IV4SK0JLro",
+   "tenGiong": "Phuc Anh",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Song Ảnh Hiệp, hành động!",
+    "tag": "[menacing]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Một bóng ở đây — một bóng sau lưng ngươi!",
+    "tag": "[menacing]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "khinhdich",
+   "ten": "Tiểu Nhuyễn",
+   "giong": "TIQkE9DDukawEm00ejgd",
+   "tenGiong": "Triet Ngo - Authoritative and Confident",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Mềm như bún, dai như đỉa!",
+    "tag": "[laughs]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Vứt à? Ta nảy lại, còn khoẻ hơn!",
+    "tag": "[laughs maniacally]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "bocapngaymoi",
+   "ten": "Yểm Sư",
+   "giong": "cn9QbYLDiF52pxTcyPCR",
+   "tenGiong": "Thảo - Sweet Southern Female",
+   "gioiGiong": "female",
+   "ramat": {
+    "cau": "Yểm Sư đã bày trận.",
+    "tag": "[menacing]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Lá bùa này — nhân đôi mọi vết thương!",
+    "tag": "[menacing]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "thetdich",
+   "ten": "Quỷ Khiếu",
+   "giong": "qByVAGjXwGlkcRDJoiHg",
+   "tenGiong": "Kiều Linh",
+   "gioiGiong": "female",
+   "ramat": {
+    "cau": "Ngươi nghe thấy ta chưa?",
+    "tag": "[shouting]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Dám nhúc nhích? Tiếng thét đòi phần!",
+    "tag": "[furious]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "kysinguyetyeu",
+   "ten": "Nguyệt Thố Kỵ",
+   "giong": "5vqV9IG7sDpzgzKOIZAv",
+   "tenGiong": "Kenh",
+   "gioiGiong": "female",
+   "ramat": {
+    "cau": "Kỵ sĩ trăng, xung phong!",
+    "tag": "[aggressive]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Ba lá trơn đủ rồi — thỏ trăng, cướp!",
+    "tag": "[aggressive]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "hoavatnu",
+   "ten": "Vạn Hoá",
+   "giong": "ZlVlUEsl3JykOGluaNu1",
+   "tenGiong": "Thuy Tien – Vietnamese Narrator",
+   "gioiGiong": "female",
+   "ramat": {
+    "cau": "Vạn Hoá, vạn hình!",
+    "tag": "[commanding]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Biến! Ai ở đây cũng thành kẻ khác!",
+    "tag": "[commanding]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "vouyamdia",
+   "ten": "Hiệp Sĩ Địa Ngục",
+   "giong": "K7ewtjKRNtwwt3lKQ6M0",
+   "tenGiong": "Tony Hoang ",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Từ địa ngục, ta trở lại!",
+    "tag": "[threatening]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Ba con quỷ đã vào bài. Run đi!",
+    "tag": "[threatening]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "longbattu",
+   "ten": "Rồng Bất Tử",
+   "giong": "G9RE9RtQlitrTAYed3Mg",
+   "tenGiong": "Phat Nguyen - Classy",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Rồng không bao giờ chết!",
+    "tag": "[roars]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Lửa xanh bất diệt! Kẻ cuối, tiếp sức!",
+    "tag": "[roars]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "ngansat",
+   "ten": "Sát Thủ Bạc",
+   "giong": "KpzB5RgCRuVkUlZeY6wb",
+   "tenGiong": "Trinh - Bright, Clear and Steady",
+   "gioiGiong": "female",
+   "ramat": {
+    "cau": "Sát Thủ Bạc, im lặng giết.",
+    "tag": "[coldly]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Lá đầu bài ngươi — đã mất máu.",
+    "tag": "[coldly]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "chomay",
+   "ten": "Cơ Khuyển",
+   "giong": "WnNS4zlYd1VXynGbdq4M",
+   "tenGiong": "Kai - Playful & Expressive",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Cơ Khuyển canh gác!",
+    "tag": "[aggressive]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Gâu! Kéo đồng đội về — cắn tiếp!",
+    "tag": "[aggressive]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "toctu",
+   "ten": "Cậu Bé Tốc Độ",
+   "giong": "imB6RuS55RmshZs8gk0O",
+   "tenGiong": "Long - Fun, Friendly & High-energy",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Vèo! Cậu Bé Tốc Độ!",
+    "tag": "[excited]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Dùng hết sức đi! Ta nhanh hơn mỗi lượt!",
+    "tag": "[shouting]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "nhenngaymoi",
+   "ten": "Ráng Hồng",
+   "giong": "oAvm5cbNCsMTdnhtmIs4",
+   "tenGiong": "Nguyet - Clear, Steady and Professional",
+   "gioiGiong": "female",
+   "ramat": {
+    "cau": "Ráng Hồng nhuộm bình minh!",
+    "tag": "[fierce]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Hai bước nhảy — đâu cũng thêm sức!",
+    "tag": "[fierce]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "nhenbongdem",
+   "ten": "Dạ Chu",
+   "giong": "U6R1j7cDbKnbieZAMbBX",
+   "tenGiong": "NgocMmo - Casual",
+   "gioiGiong": "female",
+   "ramat": {
+    "cau": "Nhện đêm giăng lưới!",
+    "tag": "[menacing]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Lá trên cùng — ta dệt thành tám!",
+    "tag": "[menacing]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "nhennoiloan",
+   "ten": "Loạn Ca Tử",
+   "giong": "MugHa7C5tESbPq5Jrv8i",
+   "tenGiong": "Toàn ",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Loạn Ca Tử lên dây đàn!",
+    "tag": "[sarcastic]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Hát xẩm dạo qua — tiện tay cướp hai!",
+    "tag": "[sarcastic]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "ansao",
+   "ten": "Phong Ấn Sao",
+   "giong": "TqkkccUg3tobDj5LbKlt",
+   "tenGiong": "TuHau - Conversational",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Ấn phong đã khắc!",
+    "tag": "[confident]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Cho địch ba sao? Ta vẫn thắng!",
+    "tag": "[confident]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "buisao",
+   "ten": "Bụi Sao",
+   "giong": "zYnH9CW4Vfh7aJx0S0Tt",
+   "tenGiong": "Alice - Education",
+   "gioiGiong": "female",
+   "ramat": {
+    "cau": "Bụi Sao rơi lấp lánh.",
+    "tag": "[whispers]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Không ai chen vào — trừ khi tự bước tới!",
+    "tag": "[threatening]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "tinhchuathaiduong",
+   "ten": "Chúa Mặt Trời",
+   "giong": "kyWPawcLE727zSyf3yY6",
+   "tenGiong": "Vũ - Northern region",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Bình minh! Ta đã lên ngôi!",
+    "tag": "[proudly]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Năng lượng để dành — mặt trời trả lãi!",
+    "tag": "[proudly]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "kysidoibao",
+   "ten": "Cơ Hàn Kỵ",
+   "giong": "aJLoOQa6aQPHQyK0cNeU",
+   "tenGiong": "Tony Chung - Vietnamese Sales Review",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Bụng rỗng, tay càng chắc!",
+    "tag": "[growls]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Nhịn đói hai lượt — rồi ta ăn sạch!",
+    "tag": "[growls]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "diphaptoithuong",
+   "ten": "Chưởng Giáo",
+   "giong": "RHlXKoO5f2lh4LJLPmoL",
+   "tenGiong": "Quang Tien - Sports Commentator",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Chưởng Giáo khai đàn!",
+    "tag": "[commanding]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Vạn pháp quy nhất! Hợp thể!",
+    "tag": "[commanding] [shouting]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "nhenthuongdang",
+   "ten": "Kim Chu Soái",
+   "giong": "kyWPawcLE727zSyf3yY6",
+   "tenGiong": "Vũ - Northern region",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Kim Chu Soái thăng trướng!",
+    "tag": "[commanding]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Quân có công — soái cấp thêm lương!",
+    "tag": "[commanding]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "diennu",
+   "ten": "Lôi Quang Tiên",
+   "giong": "g2Dg3l1IfbzR3AoSy9jg",
+   "tenGiong": "Ly Bình - Presentation",
+   "gioiGiong": "female",
+   "ramat": {
+    "cau": "Tia sét này là ta!",
+    "tag": "[aggressive]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Sét đánh! Lá tiếp theo, xông lên!",
+    "tag": "[aggressive]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "hoamavuong",
+   "ten": "Hoả Ma Vương",
+   "giong": "EVrmXYJtN1IV4SK0JLro",
+   "tenGiong": "Phuc Anh",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Địa ngục mở cửa, ta về!",
+    "tag": "[laughs maniacally]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Mười sức trở lên? Rót thêm rượu lửa!",
+    "tag": "[laughs maniacally]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "nhenhacdich",
+   "ten": "Mặc Chu",
+   "giong": "K7ewtjKRNtwwt3lKQ6M0",
+   "tenGiong": "Tony Hoang ",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Mặc Chu bò ra từ bóng tối!",
+    "tag": "[menacing]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Kẻ nhỏ nhất ở đây — hoà vào mực ta!",
+    "tag": "[menacing]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "nhenlong",
+   "ten": "Nhện Lông",
+   "giong": "nEhDMwIfsaozFyu41OZe",
+   "tenGiong": "Thanh - Vlogs",
+   "gioiGiong": "female",
+   "ramat": {
+    "cau": "Lông xù nhưng đừng đụng!",
+    "tag": "[proudly]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Mạnh nhất bàn là ta! Ai dám tranh?",
+    "tag": "[proudly]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "virutcosinh",
+   "ten": "Vi-rút Cơ Giới",
+   "giong": "TIQkE9DDukawEm00ejgd",
+   "tenGiong": "Triet Ngo - Authoritative and Confident",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Hệ thống khởi động.",
+    "tag": "[coldly]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Lây nhiễm hoàn tất. Các ngươi là ta.",
+    "tag": "[coldly]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "tuongquan",
+   "ten": "Tướng Quân",
+   "giong": "WnNS4zlYd1VXynGbdq4M",
+   "tenGiong": "Kai - Playful & Expressive",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Ngựa chiến hí vang, ta tới!",
+    "tag": "[commanding]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Địch còn chần chừ? Đại quân, xuất kích!",
+    "tag": "[commanding]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "bavuongtim",
+   "ten": "Lục Chung Tôn Giả",
+   "giong": "imB6RuS55RmshZs8gk0O",
+   "tenGiong": "Long - Fun, Friendly & High-energy",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Tôn Giả ngự trên ngai!",
+    "tag": "[threatening]",
+    "nguon": "moi"
+   },
+   "kynang": null,
+   "dauvan": {
+    "cau": "Sáu Chuông Đồng, vào bài! Định mệnh đã điểm!",
+    "tag": "[threatening]",
+    "nguon": "moi"
+   }
+  },
+  {
+   "k": "conhan",
+   "ten": "Cổ Nhân",
+   "giong": "G9RE9RtQlitrTAYed3Mg",
+   "tenGiong": "Phat Nguyen - Classy",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Người xưa trở về!",
+    "tag": "[determined]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Đồ cổ đã mở — theo ta mở đường!",
+    "tag": "[determined]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "thachquaisokhai",
+   "ten": "Thạch Tổ",
+   "giong": "aJLoOQa6aQPHQyK0cNeU",
+   "tenGiong": "Tony Chung - Vietnamese Sales Review",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Tổ của núi non thức giấc!",
+    "tag": "[growls]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Đá ngàn năm — mỗi lượt một vững!",
+    "tag": "[growls]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "nuchienbathu",
+   "ten": "Bất Hoại Nữ Tướng",
+   "giong": "Pbcl0sptptBURvzWNLs5",
+   "tenGiong": "Nhung",
+   "gioiGiong": "female",
+   "ramat": {
+    "cau": "Bất Hoại Nữ Tướng, tiến!",
+    "tag": "[fierce]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Hai lá đúng nhịp — sẹo thêm, sức thêm!",
+    "tag": "[fierce]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "docdich",
+   "ten": "Độc Thể",
+   "giong": "RHlXKoO5f2lh4LJLPmoL",
+   "tenGiong": "Quang Tien - Sports Commentator",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Độc Thể đã tới!",
+    "tag": "[laughs maniacally]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Về tay hết đi! Ta béo thêm!",
+    "tag": "[laughs maniacally]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "dacvuquocgia",
+   "ten": "Ám Hương",
+   "giong": "7iUjM4919D20JYbu4ISi",
+   "tenGiong": "Linh Sensei - Teacher",
+   "gioiGiong": "female",
+   "ramat": {
+    "cau": "Hương thơm... rồi tử thần.",
+    "tag": "[whispers]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Kẻ to xác ở đây — giảm sức đi.",
+    "tag": "[coldly]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "huyetmenu",
+   "ten": "Huyết Phi",
+   "giong": "FRYq6nepIbR0lbu7Lus4",
+   "tenGiong": "Anh Thu - Sweet & Engaging",
+   "gioiGiong": "female",
+   "ramat": {
+    "cau": "Huyết Phi đã tới đây!",
+    "tag": "[threatening]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Mỗi mức năng lượng — một giọt máu!",
+    "tag": "[threatening]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "huyetsatvuong",
+   "ten": "Huyết Sát Vương",
+   "giong": "TqkkccUg3tobDj5LbKlt",
+   "tenGiong": "TuHau - Conversational",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Huyết Sát Vương, cười lên!",
+    "tag": "[menacing]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Tiêu sạch năng lượng? Thưởng giáo máu!",
+    "tag": "[laughs maniacally]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "taysatnu",
+   "ten": "Thiết Thủ",
+   "giong": "ZlVlUEsl3JykOGluaNu1",
+   "tenGiong": "Thuy Tien – Vietnamese Narrator",
+   "gioiGiong": "female",
+   "ramat": {
+    "cau": "Tay thép đỏ rực lửa lò!",
+    "tag": "[fierce]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Đồ mới rèn ra — ta nện thêm sức!",
+    "tag": "[fierce]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "huyenconu",
+   "ten": "Huyễn Cơ",
+   "giong": "cn9QbYLDiF52pxTcyPCR",
+   "tenGiong": "Thảo - Sweet Southern Female",
+   "gioiGiong": "female",
+   "ramat": {
+    "cau": "Huyễn Cơ múa ảo ảnh!",
+    "tag": "[confident]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Thắng ở đây — tay bài sáng rực!",
+    "tag": "[confident]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "comaychien",
+   "ten": "Phá Trận Tướng",
+   "giong": "MugHa7C5tESbPq5Jrv8i",
+   "tenGiong": "Toàn ",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Tướng công thành, xung trận!",
+    "tag": "[war cry]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Phá cổng! Đặt quân đâu cũng được!",
+    "tag": "[war cry]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "cosinhthe",
+   "ten": "Cơ Sinh Thể",
+   "giong": "EVrmXYJtN1IV4SK0JLro",
+   "tenGiong": "Phuc Anh",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Cơ Sinh Thể kích hoạt!",
+    "tag": "[intense]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Năng lượng thừa — ta rèn thành lợi thế!",
+    "tag": "[intense]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "vukhih",
+   "ten": "Huyền Thiết Binh",
+   "giong": "K7ewtjKRNtwwt3lKQ6M0",
+   "tenGiong": "Tony Hoang ",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Huyền Thiết Binh nặng ngàn cân!",
+    "tag": "[growls]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Vứt ta? Gang sắt quay lại, rẻ hơn!",
+    "tag": "[growls]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "vukhix",
+   "ten": "Đồng Trảo",
+   "giong": "imB6RuS55RmshZs8gk0O",
+   "tenGiong": "Long - Fun, Friendly & High-energy",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Trảo pháp, xé gió!",
+    "tag": "[roars]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Đồng đội ngã — móng hổ càng sắc!",
+    "tag": "[roars]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "docnutrang",
+   "ten": "Bạch Độc Cơ",
+   "giong": "5vqV9IG7sDpzgzKOIZAv",
+   "tenGiong": "Kenh",
+   "gioiGiong": "female",
+   "ramat": {
+    "cau": "Bạch Cơ mỉm cười...",
+    "tag": "[teasing]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Một nụ hôn độc — tặng ngươi đấy!",
+    "tag": "[sarcastic]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "phuthuytre",
+   "ten": "Phù Thuỷ Trẻ",
+   "giong": "qByVAGjXwGlkcRDJoiHg",
+   "tenGiong": "Kiều Linh",
+   "gioiGiong": "female",
+   "ramat": {
+    "cau": "Phù thuỷ trẻ, phép lạ đây!",
+    "tag": "[confident]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Dùng hết rồi à? Thêm hai năng lượng!",
+    "tag": "[confident]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "trumthanhpho",
+   "ten": "Bá Hộ",
+   "giong": "TIQkE9DDukawEm00ejgd",
+   "tenGiong": "Triet Ngo - Authoritative and Confident",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Tiền nhiều, quyền to!",
+    "tag": "[proudly]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Mạnh nhất bàn? Bá hộ ra giá rẻ!",
+    "tag": "[proudly]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "kysivuottu",
+   "ten": "Cốt Trảo Kỵ",
+   "giong": "G9RE9RtQlitrTAYed3Mg",
+   "tenGiong": "Phat Nguyen - Classy",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Xương cốt xé nát chúng!",
+    "tag": "[menacing]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Đủ sáu sức — móng xương chia phần!",
+    "tag": "[menacing]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "saotrongdau",
+   "ten": "Sao Trong Đầu",
+   "giong": "U6R1j7cDbKnbieZAMbBX",
+   "tenGiong": "NgocMmo - Casual",
+   "gioiGiong": "female",
+   "ramat": {
+    "cau": "Ngôi sao trong đầu ta loé!",
+    "tag": "[commanding]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Ba hay bốn năng lượng — biến khỏi đây!",
+    "tag": "[commanding]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "xachacmieu",
+   "ten": "Xác Mèo Đen",
+   "giong": "oAvm5cbNCsMTdnhtmIs4",
+   "tenGiong": "Nguyet - Clear, Steady and Professional",
+   "gioiGiong": "female",
+   "ramat": {
+    "cau": "Mèo đen chín kiếp, về đây!",
+    "tag": "[threatening]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Meo... vứt thêm một đứa nữa!",
+    "tag": "[threatening]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "xacdao",
+   "ten": "Xác Đao Phủ",
+   "giong": "WnNS4zlYd1VXynGbdq4M",
+   "tenGiong": "Kai - Playful & Expressive",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Đao phủ chưa nghỉ việc!",
+    "tag": "[growls]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Lật bài đi — bầy xác ăn phần!",
+    "tag": "[growls]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "xactinhquang",
+   "ten": "Thây Ma Ánh Sao",
+   "giong": "KpzB5RgCRuVkUlZeY6wb",
+   "tenGiong": "Trinh - Bright, Clear and Steady",
+   "gioiGiong": "female",
+   "ramat": {
+    "cau": "Thây ma rực sáng giữa đêm!",
+    "tag": "[intense]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Đồng đội ơi — hoá ánh sao cho ta!",
+    "tag": "[intense]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "bayxacnuotsao",
+   "ten": "Cương Thi Nuốt Sao",
+   "giong": "RHlXKoO5f2lh4LJLPmoL",
+   "tenGiong": "Quang Tien - Sports Commentator",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Cương Thi nuốt cả trời sao!",
+    "tag": "[growls]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Sáu kẻ đã chọn — đều thành ta!",
+    "tag": "[growls]",
+    "nguon": "giu"
+   },
+   "dauvan": {
+    "cau": "Sáu kẻ trong bộ bài — ta đã chấm!",
+    "tag": "[menacing]",
+    "nguon": "moi"
+   }
+  },
+  {
+   "k": "xacdeo",
+   "ten": "Thây Ma Cao Su",
+   "giong": "K7ewtjKRNtwwt3lKQ6M0",
+   "tenGiong": "Tony Hoang ",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Thây Ma Cao Su bật tới!",
+    "tag": "[laughs maniacally]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Kéo dài ra! Đàn xác thêm hai!",
+    "tag": "[laughs maniacally]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "xachongphuthuy",
+   "ten": "Xác Bà Đồng",
+   "giong": "g2Dg3l1IfbzR3AoSy9jg",
+   "tenGiong": "Ly Bình - Presentation",
+   "gioiGiong": "female",
+   "ramat": {
+    "cau": "Bà Đồng đã lên đồng!",
+    "tag": "[menacing]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Đặt bài đây — quân ta lại đông!",
+    "tag": "[menacing]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "xachacdich",
+   "ten": "Mặc Thi",
+   "giong": "aJLoOQa6aQPHQyK0cNeU",
+   "tenGiong": "Tony Chung - Vietnamese Sales Review",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Mặc Thi bước ra từ huyệt.",
+    "tag": "[coldly]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Kẻ đầu tiên bên ta — nằm xuống trước.",
+    "tag": "[coldly]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "hoathuatnu",
+   "ten": "Hoả Thuật Sư",
+   "giong": "nEhDMwIfsaozFyu41OZe",
+   "tenGiong": "Thanh - Vlogs",
+   "gioiGiong": "female",
+   "ramat": {
+    "cau": "Lửa phép bùng lên rồi!",
+    "tag": "[threatening]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Cường hoá ta đi — lửa đen sẽ đến!",
+    "tag": "[threatening]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "lanvuong",
+   "ten": "Vua Thợ Lặn",
+   "giong": "TqkkccUg3tobDj5LbKlt",
+   "tenGiong": "TuHau - Conversational",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Vua của đáy biển tới!",
+    "tag": "[shouting]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Lặn xuống, mò lên — thêm quân nhỏ!",
+    "tag": "[shouting]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "thanai",
+   "ten": "Tơ Hồng",
+   "giong": "zYnH9CW4Vfh7aJx0S0Tt",
+   "tenGiong": "Alice - Education",
+   "gioiGiong": "female",
+   "ramat": {
+    "cau": "Chỉ hồng nối duyên đây!",
+    "tag": "[determined]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Thêm một sợi chỉ — mạnh thêm một phần!",
+    "tag": "[determined]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "hacdiemchua",
+   "ten": "Hắc Diệm Đế",
+   "giong": "MugHa7C5tESbPq5Jrv8i",
+   "tenGiong": "Toàn ",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Hắc Diệm Đế giáng lâm!",
+    "tag": "[menacing]",
+    "nguon": "moi"
+   },
+   "kynang": null,
+   "dauvan": {
+    "cau": "Nghi thức bắt đầu! Lửa đen trỗi dậy!",
+    "tag": "[menacing]",
+    "nguon": "giu"
+   }
+  },
+  {
+   "k": "khoinguyenvuong",
+   "ten": "Khai Nguyên Tổ",
+   "giong": "G9RE9RtQlitrTAYed3Mg",
+   "tenGiong": "Phat Nguyen - Classy",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Khai Nguyên Tổ, mở thiên địa!",
+    "tag": "[commanding]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Gieo đủ mọi miền — tận thế nảy mầm!",
+    "tag": "[commanding]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "kechinhphatthoigian",
+   "ten": "Kẻ Chinh Phạt",
+   "giong": "kyWPawcLE727zSyf3yY6",
+   "tenGiong": "Vũ - Northern region",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Kẻ Chinh Phạt đã tới!",
+    "tag": "[war cry]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Chiêu thức của thời khác — xuất!",
+    "tag": "[shouting]",
+    "nguon": "moi"
+   },
+   "dauvan": {
+    "cau": "Bốn thời đại — bốn ta cùng chinh phạt!",
+    "tag": "[war cry]",
+    "nguon": "giu"
+   }
+  },
+  {
+   "k": "lucac",
+   "ten": "Sáu Ác Quỷ",
+   "giong": "EVrmXYJtN1IV4SK0JLro",
+   "tenGiong": "Phuc Anh",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Hí hí! Bọn ta đông lắm!",
+    "tag": "[laughs]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Sáu đứa ác — gộp lại thành một!",
+    "tag": "[laughs maniacally]",
+    "nguon": "giu"
+   },
+   "dauvan": {
+    "cau": "Sáu lá đầu tiên rút lên — từ nay là ác quỷ!",
+    "tag": "[laughs maniacally]",
+    "nguon": "moi"
+   }
+  },
+  {
+   "k": "phapsugia",
+   "ten": "Pháp Sư Già",
+   "giong": "TIQkE9DDukawEm00ejgd",
+   "tenGiong": "Triet Ngo - Authoritative and Confident",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Pháp Sư Già vuốt râu!",
+    "tag": "[confident]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Mỗi lượt một thần chú — đỡ nổi không?",
+    "tag": "[confident]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "chutruongnu",
+   "ten": "Tiểu Phù Sư",
+   "giong": "Pbcl0sptptBURvzWNLs5",
+   "tenGiong": "Nhung",
+   "gioiGiong": "female",
+   "ramat": {
+    "cau": "Tiểu Phù Sư múa bút!",
+    "tag": "[fierce]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Lá kế tiếp — để ta yểm phép!",
+    "tag": "[fierce]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "quyensuthaphoan",
+   "ten": "Càn Khôn Võ Thánh",
+   "giong": "WnNS4zlYd1VXynGbdq4M",
+   "tenGiong": "Kai - Playful & Expressive",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Võ Thánh lên đỉnh núi!",
+    "tag": "[proudly]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Mười chiếc vòng! Khai mở càn khôn!",
+    "tag": "[battle cry]",
+    "nguon": "giu"
+   },
+   "dauvan": {
+    "cau": "Càn Khôn Quyển trong tay — trận này của ta!",
+    "tag": "[battle cry]",
+    "nguon": "moi"
+   }
+  },
+  {
+   "k": "kerinh",
+   "ten": "Kẻ Rình",
+   "giong": "imB6RuS55RmshZs8gk0O",
+   "tenGiong": "Long - Fun, Friendly & High-energy",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Kẻ Rình nấp trong bóng.",
+    "tag": "[whispers]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Suỵt... đồ nghề sẵn rồi. Giữ chặt túi!",
+    "tag": "[threatening]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "thuanung",
+   "ten": "Ưng Non",
+   "giong": "K7ewtjKRNtwwt3lKQ6M0",
+   "tenGiong": "Tony Hoang ",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Ưng Non vỗ cánh!",
+    "tag": "[battle cry]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Khiên lớn sang bên kia! Ta canh chừng!",
+    "tag": "[battle cry]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "huyettruonglao",
+   "ten": "Trưởng Lão Máu",
+   "giong": "aJLoOQa6aQPHQyK0cNeU",
+   "tenGiong": "Tony Chung - Vietnamese Sales Review",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Trưởng lão cõi huyết thức giấc!",
+    "tag": "[menacing]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Ba lần cướp máu — ta hoá cự thú!",
+    "tag": "[menacing]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "tamtudo",
+   "ten": "Tam Nhãn",
+   "giong": "RHlXKoO5f2lh4LJLPmoL",
+   "tenGiong": "Quang Tien - Sports Commentator",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Tam Nhãn quan sát tất cả!",
+    "tag": "[intense]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Ba con mắt — ba quyền năng!",
+    "tag": "[intense] [menacing]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "nuhoanghonmang",
+   "ten": "Hỗn Mang Hậu",
+   "giong": "oAvm5cbNCsMTdnhtmIs4",
+   "tenGiong": "Nguyet - Clear, Steady and Professional",
+   "gioiGiong": "female",
+   "ramat": {
+    "cau": "Trật tự? Bổn hậu không cần!",
+    "tag": "[laughs maniacally]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Hỗn loạn mỗi lượt — miễn phí!",
+    "tag": "[laughs maniacally]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "loantuong",
+   "ten": "Tướng Loạn Trí",
+   "giong": "EVrmXYJtN1IV4SK0JLro",
+   "tenGiong": "Phuc Anh",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Tướng điên ra trận!",
+    "tag": "[laughs maniacally]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Lật! Lật! Lật! Cái lớn nhất đây!",
+    "tag": "[laughs maniacally]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "trungphatcogiap",
+   "ten": "Giáp Trừng Phạt",
+   "giong": "TqkkccUg3tobDj5LbKlt",
+   "tenGiong": "TuHau - Conversational",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Giáp sắt khoá mục tiêu!",
+    "tag": "[threatening]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Đã đánh dấu. Kẻ nào cản — bị phạt!",
+    "tag": "[threatening]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "bavuongmienvien",
+   "ten": "Hậu Nghệ",
+   "giong": "MugHa7C5tESbPq5Jrv8i",
+   "tenGiong": "Toàn ",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Hậu Nghệ giương cung thần!",
+    "tag": "[war cry]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Mỗi lá bài một mũi tên. Bắn!",
+    "tag": "[war cry] [shouting]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "nguyetthach",
+   "ten": "Nguyệt Thạch",
+   "giong": "7iUjM4919D20JYbu4ISi",
+   "tenGiong": "Linh Sensei - Teacher",
+   "gioiGiong": "female",
+   "ramat": {
+    "cau": "Nguyệt Thạch toả ánh bạc.",
+    "tag": "[coldly]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Kẻ nhỏ giữ gì — ta giữ nấy.",
+    "tag": "[coldly]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "thietgiapthuongdang",
+   "ten": "Thái Dương Giáp",
+   "giong": "kyWPawcLE727zSyf3yY6",
+   "tenGiong": "Vũ - Northern region",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Giáp mặt trời, rực cháy!",
+    "tag": "[proudly]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Giảm hay tăng — ta nhận gấp đôi!",
+    "tag": "[proudly]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "kenuotsaosokhai",
+   "ten": "Gã Hái Sao",
+   "giong": "TIQkE9DDukawEm00ejgd",
+   "tenGiong": "Triet Ngo - Authoritative and Confident",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Gã Hái Sao đến thu hoạch!",
+    "tag": "[sarcastic]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Lá tiếp theo ngươi đặt — sẽ phục vụ ta!",
+    "tag": "[sarcastic]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "dihien",
+   "ten": "Dì Hiền",
+   "giong": "FRYq6nepIbR0lbu7Lus4",
+   "tenGiong": "Anh Thu - Sweet & Engaging",
+   "gioiGiong": "female",
+   "ramat": {
+    "cau": "Hiền nhưng nghiêm lắm nha!",
+    "tag": "[cheerful]",
+    "nguon": "moi"
+   },
+   "kynang": {
+    "cau": "Dời chỗ xong chưa? Dì thưởng tận tay!",
+    "tag": "[commanding]",
+    "nguon": "giu"
+   },
+   "dauvan": null
+  },
+  {
+   "k": "kequansat",
+   "ten": "Thổ Địa",
+   "giong": "TIQkE9DDukawEm00ejgd",
+   "tenGiong": "Triet Ngo - Authoritative and Confident",
+   "gioiGiong": "male",
+   "ramat": {
+    "cau": "Thổ Địa trấn giữ nơi này!",
+    "tag": "[laughs]",
+    "nguon": "moi"
+   },
+   "kynang": null,
+   "dauvan": {
+    "cau": "Đất này ta giữ — chiến địa nào ta cũng thấy trước!",
+    "tag": "[confident]",
+    "nguon": "moi"
+   }
+  },
+  {
+   "k": "laophuthuy",
+   "ten": "Lão Phù Thuỷ",
+   "giong": "nEhDMwIfsaozFyu41OZe",
+   "tenGiong": "Thanh - Vlogs",
+   "gioiGiong": "female",
+   "ramat": {
+    "cau": "Bà phù thuỷ giật dây đây!",
+    "tag": "[laughs]",
+    "nguon": "moi"
+   },
+   "kynang": null,
+   "dauvan": {
+    "cau": "Hì hì... lượt chẵn đến, con rối nào cũng phải nghe bà!",
+    "tag": "[laughs maniacally]",
+    "nguon": "moi"
+   }
+  }
+ ]
+}

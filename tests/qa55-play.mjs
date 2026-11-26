@@ -45,8 +45,12 @@ await ctx.addInitScript(spd => {
   requestAnimationFrame(raf);
   window.SFX_TAP = (n, v, o) => window.__snd.push({ n, t: Math.round(performance.now()), d: (o && o.delay) || 0, ctx: window.__ctx, turn: typeof G !== "undefined" && G ? G.turn : 0 });
 }, SPDK);
+/* gpu59: QA_IMGDELAY=ms — làm chậm tải ảnh thẻ để bắt lỗi "lật ra khung trống rồi ảnh mới hiện" (đếm lần thấy ảnh rỗng trên thẻ đã lật / màn phóng lớn) */
+const IMGDELAY = +(process.env.QA_IMGDELAY || 0);
+if (IMGDELAY) await ctx.addInitScript(() => { window.__blank = []; setInterval(() => { try { document.querySelectorAll(".uc-card img.art, #board [data-mc] img.art").forEach(im => { const r = im.getBoundingClientRect(); if (r.width > 8 && /^data:image\/gif/.test(im.src) && getComputedStyle(im).visibility !== "hidden") window.__blank.push((im.closest(".uc-card") ? "zoom" : "board") + "@" + Math.round(performance.now())); }); } catch (e) {} }, 40); });
 const page = await ctx.newPage();
 await page.route(/workers\.dev|firebase|googleapis|gstatic/, r => r.abort());
+if (IMGDELAY) await page.route(/\/img\/(c|ct)\//, async r => { await sleep(IMGDELAY); r.continue(); });
 const errors = [];
 page.on("pageerror", e => errors.push("pageerror: " + e.message + " @" + String(e.stack || "").split("\n")[1]));
 page.on("console", m => { if (m.type() === "error" && !/ERR_TUNNEL_CONNECTION_FAILED|ERR_PROXY|workers\.dev|ERR_FAILED|net::/.test(m.text())) errors.push("console.error: " + m.text().slice(0, 200)); });
@@ -271,5 +275,6 @@ for (const g of report.games) {
   console.log(TAG, `   bố cục: ${JSON.stringify(Object.entries(lk).slice(0, 12))}`);
   if (g.endLayout.length) console.log(TAG, `   màn kết quả: ${JSON.stringify(g.endLayout.slice(0, 6))}`);
 }
+if (IMGDELAY) { const bl = await page.evaluate(() => window.__blank || []).catch(() => []); console.log(TAG, "ẢNH RỖNG khi lật:", bl.length, JSON.stringify(bl.slice(0, 8))); }
 console.log(TAG, "LỖI:", report.errors.slice(0, 15).join(" | ") || "không");
 await browser.close(); server.close();

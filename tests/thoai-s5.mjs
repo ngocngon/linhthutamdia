@@ -15,6 +15,7 @@ try { ({ chromium } = require("playwright")); } catch { ({ chromium } = require(
 const IDS = ["hacdichbinh", "namtuocmatna", "tammanu", "nguyetlong", "linhduoc", "songsinhtamlinh"]; // thẻ S5 thật
 const tmp = await mkdtemp(path.join(os.tmpdir(), "thoai-"));
 await mkdir(path.join(tmp, "raw")); await mkdir(path.join(tmp, "out"));
+["hacdichbinh@kn", "bavuongtim@dv"].forEach((k, i) => execFileSync("ffmpeg", ["-v", "error", "-y", "-f", "lavfi", "-i", `sine=f=${700 + i * 90}:d=1.2`, "-af", "afade=t=in:d=0.1,afade=t=out:st=0.9:d=0.3,volume=0.3", path.join(tmp, "raw", k + ".mp3")])); // gpu59: thoại giai đoạn kỹ năng / Đầu Ván
 IDS.forEach((k, i) => execFileSync("ffmpeg", ["-v", "error", "-y", "-f", "lavfi", "-i", `sine=f=${300 + i * 70}:d=1.4`, "-af", "afade=t=in:d=0.1,afade=t=out:st=1.1:d=0.3,volume=0.3", path.join(tmp, "raw", k + ".mp3")]));
 execFileSync("python3", [path.join(root, "tools", "thoai_build.py"), path.join(tmp, "raw"), path.join(tmp, "out")], { env: { ...process.env, THOAI_DS: path.join(tmp, "none.json") }, stdio: "pipe" });
 const MIME = { ".html": "text/html; charset=utf-8", ".js": "text/javascript", ".css": "text/css", ".json": "application/json", ".webp": "image/webp", ".png": "image/png", ".mp3": "audio/mpeg", ".svg": "image/svg+xml" };
@@ -119,6 +120,27 @@ try {
   ok((await voices(pg)).length === 1, "bật lại cả hai: thoại phát lại");
   await pg.evaluate(() => SFX.launch(5, { id: "carayi_khong_co", uid: 9404 })); // thẻ không có thoại
   ok(await pg.evaluate(() => SFX.voiceLine("khongcoid") === false), "thẻ không có thoại: bỏ qua im lặng");
+  console.log("7) gpu59: thoại theo giai đoạn (ra mắt / kỹ năng / Đầu Ván) + giữ màn đủ lâu");
+  await w(pg, 2500); await reset(pg);
+  const g7 = await pg.evaluate(async () => {
+    await SFX.preloadVoices(["hacdichbinh", "hacdichbinh@kn", "bavuongtim@dv"]);
+    const rm = SFX.voiceDur("hacdichbinh", "rm"), kn = SFX.voiceDur("hacdichbinh", "kn"), dv0 = SFX.voiceDur("hacdichbinh", "dv"), dv = SFX.voiceDur("bavuongtim", "dv");
+    const t = ucT(true, 1, false, "hacdichbinh"), t0 = ucT(true, 1, false);
+    return { rm, kn, dv0, dv, hold: t.TIN + t.HOLD, hold0: t0.TIN + t0.HOLD, keys: SFX.voiceKeys("hacdichbinh") };
+  });
+  ok(g7.rm > 0 && g7.kn > 0 && g7.dv0 === 0 && g7.dv > 0, "thời lượng theo giai đoạn: " + JSON.stringify(g7));
+  ok(g7.hold >= 320 + g7.rm * 1000 && g7.hold > g7.hold0, `màn ra mắt giữ ${g7.hold} ms ≥ 320 + thoại ${Math.round(g7.rm * 1000)} ms (không thoại: ${g7.hold0} ms)`);
+  ok(JSON.stringify(g7.keys) === JSON.stringify(["hacdichbinh", "hacdichbinh@kn"]), "khoá thoại của thẻ: " + JSON.stringify(g7.keys));
+  await pg.evaluate(() => SFX.voiceLine("hacdichbinh", { ph: "kn", uid: 9701, delay: 0.05 }));
+  await w(pg, 400);
+  v = await voices(pg);
+  ok(v.length === 1 && v[0] === "voice:hacdichbinh@kn", "phát động kỹ năng -> câu @kn: " + JSON.stringify(v));
+  ok(await pg.evaluate(() => SFX.voiceLine("tammanu", { uid: 9702 }) === false), "câu trước chưa đọc xong -> câu mới không chen");
+  await w(pg, 1600); await reset(pg);
+  await pg.evaluate(() => SFX.voiceLine("bavuongtim", { ph: "dv", delay: 0.05 }));
+  await w(pg, 400);
+  v = await voices(pg);
+  ok(v.length === 1 && v[0] === "voice:bavuongtim@dv", "Đầu Ván -> câu @dv: " + JSON.stringify(v));
   ok(A.errors.length === 0, "không lỗi console" + (A.errors.length ? ": " + A.errors.slice(0, 3).join(" | ") : ""));
   await A.ctx.close();
   // ---------- thiếu thoai.json ----------
