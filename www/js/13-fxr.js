@@ -447,18 +447,16 @@ const VKD_DK=["kiengiap","thuantuong","huyetdich","xacmay","diphapsu","songchuyn
     const c = cfg(id) || { c1: "#ffd65a", c2: "#ffffff", e: "sang" };
     log({ k: "phu", src: uid, srcId: id, e: c.e, li, b: { x: sx, y: sy }, r: { x: R.left, y: R.top, w: R.width, h: R.height } });
     if (ff()) { try { FX.glow(sx, sy, c.c1, 50, .5); } catch (e) {} return true; }
-    const ox = sx - R.left, oy = sy - R.top, D = 2 * Math.hypot(Math.max(ox, R.width - ox), Math.max(oy, R.height - oy));
-    const d = node("fxr-phu", R.left, R.top, R.width, R.height,
-      `<i class="fxr-phu-s" style="left:${ox.toFixed(1)}px;top:${oy.toFixed(1)}px;width:${D.toFixed(0)}px;height:${D.toFixed(0)}px"></i><b class="fxr-phu-r" style="left:${ox.toFixed(1)}px;top:${oy.toFixed(1)}px;width:${D.toFixed(0)}px;height:${D.toFixed(0)}px"></b>`,
-      { "--a": c.c1, "--b": c.c2 });
+    /* một lớp cỡ đúng khung chiến địa (không dựng hình tròn khổng lồ): nền sáng hình elip tâm ở thẻ nguồn + dải sáng mép sóng,
+       phóng to từ điểm của thẻ (transform-origin) ra phủ kín; khung ngoài mờ dần. 2 nút DOM, 2 hoạt ảnh transform/opacity. */
+    const ox = sx - R.left, oy = sy - R.top, gx = (ox / R.width * 100).toFixed(1) + "%", gy = (oy / R.height * 100).toFixed(1) + "%";
+    const d = node("fxr-phu", R.left, R.top, R.width, R.height, `<i class="fxr-phu-s" style="transform-origin:${gx} ${gy};--gx:${gx};--gy:${gy}"></i>`, { "--a": c.c1, "--b": c.c2 });
     if (!d) return false;
-    const du = o.dur || 1000, dl = o.dl || 0, s = d.children[0], r = d.children[1];
-    const fade = d.animate([{ opacity: 0 }, { opacity: 1, offset: .12 }, { opacity: 1, offset: .6 }, { opacity: 0 }], { duration: du, delay: dl, fill: "both" });
-    s.animate([{ transform: "translate(-50%,-50%) scale(.05)" }, { transform: "translate(-50%,-50%) scale(.75)", offset: .45 }, { transform: "translate(-50%,-50%) scale(1)" }], { duration: du, delay: dl, fill: "both", easing: "cubic-bezier(.2,.7,.3,1)" });
-    r.animate([{ transform: "translate(-50%,-50%) scale(.05)", opacity: 1 }, { transform: "translate(-50%,-50%) scale(1)", opacity: 0 }], { duration: du * .8, delay: dl, fill: "both", easing: "cubic-bezier(.25,.6,.35,1)" });
+    const du = o.dur || 1000, dl = o.dl || 0, sh = d.firstChild;
+    const fade = d.animate([{ opacity: 0 }, { opacity: 1, offset: .1 }, { opacity: 1, offset: .58 }, { opacity: 0 }], { duration: du, delay: dl, fill: "both" });
+    sh.animate([{ transform: "scale(.04)" }, { transform: "scale(1.25)", offset: .5 }, { transform: "scale(1.7)" }], { duration: du, delay: dl, fill: "both", easing: "cubic-bezier(.2,.7,.3,1)" });
     if (fade) fade.onfinish = () => d._rm();
     fxT(() => d._rm(), dl + du + 200);
-    if (!lo()) fxT(() => { try { FX.rise(R.left + R.width / 2, R.top + R.height * .3, c.c1, 6); FX.rise(R.left + R.width / 2, R.top + R.height * .75, c.c2, 6); } catch (e) {} }, dl + du * .3);
     return true;
   }
   phu = tm(phu);

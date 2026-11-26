@@ -761,6 +761,5 @@ body.rm .slot[data-vks]::before{opacity:.9}
 .lane[data-vko]{box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--vko) 45%,transparent),0 0 14px color-mix(in srgb,var(--vko) 28%,transparent)}
 /* vfx55: sóng phủ chiến địa — màn sáng tròn lan từ thẻ nguồn ra kín khung chiến địa (cả hai phía) + gợn sóng viền, màu hệ */
 .fxr.fxr-phu{overflow:hidden;border-radius:14px;z-index:38;opacity:0}
-.fxr-phu-s,.fxr-phu-r{position:absolute;border-radius:50%;will-change:transform,opacity;transform:translate(-50%,-50%) scale(.05)}
-.fxr-phu-s{background:radial-gradient(circle,color-mix(in srgb,var(--b) 30%,transparent) 0,color-mix(in srgb,var(--a) 42%,transparent) 38%,color-mix(in srgb,var(--a) 22%,transparent) 62%,transparent 71%)}
-.fxr-phu-r{box-shadow:inset 0 0 0 3px var(--a),inset 0 0 18px var(--b),0 0 16px var(--a)}
+.fxr-phu-s{position:absolute;inset:0;will-change:transform;transform:scale(.04);
+  background:radial-gradient(farthest-corner ellipse at var(--gx) var(--gy),color-mix(in srgb,var(--b) 34%,transparent) 0,color-mix(in srgb,var(--a) 40%,transparent) 34%,color-mix(in srgb,var(--a) 26%,transparent) 50%,color-mix(in srgb,var(--b) 85%,transparent) 54%,color-mix(in srgb,var(--a) 55%,transparent) 57%,transparent 62%)}
