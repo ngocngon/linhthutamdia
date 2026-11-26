@@ -14,6 +14,7 @@
 <link rel="stylesheet" href="css/06-cai-dat.css?v=gpu59">
 <link rel="stylesheet" href="css/07-nen-the.css?v=gpu59">
 <link rel="stylesheet" href="css/08-dau-hieu.css?v=gpu59">
+<link rel="stylesheet" href="css/09-pa6.css?v=gpu60">
 </head>
 <body>
 <div id="ldr12" role="status" aria-live="polite"><div class="lb12"><b>LINH THÚ TAM ĐỊA</b><div class="bar12"><i id="ldrBar"></i></div><span id="ldrTxt">Đang tải hình… 0%</span><button type="button" id="ldrSkip" hidden>Vào luôn</button></div></div>
@@ -83,6 +84,7 @@
   <section class="sx-sec"><h3>Hình ảnh &amp; hoạt ảnh</h3>
     <div class="sx-row sx-col"><span class="sx-t">Tốc độ hoạt ảnh</span><div class="sx-seg" id="setSpdSeg" role="radiogroup" aria-label="Tốc độ hoạt ảnh"></div><select id="setSpd" hidden><option value="cham">Chậm</option><option value="vua">Vừa</option><option value="nhanh">Nhanh</option></select></div>
     <div class="sx-row sx-col"><span class="sx-t">Khung hình</span><div class="sx-seg" id="setFpsSeg" role="radiogroup" aria-label="Khung hình" style="--n:3"><button type="button" role="radio" class="sx-pill" data-k="auto">Tự động</button><button type="button" role="radio" class="sx-pill" data-k="60">60</button><button type="button" role="radio" class="sx-pill" data-k="30">30</button></div><small class="sx-note" id="setFpsNote"></small></div>
+    <div class="sx-row sx-col"><span class="sx-t">Hiệu ứng chiêu thẻ S5/S4</span><div class="sx-seg" id="setP6Seg" role="radiogroup" aria-label="Mức hiệu ứng chiêu" style="--n:4"><button type="button" role="radio" class="sx-pill" data-k="auto">Tự động</button><button type="button" role="radio" class="sx-pill" data-k="full">Đầy đủ</button><button type="button" role="radio" class="sx-pill" data-k="mid">Vừa</button><button type="button" role="radio" class="sx-pill" data-k="lite">Nhẹ</button></div><small class="sx-note" id="setP6Note"></small></div>
     <label class="sx-row"><span class="sx-t">Hiệu ứng hình ảnh</span><input type="checkbox" class="sx-sw" id="setFx"></label>
     <label class="sx-row"><span class="sx-t">Đồ hoạ GPU (mượt hơn)</span><input type="checkbox" class="sx-sw" id="setGpu"></label>
   </section>
@@ -339,6 +341,7 @@
 <script src="js/10-online-cf.js?v=gpu59"></script>
 <script src="js/14-hopthu.js?v=gpu59"></script>
 <script src="js/12-dau-hieu.js?v=gpu59"></script>
+<script src="js/15-pa6.js?v=gpu60"></script>
 <script>
 /* gpu22: service worker (chỉ khi chạy qua http/https, không đăng ký trong vỏ Capacitor/APK vì ảnh đã nằm sẵn trong app) */
 (function(){var C=window.Capacitor,nat=C&&C.isNativePlatform&&C.isNativePlatform();

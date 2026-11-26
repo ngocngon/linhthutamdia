@@ -34,6 +34,7 @@ GROUPS = {
     "img/a": [],
     "img/fx": [],
 }
+# gpu60: img/pose (ảnh tư thế PA6) và img/hx (tờ va chạm theo hệ) KHÔNG đóng gói: chép nguyên tệp lẻ (bước 1) vì 15-pa6.js tải trực tiếp theo URL + tệp kê .json
 READY_DIRS = ["img/u", "img/v"]  # gói phải có trước khi vào sảnh; còn lại tải ngầm
 WARM_ORDER = ["img/v", "img/fx", "img/l", "img/nen", "img/a", "img/u"]
 MAX_FILES = 300

@@ -1,0 +1,113 @@
+/* ==================== gpu60: PA6 – LINH HỒN XUẤT THẺ (15-pa6.js) ====================
+   Chỉ transform/opacity được hoạt ảnh. Bóng/viền sáng/lọc là nền TĨNH (không hoạt ảnh filter/box-shadow).
+   will-change chỉ đặt trên phần tử sống trong lúc chuỗi diễn (bị xoá khi xong). */
+
+/* (A) màn phóng lớn S5: lá thẻ úp -> lật trong lúc bay ra giữa màn */
+.uc5.p6 .uc-card { perspective: 900px; }
+.uc5.p6 .uc-card > .gc,
+.uc5.p6 .uc-card > .uc-bk { backface-visibility: hidden; -webkit-backface-visibility: hidden; will-change: transform; }
+.uc5.p6 .uc-card > .uc-bk {
+  position: absolute;
+  inset: 0;
+  border-radius: 14px;
+  background-size: cover !important;
+  background-position: center !important;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.55), 0 16px 30px rgba(0, 0, 0, 0.7);
+  transform: rotateY(180deg);
+}
+/* mặt lưng tạm che ô của thẻ S5 trong nhịp lật trên bàn (thẻ chưa được lật cho tới màn phóng lớn) */
+.fxg.p6bk { z-index: 6; pointer-events: none; }
+.fxg.p6bk > i { position: absolute; inset: 0; border-radius: 8px; background-size: cover !important; background-position: center !important; box-shadow: 0 0 0 1.5px rgba(255, 255, 255, 0.4); }
+
+/* bong bóng lời thoại (ra mắt / kỹ năng) */
+.p6say {
+  position: fixed;
+  z-index: 46;
+  max-width: min(250px, 78vw);
+  width: max-content;
+  padding: 5px 11px 6px 10px;
+  border-radius: 14px;
+  background: linear-gradient(180deg, rgba(28, 22, 70, 0.94), rgba(12, 10, 38, 0.94));
+  border: 1.5px solid color-mix(in srgb, var(--c, #8ab4ff) 70%, #fff);
+  box-shadow: 0 0 14px color-mix(in srgb, var(--c, #8ab4ff) 55%, transparent), 0 8px 18px rgba(0, 0, 0, 0.6);
+  color: #fff;
+  font: 800 12.5px/1.28 var(--f-body, system-ui), sans-serif;
+  text-align: center;
+  pointer-events: none;
+  opacity: 0;
+  transform-origin: 50% 100%;
+}
+.p6say.dn { transform-origin: 50% 0; }
+.p6say > small {
+  display: block;
+  margin-bottom: 2px;
+  font: 900 11px/1.2 var(--f-body, system-ui), sans-serif;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--c, #8ab4ff) 55%, #fff);
+}
+.p6say::after {
+  content: "";
+  position: absolute;
+  left: calc(50% + var(--tx, 0px) - 7px);
+  bottom: -7px;
+  width: 12px;
+  height: 12px;
+  background: rgb(12, 10, 38);
+  border-right: 1.5px solid color-mix(in srgb, var(--c, #8ab4ff) 70%, #fff);
+  border-bottom: 1.5px solid color-mix(in srgb, var(--c, #8ab4ff) 70%, #fff);
+  transform: rotate(45deg);
+}
+.p6say.dn::after { bottom: auto; top: -7px; transform: rotate(225deg); background: rgb(28, 22, 70); }
+.p6say .p6w { display: inline-flex; gap: 2px; margin-left: 6px; vertical-align: middle; height: 11px; align-items: center; }
+.p6say .p6w b { display: block; width: 2.5px; height: 11px; border-radius: 2px; background: color-mix(in srgb, var(--c, #8ab4ff) 60%, #fff); transform: scaleY(0.35); animation: p6w 0.5s ease-in-out infinite alternate; }
+.p6say .p6w b:nth-child(2) { animation-delay: 0.12s; }
+.p6say .p6w b:nth-child(3) { animation-delay: 0.24s; }
+@keyframes p6w { to { transform: scaleY(1); } }
+
+/* (B) bản sao thẻ hai lớp: khung/nền ở lại, nhân vật (art tách nền) xuất ra lớp .p6soul */
+.fxg.hero5.p6out .mc > img.art { visibility: hidden; }
+.fxg.hero5 .mc > .p6dim,
+.fxg.hero5 .mc > .p6lit {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  z-index: 6;
+}
+.fxg.hero5 .mc > .p6dim { background: radial-gradient(ellipse at 50% 45%, rgba(4, 4, 18, 0.35), rgba(4, 4, 18, 0.78)); }
+.fxg.hero5 .mc > .p6lit { background: radial-gradient(ellipse at 50% 50%, rgba(255, 255, 255, 0.95), color-mix(in srgb, var(--c, #8ab4ff) 70%, transparent) 55%, transparent 80%); z-index: 7; }
+
+.p6soul {
+  position: fixed;
+  z-index: 31;
+  pointer-events: none;
+  transform-origin: 50% 50%;
+  will-change: transform, opacity;
+}
+.p6soul > img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  /* viền sáng tĩnh (không hoạt ảnh) */
+  filter: drop-shadow(0 0 2px #fff) drop-shadow(0 0 7px var(--c, #8ab4ff));
+}
+.p6soul.lo > img { filter: none; }
+.p6ai {
+  position: fixed;
+  z-index: 30;
+  pointer-events: none;
+  transform-origin: 50% 50%;
+  opacity: 0;
+  will-change: transform, opacity;
+}
+.p6ai > img { display: block; width: 100%; height: 100%; }
+
+/* (C) tờ va chạm theo hệ (img/hx): chỉ hiện QUANH lá thẻ bị trúng, chừa trống mặt thẻ */
+[class*="fx-v16-hx_"] {
+  -webkit-mask-image: radial-gradient(ellipse 21% 27% at 50% 50%, transparent 88%, #000 100%);
+  mask-image: radial-gradient(ellipse 21% 27% at 50% 50%, transparent 88%, #000 100%);
+}
+
+body.rm .p6soul, body.rm .p6ai, body.rm .p6say, body.rm .fxg.p6bk { display: none !important; }

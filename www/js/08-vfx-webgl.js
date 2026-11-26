@@ -2936,6 +2936,10 @@ ${g(36, 36, 0)}${g(164, 36, 90)}${g(164, 164, 180)}${g(36, 164, 270)}${g(84, 33,
       const fps = n * 1000 / (t - t0);
       const lv = fps < 40 ? 0 : fps >= 54 ? 1 : window.FXLV;
       window.FXLV = lv;
+      /* gpu60 (PA6): mức hiệu ứng chuỗi linh hồn khi chọn Tự động: Đầy đủ ≥ 50, Vừa ≥ 36, còn lại Nhẹ */
+      window.P6FPS = Math.round(fps);
+      window.P6AUTO = fps >= 50 ? "full" : fps >= 36 ? "mid" : "lite";
+      try { if (window.P6) P6.syncUi(); } catch (e) {}
       try { localStorage.setItem("ltd_fxlv", String(lv)); } catch (e) {}
       busy = false;
     };

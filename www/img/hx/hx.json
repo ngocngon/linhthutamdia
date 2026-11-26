@@ -1,0 +1,106 @@
+{
+ "lua": {
+  "file": "hx_lua.webp",
+  "frames": 16,
+  "cols": 4,
+  "cell": 256,
+  "ms": 520,
+  "tint": "#ff7a1e"
+ },
+ "bang": {
+  "file": "hx_bang.webp",
+  "frames": 16,
+  "cols": 4,
+  "cell": 256,
+  "ms": 520,
+  "tint": "#7fd8ff"
+ },
+ "sam": {
+  "file": "hx_sam.webp",
+  "frames": 16,
+  "cols": 4,
+  "cell": 256,
+  "ms": 520,
+  "tint": "#8fb4ff"
+ },
+ "doc": {
+  "file": "hx_doc.webp",
+  "frames": 16,
+  "cols": 4,
+  "cell": 256,
+  "ms": 520,
+  "tint": "#7ee23a"
+ },
+ "toi": {
+  "file": "hx_toi.webp",
+  "frames": 16,
+  "cols": 4,
+  "cell": 256,
+  "ms": 520,
+  "tint": "#9a46ff"
+ },
+ "sang": {
+  "file": "hx_sang.webp",
+  "frames": 16,
+  "cols": 4,
+  "cell": 256,
+  "ms": 520,
+  "tint": "#ffd24a"
+ },
+ "gio": {
+  "file": "hx_gio.webp",
+  "frames": 16,
+  "cols": 4,
+  "cell": 256,
+  "ms": 520,
+  "tint": "#7ff5e0"
+ },
+ "dat": {
+  "file": "hx_dat.webp",
+  "frames": 16,
+  "cols": 4,
+  "cell": 256,
+  "ms": 520,
+  "tint": "#c88a3a"
+ },
+ "nuoc": {
+  "file": "hx_nuoc.webp",
+  "frames": 16,
+  "cols": 4,
+  "cell": 256,
+  "ms": 520,
+  "tint": "#3aa8f0"
+ },
+ "mau": {
+  "file": "hx_mau.webp",
+  "frames": 16,
+  "cols": 4,
+  "cell": 256,
+  "ms": 520,
+  "tint": "#e0142c"
+ },
+ "cokhi": {
+  "file": "hx_cokhi.webp",
+  "frames": 16,
+  "cols": 4,
+  "cell": 256,
+  "ms": 520,
+  "tint": "#d49a50"
+ },
+ "hon": {
+  "file": "hx_hon.webp",
+  "frames": 16,
+  "cols": 4,
+  "cell": 256,
+  "ms": 520,
+  "tint": "#7ac8ff"
+ },
+ "moc": {
+  "file": "hx_moc.webp",
+  "frames": 16,
+  "cols": 4,
+  "cell": 256,
+  "ms": 520,
+  "tint": "#5ccf34"
+ }
+}

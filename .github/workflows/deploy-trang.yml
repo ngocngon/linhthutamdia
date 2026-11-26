@@ -33,7 +33,7 @@ jobs:
           node-version: 22
       - name: Dựng trang/dist/ (chỉ phần game cần)
         run: |
-          for d in img/c img/ct img/cut img/nen img/l img/v img/v16 img/u img/a img/fx fonts sfx css js; do
+          for d in img/c img/ct img/cut img/nen img/l img/v img/v16 img/u img/a img/fx img/pose img/hx fonts sfx css js; do
             [ -d "www/$d" ] && mkdir -p "trang/dist/$(dirname "$d")" && cp -r "www/$d" "trang/dist/$d"
           done
           cp www/index.html www/sw.js www/chuyen.html www/_headers trang/dist/
