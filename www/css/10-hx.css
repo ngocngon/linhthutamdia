@@ -1,0 +1,41 @@
+/* ==================== gpu61: HỒN XUẤT vòng 2 (16-hx.js) ====================
+   Chỉ transform/opacity được hoạt ảnh; viền sáng là lọc TĨNH. Mọi lớp phủ bị xoá khi diễn xong. */
+
+/* HX-02: thẻ Hồn Xuất lật bằng nhịp WAAPI riêng (thay keyframes flip/gpuCardFlip), giữ vệt bóng ::before và vòng ::after */
+#board .mc.flip.hx2,
+#board .mc.qf.q6.flip.hx2 { animation: none !important; }
+#board .mc.flip.hx2z { z-index: 12 !important; }
+
+/* ló khỏi khung: tạm bỏ cắt khung, nhân vật vượt qua viền (phần trong vẫn nằm dưới tên/sức mạnh); nổi trên các ô bên cạnh */
+.mc.hxpk.hxpk,
+#board .mc.hxpk.hxpk { overflow: visible !important; z-index: 20 !important; }
+.mc.hxpk > img.art { will-change: transform; transform-origin: 50% 62%; }
+
+/* HX-05: khung mới thành hình trước, nhân vật giáng xuống sau */
+.mc.hxm > img.art { opacity: 0 !important; }
+.hxds {
+  position: absolute;
+  z-index: 21;
+  pointer-events: none;
+  will-change: transform, opacity;
+  filter: drop-shadow(0 0 2px #fff) drop-shadow(0 0 7px var(--c, #8ab4ff));
+}
+
+/* hồn rời thẻ (HX-01 loé, HX-03 bị giật, HX-04 bỏ chạy, tia hồn toả) */
+.hxsoul {
+  position: fixed;
+  z-index: 32;
+  pointer-events: none;
+  transform-origin: 50% 55%;
+  will-change: transform, opacity;
+}
+.hxsoul > img { display: block; width: 100%; height: 100%; filter: drop-shadow(0 0 2px #fff) drop-shadow(0 0 7px var(--c, #8ab4ff)); }
+.hxsoul.hxbolt > img { filter: drop-shadow(0 0 5px var(--c, #8ab4ff)); }
+
+/* HX-04: lá bị vứt nhấc khỏi tay */
+.fxg.hxd { z-index: 32; pointer-events: none; }
+
+/* lớp 2D: mảnh vỡ ảnh thật, cháy, tay linh hồn, dải năng lượng (chỉ tồn tại khi đang diễn) */
+.hxcv { position: fixed; left: 0; top: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 33; }
+
+body.rm .hxcv, body.rm .hxsoul, body.rm .hxds { display: none !important; }

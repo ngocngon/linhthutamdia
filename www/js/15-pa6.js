@@ -280,7 +280,8 @@
       tap("slot", { uid: inst.uid, id, tier: mini ? 3 : s5 ? 5 : 4 });
       if (r && r.width) {
         const x = r.left + r.width / 2, y = r.top + r.height / 2, { c1, c2, L } = cols(id), sc = mini ? 1.1 : 1.2;
-        el.animate([{ transform: "none" }, { transform: `scale(${sc}) translateY(-3px)`, offset: 0.35 }, { transform: "none" }], { duration: Math.min(T, mini ? 260 : 460), easing: "cubic-bezier(.3,.8,.3,1)" });
+        /* gpu61 (HX-02): thẻ vừa lật theo kiểu Hồn Xuất (16-hx.js) đã có nhịp nảy riêng -> không nảy lần hai */
+        if (!(el._hx2 && performance.now() - el._hx2 < 1200 * SPD)) el.animate([{ transform: "none" }, { transform: `scale(${sc}) translateY(-3px)`, offset: 0.35 }, { transform: "none" }], { duration: Math.min(T, mini ? 260 : 460), easing: "cubic-bezier(.3,.8,.3,1)" });
         ring(x, y, c2, Math.max(36, r.width * (mini ? 0.85 : 1.05)), 0.5, 0.9);
         if (!mini) { glow(x, y, c1, r.width * 1.3, 0.45, 0.6); streaks(x, y, L, 12, 240, 0, 6.283, 0.5, 5); }
         if (s5) say(id, "rm", x, mine ? r.top - 4 : r.bottom + 4, T - 60, !mine, c1, 60);
@@ -308,6 +309,8 @@
   P6.shift = function (steps) {
     const ch = CH;
     if (!ch || !ch.pending || !OFF0) return 0;
+    /* gpu61 (16-hx.js): nhiều mục tiêu cùng loại của thẻ Hồn Xuất -> gom về cùng một mốc trúng (toả đòn một lần) */
+    if (W.HXG) { try { HXG.shift(ch, steps); } catch (e) { console.error(e); } }
     const oth = [];
     let self = null;
     for (const s of steps) {
@@ -475,6 +478,7 @@
       if (st && q.h - st.t <= T6.CLU && st.list.length < 8) st.list.push(q); else stops.push({ t: q.h, list: [q] });
     }
     ch.stops = stops;
+    if (W.HXG) { try { HXG.plan(ch, stops); } catch (e) { console.error(e); } }
     let free = ch.off0, D0 = -1, A0 = 0;
     stops.forEach((st, i) => {
       const A = st.t - T6.JAB;
@@ -485,7 +489,7 @@
       scheduled(ch, () => goStop(ch, st, A - D), D);
       scheduled(ch, () => jab(ch, st), A);
       scheduled(ch, () => impact(ch, st), st.t);
-      free = st.t + T6.REC;
+      free = st.t + T6.REC + (st.hold || 0);
     });
     let R;
     if (ch.selfT != null) R = ch.selfT - T6.DIVE - T6.RET;
@@ -516,6 +520,7 @@
     return { x, y, s: sF, cx, cy, dx, dy };
   }
   function goStop(ch, st, dur) {
+    if (st.hx && W.HXG && HXG.goStop(ch, st, dur)) return;
     const p = strikePt(ch, st);
     st.p = p;
     tap("C:fly", { uid: ch.uid, n: st.list.length });
@@ -526,6 +531,7 @@
     converge(ch.x, ch.y, ch.col.L, 12, ch.bw * 0.7, 0.22);
   }
   function jab(ch, st) {
+    if (st.hx && W.HXG && HXG.jab(ch, st)) return;
     const p = st.p || strikePt(ch, st);
     const tx = ch.x + (p.cx - ch.x) * 0.38, ty = ch.y + (p.cy - ch.y) * 0.38;
     const x0 = ch.x, y0 = ch.y, s0 = ch.s, r0 = ch.r;
@@ -548,7 +554,8 @@
       const ang = Math.atan2(tp.y - ch.y, tp.x - ch.x);
       streaks(tp.x, tp.y, L, big ? 22 : 12, big ? 480 : 340, ang - 1.1, ang + 1.1, 0.55, 6.5);
       star(tp.x, tp.y, "#ffffff", w * 1.1, 0.22);
-      if (e && HX.has(e)) { try { playV16("hx_" + e, tp.x, tp.y, Math.max(120, w * 2.6), 520, 0, 0, true); tap("C:hx", { e }); } catch (x) {} }
+      /* gpu61: nhiều mục tiêu -> tờ va chạm nhỏ hơn (không che lá bị trúng / lá bên cạnh) */
+      if (e && HX.has(e) && st.hx !== "up") { try { playV16("hx_" + e, tp.x, tp.y, big ? Math.max(120, w * 2.6) : Math.max(96, w * 2.0), 520, 0, 0, true); tap("C:hx", { e }); } catch (x) {} }
       /* đổi điểm chiến địa: vệt sáng từ thẻ tới ô điểm của làn */
       if (/^(up|down|kill)$/.test(q.s.k) && q.s.dst) pwLink(q.s.dst, tp, c1);
       sx += tp.x; sy += tp.y;
@@ -556,6 +563,7 @@
     sx /= st.list.length; sy /= st.list.length;
     shake(big ? 6 : 8, sx - ch.x, sy - ch.y);
     try { SFX.play("boom"); } catch (x) {}
+    if (st.hx && W.HXG) { try { HXG.impact(ch, st); } catch (x) { console.error(x); } }
   }
   function pwLink(uid, tp, c) {
     try {
@@ -610,6 +618,10 @@
     for (const st of stops) for (const q of st.list) { cx += q.tp.x; cy += q.tp.y; n++; }
     if (!n) return;
     cx /= n; cy /= n;
+    /* gpu61: mục tiêu trải rộng (toả nhiều mục tiêu khắp bàn) -> không xích máy quay, tránh cắt lá ở mép màn hình */
+    let x0 = 1e9, x1 = -1e9;
+    for (const st of stops) for (const q of st.list) { x0 = Math.min(x0, q.tp.x - (q.tp.w || 50) / 2); x1 = Math.max(x1, q.tp.x + (q.tp.w || 50) / 2); }
+    if (x1 - x0 > innerWidth * 0.5) return;
     const br = b.getBoundingClientRect();
     const ox = cx - br.left, oy = cy - br.top, Z = 1.05;
     const el = (performance.now() - ch.t0) / SPD, d0 = Math.max(0, D0 - el), tot = Math.max(200, R + T6.RET - D0);
@@ -661,6 +673,7 @@
     tap("D:land", { uid });
   };
   P6.clean = function () {
+    if (W.HXG) { try { HXG.clean(); } catch (e) {} }
     if (CH) end(CH, true);
     for (const k of [...COVER.keys()]) P6.uncover(k, 1);
     document.querySelectorAll(".p6soul,.p6ai,.p6say").forEach((e) => e.remove());
@@ -695,6 +708,7 @@
     if (!ch || ch.dead || ch.pending || ch.skipped) return false;
     ch.skipped = 1;
     tap("S:skip", { uid: ch.uid });
+    if (W.HXG) { try { HXG.skip(); } catch (e) {} }
     try { noClick = Date.now() + 450; } catch (e) {}
     const P = W.PLAN8;
     if (P && P.tms) {
@@ -726,4 +740,6 @@
     return true;
   };
   document.addEventListener("pointerdown", () => { if (CH && !CH.pending && !CH.dead && !CH.dived) P6.skip(); }, true);
+  /* gpu61: bộ công cụ dùng chung cho 16-hx.js (Hồn Xuất vòng 2) */
+  P6.kit = { E6, kN, rnd, shake, soulUrl, TF, soulAnim, setPose, fly, after, scheduled, T6, gl, ch: () => CH };
 })();
