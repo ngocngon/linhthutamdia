@@ -76,7 +76,7 @@
 
   /* url() trong biến CSS bị trình duyệt tính theo thư mục của tệp CSS (css/img/...) -> dùng đường dẫn tuyệt đối */
   const NBURL = {};
-  const nbUrl = id => NBURL[id] || (NBURL[id] = (() => { try { return new URL("img/nen/" + id + ".webp?v=1", document.baseURI).href; } catch (e) { return "img/nen/" + id + ".webp"; } })());
+  const nbUrl = id => NBURL[id] || (NBURL[id] = (() => { try { return new URL("img/nen/" + id + ".webp?v=2", document.baseURI).href; } catch (e) { return "img/nen/" + id + ".webp"; } })());
   function bgHTML(id) {
     const im = IMG.has(id), b = BY[id], k = im && b && (b.a || b.f); // nền động/ánh kim: giữ lớp hiệu ứng chồng lên tranh vẽ
     // nbfx: tranh vẽ nằm ở <i class="nbim"> (zoom/pan chậm), ::before/::after + 3 <i class="nbx"> là lớp hiệu ứng (xem css/07-nen-the.css)
