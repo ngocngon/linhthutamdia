@@ -148,6 +148,19 @@
       tamkiemmienvien: [["h5", "Tay có thẻ từ 5 năng lượng", { subj: { at: "hand" }, hand: [V.c5, V.c6, V.c1] }]],
       horangkiem: [["deck4", "Bộ bài có thẻ 4 năng lượng", { subj: { at: "hand" } }]],
       giaohutmau: [], dakhonggian: [],
+      /* Nhiệm Vụ: dựng tiến độ còn thiếu 1 bước rồi để lượt thử hoàn thành */
+      kysituduc: [["q", "Nhiệm Vụ 3/4 · thêm 1 thẻ ta bị tiêu huỷ", { subj: { at: "board", li: L1 }, own: [[V.c1, L1], [V.c2, 0]], plays: [[H.killOwn, L1]], tw: (G, c) => { c.prog = 3; } }]],
+      kysitudich: [["q", "Nhiệm Vụ: thẻ trên bàn đã bị trừ ≥5", { subj: { at: "board", li: L1 }, tw: (G) => { G.locs[0].cards.a[0].bonus = -6; }, plays: [[V.c1, 0]] }]],
+      trungphatcogiap: [["q", "Trên tay · đã đánh dấu chiến địa bạn đang thắng", { subj: { at: "hand", keep: 1 }, own: [[V.c6, 0], [V.c1, 2]], foe: [[V.c1, 0], [V.c3, L1]], plays: [[V.c2, 2]], tw: (G, c) => { c.mk = 0; c.mkn = 1; } }]],
+      kysidichkhuyen: [["q", "Nhiệm Vụ: có 3 thẻ từ 4 năng lượng trên bàn", { subj: { at: "board", li: L1 }, own: [[V.c4, 0], [V.c5, 2]], plays: [[V.c6, 0]] }]],
+      huyettruonglao: [["q", "Nhiệm Vụ: 3 thẻ ta đã hút sức mạnh", { subj: { at: "board", li: L1 }, own: [[V.c2, L1], [V.c1, 0], [V.c3, 2]], plays: [[V.c1, 0]], tw: (G) => { for (const l of [0, 1, 2]) for (const c of G.locs[l].cards.p) if (c.id !== "huyettruonglao") c.stl = true; } }]],
+      loantuong: [["q", "Nhiệm Vụ 2/3 · đặt thêm 1 thẻ Lật", { subj: { at: "board", li: L1 }, hand: [V.c2, "tinhquyennu", "kiemlongnhan"], plays: [[H.revCard, 0]], tw: (G, c) => { c.q = 2; } }]],
+      /* Cuối ván: chạy thêm hiệu ứng kết thúc ván (endGame) trên bản mô phỏng; bảng diễn chỉ diễn lượt thường */
+      khitrang: [["end", "Nằm trong bộ bài · kết thúc ván", { subj: { at: "top" }, plays: [], endGame: 1, tw: (G, c) => { const d = G.deck.p; d.splice(d.indexOf(c), 1); d.unshift(c); } }]],
+      ketudao: [["end", "Trên bàn · kết thúc ván (đang thắng)", { subj: { at: "board", li: 0 }, own: [[V.c6, L1], [V.c1, 2]], foe: [[V.c1, 0], [V.c3, L1], [V.c4, 2]], endGame: 1 }]],
+      tinhquangnu: [["end", "Trên bàn · kết thúc ván (đang thua)", { subj: { at: "board", li: 0 }, own: [[V.c6, 0], [V.c1, L1], [V.c1, 2]], foe: [[V.c1, 0], [V.c3, L1], [V.c3, 2]], endGame: 1 }]],
+      huyetbatuoc: [["end", "Trên bàn · tay có thẻ · kết thúc ván", { subj: { at: "board", li: L1 }, endGame: 1 }]],
+      datientri: [["da", "Có Đá của bạn trên bàn", { subj: { at: "hand" }, own: [["da", L1], [V.c1, 0]] }]],
       tamlinhtu: [["act", "Kích Hoạt rồi đặt thẻ (thẻ đó bị nuốt)", { subj: { at: "board", li: L1 }, act: true, actFirst: 1, plays: [[V.c4, L1]] }]],
       diennu: [["next", "Đặt từ tay · lượt sau đặt lá được truyền điện", { subj: { at: "hand" }, deck: DECK.concat([V.c3]), next: { plays: [], surge: 1 } }]],
       vuabong: [["mix", "Thẻ tại đây đã được tăng / bị giảm sức mạnh", { subj: { at: "hand" }, own: [[V.c2, L1, { bonus: 3 }], [V.c1, 0]], foe: [[V.c3, L1, { bonus: -2 }], [V.c6, L1, { bonus: 2 }], [V.c1, 0]] }]],
@@ -156,6 +169,11 @@
       huyenconu: [["lead", "Trên bàn · đang thắng tại đây", { subj: { at: "board", li: L1 }, own: [[V.c6, L1], [V.c1, 0]], foe: [[V.c1, L1], [V.c3, 0]] }]]
     };
     /* thẻ không có tác dụng lên ván để dựng (chỉ thông tin / chữ / Đầu Ván) — ghi chú "đúng thiết kế" */
+    /* luật Đầu Ván kiểm bằng nhiều ván mô phỏng (không dựng được trên một thế cờ giữa ván) */
+    const CHECK = {
+      ngantoc: () => { for (let sd = 1; sd <= 30; sd++) { const G = E.newGame(["ngantoc"].concat(DECK, DECK.slice(0, 1)), DECK.concat(DECK.slice(0, 2)), { seed: sd, locs: ["meadow", "meadow", "meadow"] }); if (!G.hand.p.some((c) => c.id === "ngantoc")) return "ván " + sd + ": không có trong tay khởi đầu"; } return ""; },
+      maymannu: () => { for (let sd = 1; sd <= 30; sd++) { const G = E.newGame(["maymannu"].concat(DECK, DECK.slice(0, 1)), DECK.concat(DECK.slice(0, 2)), { seed: sd, locs: ["meadow", "meadow", "meadow"] }); const inH = () => G.hand.p.some((c) => c.id === "maymannu"); if (inH()) return "ván " + sd + ": có trên tay ở lượt 1"; G.q = { p: [], a: [] }; for (const st of E.beginReveal(G)) E.doStep(G, st); for (const st of E.beginEndTurn(G)) E.stepEndTurn(G, st); E.finishEndTurn(G); E.startTurn(G); if (!inH()) return "ván " + sd + ": không rút ở lượt 2"; } return ""; }
+    };
     const NOTE = { ngantoc: "Luôn trong tay khởi đầu (Đầu Ván)", maymannu: "Chỉ đổi lượt rút bài (Đầu Ván)", vitthamtu: "Chỉ cho xem thẻ (giao diện)", chubao: "Chỉ đổi biểu cảm chữ", vouy: "Chỉ ảnh hưởng thông tin lượt 5" };
     /* thứ tự ưu tiên theo dạng + chữ kỹ năng */
     function cands(id) {
@@ -281,19 +299,22 @@
       for (const [k, n] of [["grapple", "móc kéo"], ["sling", "đu tơ"]]) if (G[k] && (G[k].p || G[k].a)) o.push(n + "=" + G[k].p + "/" + G[k].a);
       return o.join("; ");
     }
+    /* tên vùng / tên thẻ dễ đọc cho nhật ký */
+    const ZN = (z) => ({ L0: "chiến địa 1", L1: "chiến địa 2", L2: "chiến địa 3", hand: "tay", deck: "bộ bài", dead: "mộ", disc: "bài vứt" })[z] || z;
+    const NM = (v) => { const p = String(v || "").split("|"); return p[2] ? (C[p[2]] ? C[p[2]].n : p[2]) + (p[1] === "a" ? " (địch)" : "") : ""; };
     const F = ["vùng", "phe", "thẻ", "kỹ năng", "sức mạnh", "năng lượng", "mất kỹ năng"];
     function diff(A, B, subjUid) {
       const out = [];
       for (const [u, a] of A.m) {
         const b = B.m.get(u);
-        if (!b) { out.push({ u, w: "mới", a }); continue; }
+        if (!b) { out.push({ u, w: "mới xuất hiện (" + ZN(a.split("|")[0]) + ")", a, n: NM(a) }); continue; }
         if (a === b) continue;
         const pa = a.split("|"), pb = b.split("|"), ch = [];
-        for (let i = 0; i < pa.length; i++) if (pa[i] !== pb[i] && !(i === 6 && u === subjUid)) ch.push(F[i] + " " + pb[i] + "→" + pa[i]);
+        for (let i = 0; i < pa.length; i++) if (pa[i] !== pb[i] && !(i === 6 && u === subjUid)) ch.push(F[i] + " " + (i === 0 ? ZN(pb[i]) + "→" + ZN(pa[i]) : i === 2 ? (C[pb[i]] ? C[pb[i]].n : pb[i]) + "→" + (C[pa[i]] ? C[pa[i]].n : pa[i]) : (pb[i] || "—") + "→" + (pa[i] || "—")));
         if (!ch.length) continue;
-        out.push({ u, w: ch.join(", "), self: u === subjUid });
+        out.push({ u, w: ch.join(", "), self: u === subjUid, n: NM(a) });
       }
-      for (const [u, b] of B.m) if (!A.m.has(u)) out.push({ u, w: "mất", b });
+      for (const [u, b] of B.m) if (!A.m.has(u)) out.push({ u, w: "biến mất (từ " + ZN(b.split("|")[0]) + ")", b, n: NM(b) });
       if (A.g.loc !== B.g.loc) out.push({ u: 0, w: "chiến địa " + B.g.loc + "→" + A.g.loc, loc: 1 });
       if (A.g.lp !== B.g.lp && !out.length) out.push({ u: 0, w: "tổng sức mạnh chiến địa " + B.g.lp + "→" + A.g.lp, lp: 1 });
       if (A.g.e !== B.g.e) out.push({ u: 0, w: "năng lượng " + B.g.e + "→" + A.g.e, en: 1 });
@@ -322,11 +343,13 @@
       return ok.every(Boolean);
     }
     function runCand(id, cand, seed) {
-      const one = (sil) => {
-        const G = newG(id, cand.spec, seed); const st = stage(G, id, cand.spec, { sil });
+      const one = (sil, sp) => {
+        sp = sp || cand.spec;
+        const G = newG(id, sp, seed); const st = stage(G, id, sp, { sil });
         if (!st.ok) return { st, G };
         const before = snap(G); let r = simTurn(G);
         if (cand.spec.next && !r.err && G.phase !== "over") { stageNext(G, cand.spec); const r2 = simTurn(G); r = { evs: r.evs.concat(r2.evs), err: r2.err }; }
+        if (cand.spec.endGame && !r.err) { try { G.evs = []; E.endGame(G); if (G.evs.length) r.evs.push(...G.evs.splice(0)); } catch (e) { r.err = String(e && e.message || e); } }
         return { st, G, before, after: snap(G), evs: r.evs, err: r.err };
       };
       const A = one(false);
@@ -337,9 +360,11 @@
         return { cand, ok: false, why: A.st.why, score: 0, d: [] };
       }
       if (A.err) return { cand, ok: true, err: A.err, score: 0, d: [], evs: A.evs };
-      const B = one(true);
+      let B = one(true);
+      /* xoá kỹ năng làm hỏng chính thao tác (không Kích Hoạt / không tự dời được): so với ván y hệt nhưng bỏ thao tác đó */
+      const Bf = B.st.ok ? null : one(true, Object.assign({}, cand.spec, { act: false, move: null }));
       const su = A.st.subj.uid;
-      let d = B.after ? diff(A.after, B.after, su) : diff(A.after, A.before, su);
+      let d = B.after ? diff(A.after, B.after, su) : Bf && Bf.after ? diff(A.after, Bf.after, su) : diff(A.after, A.before, su);
       if (!B.st.ok) d.push({ u: 0, w: "chỉ làm được nhờ kỹ năng (" + B.st.why + ")", rule: 1 });
       const sf = A.G.startFx ? A.G.startFx.filter((x) => x.id === id && x.s === "p") : [];
       if (cand.k === "start" && sf.length) d = d.concat(sf.map((x) => ({ u: 0, w: "Đầu Ván: " + (x.add || []).length + " thẻ thêm vào " + x.to, start: 1 })));
@@ -368,14 +393,16 @@
       if (/Nhiệm Vụ/.test(d.x)) notes.push("Nhiệm Vụ nhiều lượt");
       if (/[Kk]hi kết thúc ván|[Cc]uối ván/.test(d.x)) notes.push("Chỉ chạy khi kết thúc ván");
       if (d.t === "start") notes.push("Đầu Ván");
-      if (NOTE[id] && !pick) notes.push(NOTE[id]);
+      let chk = null;
+      if (CHECK[id] && !pick) { try { chk = CHECK[id](); } catch (e) { chk = "lỗi kiểm: " + (e && e.message || e); } }
+      if (NOTE[id] && !pick) notes.push(NOTE[id] + (chk === "" ? " — đã kiểm 30 ván: đúng" : ""));
       return {
         id, n: d.n, h: d.h, t: d.t, x: d.x, seed: r && r.seed != null ? r.seed : seed, block: !!(r && r.block),
         k: r ? r.cand.k : "", kn: r ? r.cand.n : "", spec: r ? r.cand.spec : null,
         effect: !!pick, score: r ? r.score : 0, others: r ? r.others || 0 : 0, self: !!(r && r.self),
         area: !!(r && ((r.d && r.d.some((x) => x.loc || x.lp || x.en || x.start || x.st)) || (r.evk || []).some((k) => /^(summon|destroy|discard|move|tohand|sil|revive|morph|clone|abcopy|surge)$/.test(k)))),
-        d: r ? r.d.slice(0, 12).map((x) => x.w + (x.u ? " #" + x.u : "")) : [], evk: r ? r.evk || [] : [],
-        err: r && r.err ? r.err : "", tried, notes
+        d: r ? r.d.slice(0, 12).map((x) => (x.n ? x.n + (x.u === r.subjUid ? " (thẻ thử)" : "") + ": " : "") + x.w) : [], evk: r ? r.evk || [] : [],
+        err: r && r.err ? r.err : (chk ? "luật Đầu Ván sai: " + chk : ""), tried, notes
       };
     }
     return { LANE, VAN, H, DECK, TIERS, tierName, typeName, cands, allCands, newG, stage, snap, diff, simTurn, runCand, plan };
@@ -400,7 +427,7 @@
 
   const ST = {
     on: false, hooked: false, tier: "S1", q: "", list: [], i: 0, mode: "idle", paused: false, stopReq: false, busy: false,
-    speed: "1", rows: new Map(), cur: null, rec: null, prev: null, seed: 777, capOn: true
+    speed: "1", rows: new Map(), cur: null, rec: null, prev: null, seed: 777, capOn: true, auto: true, filt: "*"
   };
   W.VFXLAB_STATE = ST;
 
@@ -438,8 +465,16 @@
     SAVED.cerr = console.error;
     console.error = function () { const r = ST.rec; if (r) try { r.err.push([...arguments].map((a) => (a && a.message) || String(a)).join(" ").slice(0, 200)); } catch (e) {} return SAVED.cerr.apply(console, arguments); };
     /* chạm vào bảng không được tính là "chạm tua nhanh" của trận */
-    SAVED.pd = (ev) => { if (ev.target && ev.target.closest && ev.target.closest("#vfxLabDrawer,#vlBar")) ev.stopImmediatePropagation(); };
+    SAVED.pd = (ev) => { if (ev.target && ev.target.closest && ev.target.closest("#vfxLabDrawer,#vlBar,#vlDet")) ev.stopImmediatePropagation(); };
     W.addEventListener("pointerdown", SAVED.pd, true);
+    SAVED.kd = (ev) => {
+      if (!ST.on || (ev.target && /^(INPUT|SELECT|TEXTAREA)$/.test(ev.target.tagName))) return;
+      const k = ev.key, map = { ArrowRight: "next", n: "next", ArrowLeft: "prev", p: "prev", r: "replay", " ": "pause", o: "mok", x: "mbad", a: "auto" }, a = map[k] || map[String(k).toLowerCase()];
+      if (!a) return; ev.preventDefault(); ev.stopPropagation();
+      if ((a === "next" || a === "prev") && ST.mode !== "audit" && ST.cur) { const L = listFor(ST.tier, ST.q).filter(filtOk), i = L.indexOf(ST.cur), j = i + (a === "next" ? 1 : -1); if (L[j]) jump(L[j]); return; }
+      act(a);
+    };
+    W.addEventListener("keydown", SAVED.kd, true);
   }
   function unhook() {
     if (!ST.hooked) return; ST.hooked = false;
@@ -451,6 +486,7 @@
     W.removeEventListener("error", SAVED.onerr); W.removeEventListener("unhandledrejection", SAVED.onerr);
     console.error = SAVED.cerr;
     W.removeEventListener("pointerdown", SAVED.pd, true);
+    W.removeEventListener("keydown", SAVED.kd, true);
   }
 
   /* ---------- danh sách thẻ theo bậc ---------- */
@@ -477,11 +513,21 @@
         <button type="button" data-a="replay" title="Diễn lại thẻ này">↻</button>
         <select id="vlSpd" aria-label="Tốc độ">${SPEEDS.map(([k, n]) => `<option value="${k}">${n}</option>`).join("")}</select>
         <span class="vl-prog" id="vlProg"></span>
-        <button type="button" data-a="cap" title="Ẩn/hiện chú thích">Aa</button>
+        <button type="button" data-a="auto" id="vlAuto" title="Tự sang thẻ sau khi diễn xong (tắt: dừng ở mỗi thẻ để xem)">⇥</button>
+        <button type="button" data-a="cap" title="Chữ kỹ năng: gọn / đầy đủ (luôn hiện)">Aa</button>
         <button type="button" data-a="close" class="vl-x" title="Đóng bảng test">✕</button>
       </div>
       <div class="vl-cap" id="vlCap">Chọn bậc rồi bấm ▶ Kiểm tra, hoặc chọn một thẻ để diễn thử.</div>`;
     D.body.appendChild(bar);
+    /* bảng kiểm từng thẻ (dưới cùng, thu/mở được, nhớ trạng thái; mặc định mở) */
+    const det = D.createElement("div");
+    det.id = "vlDet";
+    det.innerHTML = `<div class="vd-hd" data-a="det"><b class="vd-v">…</b><span class="vd-k">←/→ thẻ · R diễn lại · Space dừng · O đúng · X lỗi</span><i class="vd-t">▾</i></div><div class="vd-b"></div>`;
+    if (!PREF("det", true)) det.classList.add("shut");
+    D.body.appendChild(det);
+    det.addEventListener("click", (ev) => { const b = ev.target.closest("[data-a]"); if (!b) return; ev.stopPropagation(); act(b.dataset.a, b); });
+    det.addEventListener("change", (ev) => { if (ev.target.id === "vlNote") setMark(ST.cur, undefined, ev.target.value); });
+    det.addEventListener("keydown", (ev) => ev.stopPropagation());
 
     const dr = D.createElement("div");
     dr.id = "vfxLabDrawer";
@@ -496,6 +542,7 @@
           <option value="*">Tất cả bậc · ${ALL.length}</option>
         </select>
         <input id="vlQ" type="search" placeholder="Tìm thẻ / nhảy tới…" autocomplete="off">
+        <select id="vlFilt" aria-label="Lọc theo kết luận"><option value="*">Mọi kết luận</option><option value="ok">✓ đúng</option><option value="look">⚠ cần xem</option><option value="bad">✗ lỗi</option><option value="u:bad">Bạn đánh: Lỗi</option><option value="u:ok">Bạn đánh: OK</option><option value="u:none">Chưa đánh dấu</option></select>
       </div>
       <div class="vl-ctl">
         <button type="button" data-a="audit" class="vl-go">▶ Kiểm tra cả bậc</button>
@@ -523,14 +570,16 @@
     $id("vlQ").addEventListener("input", (e) => { ST.q = e.target.value; renderList(); });
     $id("vlQ").addEventListener("keydown", (e) => { if (e.key === "Enter") { const f = listFor(ST.tier, ST.q)[0] || listFor("*", ST.q)[0]; if (f) jump(f); } });
     $id("vlSpd").addEventListener("change", (e) => { ST.speed = e.target.value; applySpeed(); });
+    $id("vlFilt").addEventListener("change", (e) => { ST.filt = e.target.value; renderList(); });
+    $id("vlAuto").classList.toggle("on", ST.auto);
     $id("vlTier").value = ST.tier;
     renderList(); renderLog();
   }
   function renderList() {
     const el = $id("vlList"); if (!el) return;
-    const L = listFor(ST.tier, ST.q);
+    const L = listFor(ST.tier, ST.q).filter(filtOk);
     el.innerHTML = L.map((k) => {
-      const r = ST.rows.get(k), cls = r ? (r.warn.length ? (r.bad ? " bad" : " warn") : " ok") : "";
+      const r = ST.rows.get(k), mk = MARK.get(k), cls = (r ? (r.verdict === "bad" ? " bad" : r.verdict === "look" ? " warn" : " ok") : "") + (mk && mk.m ? " u" + mk.m : "");
       return `<button type="button" class="vl-it${cls}${ST.cur === k ? " cur" : ""}" data-id="${k}" title="${esc(C[k].x)}"><i>${C[k].c}</i>${esc(C[k].n)}<small>${esc(PLAN.typeName(C[k].t))}</small></button>`;
     }).join("") || `<div class="vl-empty">Không có thẻ</div>`;
   }
@@ -548,7 +597,8 @@
     c.innerHTML = `<b>${esc(d.n)}</b> <span class="vl-tag">${esc(PLAN.tierName(d.h))}</span> <span class="vl-tag">${esc(PLAN.typeName(d.t))}</span> <span class="vl-tag">${d.c}⚡ ${d.p}💪</span>
       <div class="vl-x1">${esc(d.x || "Không kỹ năng")}</div>
       <div class="vl-x2">Thế cờ: ${esc(p ? p.kn : "")}${p && !p.effect && d.t !== "none" ? " · <em>mô phỏng: kỹ năng không đổi gì trên thế cờ này</em>" : ""}${p && p.effect && !p.others ? " · <em>kỹ năng không nhắm thẻ khác</em>" : ""}${extra ? " · " + esc(extra) : ""}</div>`;
-    c.hidden = !ST.capOn;
+    c.classList.toggle("mini", !ST.capOn); c.hidden = false; /* gpu68-audit2: chữ kỹ năng LUÔN hiện; Aa chỉ đổi gọn/đầy đủ */
+    renderDet(ST.rows.get(id) && ST.cur === id && !ST.busyCard ? ST.rows.get(id) : null, id);
   }
   function prog() {
     const el = $id("vlProg"); if (!el) return;
@@ -606,11 +656,11 @@
   /* ---------- diễn MỘT thẻ qua lượt thật ---------- */
   async function runCard(id) {
     const t0 = performance.now(), d = C[id];
-    ST.cur = id; renderList();
+    ST.cur = id; ST.busyCard = true; renderList();
     const p = PLAN.plan(id, ST.seed);
     caption(id, p);
     const row = { id, n: d.n, h: d.h, t: d.t, x: d.x, setup: p.kn || "—", k: p.k, simEffect: p.effect, simDiff: p.d, simEv: [...new Set(p.evk)], notes: p.notes, fired: [], taps: [], fx: {}, ev: [], warn: [], err: [], bad: false, ms: 0 };
-    if (!p.spec) { row.warn.push("không dựng được thế cờ (" + (p.tried.map((t) => t.why).filter(Boolean)[0] || "?") + ")"); row.bad = true; ST.rows.set(id, row); renderLog(); return row; }
+    if (!p.spec) { row.warn.push("không dựng được thế cờ (" + (p.tried.map((t) => t.why).filter(Boolean)[0] || "?") + ")"); row.bad = true; verdict(row); ST.busyCard = false; ST.rows.set(id, row); renderLog(); renderDet(row); return row; }
     await settle(6000); cleanLeft();
     ensureMatch(); applySpeed();
     const rec = (ST.rec = { taps: [], fx: {}, ev: [], err: [] });
@@ -658,7 +708,8 @@
     row.evKinds = evKinds;
     row.err = rec.err.slice(0, 6);
     row.ms = Math.round(performance.now() - t0);
-    if (d.t !== "none" && !p.effect) row.warn.push("mô phỏng: kỹ năng không tạo khác biệt trên mọi thế cờ thử" + (p.notes.length ? " (" + p.notes.join(", ") + ")" : ""));
+    noEff(row, p);
+    row.real = PLAN.diff(after, before, -1).slice(0, 14).map((x) => (x.n ? x.n + ": " : "") + x.w);
     if (p.err) { row.warn.push("engine lỗi: " + p.err); row.bad = true; }
     if (rec.err.length) { row.warn.push("LỖI JS: " + rec.err[0]); row.bad = true; }
     if (!calm) { row.warn.push("diễn chưa xong sau 9 s (HX/SIG/PA6 còn bận)"); row.bad = true; }
@@ -675,8 +726,9 @@
     if (p.effect && (skillEv || realDiff) && !visK.length && !Object.keys(rec.fx).some((k) => /^CFX\./.test(k) && k !== "CFX.drawIn") && fxN < 8) row.warn.push("kỹ năng chạy nhưng gần như không có hiệu ứng nào được gọi");
     if (row.ms > 20000) row.warn.push("diễn quá lâu " + (row.ms / 1000).toFixed(1) + " s");
     if (lo.dom.length || lo.hid.length) cleanLeft();
+    verdict(row); ST.busyCard = false;
     ST.rows.set(id, row);
-    renderLog(); renderList();
+    renderLog(); renderList(); renderDet(row);
     return row;
   }
   function stageNext2(g, spec) {
@@ -695,6 +747,7 @@
         if (ST.stopReq || !ST.on) break;
         const i0 = ST.i; prog();
         await runCard(ST.list[i0]);
+        if (!ST.auto && ST.mode === "audit" && !ST.stopReq) { ST.paused = true; if (ST.i === i0) ST.i++; prog(); continue; } /* tắt tự sang: dừng để xem, ▶/❚❚ đi tiếp */
         await sleep(ST.speed === "4" ? 150 : 450);
         if (ST.i === i0) ST.i++;
       }
@@ -719,36 +772,96 @@
   function menu(on) {
     const dr = $id("vfxLabDrawer"); if (!dr) return;
     const v = on == null ? !dr.classList.contains("open") : on;
-    dr.classList.toggle("open", v);
+    dr.classList.toggle("open", v); D.body.classList.toggle("vlmenu", v);
   }
   async function quick() { /* chỉ engine: lập bảng tức thì cho cả bậc */
     const L = listFor(ST.tier, ST.q);
     for (const id of L) {
       const p = PLAN.plan(id, ST.seed), d = C[id];
-      const warn = [];
-      if (d.t !== "none" && !p.effect) warn.push("mô phỏng: kỹ năng không tạo khác biệt" + (p.notes.length ? " (" + p.notes.join(", ") + ")" : ""));
-      if (p.err) warn.push("engine lỗi: " + p.err);
-      if (!p.spec) warn.push("không dựng được thế cờ");
-      ST.rows.set(id, { id, n: d.n, h: d.h, t: d.t, x: d.x, setup: p.kn, k: p.k, simEffect: p.effect, simDiff: p.d, simEv: [...new Set(p.evk)], notes: p.notes, fired: ["(chỉ engine)"], taps: [], fx: {}, ev: [], warn, err: [], bad: !!p.err, ms: 0, quick: 1 });
+      const row = { id, n: d.n, h: d.h, t: d.t, x: d.x, setup: p.kn, k: p.k, simEffect: p.effect, simDiff: p.d, simEv: [...new Set(p.evk)], notes: p.notes, fired: ["(chỉ engine)"], taps: [], fx: {}, ev: [], warn: [], err: [], bad: !!p.err, ms: 0, quick: 1 };
+      noEff(row, p);
+      if (p.err) row.warn.push("engine lỗi: " + p.err);
+      if (!p.spec) row.warn.push("không dựng được thế cờ");
+      verdict(row);
+      ST.rows.set(id, row);
     }
     renderLog(); renderList();
   }
   function exportJSON() {
-    const rows = [...ST.rows.values()].map((r) => ({ id: r.id, n: r.n, h: r.h, t: r.t, setup: r.setup, k: r.k, simEffect: r.simEffect, simDiff: r.simDiff, simEv: r.simEv, fired: r.fired, taps: r.taps.slice(0, 60), fx: r.fx, evKinds: r.evKinds || [], warn: r.warn, err: r.err, bad: r.bad, ms: r.ms, notes: r.notes }));
-    return JSON.stringify({ ver: "gpu68-lab", at: new Date().toISOString(), n: rows.length, rows }, null, 1);
+    const rows = [...ST.rows.values()].map((r) => { const m = MARK.get(r.id); return { id: r.id, n: r.n, h: r.h, t: r.t, setup: r.setup, k: r.k, simEffect: r.simEffect, simDiff: r.simDiff, simEv: r.simEv, real: r.real || [], fired: r.fired, taps: r.taps.slice(0, 60), fx: r.fx, evKinds: r.evKinds || [], warn: r.warn, info: r.info || "", verdict: r.verdict, why: r.why, err: r.err, bad: r.bad, ms: r.ms, notes: r.notes, userMark: m ? m.m : "", userNote: m ? m.note || "" : "" }; });
+    return JSON.stringify({ ver: "gpu68-lab2", at: new Date().toISOString(), n: rows.length, rows }, null, 1);
+  }
+  /* ---------- kết luận + đánh dấu của người kiểm (gpu68-audit2) ---------- */
+  /* kỹ năng không đổi gì trên thế cờ: có giải thích (đúng thiết kế / chỉ giao diện / Đầu Ván đã kiểm) -> ghi chú, không cảnh báo */
+  function noEff(row, p) {
+    if (C[row.id].t === "none" || p.effect) return;
+    if (p.notes.length) row.info = "ℹ " + p.notes.join(" · ");
+    else row.warn.push("chưa dựng được điều kiện của kỹ năng trên thế cờ thử — cần xem chữ kỹ năng");
+  }
+  function verdict(r) {
+    const hard = r.warn.filter((w) => /^(LỖI JS|SÓT DOM|thẻ bị ẩn|luật ẩn|diễn chưa xong|engine lỗi|tổng điểm hiển thị lệch|không dựng được)/.test(w));
+    if (r.bad || hard.length) { r.verdict = "bad"; r.why = (hard[0] || r.warn[0] || "lỗi"); }
+    else if (r.warn.length) { r.verdict = "look"; r.why = r.warn.join(" | "); }
+    else { r.verdict = "ok"; r.why = r.info ? r.info : C[r.id].t === "none" ? "Không kỹ năng — chỉ lật" : r.quick ? "Engine: kỹ năng tạo khác biệt" : "Kỹ năng tạo khác biệt và có hiệu ứng tương ứng"; }
+    return r;
+  }
+  const VSYM = { ok: "✓ đúng", look: "⚠ cần xem", bad: "✗ lỗi" };
+  const LSK = "ltd_vlab_marks";
+  const MARK = new Map();
+  try { const o = JSON.parse(localStorage.getItem(LSK) || "{}"); for (const k in o) MARK.set(k, o[k]); } catch (e) {}
+  const saveMarks = () => { try { localStorage.setItem(LSK, JSON.stringify(Object.fromEntries(MARK))); } catch (e) {} };
+  function setMark(id, m, note) {
+    if (!id) return; const cur = MARK.get(id) || {};
+    if (m === null) MARK.delete(id); else MARK.set(id, { m: m != null ? m : cur.m || "", note: note != null ? note : cur.note || "", at: Date.now() });
+    saveMarks(); renderList(); renderDet(ST.rows.get(id) || null, id);
+  }
+  const PREF = (k, d) => { try { const v = localStorage.getItem("ltd_vlab_" + k); return v == null ? d : v === "1"; } catch (e) { return d; } };
+  const SETP = (k, v) => { try { localStorage.setItem("ltd_vlab_" + k, v ? "1" : "0"); } catch (e) {} };
+  /* bảng chi tiết: kỹ năng | thế cờ | engine đổi gì (trước→sau) | hiệu ứng | kết luận + đánh dấu */
+  function renderDet(r, idOpt) {
+    const el = $id("vlDet"); if (!el) return;
+    const id = (r && r.id) || idOpt || ST.cur; if (!id || !C[id]) { el.querySelector(".vd-b").innerHTML = `<div class="vd-x">Chọn một thẻ hoặc bấm ▶ Kiểm tra.</div>`; return; }
+    const m = MARK.get(id), d = C[id];
+    const li = (a) => (a && a.length ? `<ul>${a.slice(0, 10).map((x) => `<li>${esc(x)}</li>`).join("")}</ul>` : `<i class="vd-0">—</i>`);
+    const fx = r ? r.fired.filter((k) => !/drawIn|PA6 Q:|PA6 (shift|plan)/.test(k)).slice(0, 8).join(" · ") : "";
+    el.querySelector(".vd-hd b").textContent = (r ? (VSYM[r.verdict] || "…") : "… đang diễn") + " · " + d.n;
+    el.querySelector(".vd-hd b").className = "vd-v " + (r ? r.verdict || "" : "run");
+    el.querySelector(".vd-b").innerHTML = `
+      <div class="vd-g"><b>Thế cờ</b><span>${esc(r ? r.setup : "…")}</span></div>
+      <div class="vd-g"><b>Engine đổi (mô phỏng bật/tắt kỹ năng)</b>${r ? li(r.simDiff) : "…"}</div>
+      ${r && r.real ? `<div class="vd-g"><b>Lượt thật: trước → sau</b>${li(r.real)}</div>` : ""}
+      <div class="vd-g"><b>Hiệu ứng đã chạy</b><span>${esc(fx || (r ? "—" : "…"))}</span></div>
+      <div class="vd-g"><b>Kết luận</b><span class="vd-why ${r ? r.verdict : ""}">${esc(r ? r.why || "" : "đang diễn…")}</span></div>
+      <div class="vd-mk"><button type="button" data-a="mok" class="${m && m.m === "ok" ? "on" : ""}">✓ OK</button><button type="button" data-a="mbad" class="${m && m.m === "bad" ? "on" : ""}">✗ Lỗi</button>
+        <input id="vlNote" type="text" placeholder="Ghi chú cho thẻ này…" value="${esc(m && m.note || "")}"><button type="button" data-a="mclr" title="Xoá đánh dấu">⌫</button></div>`;
+  }
+  function filtOk(id) {
+    const f = ST.filt || "*"; if (f === "*") return true;
+    const r = ST.rows.get(id), m = MARK.get(id);
+    if (f === "ok" || f === "look" || f === "bad") return !!r && r.verdict === f;
+    if (f === "u:bad") return !!m && m.m === "bad";
+    if (f === "u:ok") return !!m && m.m === "ok";
+    if (f === "u:none") return !m || !m.m;
+    return true;
   }
   async function act(a) {
     switch (a) {
       case "menu": menu(); break;
       case "close": closeLab(); break;
       case "pause": if (ST.mode === "audit") { ST.paused = !ST.paused; prog(); if (!ST.busy) loop(); } break;
-      case "next": if (ST.mode === "audit") { ST.i = Math.min(ST.list.length - 1, ST.i + 1); ST.paused = false; skipCur(); prog(); if (!ST.busy) loop(); } break;
+      case "next": if (ST.mode === "audit" && ST.paused && !ST.auto) { ST.paused = false; prog(); if (!ST.busy) loop(); break; }
+        if (ST.mode === "audit") { ST.i = Math.min(ST.list.length - 1, ST.i + 1); ST.paused = false; skipCur(); prog(); if (!ST.busy) loop(); } break;
       case "prev": if (ST.mode === "audit") { ST.i = Math.max(0, ST.i - 1); ST.paused = false; skipCur(); prog(); if (!ST.busy) loop(); } break;
       case "replay": if (ST.cur) { if (ST.mode === "audit") { ST.i = ST.list.indexOf(ST.cur); ST.paused = false; skipCur(); if (!ST.busy) loop(); } else jump(ST.cur); } break;
       case "audit": startAudit(); break;
       case "stop": ST.mode = "idle"; ST.stopReq = ST.busy; ST.paused = false; prog(); break;
       case "quick": quick(); break;
-      case "cap": ST.capOn = !ST.capOn; { const c = $id("vlCap"); if (c) c.hidden = !ST.capOn; } break;
+      case "cap": ST.capOn = !ST.capOn; SETP("cap", ST.capOn); { const c = $id("vlCap"); if (c) { c.hidden = false; c.classList.toggle("mini", !ST.capOn); } } break;
+      case "det": { const el = $id("vlDet"); if (el) { el.classList.toggle("shut"); SETP("det", !el.classList.contains("shut")); } break; }
+      case "mok": setMark(ST.cur, "ok"); break;
+      case "mbad": setMark(ST.cur, "bad"); break;
+      case "mclr": setMark(ST.cur, null); break;
+      case "auto": ST.auto = !ST.auto; SETP("auto", ST.auto); { const b = $id("vlAuto"); if (b) b.classList.toggle("on", ST.auto); } break;
       case "copy": {
         const j = exportJSON(); W.VFXLAB_LAST = j;
         try { await navigator.clipboard.writeText(j); toastL("Đã chép JSON nhật ký (" + ST.rows.size + " thẻ)"); }
@@ -761,9 +874,11 @@
   function toastL(t) { try { toast(t); } catch (e) { caption(null, null, t); } }
 
   function openLab() {
+    ST.capOn = PREF("cap", true); ST.auto = PREF("auto", true);
     build(); hook(); ST.on = true;
+    { const dt = $id("vlDet"); if (dt) dt.classList.add("on"); renderDet(null); }
     D.body.classList.add("vlab");
-    $id("vfxLabDrawer").classList.add("on", "open");
+    $id("vfxLabDrawer").classList.add("on", "open"); D.body.classList.add("vlmenu");
     $id("vlBar").classList.add("on");
     ensureMatch();
     if (typeof G === "undefined" || !G) { try { newGame(); } catch (e) {} }
@@ -773,7 +888,8 @@
   function closeLab() {
     ST.on = false; ST.stopReq = ST.busy; ST.mode = "idle"; ST.paused = false;
     const dr = $id("vfxLabDrawer"), bar = $id("vlBar");
-    if (dr) dr.classList.remove("on", "open"); if (bar) bar.classList.remove("on");
+    if (dr) dr.classList.remove("on", "open"); if (bar) bar.classList.remove("on"); D.body.classList.remove("vlmenu");
+    { const dt = $id("vlDet"); if (dt) dt.classList.remove("on"); }
     D.body.classList.remove("vlab");
     const fin = async () => {
       await settle(6000); unhook(); restoreSpeed(); cleanLeft();
@@ -789,7 +905,7 @@
 
   W.VFXLAB = {
     openLab, toggleLab, closeLab, runCard, startAudit, jump, quick, exportJSON, listFor, plan: PLAN.plan, PLAN, state: ST,
-    rows: () => [...ST.rows.values()], idle, settle, setSpeed: (k) => { ST.speed = String(k); const s = $id("vlSpd"); if (s) s.value = ST.speed; applySpeed(); },
+    rows: () => [...ST.rows.values()], marks: () => Object.fromEntries(MARK), setMark, idle, settle, setSpeed: (k) => { ST.speed = String(k); const s = $id("vlSpd"); if (s) s.value = ST.speed; applySpeed(); },
     pause: (v) => { ST.paused = v == null ? !ST.paused : !!v; prog(); }
   };
 })(typeof globalThis !== "undefined" ? globalThis : this);

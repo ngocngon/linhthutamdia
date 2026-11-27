@@ -156,6 +156,33 @@ try {
     }
     { const r = rows.find(x => x.id === "dahanh"); ok(r && r.taps.some(t => /^HX HX08/.test(t)), "Dạ Hành tự di chuyển: HX-08 (bản không hồn) chạy"); }
     { const r = rows.find(x => x.id === "khuyendichchuyen"); ok(r && r.evKinds.includes("lockswap"), "Khuyển Dịch Chuyển: đổi lá với bộ bài có sự kiện + diễn"); }
+    /* gpu68-audit2: tiện kiểm — chữ kỹ năng luôn hiện, bảng kết luận, đánh dấu OK/Lỗi + ghi chú (lưu + xuất JSON), lọc, phím tắt */
+    {
+      await page.click("#vlCap").catch(() => {});
+      await page.click("#vlBar [data-a=cap]");
+      const capVis = await page.evaluate(() => { const c = document.getElementById("vlCap"); return !c.hidden && c.getBoundingClientRect().height > 10 && /Thế cờ|Lật|Kích|Duy|Cuối|Đầu/.test(c.textContent); });
+      await page.click("#vlBar [data-a=cap]");
+      ok(capVis, "chữ kỹ năng vẫn hiện sau khi chạm chú thích / bấm Aa (Aa chỉ đổi gọn ↔ đầy đủ)");
+      const det = await page.evaluate(() => { const d = document.getElementById("vlDet"); return { on: d.classList.contains("on"), v: d.querySelector(".vd-v").textContent, b: d.querySelector(".vd-b").textContent }; });
+      ok(det.on && /✓|⚠|✗/.test(det.v) && /Engine đổi/.test(det.b) && /Kết luận/.test(det.b), "bảng kiểm: kết luận + engine đổi + hiệu ứng (" + det.v + ")");
+      await page.click("#vlDet [data-a=mbad]");
+      await page.fill("#vlNote", "thử ghi chú"); await page.press("#vlNote", "Tab");
+      const cur = await page.evaluate(() => VFXLAB.state.cur);
+      const mk = await page.evaluate(() => ({ ls: localStorage.getItem("ltd_vlab_marks"), ex: JSON.parse(VFXLAB.exportJSON()).rows.find(r => r.id === VFXLAB.state.cur) }));
+      ok(/"bad"/.test(mk.ls || "") && mk.ex && mk.ex.userMark === "bad" && mk.ex.userNote === "thử ghi chú" && mk.ex.verdict, `đánh dấu Lỗi + ghi chú lưu localStorage và có trong JSON (${cur})`);
+      await page.click("#vlBar [data-a=menu]");
+      await page.selectOption("#vlFilt", "u:bad");
+      const nF = await page.evaluate(() => document.querySelectorAll("#vlList .vl-it").length);
+      await page.selectOption("#vlFilt", "*");
+      await page.click("#vlBar [data-a=menu]");
+      ok(nF === 1, "lọc 'Bạn đánh: Lỗi' còn đúng 1 thẻ (" + nF + ")");
+      await page.evaluate(() => VFXLAB.setMark(VFXLAB.state.cur, null));
+      const before = await page.evaluate(() => VFXLAB.state.cur);
+      await page.keyboard.press("ArrowRight");
+      await page.waitForTimeout(800);
+      ok(await page.evaluate((b) => VFXLAB.state.cur !== b, before), "phím → sang thẻ kế");
+      ok(await waitDone(page, 60e3, "phím"), "diễn thẻ kế xong");
+    }
     /* xuất JSON */
     const j = JSON.parse(await page.evaluate(() => VFXLAB.exportJSON()));
     ok(j.rows.length === rows.length && j.rows[0].id, `xuất JSON: ${j.rows.length} dòng`);

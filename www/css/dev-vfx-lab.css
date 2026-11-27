@@ -73,3 +73,43 @@
   #vfxLabDrawer .vl-log { max-height: 32vh; }
   #vlBar { left: 50%; right: auto; transform: translateX(-50%); width: min(760px, 96vw); border-radius: 0 0 12px 12px; border: 1px solid rgba(112, 214, 255, .45); border-top: 0; }
 }
+/* gpu68-audit2: chữ kỹ năng luôn hiện (Aa = gọn/đầy đủ), cuộn khi dài thay vì cắt */
+#vlBar .vl-cap { max-height: 92px; overflow-y: auto; }
+#vlBar .vl-cap.mini { max-height: 40px; }
+#vlBar .vl-cap.mini .vl-x2 { display: none; }
+#vlBar #vlAuto.on { background: rgba(30, 120, 80, .85); }
+#vfxLabDrawer .vl-it.uok::after, #vfxLabDrawer .vl-it.ubad::after { position: absolute; right: 4px; top: 3px; font-weight: 800; }
+#vfxLabDrawer .vl-it.uok::after { content: "✓"; color: #7dffb0; }
+#vfxLabDrawer .vl-it.ubad::after { content: "✗"; color: #ff7a88; }
+/* bảng kiểm từng thẻ: dưới cùng màn hình, thu gọn còn 1 dòng (nhớ trạng thái) */
+#vlDet {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 8999; display: none;
+  max-height: 34vh; flex-direction: column;
+  padding: 0 7px calc(env(safe-area-inset-bottom, 0px) + 4px);
+  background: rgba(6, 8, 26, .9); border-top: 1px solid rgba(112, 214, 255, .45);
+  color: #e9f6ff; font: 500 11.5px/1.3 system-ui, sans-serif;
+}
+#vlDet.on { display: flex; }
+body.vlmenu #vlDet { display: none; }
+#vlDet .vd-hd { display: flex; align-items: center; gap: 6px; min-height: 26px; cursor: pointer; }
+#vlDet .vd-v { font-size: 12.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 62%; }
+#vlDet .vd-v.ok { color: #7dffb0; } #vlDet .vd-v.look { color: #ffc070; } #vlDet .vd-v.bad { color: #ff7a88; } #vlDet .vd-v.run { color: #9fe6ff; }
+#vlDet .vd-k { flex: 1; color: #7f93b8; font-size: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#vlDet .vd-t { font-style: normal; color: #9fe6ff; transition: transform .15s; }
+#vlDet.shut .vd-t { transform: rotate(180deg); }
+#vlDet.shut .vd-b { display: none; }
+#vlDet .vd-b { overflow-y: auto; display: grid; grid-template-columns: 1fr 1fr; gap: 3px 8px; padding-bottom: 3px; }
+#vlDet .vd-g { min-width: 0; }
+#vlDet .vd-g b { display: block; color: #8ceeff; font-size: 10.5px; }
+#vlDet .vd-g ul { margin: 0; padding-left: 14px; }
+#vlDet .vd-g li { word-break: break-word; }
+#vlDet .vd-0 { opacity: .5; }
+#vlDet .vd-why.ok { color: #b8ffd6; } #vlDet .vd-why.look { color: #ffd59a; } #vlDet .vd-why.bad { color: #ffb0b8; }
+#vlDet .vd-mk { grid-column: 1 / -1; display: flex; gap: 5px; align-items: center; }
+#vlDet .vd-mk button { font: 600 12px/1 system-ui, sans-serif; color: #e9f6ff; background: rgba(40, 60, 110, .75); border: 1px solid rgba(140, 220, 255, .45); border-radius: 7px; height: 28px; padding: 0 9px; }
+#vlDet .vd-mk button.on[data-a=mok] { background: rgba(30, 140, 80, .95); }
+#vlDet .vd-mk button.on[data-a=mbad] { background: rgba(160, 40, 60, .95); }
+#vlDet .vd-mk input { flex: 1; min-width: 0; height: 28px; font: 500 12px system-ui, sans-serif; color: #e9f6ff; background: rgba(20, 28, 60, .9); border: 1px solid rgba(140, 220, 255, .45); border-radius: 7px; padding: 0 6px; }
+#vlDet .vd-x { grid-column: 1 / -1; opacity: .7; }
+@media (max-width: 480px) { #vlDet .vd-b { grid-template-columns: 1fr; } }
+@media (min-width: 900px) { #vlDet { left: 10px; right: auto; bottom: 10px; width: min(560px, 46vw); border-radius: 12px; border: 1px solid rgba(112, 214, 255, .45); max-height: 44vh; } }

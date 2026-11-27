@@ -2511,7 +2511,7 @@ function stepEndTurn(G, st) {
     }
     const hc = G.hand[s].find(x => x.uid === st.uid);
     if (hc && !hc.sil && !hc.done && is(G, hc, "trungphatcogiap") && hc.mk != null && lead(G, hc.mk) === s) {
-      hc.done = true; G.maxE[s] += 1; log(G, C[hc.id].n + " hoàn thành Nhiệm Vụ: +1 năng lượng tối đa");
+      hc.done = true; G.maxE[s] += 1; log(G, C[hc.id].n + " hoàn thành Nhiệm Vụ: +1 năng lượng tối đa"); ev(G, "egain", { side: s, uid: hc.uid, id: hc.id, n: 1, max: 1 }); /* gpu68-audit2: giao diện diễn (lá trên tay) */
       return true;
     }
     return false;
