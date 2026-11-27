@@ -171,6 +171,7 @@ try {
       const mk = await page.evaluate(() => ({ ls: localStorage.getItem("ltd_vlab_marks"), ex: JSON.parse(VFXLAB.exportJSON()).rows.find(r => r.id === VFXLAB.state.cur) }));
       ok(/"bad"/.test(mk.ls || "") && mk.ex && mk.ex.userMark === "bad" && mk.ex.userNote === "thử ghi chú" && mk.ex.verdict, `đánh dấu Lỗi + ghi chú lưu localStorage và có trong JSON (${cur})`);
       await page.click("#vlBar [data-a=menu]");
+      await page.fill("#vlQ", "");
       await page.selectOption("#vlFilt", "u:bad");
       const nF = await page.evaluate(() => document.querySelectorAll("#vlList .vl-it").length);
       await page.selectOption("#vlFilt", "*");
@@ -182,6 +183,7 @@ try {
       await page.waitForTimeout(800);
       ok(await page.evaluate((b) => VFXLAB.state.cur !== b, before), "phím → sang thẻ kế");
       ok(await waitDone(page, 60e3, "phím"), "diễn thẻ kế xong");
+      rows = await page.evaluate(() => VFXLAB.rows());
     }
     /* xuất JSON */
     const j = JSON.parse(await page.evaluate(() => VFXLAB.exportJSON()));

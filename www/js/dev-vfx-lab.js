@@ -471,7 +471,7 @@
       if (!ST.on || (ev.target && /^(INPUT|SELECT|TEXTAREA)$/.test(ev.target.tagName))) return;
       const k = ev.key, map = { ArrowRight: "next", n: "next", ArrowLeft: "prev", p: "prev", r: "replay", " ": "pause", o: "mok", x: "mbad", a: "auto" }, a = map[k] || map[String(k).toLowerCase()];
       if (!a) return; ev.preventDefault(); ev.stopPropagation();
-      if ((a === "next" || a === "prev") && ST.mode !== "audit" && ST.cur) { const L = listFor(ST.tier, ST.q).filter(filtOk), i = L.indexOf(ST.cur), j = i + (a === "next" ? 1 : -1); if (L[j]) jump(L[j]); return; }
+      if ((a === "next" || a === "prev") && ST.mode !== "audit" && ST.cur) { let L = (ST.filt && ST.filt !== "*" ? listFor("*", ST.q) : listFor(ST.tier, ST.q)).filter(filtOk); if (!L.includes(ST.cur)) L = listFor("*", "").filter(filtOk); const i = L.indexOf(ST.cur), j = i + (a === "next" ? 1 : -1); if (L[j]) jump(L[j]); return; }
       act(a);
     };
     W.addEventListener("keydown", SAVED.kd, true);
@@ -577,7 +577,7 @@
   }
   function renderList() {
     const el = $id("vlList"); if (!el) return;
-    const L = listFor(ST.tier, ST.q).filter(filtOk);
+    const L = (ST.filt && ST.filt !== "*" ? listFor("*", ST.q) : listFor(ST.tier, ST.q)).filter(filtOk); /* lọc theo kết luận/đánh dấu: xét mọi bậc */
     el.innerHTML = L.map((k) => {
       const r = ST.rows.get(k), mk = MARK.get(k), cls = (r ? (r.verdict === "bad" ? " bad" : r.verdict === "look" ? " warn" : " ok") : "") + (mk && mk.m ? " u" + mk.m : "");
       return `<button type="button" class="vl-it${cls}${ST.cur === k ? " cur" : ""}" data-id="${k}" title="${esc(C[k].x)}"><i>${C[k].c}</i>${esc(C[k].n)}<small>${esc(PLAN.typeName(C[k].t))}</small></button>`;
@@ -751,7 +751,7 @@
         await sleep(ST.speed === "4" ? 150 : 450);
         if (ST.i === i0) ST.i++;
       }
-      if (ST.mode === "audit" && ST.i >= ST.list.length) { caption(null, null, `Xong kiểm tra ${ST.list.length} thẻ — xem nhật ký (☰).`); ST.mode = "done"; }
+      if (ST.mode === "audit" && ST.i >= ST.list.length) { toastL(`Xong kiểm tra ${ST.list.length} thẻ — xem nhật ký (☰).`); ST.mode = "done"; } /* gpu68-audit2: giữ chữ kỹ năng của thẻ cuối, không thay bằng thông báo */
       while (ST.on && !ST.stopReq && ST.mode === "one" && ST.oneQ) { const id = ST.oneQ; ST.oneQ = null; prog(); await runCard(id); }
       if (ST.mode === "one" && !ST.oneQ) ST.mode = "idle";
     } finally { ST.busy = false; ST.stopReq = false; prog(); }
