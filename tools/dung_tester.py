@@ -34,7 +34,7 @@ GROUPS = {
     "img/a": [],
     "img/fx": [],
     # gpu65: 194 ảnh tư thế S5 -> gói (~2,5 MB/gói), tải ngầm sau cùng
-    "img/pose": ["camapcan.webp", "cuongnhanxam.webp", "haplucchiare.webp", "kenuotsao.webp", "kysituduc.webp", "nangtocdo.webp", "nhennon.webp", "phonglinhnu.webp", "thetdich.webp", "toctu.webp", "xachongphuthuy.webp"],
+    "img/pose": ["biamo.webp", "cohoangvocuc.webp", "cuongnhanxam.webp", "dichdo.webp", "hapkinh.webp", "huyenconu.webp", "kydong.webp", "linhdondoc.webp", "maynuotthoigian.webp", "nguyetthach.webp", "nuchienbathu.webp", "phonglinhnu.webp", "tamlinhtu.webp", "thieutachienthang.webp", "toaansong.webp", "vuatienhac.webp"],
 }
 # gpu60: img/pose (ảnh tư thế PA6) và img/hx (tờ va chạm theo hệ) KHÔNG đóng gói: chép nguyên tệp lẻ (bước 1) vì 15-pa6.js tải trực tiếp theo URL + tệp kê .json
 READY_DIRS = ["img/u", "img/v"]  # gói phải có trước khi vào sảnh; còn lại tải ngầm
