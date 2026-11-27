@@ -1,1457 +1,697 @@
-/* Bảng Test VFX & Âm Thanh (chỉ dành cho nhà phát triển) — gpu23: tách khỏi 08-vfx-webgl.js (mục 8) và 09-card-choreo.js (mục 9).
-   Nạp lười: 08 gắn nút "✨ Bảng Test VFX" ở sảnh và nút trong Cài đặt > Nâng cao; lần bấm đầu mới tải file này (và css/dev-vfx-lab.css).
-   Hành vi giữ nguyên như khi bảng được dựng sẵn lúc tải trang. */
-(function () {
+/* Bảng Test VFX (dev) — gpu68-lab: MỌI màn diễn chạy qua ĐÚNG đường ống trận thật.
+   Không còn hoạt ảnh "tấn công" dựng tay: chọn một thẻ -> bảng dựng một thế cờ (thẻ ta / thẻ địch tại chiến địa, tay, đỉnh bộ bài,
+   mộ, bài vứt) rồi bấm "Kết thúc lượt" thật (endTurnUI): engine chạy kỹ năng thật của thẻ, giao diện diễn bằng đúng các module
+   đang dùng trong game (lật S1–S3 kiểu cũ, PA6 Hồn Xuất, HX-02..20, RB-B rút bài, DT-B Duy Trì, ấn ký riêng SIGK).
+   - Thế cờ được CHỌN BẰNG MÔ PHỎNG ENGINE: với mỗi thẻ thử nhiều cách dựng (đặt từ tay, đã nằm trên bàn rồi đặt thêm thẻ, Kích Hoạt,
+     bị tiêu huỷ, bị vứt bỏ, di chuyển, địch di chuyển tới, địch đặt thẻ, nằm đỉnh bộ bài, Đầu Ván...), mỗi cách chạy 2 lần trên bản
+     sao ván (kỹ năng bật / kỹ năng bị xoá) — khác biệt giữa 2 lần = tác dụng thật của kỹ năng. Lấy cách đầu tiên có tác dụng.
+     Thẻ có kỹ năng không tác động thẻ khác thì thế cờ không bày mục tiêu giả và ghi rõ trong nhật ký.
+   - Chế độ Kiểm tra (audit): chọn Bậc -> diễn lần lượt mọi thẻ của bậc đó (tạm dừng / trước / sau / tốc độ / nhảy tới thẻ),
+     ghi lại sự kiện engine, các mốc HX_TAP / PA6_TAP / SIG_TAP / CFX đã bật, cảnh báo, lỗi; xuất JSON.
+   Nạp lười từ 08-vfx-webgl.js (Cài đặt > Nâng cao > "Mở Bảng Test Hiệu Ứng"). Phần PLAN (thuần engine) chạy được trong Node. */
+(function (root) {
   "use strict";
 
-  const $id = (id) => document.getElementById(id);
-  const {
-    clamp, smoothAnim, build3DArcFrames, gpuFlash, streamBezierRibbon, pushOppNotif, playCardStealSwap, spawnSoulSiphonOrb,
-    playDeckOrHandSteal, animateFastCardPlace, animateFastCardUnplay
-  } = window.VFX08_LAB;
-  const GLFX = window.GLFX;
+  /* =========================================================================================
+     PHẦN 1 — PLAN: dựng thế cờ + mô phỏng engine (không đụng DOM)
+     ========================================================================================= */
+  const PLAN = (function (E) {
+    const C = E.C;
+    const LANE = 1;
+    const VAN = { c1: "taymaynu", c2: "chanthu", c3: "docnhan", c4: "thachquai", c5: "quaituong", c6: "cuongnhan" };
+    const H = { killOwn: "xacmay", discR: "daothosan", pullHi: "diphapsu", buffTop: "tinhquyennu", buffAlly: "thaphoan", moveFoeR: "kiemlongnhan", onCard: "kiengiap", revCard: "thoren", endCard: "thaphoankhaimo" };
+    const DECK = [VAN.c2, VAN.c5, VAN.c3, VAN.c1, VAN.c4, VAN.c2, VAN.c6, VAN.c3, VAN.c1, VAN.c2];
+    const TIERS = Object.keys(E.HE);
+    const tierName = (h) => E.HE[h] || h;
+    const typeName = (t) => E.DANG[t] || t;
+    const txt = (id) => (C[id] && C[id].x) || "";
 
-  /* ==================== 8. BẢNG TEST HIỆU ỨNG & ÂM THANH LUÔN HIỂN THỊ (5 NHÓM · 32 HIỆU ỨNG ĐẦY ĐỦ) ==================== */
-  const VFX_LAB_TABS = [
-    {
-      id: "play",
-      label: "⚡ Ra Bài",
-      items: [
-        ["fastplay", "⚡ Đặt Thẻ Nhanh", true],
-        ["foedrop", "🎴 Đối Thủ Úp Bài", false],
-        ["fliprev", "🔄 Lật Thẻ Mở Chiêu", true],
-        ["locrev", "🏛️ Mở Chiến Địa 3D", true],
-        ["unplay", "↩️ Rút Lại Về Tay", false],
-        ["drawcard", "🃏 Rút Bài Đầu Lượt", false],
-        ["turnbn", "🚩 Băng Hiệu Lượt", false],
-        ["fuse10s", "⏱️ Đếm Ngược 10s", false]
-      ]
-    },
-    {
-      id: "interact",
-      label: "🧲 Cướp/Dời",
-      items: [
-        ["stealcard", "🧲 Cướp Thẻ Đổi Phe", true],
-        ["decksteal", "🕵️ Cướp Bộ Bài", true],
-        ["stealskill", "🔮 Cướp Kỹ Năng", true],
-        ["clonecard", "🪞 Nhân Bản Thẻ", false],
-        ["silence", "🔇 Xoá Kỹ Năng", false],
-        ["pullcard", "🪝 Kéo Thẻ Đối Thủ", false],
-        ["pushcard", "💨 Đẩy Thẻ Khỏi Ô", false],
-        ["morphcard", "🦋 Biến Hình 3D", false]
-      ]
-    },
-    {
-      id: "combat",
-      label: "💥 Phá/Điểm",
-      items: [
-        ["destroyer", "☄️ Tia Huỷ Diệt Bàn", true],
-        ["destroy3d", "💔 Chém Vỡ Thẻ 3D", true],
-        ["summon", "🐉 Triệu Hồi Thú", false],
-        ["buffpw", "💚 Cộng Điểm (+6)", false],
-        ["debuffpw", "❤️‍🔥 Trừ Điểm (−4)", false],
-        ["doublepw", "✨ Nhân Đôi (×2)", true]
-      ]
-    },
-    {
-      id: "elem",
-      label: "🔥 Hệ/Cược",
-      items: [
-        ["snapcube", "🎲 Cược SNAP ×2/×8", true],
-        ["locklane", "⛓️ Khoá Chiến Địa", false],
-        ["shieldfx", "🛡️ Khiên Bất Tử", false],
-        ["fire", "🔥 Nổ Hoả Ngục", false],
-        ["thunder", "⚡ Lôi Phạt Sét", false],
-        ["frost", "❄️ Băng Phong", false],
-        ["ult", "🗡️ Tuyệt Kỹ S5", true]
-      ]
-    },
-    {
-      id: "audio",
-      label: "🎵 Nhạc/Tốc",
-      items: [
-        ["bgm_b1", "🎵 Nhạc Lượt 1–3", true],
-        ["bgm_b2", "🎸 Nhạc Cao Trào", false],
-        ["bgm_climax", "🔥 Nhạc Lượt Cuối", true],
-        ["bgm_lobby", "🌌 Nhạc Sảnh Chờ", false],
-        ["bgm_toggle", "🔊 Bật/Tắt Nhạc", false],
-        ["spd_fast", "⏩ Nhanh (0.78×)", false],
-        ["spd_norm", "▶️ Chuẩn (1.0×)", false],
-        ["spd_slow", "🐢 Chậm (1.3×)", false]
-      ]
+    /* ---------- thế cờ cơ bản ---------- */
+    function baseSpec() {
+      return {
+        lane: LANE, turn: 3, loc: ["meadow", "meadow", "meadow"],
+        own: [[VAN.c2, LANE], [H.buffAlly, LANE], [VAN.c1, 0], [H.onCard, 0], [VAN.c3, 2], [H.endCard, 2]],
+        foe: [[VAN.c1, LANE, { cr: 1 }], [VAN.c6, LANE], [H.onCard, LANE], [VAN.c3, 0], [VAN.c2, 0, { bonus: -1 }], [VAN.c4, 2]],
+        hand: [VAN.c2, H.revCard, VAN.c1],
+        foeHand: [VAN.c2, VAN.c6],
+        deck: DECK.slice(), top: [],
+        dead: [VAN.c4, VAN.c3], foeDead: [VAN.c3], disc: [VAN.c1], foeDisc: [VAN.c2],
+        subj: { at: "hand" }, pre: [], plays: [], foePlays: [], act: false, move: null, next: null
+      };
     }
-  ];
+    const S = (o) => Object.assign(baseSpec(), o);
 
-  let curLabTab = "play";
-  let demoLocIdx = 0;
-  let demoTurnIdx = 0;
-  let demoSnapIdx = 0;
+    /* các cách dựng (k = mã, n = tên hiển thị) */
+    function allCands(id) {
+      const d = C[id], L = LANE, out = [], x0 = txt(id);
+      const add = (k, n, o) => out.push({ k, n, spec: S(o) });
+      add("hand", "Đặt từ tay", { subj: { at: "hand" } });
+      add("act", "Đã trên bàn · Kích Hoạt", { subj: { at: "board", li: L }, act: true });
+      for (const [hk, hid] of [["v", VAN.c2], ["big", VAN.c6], ["c3", VAN.c3], ["c4", VAN.c4], ["rev", H.revCard], ["on", H.onCard]])
+        add("board+" + hk, "Đã trên bàn · đặt thêm " + C[hid].n, { subj: { at: "board", li: L }, plays: [[hid, L]] });
+      add("board+else", "Đã trên bàn · đặt thẻ ở chiến địa khác", { subj: { at: "board", li: L }, plays: [[VAN.c3, 0]] });
+      add("board", "Đã trên bàn (Đầu/Cuối Lượt)", { subj: { at: "board", li: L }, plays: [] });
+      add("dead:self", "Bị tiêu huỷ trên bàn", { subj: { at: "board", li: L }, plays: [[H.killOwn, L]] });
+      add("dead:ally", "Thẻ ta khác bị tiêu huỷ", { subj: { at: "board", li: 0 }, plays: [[H.killOwn, L]] });
+      add("dead:ally-hand", "Thẻ ta bị tiêu huỷ (thẻ trên tay)", { subj: { at: "hand", keep: 1 }, plays: [[H.killOwn, L]] });
+      add("disc:self", "Bị vứt bỏ khỏi tay", { subj: { at: "handR" }, plays: [[H.discR, L]] });
+      add("disc:you", "Bạn vứt bỏ một thẻ", { subj: { at: "board", li: 0 }, plays: [[H.discR, L]] });
+      add("move:self", "Tự di chuyển", { subj: { at: "board", li: L }, move: 2 });
+      add("move:pull", "Bị kéo sang chiến địa khác", { subj: { at: "board", li: L, bp: 30 }, plays: [[H.pullHi, 2]] });
+      add("move:ally", "Thẻ ta di chuyển", { subj: { at: "board", li: 2 }, own: [[VAN.c2, L], [VAN.c1, 0], [VAN.c6, L, { bp: 30 }]], plays: [[H.pullHi, 2]] });
+      add("move:foe", "Thẻ địch di chuyển tới", { lane: 2, subj: { at: "board", li: 2 }, plays: [[H.moveFoeR, 1]] });
+      add("foe:play", "Địch đặt thẻ tại đây", { subj: { at: "board", li: L }, foePlays: [[VAN.c3, L]] });
+      add("foe:on", "Địch đặt thẻ Duy Trì tại đây", { subj: { at: "board", li: L }, foePlays: [[H.onCard, L]] });
+      add("top", "Nằm đỉnh bộ bài (được rút / cường hoá)", { subj: { at: "top" }, plays: [[H.buffTop, L]] });
+      add("buff", "Được cường hoá trên bàn", { subj: { at: "board", li: L }, plays: [[H.buffAlly, L]] });
+      add("hand+foe", "Đặt từ tay · địch đặt thẻ cùng chiến địa", { subj: { at: "hand" }, foePlays: [[VAN.c3, L]] });
+      add("hand+pre", "Đặt từ tay sau một thẻ Lật", { subj: { at: "hand" }, pre: [[H.revCard, 0]] });
+      add("hand+pre-on", "Đặt từ tay sau một thẻ Duy Trì", { subj: { at: "hand" }, pre: [[H.onCard, 2]] });
+      add("hand+next", "Đặt từ tay rồi đặt thêm thẻ", { subj: { at: "hand" }, plays: [[VAN.c2, L], [VAN.c4, 2]] });
+      add("next:play", "Lượt sau đặt thẻ cùng chiến địa", { subj: { at: "hand" }, next: { plays: [[VAN.c2, L]] } });
+      add("next:idle", "Lượt sau không đặt thẻ", { subj: { at: "hand" }, next: { plays: [] } });
+      add("solo", "Thẻ duy nhất của bạn tại đây", { subj: { at: "hand" }, own: [[VAN.c1, 0], [VAN.c3, 0]] });
+      add("full", "Phía bạn tại đây đầy", { subj: { at: "hand" }, own: [[VAN.c2, L], [VAN.c1, L], [VAN.c3, L], [VAN.c4, 0]], foe: [[VAN.c1, L], [VAN.c6, L], [VAN.c3, L], [VAN.c2, L], [VAN.c4, 2]] });
+      add("emptyhand", "Tay gần trống", { subj: { at: "hand" }, hand: [] });
+      add("spent", "Dùng hết năng lượng", { subj: { at: "hand" }, spend: 1 });
+      add("foeE", "Đối thủ còn năng lượng", { subj: { at: "hand" }, foeE: 3 });
+      add("spent:board", "Trên bàn · dùng hết năng lượng", { subj: { at: "board", li: L }, plays: [[VAN.c2, 0]], spend: 1 });
+      const refs = Object.keys(C).filter((k) => k !== id && C[k].n.length > 3 && x0.includes(C[k].n)).slice(0, 2);
+      if (refs.length) {
+        add("ref", "Có " + refs.map((k) => C[k].n).join(", ") + " trên bàn", { subj: { at: "hand" }, own: [[refs[0], L], [VAN.c1, 0]].concat(refs[1] ? [[refs[1], 2]] : []) });
+        add("ref:deck", "Có " + refs.map((k) => C[k].n).join(", ") + " trong bộ bài", { subj: { at: "hand" }, deck: DECK.concat(refs) });
+      }
+      add("hand:idle", "Nằm trên tay", { subj: { at: "hand", keep: 1 }, plays: [[VAN.c3, L]] });
+      if (d && d.t === "start") add("start", "Đầu Ván (bộ bài có thẻ này)", { subj: { at: "hand" }, start: 1 });
+      return out;
+    }
+    /* thứ tự ưu tiên theo dạng + chữ kỹ năng */
+    function cands(id) {
+      const d = C[id], x = txt(id), all = allCands(id), pri = [];
+      const P = (...ks) => { for (const k of ks) if (!pri.includes(k)) pri.push(k); };
+      if (!d) return [];
+      if (d.t === "start") P("start");
+      if (d.t === "act") P("act");
+      if (/Vứt Bỏ/.test(x)) P("disc:self");
+      if (/Tiêu Huỷ/.test(x)) P("dead:self");
+      if (d.t === "rev" || d.t === "none" || d.t === "on" || d.t === "end") P("hand");
+      if (/đối thủ (đã )?đặt|địch được đặt|BẤT KỲ thẻ/.test(x)) P(/Duy Trì/.test(x) ? "foe:on" : "foe:play", "foe:play");
+      if (/thẻ địch di chuyển/.test(x)) P("move:foe");
+      if (/[Ss]au khi bạn đặt|[Ss]au lần tới bạn đặt|[Mm]ỗi thẻ bạn đặt|[Ss]au khi bạn đặt một kỹ năng/.test(x)) {
+        if (/10 sức mạnh|6 năng lượng/.test(x)) P("board+big");
+        if (/Lật/.test(x)) P("board+rev");
+        if (/3 hoặc 4|từ 4/.test(x)) P("board+c4", "board+c3");
+        P("board+v", "board+big", "board+rev", "board+else");
+      }
+      if (/thẻ (khác )?của bạn bị tiêu huỷ|thẻ khác của bạn bị tiêu huỷ/.test(x)) P("dead:ally", "dead:ally-hand");
+      if (/bị tiêu huỷ/.test(x)) P("dead:ally", "dead:self");
+      if (/vứt bỏ/.test(x)) P("disc:you");
+      if (/thẻ này di chuyển|[Cc]ó thể di chuyển|[Kk]hi thẻ này di chuyển/.test(x)) P("move:self", "move:pull");
+      if (/một thẻ (khác của bạn )?di chuyển|thẻ di chuyển/.test(x)) P("move:ally", "move:foe");
+      if (/cường hoá|Cường Hoá/.test(x)) P("top", "buff");
+      if (/rút/.test(x)) P("top");
+      if (/Đầu Lượt|Cuối Lượt|Mỗi lượt|mỗi lượt/.test(x)) P("board", "board+v");
+      if (/dùng hết năng lượng/.test(x)) P("spent", "spent:board");
+      if (/đối thủ còn năng lượng/.test(x)) P("foeE");
+      P("ref", "ref:deck");
+      if (/trên tay|[Kk]hi thẻ này trở về tay|[Kk]hi bạn rút thẻ này/.test(x)) P("hand:idle", "top");
+      P("hand", "board+v", "board", "act");
+      for (const c of all) P(c.k);
+      return pri.map((k) => all.find((c) => c.k === k)).filter(Boolean);
+    }
 
-  function syncLabButtonsState(isOpen) {
-    const b = $id("btnVfxLab");
-    if (b) b.classList.toggle("active", !!isOpen);
+    /* ---------- dựng thế cờ lên một ván G (ván mô phỏng hoặc ván thật) ---------- */
+    function newG(id, spec, seed) {
+      const deck = spec.start ? [id].concat(DECK.slice(0, 11)) : DECK.slice(0, 12);
+      return E.newGame(deck, DECK.slice(0, 12), { seed: seed >>> 0, locs: spec.loc.slice() });
+    }
+    function stage(G, id, spec, opt) {
+      opt = opt || {};
+      G.live = false; G.srcU = 0;
+      G.turn = spec.turn; G.phase = "play"; G.result = null; G.first = "p";
+      G.q.p = []; G.q.a = [];
+      for (let i = 0; i < 3; i++) { const L = G.locs[i]; L.id = spec.loc[i]; L.rvl = true; L.gone = false; L.cards.p = []; L.cards.a = []; }
+      const mk = (cid, side) => E.mk(G, cid, side);
+      const put = (cid, side, li, o) => {
+        const c = mk(cid, side); c.rev = true; c.played = true; c.turn = spec.turn - 1; c.et = 0; c.age = 1;
+        if (o && o.cr) c.cr = true; if (o && o.bp != null) c.bp = o.bp; if (o && o.bonus) c.bonus = o.bonus;
+        G.locs[li].cards[side].push(c); return c;
+      };
+      for (const [cid, li, o] of spec.foe) put(cid, "a", li, o);
+      for (const [cid, li, o] of spec.own) put(cid, "p", li, o);
+      const startHand = spec.start ? G.hand.p.filter((c) => c.id !== id && !DECK.includes(c.id)) : [];
+      G.hand.p = spec.hand.map((cid) => mk(cid, "p")).concat(startHand);
+      G.hand.a = spec.foeHand.map((cid) => mk(cid, "a"));
+      if (!spec.start) G.deck.p = spec.deck.map((cid) => mk(cid, "p"));
+      G.deck.a = DECK.map((cid) => mk(cid, "a"));
+      G.dead.p = spec.dead.map((cid) => { const c = mk(cid, "p"); c.dt = spec.turn - 1; return c; });
+      G.dead.a = spec.foeDead.map((cid) => { const c = mk(cid, "a"); c.dt = spec.turn - 1; return c; });
+      G.disc.p = spec.disc.map((cid) => mk(cid, "p")); G.disc.a = spec.foeDisc.map((cid) => mk(cid, "a"));
+      /* thẻ được thử */
+      const sj = spec.subj; let subj = null;
+      if (sj.at === "board") { subj = put(id, "p", sj.li, sj); }
+      else if (sj.at === "top") { subj = mk(id, "p"); G.deck.p.push(subj); }
+      else { subj = (spec.start && G.hand.p.find((c) => c.id === id)) || mk(id, "p"); if (sj.at === "handR") G.hand.p.push(subj); else G.hand.p.unshift(subj); }
+      if (opt.sil) subj.sil = true;
+      /* bối cảnh ván: đã có thẻ bị vứt/tiêu huỷ/di chuyển, lượt trước có đặt thẻ */
+      try {
+        G.cnt.disc.p = 1; G.cnt.disc.a = 1; G.cnt.dest = 2; G.cnt.movedPrev = true; G.cnt.playedLast.p = 1; G.cnt.playedLast.a = 1;
+        const o0 = G.locs[0].cards.p[0], f0 = G.locs[0].cards.a[0];
+        if (o0) { G.prevPlay.p = o0.uid; G.lastPlay.p = o0.uid; }
+        if (f0) { G.lastPlay.a = f0.uid; G.prevPlay.a = f0.uid; }
+      } catch (e) {}
+      G.energy.p = 12; G.energy.a = 6; G.maxE.p = 0; G.maxE.a = 0; G.nextBonus.p = 0; G.nextBonus.a = 0;
+      G.live = true;
+      /* hàng đợi: thẻ được thử (nếu đặt từ tay) rồi các thẻ phụ */
+      const res = { subj, ok: true, why: "", lane: spec.lane };
+      for (const [cid, li] of spec.pre) { const c = mk(cid, "p"); G.hand.p.push(c); if (!E.queuePlay(G, "p", c.uid, li)) { G.hand.p.splice(G.hand.p.indexOf(c), 1); res.ok = false; res.why = "thẻ phụ " + C[cid].n + " không đặt được"; } }
+      if (sj.at === "hand" && !sj.keep) {
+        let li = spec.lane, ok = E.queuePlay(G, "p", subj.uid, li);
+        if (!ok) for (const l2 of [0, 1, 2]) if (l2 !== li && E.queuePlay(G, "p", subj.uid, l2)) { ok = true; li = l2; break; }
+        if (!ok) { res.ok = false; res.why = "không đặt được ở chiến địa nào"; }
+        res.lane = li;
+      }
+      for (const [cid, li] of spec.plays) { const c = mk(cid, "p"); G.hand.p.push(c); if (!E.queuePlay(G, "p", c.uid, li)) { G.hand.p.splice(G.hand.p.indexOf(c), 1); res.ok = false; res.why = res.why || "thẻ phụ " + C[cid].n + " không đặt được"; } }
+      if (spec.act && !E.queueAct(G, "p", subj.uid)) { res.ok = false; res.why = "không Kích Hoạt được"; }
+      if (spec.move != null && !E.queueMove(G, "p", subj.uid, spec.move)) { res.ok = false; res.why = "không di chuyển được"; }
+      for (const [cid, li] of spec.foePlays) { const c = mk(cid, "a"); G.hand.a.push(c); G.energy.a = 10; if (!E.queuePlay(G, "a", c.uid, li)) { G.hand.a.splice(G.hand.a.indexOf(c), 1); res.ok = false; res.why = "địch không đặt được"; } }
+      G.energy.a = spec.foeE || 0;
+      if (spec.spend) G.energy.p = 0;
+      return res;
+    }
+
+    /* ---------- chụp trạng thái + so sánh ---------- */
+    function snap(G) {
+      const m = new Map();
+      const rec = (c, z, li) => {
+        let pw = (c.bp != null ? c.bp : C[c.id] ? C[c.id].p : 0) + (c.bonus || 0), cs = "";
+        if (li != null && li >= 0) { try { pw = E.power(G, c, li); } catch (e) {} }
+        if (z === "hand") { try { cs = E.cost(G, c, null); } catch (e) {} }
+        m.set(c.uid, [z, c.side, c.id, c.ab || "", pw, cs, c.sil ? 1 : 0].join("|"));
+      };
+      for (const s of ["p", "a"]) {
+        for (let i = 0; i < 3; i++) for (const c of G.locs[i].cards[s]) rec(c, "L" + i, i);
+        for (const z of ["hand", "deck", "dead", "disc"]) for (const c of G[z][s] || []) rec(c, z, null);
+      }
+      let lp = ""; try { lp = [0, 1, 2].map((i) => E.locPower(G, i, "p") + "/" + E.locPower(G, i, "a")).join(","); } catch (e) {}
+      const g = { lp, loc: G.locs.map((L) => L.id + (L.gone ? "x" : "")).join(","), e: [G.energy.p, G.energy.a, G.maxE.p, G.maxE.a, G.nextBonus.p, G.nextBonus.a].join(",") };
+      return { m, g };
+    }
+    const F = ["vùng", "phe", "thẻ", "kỹ năng", "sức mạnh", "năng lượng", "mất kỹ năng"];
+    function diff(A, B, subjUid) {
+      const out = [];
+      for (const [u, a] of A.m) {
+        const b = B.m.get(u);
+        if (!b) { out.push({ u, w: "mới", a }); continue; }
+        if (a === b) continue;
+        const pa = a.split("|"), pb = b.split("|"), ch = [];
+        for (let i = 0; i < pa.length; i++) if (pa[i] !== pb[i] && !(i === 6 && u === subjUid)) ch.push(F[i] + " " + pb[i] + "→" + pa[i]);
+        if (!ch.length) continue;
+        out.push({ u, w: ch.join(", "), self: u === subjUid });
+      }
+      for (const [u, b] of B.m) if (!A.m.has(u)) out.push({ u, w: "mất", b });
+      if (A.g.loc !== B.g.loc) out.push({ u: 0, w: "chiến địa " + B.g.loc + "→" + A.g.loc, loc: 1 });
+      if (A.g.lp !== B.g.lp && !out.length) out.push({ u: 0, w: "tổng sức mạnh chiến địa " + B.g.lp + "→" + A.g.lp, lp: 1 });
+      if (A.g.e !== B.g.e) out.push({ u: 0, w: "năng lượng " + B.g.e + "→" + A.g.e, en: 1 });
+      return out;
+    }
+
+    /* ---------- chạy trọn một lượt không hoạt ảnh ---------- */
+    function simTurn(G) {
+      const evs = [], grab = () => { if (G.evs && G.evs.length) evs.push(...G.evs.splice(0)); };
+      try {
+        const steps = E.beginReveal(G); grab();
+        for (const st of steps) { E.doStep(G, st); grab(); }
+        for (const st of E.beginEndTurn(G)) { E.stepEndTurn(G, st); grab(); }
+        E.finishEndTurn(G); grab();
+        if (G.turn < E.turns(G)) { E.startTurn(G); grab(); }
+        return { evs };
+      } catch (e) { return { evs, err: String(e && e.message || e) }; }
+    }
+    /* lượt 2 (kỹ năng "lượt sau"): đặt thêm thẻ rồi chạy tiếp một lượt */
+    function stageNext(G, spec) {
+      const ok = []; G.live = false; const cs = spec.next.plays.map(([cid, li]) => { const c = E.mk(G, cid, "p"); G.hand.p.push(c); return [c, li]; }); G.live = true;
+      G.energy.p = Math.max(G.energy.p, 12); G.energy.a = spec.foeE || 0;
+      for (const [c, li] of cs) ok.push(E.queuePlay(G, "p", c.uid, li));
+      return ok.every(Boolean);
+    }
+    function runCand(id, cand, seed) {
+      const one = (sil) => {
+        const G = newG(id, cand.spec, seed); const st = stage(G, id, cand.spec, { sil });
+        if (!st.ok) return { st, G };
+        const before = snap(G); let r = simTurn(G);
+        if (cand.spec.next && !r.err && G.phase !== "over") { stageNext(G, cand.spec); const r2 = simTurn(G); r = { evs: r.evs.concat(r2.evs), err: r2.err }; }
+        return { st, G, before, after: snap(G), evs: r.evs, err: r.err };
+      };
+      const A = one(false);
+      if (!A.st.ok) return { cand, ok: false, why: A.st.why, score: 0, d: [] };
+      if (A.err) return { cand, ok: true, err: A.err, score: 0, d: [], evs: A.evs };
+      const B = one(true);
+      const su = A.st.subj.uid;
+      let d = B.after ? diff(A.after, B.after, su) : diff(A.after, A.before, su);
+      if (!B.st.ok) d.push({ u: 0, w: "chỉ làm được nhờ kỹ năng (" + B.st.why + ")", rule: 1 });
+      const sf = A.G.startFx ? A.G.startFx.filter((x) => x.id === id && x.s === "p") : [];
+      if (cand.k === "start" && sf.length) d = d.concat(sf.map((x) => ({ u: 0, w: "Đầu Ván: " + (x.add || []).length + " thẻ thêm vào " + x.to, start: 1 })));
+      const others = d.filter((x) => x.u && x.u !== su);
+      const evk = A.evs.filter((e) => e.uid === su || e.src === su).map((e) => e.k);
+      return { cand, ok: true, score: d.length, d, others: others.length, self: d.some((x) => x.u === su), evk, evs: A.evs, subjUid: su, lane: A.st.lane };
+    }
+    /* chọn thế cờ: cách đầu tiên (theo ưu tiên) có tác dụng; không có -> cách đầu tiên dựng được */
+    function plan(id, seed) {
+      seed = seed == null ? 12345 : seed;
+      const list = cands(id), tried = [];
+      let pick = null, first = null;
+      for (const c of list) {
+        const r = runCand(id, c, seed); tried.push({ k: c.k, ok: r.ok, score: r.score, err: r.err || "", why: r.why || "" });
+        if (r.ok && !first) first = r;
+        if (r.ok && r.score > 0 && !r.err) { pick = r; break; }
+      }
+      const r = pick || first;
+      const d = C[id];
+      const notes = [];
+      if (d.t === "none") notes.push("Không kỹ năng (chỉ lật thường)");
+      if (/Nhiệm Vụ/.test(d.x)) notes.push("Nhiệm Vụ nhiều lượt");
+      if (/[Kk]hi kết thúc ván|[Cc]uối ván/.test(d.x)) notes.push("Chỉ chạy khi kết thúc ván");
+      if (d.t === "start") notes.push("Đầu Ván");
+      return {
+        id, n: d.n, h: d.h, t: d.t, x: d.x, seed,
+        k: r ? r.cand.k : "", kn: r ? r.cand.n : "", spec: r ? r.cand.spec : null,
+        effect: !!pick, score: r ? r.score : 0, others: r ? r.others || 0 : 0, self: !!(r && r.self),
+        area: !!(r && ((r.d && r.d.some((x) => x.loc || x.lp || x.en || x.start)) || (r.evk || []).some((k) => /^(summon|destroy|discard|move|tohand|sil|revive|morph|clone|abcopy|surge)$/.test(k)))),
+        d: r ? r.d.slice(0, 12).map((x) => x.w + (x.u ? " #" + x.u : "")) : [], evk: r ? r.evk || [] : [],
+        err: r && r.err ? r.err : "", tried, notes
+      };
+    }
+    return { LANE, VAN, H, DECK, TIERS, tierName, typeName, cands, allCands, newG, stage, snap, diff, simTurn, runCand, plan };
+  })(root.LT || (typeof require === "function" ? require("./01-engine.js") : null));
+
+  if (typeof module !== "undefined" && module.exports) { module.exports = PLAN; return; }
+  root.VFXLAB_PLAN = PLAN;
+
+  /* =========================================================================================
+     PHẦN 2 — GIAO DIỆN BẢNG + CHẠY QUA ĐƯỜNG ỐNG TRẬN THẬT
+     ========================================================================================= */
+  const W = root, D = document, $id = (id) => D.getElementById(id);
+  const E = W.LT, C = E.C;
+  const esc = (t) => String(t == null ? "" : t).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+  const SPEEDS = [["0.5", "Chậm ×0.5", 2], ["1", "Thường ×1", 1], ["2", "Nhanh ×2", 0.5], ["4", "Rất nhanh ×4", 0.25]];
+  /* lớp diễn còn sót sau một màn (HX / PA6 / SIG) */
+  const LEAK = [".hxsoul", ".hxds", ".hxcv", ".hxbolt", ".mc.hxpk", ".mc.hxm", ".mc.hx2z", ".fxg.hxd", ".hxemb", ".hxbk", ".hxclip", ".hxorb", ".hxrc", ".fxg.hxold", ".mc.hx14h",
+    ".p6soul", ".p6ai", ".p6say", ".fxg.hero5", ".fxg.p6bk", ".uc5", ".sgp", ".sgsoul", ".sga", ".sgx", ".sgseal", ".sgvx", ".sgbk", ".sgsw", ".sgscroll", ".sgcv"];
+  /* mốc "đánh trúng mục tiêu" của các module diễn */
+  const HIT_RE = /^(HX:hit|HXfan|HXfan:bolts|HX03|HX04|HX07:drain|HX09:arm|C:hit|sig:hit|sig:arrow|sig:link)$/;
+
+  const ST = {
+    on: false, hooked: false, tier: "S1", q: "", list: [], i: 0, mode: "idle", paused: false, stopReq: false, busy: false,
+    speed: "1", rows: new Map(), cur: null, rec: null, prev: null, seed: 777, capOn: true
+  };
+  W.VFXLAB_STATE = ST;
+
+  /* ---------- móc ghi nhận (chỉ khi bảng mở) ---------- */
+  const SAVED = {};
+  function hook() {
+    if (ST.hooked) return; ST.hooked = true;
+    const tapK = (pre) => (k, o) => { const r = ST.rec; if (r) r.taps.push(pre + k + (o && o.id ? "@" + o.id : "")); };
+    for (const [nm, pre] of [["HX_TAP", "HX "], ["PA6_TAP", "PA6 "], ["SIG_TAP", "SIG "]]) {
+      SAVED[nm] = W[nm]; const mine = tapK(pre), prev = W[nm];
+      W[nm] = function (k, o) { try { mine(k, o); } catch (e) {} if (typeof prev === "function") return prev.apply(this, arguments); };
+    }
+    /* CFX.* / FX.*: đếm lời gọi (đường lật/diễn cũ S1–S3 và hạt chung) */
+    SAVED.fx = [];
+    for (const [obj, nm] of [[typeof CFX !== "undefined" ? CFX : W.CFX, "CFX"], [typeof FX !== "undefined" ? FX : W.FX, "FX"]]) {
+      if (!obj) continue;
+      for (const k of Object.keys(obj)) {
+        const f = obj[k]; if (typeof f !== "function") continue;
+        const w = function () { const r = ST.rec; if (r) { const key = nm + "." + k; r.fx[key] = (r.fx[key] || 0) + 1; } return f.apply(this, arguments); };
+        obj[k] = w; SAVED.fx.push([obj, k, f, w]);
+      }
+    }
+    /* sự kiện engine (G.evs) sau mỗi bước của lượt thật */
+    SAVED.e = {};
+    for (const fn of ["doStep", "stepEndTurn", "startTurn", "finishEndTurn"]) {
+      const f0 = E[fn]; SAVED.e[fn] = f0;
+      E[fn] = function () { const r = f0.apply(this, arguments); try { const R = ST.rec; if (R && typeof G !== "undefined" && arguments[0] === G && G.evs) for (const e of G.evs) R.ev.push(e); } catch (e) {} return r; };
+    }
+    /* bảng thử: máy không rút lui / không cược, không tự tua nhanh lượt (giữ đúng màn diễn đầy đủ) */
+    SAVED.retreat = E.aiWantsRetreat; SAVED.snap = E.aiWantsSnap;
+    E.aiWantsRetreat = () => false; E.aiWantsSnap = () => false;
+    if (W.FFTURN) { SAVED.ffs = W.FFTURN.start; W.FFTURN.start = () => {}; }
+    SAVED.onerr = (ev) => { const r = ST.rec; if (r) r.err.push(String((ev && (ev.message || (ev.reason && ev.reason.message) || ev.reason)) || "lỗi")); };
+    W.addEventListener("error", SAVED.onerr); W.addEventListener("unhandledrejection", SAVED.onerr);
+    SAVED.cerr = console.error;
+    console.error = function () { const r = ST.rec; if (r) try { r.err.push([...arguments].map((a) => (a && a.message) || String(a)).join(" ").slice(0, 200)); } catch (e) {} return SAVED.cerr.apply(console, arguments); };
+    /* chạm vào bảng không được tính là "chạm tua nhanh" của trận */
+    SAVED.pd = (ev) => { if (ev.target && ev.target.closest && ev.target.closest("#vfxLabDrawer,#vlBar")) ev.stopImmediatePropagation(); };
+    W.addEventListener("pointerdown", SAVED.pd, true);
+  }
+  function unhook() {
+    if (!ST.hooked) return; ST.hooked = false;
+    for (const nm of ["HX_TAP", "PA6_TAP", "SIG_TAP"]) W[nm] = SAVED[nm];
+    for (const [obj, k, f, w] of SAVED.fx) if (obj[k] === w) obj[k] = f;
+    for (const fn in SAVED.e) E[fn] = SAVED.e[fn];
+    E.aiWantsRetreat = SAVED.retreat; E.aiWantsSnap = SAVED.snap;
+    if (W.FFTURN && SAVED.ffs) W.FFTURN.start = SAVED.ffs;
+    W.removeEventListener("error", SAVED.onerr); W.removeEventListener("unhandledrejection", SAVED.onerr);
+    console.error = SAVED.cerr;
+    W.removeEventListener("pointerdown", SAVED.pd, true);
   }
 
-  function renderLabTab(tabId) {
-    curLabTab = tabId;
-    const drawer = $id("vfxLabDrawer");
-    if (!drawer) return;
-    drawer.querySelectorAll(".vl-tab").forEach((t) => t.classList.toggle("on", t.dataset.vtab === tabId));
-    const tabObj = VFX_LAB_TABS.find((t) => t.id === tabId) || VFX_LAB_TABS[0];
-    const grid = $id("vlGrid");
-    if (grid) {
-      grid.innerHTML = tabObj.items
-        .map(([k, lbl, feat]) => `<button type="button" class="vl-btn${feat ? " vl-feat" : ""}" data-demo="${k}">${lbl}</button>`)
-        .join("");
-    }
+  /* ---------- danh sách thẻ theo bậc ---------- */
+  const ALL = Object.keys(C);
+  const tierCount = (h) => ALL.filter((k) => C[k].h === h).length;
+  const fold = (t) => String(t || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/g, "d").replace(/Đ/g, "D").toLowerCase().trim();
+  function listFor(tier, q) {
+    const qq = fold(q);
+    return ALL.filter((k) => (tier === "*" || C[k].h === tier) && (!qq || k.includes(qq.replace(/\s+/g, "")) || fold(C[k].n).includes(qq)))
+      .sort((a, b) => C[a].c - C[b].c || C[a].n.localeCompare(C[b].n, "vi"));
   }
 
-  function buildVfxLab() {
+  /* ---------- dựng bảng ---------- */
+  function build() {
     if ($id("vfxLabDrawer")) return;
-
-    const drawer = document.createElement("div");
-    drawer.id = "vfxLabDrawer";
-    drawer.setAttribute("role", "dialog");
-    drawer.setAttribute("aria-label", "Bảng Test Hiệu Ứng & Âm Thanh");
-    drawer.innerHTML = `
-      <div class="vl-hd" id="vlHeader" title="Kéo thanh tiêu đề để di chuyển bảng test">
-        <b>⚡ BẢNG TEST VFX (GHIM MỞ)</b>
-        <div class="vl-hd-act">
-          <span class="vl-fps" id="vlFps">60 FPS</span>
-          <button type="button" class="vl-min" id="vlMin" title="Thu gọn / Mở rộng">▾ Thu gọn</button>
-          <button type="button" class="vl-x" id="vlClose" aria-label="Đóng bảng test" title="Đóng bảng test">✕</button>
-        </div>
+    const bar = D.createElement("div");
+    bar.id = "vlBar";
+    bar.innerHTML = `
+      <div class="vl-row">
+        <button type="button" data-a="menu" title="Danh sách / nhật ký">☰</button>
+        <button type="button" data-a="prev" title="Thẻ trước">◀</button>
+        <button type="button" data-a="pause" id="vlPause" title="Tạm dừng / tiếp tục">❚❚</button>
+        <button type="button" data-a="next" title="Thẻ sau">▶</button>
+        <button type="button" data-a="replay" title="Diễn lại thẻ này">↻</button>
+        <select id="vlSpd" aria-label="Tốc độ">${SPEEDS.map(([k, n]) => `<option value="${k}">${n}</option>`).join("")}</select>
+        <span class="vl-prog" id="vlProg"></span>
+        <button type="button" data-a="cap" title="Ẩn/hiện chú thích">Aa</button>
+        <button type="button" data-a="close" class="vl-x" title="Đóng bảng test">✕</button>
       </div>
-      <div class="vl-tabs" id="vlTabs">
-        ${VFX_LAB_TABS.map((t) => `<button type="button" class="vl-tab${t.id === curLabTab ? " on" : ""}" data-vtab="${t.id}">${t.label}</button>`).join("")}
+      <div class="vl-cap" id="vlCap">Chọn bậc rồi bấm ▶ Kiểm tra, hoặc chọn một thẻ để diễn thử.</div>`;
+    D.body.appendChild(bar);
+
+    const dr = D.createElement("div");
+    dr.id = "vfxLabDrawer";
+    dr.setAttribute("role", "dialog");
+    dr.setAttribute("aria-label", "Bảng Test VFX");
+    const tiers = PLAN.TIERS.filter((h) => tierCount(h));
+    dr.innerHTML = `
+      <div class="vl-hd"><b>✨ BẢNG TEST VFX · đường ống trận thật</b><button type="button" data-a="menu" class="vl-x" title="Thu bảng">▾</button></div>
+      <div class="vl-ctl">
+        <select id="vlTier" aria-label="Bậc thẻ">
+          ${tiers.map((h) => `<option value="${h}">${esc(PLAN.tierName(h))} (${h}) · ${tierCount(h)}</option>`).join("")}
+          <option value="*">Tất cả bậc · ${ALL.length}</option>
+        </select>
+        <input id="vlQ" type="search" placeholder="Tìm thẻ / nhảy tới…" autocomplete="off">
       </div>
-      <div class="vl-grid" id="vlGrid"></div>
-      <div class="vl-sub">Bảng luôn giữ mở khi bấm test · Kéo tiêu đề để dời vị trí · Chỉ đóng khi bấm ✕</div>
-    `;
-    document.body.appendChild(drawer);
-    renderLabTab(curLabTab);
+      <div class="vl-ctl">
+        <button type="button" data-a="audit" class="vl-go">▶ Kiểm tra cả bậc</button>
+        <button type="button" data-a="stop">■ Dừng</button>
+        <button type="button" data-a="quick" title="Chỉ chạy engine (không hoạt ảnh) để lập bảng nhanh">⚡ Kiểm nhanh engine</button>
+      </div>
+      <div class="vl-list" id="vlList"></div>
+      <div class="vl-hd2"><b>Nhật ký kiểm tra</b> <span id="vlSum"></span>
+        <button type="button" data-a="copy">⧉ Sao chép JSON</button><button type="button" data-a="clear">Xoá</button></div>
+      <div class="vl-log" id="vlLog"><table><thead><tr><th>Thẻ</th><th>Bậc</th><th>Thế cờ</th><th>Hiệu ứng đã bật</th><th>Cảnh báo</th></tr></thead><tbody id="vlRows"></tbody></table></div>`;
+    D.body.appendChild(dr);
 
-    /* Chỉ đóng khi bấm ✕ (KHÔNG BAO GIỜ tự tắt khi bấm nút test!) */
-    $id("vlClose").addEventListener("click", (ev) => {
+    const onClick = (ev) => {
+      const b = ev.target.closest("[data-a]"); if (!b) return;
       ev.stopPropagation();
-      SFX.play("tap");
-      drawer.classList.remove("on");
-      syncLabButtonsState(false);
+      act(b.dataset.a, b);
+    };
+    bar.addEventListener("click", onClick);
+    dr.addEventListener("click", (ev) => {
+      const it = ev.target.closest("[data-id]");
+      if (it) { ev.stopPropagation(); jump(it.dataset.id); return; }
+      onClick(ev);
     });
-
-    /* Nút Thu gọn / Mở rộng nhanh ngay trên thanh tiêu đề */
-    const minBtn = $id("vlMin");
-    minBtn.addEventListener("click", (ev) => {
-      ev.stopPropagation();
-      SFX.play("tap");
-      const isMin = drawer.classList.toggle("min");
-      minBtn.textContent = isMin ? "▴ Mở rộng" : "▾ Thu gọn";
-    });
-
-    /* Chuyển tab danh mục test & kích hoạt demo liên tục mà KHÔNG đóng bảng */
-    drawer.addEventListener("click", (ev) => {
-      const tabBtn = ev.target.closest("[data-vtab]");
-      if (tabBtn) {
-        SFX.play("tap");
-        drawer.classList.remove("min");
-        minBtn.textContent = "▾ Thu gọn";
-        renderLabTab(tabBtn.dataset.vtab);
-        return;
-      }
-      const demoBtn = ev.target.closest("[data-demo]");
-      if (demoBtn) {
-        SFX.wake();
-        demoBtn.classList.remove("vl-fired");
-        void demoBtn.offsetWidth;
-        demoBtn.classList.add("vl-fired");
-        setTimeout(() => demoBtn.classList.remove("vl-fired"), 360);
-        runDemo(demoBtn.dataset.demo);
-      }
-    });
-
-    /* Cho phép kéo thả di chuyển bảng test nếu người dùng muốn đặt lên góc bất kỳ */
-    let vDrag = null;
-    let vlOffX = 0, vlOffY = 0;
-    $id("vlHeader").addEventListener("pointerdown", (ev) => {
-      if (ev.target.closest("button")) return;
-      vDrag = { sx: ev.clientX, sy: ev.clientY, ox: vlOffX, oy: vlOffY, pid: ev.pointerId };
-    });
-    document.addEventListener("pointermove", (ev) => {
-      if (!vDrag || ev.pointerId !== vDrag.pid) return;
-      vlOffX = clamp(vDrag.ox + (ev.clientX - vDrag.sx), -window.innerWidth * 0.42, window.innerWidth * 0.42);
-      vlOffY = clamp(vDrag.oy + (ev.clientY - vDrag.sy), -window.innerHeight * 0.68, 52);
-      drawer.style.setProperty("--vlx", vlOffX.toFixed(1) + "px");
-      drawer.style.setProperty("--vly", vlOffY.toFixed(1) + "px");
-    }, { passive: true });
-    const endVDrag = () => { vDrag = null; };
-    document.addEventListener("pointerup", endVDrag, { passive: true });
-    document.addEventListener("pointercancel", endVDrag, { passive: true });
-
-    setInterval(() => {
-      if (!drawer.classList.contains("on")) return;
-      const el = $id("vlFps");
-      const bgmTag = window.BGM && BGM.isPlaying() ? "🎵" : "🔇";
-      if (el) el.textContent = `${GLFX.fps()} FPS · ${GLFX.count()} hạt · ${bgmTag}`;
-    }, 350);
+    $id("vlTier").addEventListener("change", (e) => { ST.tier = e.target.value; renderList(); });
+    $id("vlQ").addEventListener("input", (e) => { ST.q = e.target.value; renderList(); });
+    $id("vlQ").addEventListener("keydown", (e) => { if (e.key === "Enter") { const f = listFor(ST.tier, ST.q)[0] || listFor("*", ST.q)[0]; if (f) jump(f); } });
+    $id("vlSpd").addEventListener("change", (e) => { ST.speed = e.target.value; applySpeed(); });
+    $id("vlTier").value = ST.tier;
+    renderList(); renderLog();
   }
-
-  function openLab() {
-    const d = $id("vfxLabDrawer");
-    if (d) {
-      d.classList.add("on");
-      d.classList.remove("min");
-      const minBtn = $id("vlMin");
-      if (minBtn) minBtn.textContent = "▾ Thu gọn";
-      syncLabButtonsState(true);
-    }
+  function renderList() {
+    const el = $id("vlList"); if (!el) return;
+    const L = listFor(ST.tier, ST.q);
+    el.innerHTML = L.map((k) => {
+      const r = ST.rows.get(k), cls = r ? (r.warn.length ? (r.bad ? " bad" : " warn") : " ok") : "";
+      return `<button type="button" class="vl-it${cls}${ST.cur === k ? " cur" : ""}" data-id="${k}" title="${esc(C[k].x)}"><i>${C[k].c}</i>${esc(C[k].n)}<small>${esc(PLAN.typeName(C[k].t))}</small></button>`;
+    }).join("") || `<div class="vl-empty">Không có thẻ</div>`;
   }
-  function toggleLab() {
-    SFX.play("tap");
-    const d = $id("vfxLabDrawer");
-    if (!d) return;
-    const on = d.classList.toggle("on");
-    if (on) {
-      d.classList.remove("min");
-      const minBtn = $id("vlMin");
-      if (minBtn) minBtn.textContent = "▾ Thu gọn";
-    }
-    syncLabButtonsState(on);
+  function renderLog() {
+    const tb = $id("vlRows"); if (!tb) return;
+    const rows = [...ST.rows.values()];
+    tb.innerHTML = rows.slice(-400).reverse().map((r) => `<tr class="${r.bad ? "bad" : r.warn.length ? "warn" : ""}" data-id="${r.id}"><td>${esc(r.n)}</td><td>${r.h}</td><td>${esc(r.setup)}</td><td>${esc(r.fired.slice(0, 8).join(" · "))}</td><td>${esc(r.warn.join(" | ") || "—")}</td></tr>`).join("");
+    const s = $id("vlSum");
+    if (s) { const w = rows.filter((r) => r.warn.length).length, b = rows.filter((r) => r.bad).length; s.textContent = `${rows.length} thẻ · ${w} cảnh báo · ${b} lỗi`; }
   }
+  function caption(id, p, extra) {
+    const c = $id("vlCap"); if (!c) return;
+    if (!id) { c.innerHTML = esc(extra || ""); return; }
+    const d = C[id];
+    c.innerHTML = `<b>${esc(d.n)}</b> <span class="vl-tag">${esc(PLAN.tierName(d.h))}</span> <span class="vl-tag">${esc(PLAN.typeName(d.t))}</span> <span class="vl-tag">${d.c}⚡ ${d.p}💪</span>
+      <div class="vl-x1">${esc(d.x || "Không kỹ năng")}</div>
+      <div class="vl-x2">Thế cờ: ${esc(p ? p.kn : "")}${p && !p.effect && d.t !== "none" ? " · <em>mô phỏng: kỹ năng không đổi gì trên thế cờ này</em>" : ""}${p && p.effect && !p.others ? " · <em>kỹ năng không nhắm thẻ khác</em>" : ""}${extra ? " · " + esc(extra) : ""}</div>`;
+    c.hidden = !ST.capOn;
+  }
+  function prog() {
+    const el = $id("vlProg"); if (!el) return;
+    el.textContent = ST.mode === "audit" ? `${Math.min(ST.i + 1, ST.list.length)}/${ST.list.length}${ST.paused ? " ⏸" : ""}` : ST.mode === "one" ? "1 thẻ" : "";
+    const pb = $id("vlPause"); if (pb) pb.textContent = ST.paused ? "▶" : "❚❚";
+  }
+  function applySpeed() {
+    const k = (SPEEDS.find((x) => x[0] === ST.speed) || SPEEDS[1])[2];
+    try { const base = (typeof SPDV !== "undefined" && SPDV[store.spd]) || 1; SPD = base * k; } catch (e) {}
+  }
+  function restoreSpeed() { try { SPD = (typeof SPDV !== "undefined" && SPDV[store.spd]) || 1; } catch (e) {} }
 
-  function ensureInMatchForDemo(kind) {
-    const lobby = $id("lobby");
-    if (lobby && lobby.classList.contains("on")) {
-      if (typeof newGame === "function") {
-        newGame();
-        lobby.classList.remove("on");
-        if (window.BGM) BGM.syncGame(G);
-        render();
-        openLab();
-        setTimeout(() => runDemo(kind), 110);
-        return false;
-      }
-      const lbPlay = $id("lbPlay");
-      if (lbPlay) {
-        lbPlay.click();
-        openLab();
-        setTimeout(() => runDemo(kind), 820);
-        return false;
-      }
-    }
+  /* ---------- trận dùng cho bảng ---------- */
+  function ensureMatch() {
+    const lob = $id("lobby");
+    if (!ST.prev) ST.prev = { G: typeof G !== "undefined" ? G : null, lobby: !!(lob && lob.classList.contains("on")) };
+    if (lob) lob.classList.remove("on");
+    try { D.querySelectorAll(".ov.on").forEach((o) => o.classList.remove("on")); } catch (e) {}
+  }
+  function resetUiCaches(g) {
+    try { BC = null; TN0 = 0; LOCID = []; seenRev.clear(); prevPow.clear(); seenLoc.clear(); seenStg.clear(); prevLd = []; PWV = {}; } catch (e) {}
+    try { sel = look = moveSel = null; armRetreat = 0; } catch (e) {}
+    try { for (let i = 0; i < 3; i++) { if (g.locs[i].rvl) seenLoc.add(i); for (const s of ["p", "a"]) for (const c of g.locs[i].cards[s]) if (c.rev) seenRev.add(c.uid); } } catch (e) {}
+    try { LVEIL = null; } catch (e) {}
+  }
+  function idle() {
+    try {
+      if (TURN_BUSY) return false;
+      if (W.HXG && HXG.busy && HXG.busy()) return false;
+      if (W.SIGK && SIGK.busy && SIGK.busy()) return false;
+      if (W.P6 && P6.ch && P6.ch()) return false;
+    } catch (e) {}
     return true;
   }
-
-  function sampleDemoCardHTML(id, pwDelta) {
-    const pick = id && C[id] ? id : "bachho";
-    const d = C[pick];
-    const delta = pwDelta != null ? pwDelta : 3;
-    const pw = Math.max(0, d.p + delta);
-    const cls = delta > 0 ? "up" : delta < 0 ? "down" : "";
-    return `<button type="button" class="mc q5" style="--hc:${HC[d.h] || "#ffd65a"}">${nbL(pick)}${art(pick)}<span class="mn">${logo(pick)}</span><span class="pwh ${cls}">${pw}</span></button>`;
+  async function settle(max) {
+    const t0 = performance.now();
+    while (performance.now() - t0 < (max || 9000)) { if (idle()) break; await sleep(60); }
+    return idle();
+  }
+  function leftovers() {
+    const dom = LEAK.map((s) => [s, D.querySelectorAll(s).length]).filter((x) => x[1]);
+    const hid = [...D.querySelectorAll("#board [data-mc], #hand [data-hc]")].filter((e) => e.classList.contains("hero-hid") || getComputedStyle(e).visibility === "hidden" || +getComputedStyle(e).opacity < 0.5).map((e) => e.dataset.mc || "h" + e.dataset.hc);
+    const sh = ($id("sigHide") || {}).textContent || "";
+    const pw = [];
+    try {
+      D.querySelectorAll("#board [data-lane]").forEach((ln) => { const li = +ln.dataset.lane; for (const sd of ["p", "a"]) { const el = ln.querySelector(".pw." + sd); if (el) { const v = parseInt(el.textContent, 10), w = E.locPower(G, li, sd); if (!isNaN(v) && v !== w) pw.push(`${li}${sd}:${v}≠${w}`); } } });
+    } catch (e) {}
+    return { dom, hid, sh: sh.trim(), pw };
+  }
+  function cleanLeft() { /* dọn chỗ sót để thẻ sau không bị ảnh hưởng (đã ghi cảnh báo) */
+    for (const s of LEAK) D.querySelectorAll(s).forEach((e) => { if (!e.matches(".mc")) e.remove(); else e.classList.remove("hxpk", "hxm", "hx2z", "hx14h"); });
+    D.querySelectorAll(".hero-hid").forEach((e) => e.classList.remove("hero-hid"));
   }
 
-  function getLaneSlotRect(laneIdx, side, slotIdx) {
-    const ln = document.querySelector(`#board [data-lane="${laneIdx}"]`) || document.querySelector("#board [data-lane]");
-    if (!ln) return { x: window.innerWidth * 0.5, y: window.innerHeight * 0.4, w: 54, h: 76, slot: null, lane: null };
-    const slots = ln.querySelectorAll(`.side.${side} .slot`);
-    const sl = slots[slotIdx || 0] || slots[0] || ln;
-    const r = sl.getBoundingClientRect();
-    return { x: r.left + r.width / 2, y: r.top + r.height / 2, w: Math.max(48, r.width), h: Math.max(67, r.height), slot: sl, lane: ln };
-  }
-
-  function runDemo(kind) {
-    if (reduced) {
-      store.fx = "on";
-      reduced = false;
-      document.body.classList.remove("rm");
-    }
-    const cx = window.innerWidth * 0.5, cy = window.innerHeight * 0.36;
-
-    switch (kind) {
-      /* ===== NHÓM 1: RA BÀI & LƯỢT ===== */
-      case "fastplay": {
-        if (!ensureInMatchForDemo("fastplay")) return;
-        const handEl = document.querySelector("#hand [data-hc]") || $id("hand");
-        const hr = handEl ? handEl.getBoundingClientRect() : { left: cx - 32, top: window.innerHeight - 130, width: 64, height: 90 };
-        const dst = getLaneSlotRect(demoLocIdx % 3, "me", 1);
-        demoLocIdx++;
-        const cardId = C.thanhlong ? "thanhlong" : Object.keys(C)[0];
-        const col = (C[cardId] && HC[C[cardId].h]) || "#3fe0ff";
-        SFX.play("place");
-        const dummy = ghost({ x: dst.x, y: dst.y, w: dst.w, h: dst.h }, sampleDemoCardHTML(cardId, 2), "g9");
-        dummy.style.opacity = "0";
-        animateFastCardPlace(
-          dummy,
-          { x: hr.left + hr.width / 2, y: hr.top + hr.height / 2, w: Math.max(52, hr.width), h: Math.max(72, hr.height), fromDrag: false },
-          col
-        );
-        pushOppNotif("ĐẶT THẺ TỨC THÌ (150MS) ▸ HÚT VÀO CHIẾN ĐỊA!", "#3fe0ff");
-        setTimeout(() => { if (dummy.isConnected) dummy.remove(); }, 650);
-        break;
-      }
-
-      case "foedrop": {
-        if (!ensureInMatchForDemo("foedrop")) return;
-        const av = $id("avFoe");
-        const ar = av ? av.getBoundingClientRect() : { left: cx + 80, top: 28, width: 48, height: 48 };
-        const sx = ar.left + ar.width / 2, sy = ar.top + ar.height / 2;
-        SFX.play("place");
-        [0, 1].forEach((k) => {
-          const dst = getLaneSlotRect((demoLocIdx + k) % 3, "opp", 2);
-          setTimeout(() => {
-            const backHtml = typeof BACK7 === "function" ? BACK7() : sampleDemoCardHTML("haclong", 0);
-            const g = ghost({ x: dst.x, y: dst.y, w: dst.w, h: dst.h }, backHtml, "g9");
-            const dx = (sx - dst.x) * 0.45, dy = Math.min(-42, (sy - dst.y) * 0.42);
-            g.animate([
-              { transform: `perspective(620px) translate3d(${dx.toFixed(1)}px, ${dy.toFixed(1)}px, 46px) scale(1.22) rotateZ(7deg)`, opacity: 0.35 },
-              { transform: "perspective(620px) translate3d(0, 2px, 0) scale(0.95)", opacity: 1, offset: 0.72 },
-              { transform: "perspective(620px) translate3d(0, 0, 0) scale(1)", opacity: 1 }
-            ], { duration: 185, easing: "cubic-bezier(0.18, 0.95, 0.32, 1)", fill: "forwards" });
-            setTimeout(() => {
-              FX.dust(dst.x, dst.y + dst.h * 0.4, "#ffd8d0");
-              FX.ring(dst.x, dst.y, "#ff7a5a", 46, 3);
-              GLFX.impulseShake(2.8, 0, 1);
-            }, 135);
-            setTimeout(() => g.remove(), 680);
-          }, k * 65);
-        });
-        demoLocIdx++;
-        pushOppNotif("ĐỐI THỦ ĐẶT THẺ ÚP ▸ CHUẨN BỊ LẬT BÀI!", "#ff8a5a");
-        break;
-      }
-
-      case "fliprev": {
-        if (!ensureInMatchForDemo("fliprev")) return;
-        const liveCard = document.querySelector("#board [data-mc]");
-        if (liveCard && typeof revealZoom === "function") {
-          const uid = +liveCard.dataset.mc;
-          SFX.play("flip");
-          revealZoom(uid);
-          const r = liveCard.getBoundingClientRect();
-          setTimeout(() => {
-            FX.wave(r.left + r.width / 2, r.top + r.height / 2, "#ffd65a", 92);
-            FX.sparks(r.left + r.width / 2, r.top + r.height / 2, "#ffd65a", 22, 240);
-            GLFX.impulseShake(4.2, 0, 1);
-          }, 220);
-        } else {
-          const dst = getLaneSlotRect(1, "me", 0);
-          const pick = C.chuque ? "chuque" : Object.keys(C)[0];
-          const d = C[pick];
-          const col = HC[d.h] || "#ff7a2b";
-          const bk = (typeof BACKS !== "undefined" && BACKS.b0) ? BACKS.b0[1] : "linear-gradient(135deg,#2b195c,#0d0826)";
-          SFX.play("flip");
-          const z = document.createElement("div");
-          z.className = "rvz snap-revz";
-          z.style.setProperty("--c", col);
-          z.innerHTML = `<div class="rvz-card"><div class="rvz-face rvz-front"><span class="gc q5" style="--hc:${col}">${nbL(pick)}${art(pick)}<span class="cst">${d.c}</span><span class="pwh up">${d.p + 2}</span><span class="n">${logo(pick)}</span></span></div><div class="rvz-face rvz-back" style="background:${bk}"></div></div>`;
-          document.body.appendChild(z);
-          const zr = z.getBoundingClientRect();
-          const zx = window.innerWidth / 2 - zr.width / 2, zy = window.innerHeight * 0.42 - zr.height / 2;
-          z.style.left = zx + "px";
-          z.style.top = zy + "px";
-          const sx = dst.w / zr.width;
-          const tx = dst.x - (zx + zr.width / 2), ty = dst.y - (zy + zr.height / 2);
-          z.firstElementChild.animate(
-            [{ transform: "rotateY(180deg)" }, { transform: "rotateY(0deg)", offset: 0.34 }, { transform: "rotateY(0deg)" }],
-            { duration: 480, easing: "cubic-bezier(0.22, 1, 0.36, 1)", fill: "forwards" }
-          );
-          z.animate([
-            { transform: `translate3d(${tx}px, ${ty}px, 0) scale(${sx})`, opacity: 0.85 },
-            { transform: "translate3d(0, -6px, 40px) scale(1.08) rotate(-2.5deg)", opacity: 1, offset: 0.3 },
-            { transform: "translate3d(0, 0, 30px) scale(1.02) rotate(-1.5deg)", opacity: 1, offset: 0.68 },
-            { transform: `translate3d(${tx}px, ${ty}px, 0) scale(${sx})`, opacity: 0.95 }
-          ], { duration: 480, easing: "cubic-bezier(0.22, 1, 0.36, 1)", fill: "forwards" }).onfinish = () => {
-            z.remove();
-            const landed = ghost(dst, sampleDemoCardHTML(pick, 2), "g9");
-            FX.wave(dst.x, dst.y, col, 96);
-            FX.sparks(dst.x, dst.y, col, 24, 250);
-            GLFX.impulseShake(4.5, 0, 1);
-            setTimeout(() => landed.remove(), 460);
-          };
-        }
-        pushOppNotif("LẬT THẺ 3D (480MS) ▸ BUNG KỸ NĂNG NGAY LẬP TỨC!", "#ffd65a");
-        break;
-      }
-
-      case "locrev": {
-        if (!ensureInMatchForDemo("locrev")) return;
-        const li = demoLocIdx % 3;
-        demoLocIdx++;
-        if (G && G.locs[li]) {
-          G.locs[li].rvl = true;
-          render();
-        }
-        if (typeof window.gpuLocReveal === "function") window.gpuLocReveal(li);
-        break;
-      }
-
-      case "unplay": {
-        if (!ensureInMatchForDemo("unplay")) return;
-        const src = getLaneSlotRect(1, "me", 0);
-        SFX.play("unplay");
-        animateFastCardUnplay({
-          uid: (G && G.hand.p[0] && G.hand.p[0].uid) || -1,
-          x: src.x,
-          y: src.y,
-          w: src.w,
-          h: src.h,
-          html: sampleDemoCardHTML("bachho", 0)
-        });
-        pushOppNotif("RÚT LẠI THẺ VỀ TAY (155MS) ▸ HOÀN NĂNG LƯỢNG!", "#7fe8ff");
-        break;
-      }
-
-      case "drawcard": {
-        if (!ensureInMatchForDemo("drawcard")) return;
-        const hc = document.querySelector("#hand [data-hc]:last-child") || document.querySelector("#hand [data-hc]");
-        SFX.play("draw");
-        if (hc && CFX && CFX.drawIn) {
-          CFX.drawIn(hc, true, 0);
-        }
-        pushOppNotif("RÚT THẺ ĐẦU LƯỢT ▸ XOÁY 3D VÀO TAY BÀI!", "#7fe8ff");
-        break;
-      }
-
-      case "turnbn": {
-        const labels = [
-          ["LƯỢT 2/6", "Chiến địa giữa lộ diện"],
-          ["LƯỢT 5/6", "Nhịp độ cao trào"],
-          ["LƯỢT CUỐI!", "Tất tay quyết định thắng bại"]
-        ];
-        const [t, s] = labels[demoTurnIdx % labels.length];
-        demoTurnIdx++;
-        if (typeof banner === "function") banner(t, s);
-        break;
-      }
-
-      case "fuse10s": {
-        if (!ensureInMatchForDemo("fuse10s")) return;
-        if (typeof tLeft !== "undefined") {
-          tLeft = 10;
-          tArmed = true;
-          tLast = performance.now();
-          tBeep = 0;
-          if (typeof paintTimer === "function") paintTimer();
-        }
-        SFX.play("tick");
-        pushOppNotif("CẢNH BÁO 10 GIÂY CUỐI ▸ DÂY CHÁY ĐỎ & TIM ĐẬP!", "#ff5a36");
-        break;
-      }
-
-      /* ===== NHÓM 2: CƯỚP & DỜI ===== */
-      case "stealcard": {
-        if (!ensureInMatchForDemo("stealcard")) return;
-        const opp = getLaneSlotRect(1, "opp", 2);
-        const me = getLaneSlotRect(1, "me", 1);
-        const thief = getLaneSlotRect(1, "me", 0);
-        const existingOpp = opp.lane && opp.lane.querySelector(".side.opp .mc:not(.back)");
-        const cardHtml = existingOpp ? cleanCloneHTML(existingOpp) : sampleDemoCardHTML("bachho", 3);
-        const cardName = existingOpp ? (existingOpp.getAttribute("aria-label") || "Bạch Hổ").split(",")[0] : (C.bachho ? C.bachho.n : "Bạch Hổ");
-        pushOppNotif("HỒ TINH ▸ TUNG XÍCH CƯỚP THẺ ĐỔI PHE!", "#d46bff");
-        const actor = ghost(opp, cardHtml, "g9");
-        playCardStealSwap(opp, me, actor, null, thief, thief.slot && thief.slot.querySelector(".mc"), "p", cardName);
-        break;
-      }
-
-      case "decksteal": {
-        if (!ensureInMatchForDemo("decksteal")) return;
-        const pick = C.loithan ? "loithan" : Object.keys(C)[2];
-        const thiefSlot = getLaneSlotRect(1, "me", 0);
-        const thiefGhost = ghost(thiefSlot, sampleDemoCardHTML("chucuoi", 1), "g9");
-        const avFoe = $id("avFoe");
-        if (avFoe && GLFX.ok) {
-          const ar = avFoe.getBoundingClientRect();
-          GLFX.tether(thiefSlot.x, thiefSlot.y, ar.left + ar.width / 2, ar.top + ar.height / 2, "#ffd65a", 10, 0.2, 0.42);
-        }
-        playDeckOrHandSteal({
-          fromSide: "a",
-          toSide: "p",
-          toZone: "hand",
-          uid: (G && G.hand.p[0] && G.hand.p[0].uid) || -99,
-          id: pick
-        }, 0);
-        setTimeout(() => thiefGhost.remove(), 920);
-        break;
-      }
-
-      case "stealskill": {
-        if (!ensureInMatchForDemo("stealskill")) return;
-        const tp = getLaneSlotRect(1, "opp", 2);
-        const sp = getLaneSlotRect(1, "me", 0);
-        pushOppNotif("HẤP LỰC NỮ ▸ CƯỚP KỸ NĂNG ĐỐI THỦ", "#d46bff");
-        const victimGhost = ghost(tp, sampleDemoCardHTML("loithan", 2), "g9");
-        const thiefGhost = ghost(sp, sampleDemoCardHTML("haplucnu", 1), "g9 gpu-steal-actor");
-        thiefGhost.style.setProperty("--steal-c", "#d46bff");
-        thiefGhost.style.zIndex = "34";
-
-        const dx = (tp.x - sp.x) * 0.72, dy = (tp.y - sp.y) * 0.72;
-        const outArc = build3DArcFrames({ steps: 22, dx, dy, curve: 42, lift: -26, s0: 1, sMid: 1.24, s1: 1.18, bank: 10, zLift: 46 });
-        streamBezierRibbon(sp.x, sp.y, outArc.p1, outArc.p2, outArc.p3, 290, "#d46bff", "#ffffff", 2);
-        SFX.play("whoosh");
-
-        thiefGhost.animate(outArc.frames, { duration: 290, easing: "linear", fill: "forwards" }).onfinish = () => {
-          FX.slash(tp.x, tp.y, "#d46bff");
-          FX.vortex(tp.x, tp.y, "#d46bff", 18);
-          GLFX.arc(sp.x + dx, sp.y + dy, tp.x, tp.y, "#ffffff", 9, 1.1, true, 0.26);
-          recoil10(victimGhost, sp, tp);
-          GLFX.impulseShake(4.8, dx, dy);
-          SFX.play("dark");
-
-          setTimeout(() => {
-            spawnSoulSiphonOrb(tp, sp, "loithan", "#d46bff", 340, () => {
-              FX.wave(sp.x, sp.y, "#d46bff", 78);
-              FX.holo(sp.x, sp.y, "#d46bff", 30);
-              SFX.play("e_hon");
-              pushOppNotif("ĐÃ ĐOẠT KỸ NĂNG: LÔI THẦN!", "#e0b0ff");
-            });
-            const backArc = build3DArcFrames({ steps: 18, dx: -dx, dy: -dy, curve: -32, lift: -18, s0: 1.18, sMid: 1.06, s1: 1 });
-            const backShifted = backArc.frames.map((f) => ({
-              offset: f.offset,
-              transform: f.transform.replace(
-                /translate3d\(([^,]+)px,\s*([^,]+)px,/,
-                (_, x, y) => `translate3d(${(dx + parseFloat(x)).toFixed(2)}px, ${(dy + parseFloat(y)).toFixed(2)}px,`
-              )
-            }));
-            thiefGhost.animate(backShifted, { duration: 290, easing: "linear", fill: "forwards" }).onfinish = () => {
-              setTimeout(() => {
-                thiefGhost.remove();
-                victimGhost.remove();
-              }, 220);
-            };
-          }, 95);
-        };
-        break;
-      }
-
-      case "clonecard": {
-        if (!ensureInMatchForDemo("clonecard")) return;
-        const src = getLaneSlotRect(1, "me", 0);
-        const dstA = getLaneSlotRect(0, "me", 1);
-        const dstB = getLaneSlotRect(2, "me", 1);
-        const html = sampleDemoCardHTML("bachho", 2);
-        const baseG = ghost(src, html, "g9");
-        SFX.play("chime");
-        FX.holo(src.x, src.y, "#3fe0ff", 36);
-        pushOppNotif("NHÂN BẢN THẺ ▸ PHÂN TÁCH SANG 2 CHIẾN ĐỊA!", "#3fe0ff");
-        [dstA, dstB].forEach((dst, i) => {
-          setTimeout(() => {
-            const cl = ghost(src, html, "g9");
-            const dx = dst.x - src.x, dy = dst.y - src.y;
-            const arc = build3DArcFrames({ steps: 22, dx, dy, curve: i === 0 ? -28 : 28, lift: -46, s0: 0.9, sMid: 1.22, s1: 1, bank: i === 0 ? -12 : 12, zLift: 54 });
-            streamBezierRibbon(src.x, src.y, arc.p1, arc.p2, arc.p3, 360, "#3fe0ff", "#ffd65a", 2);
-            SFX.play("whoosh");
-            cl.animate(arc.frames, { duration: 360, easing: "linear", fill: "forwards" }).onfinish = () => {
-              SFX.play("summon");
-              FX.wave(dst.x, dst.y, "#3fe0ff", 78);
-              FX.sparks(dst.x, dst.y, "#ffd65a", 18, 210);
-              GLFX.impulseShake(3.2, 0, 1);
-              setTimeout(() => cl.remove(), 420);
-            };
-          }, i * 90);
-        });
-        setTimeout(() => baseG.remove(), 680);
-        break;
-      }
-
-      case "silence": {
-        if (!ensureInMatchForDemo("silence")) return;
-        const tp = getLaneSlotRect(1, "opp", 2);
-        const victim = ghost(tp, sampleDemoCardHTML("loithan", 0), "g9");
-        SFX.play("silence");
-        GLFX.arc(tp.x - 28, tp.y - 34, tp.x + 28, tp.y + 34, "#ff4d7d", 10, 0.5, false, 0.38);
-        GLFX.arc(tp.x + 28, tp.y - 34, tp.x - 28, tp.y + 34, "#ff4d7d", 10, 0.5, false, 0.38);
-        FX.ring(tp.x, tp.y, "#c45cff", 88, 6);
-        FX.vortex(tp.x, tp.y, "#ff4d7d", 22);
-        FX.float(tp.x, tp.y - 16, "⊘ CẤM CHIÊU!", "#ff7a9e");
-        GLFX.impulseShake(4.8);
-        pushOppNotif("PHÁP ẤN TRẦM MẶC ▸ VÔ HIỆU HOÁ KỸ NĂNG!", "#ff7a9e");
-        victim.animate([
-          { filter: "brightness(2.2) saturate(2)" },
-          { transform: "translateX(-5px) rotate(-3deg)", filter: "grayscale(1) brightness(0.7)", offset: 0.35 },
-          { transform: "translateX(5px) rotate(3deg)", filter: "grayscale(1) brightness(0.7)", offset: 0.65 },
-          { transform: "none", filter: "grayscale(1) brightness(0.75)" }
-        ], { duration: 480, fill: "forwards" });
-        setTimeout(() => victim.remove(), 820);
-        break;
-      }
-
-      case "pullcard": {
-        if (!ensureInMatchForDemo("pullcard")) return;
-        const puller = getLaneSlotRect(2, "me", 0);
-        const fromOpp = getLaneSlotRect(0, "opp", 2);
-        const toOpp = getLaneSlotRect(2, "opp", 2);
-        const gPuller = ghost(puller, sampleDemoCardHTML("huyenquy", 1), "g9");
-        const gVictim = ghost(fromOpp, sampleDemoCardHTML("satvuong", 0), "g9");
-        SFX.play("chain");
-        GLFX.tether(puller.x, puller.y, fromOpp.x, fromOpp.y, "#ff9a2b", 12, 0.25, 0.42);
-        pushOppNotif("XÍCH TRÓI HÚT THẺ ▸ KÉO ĐỐI THỦ SANG CHIẾN ĐỊA PHẢI!", "#ffb347");
-        setTimeout(() => {
-          const dx = toOpp.x - fromOpp.x, dy = toOpp.y - fromOpp.y;
-          const arc = build3DArcFrames({ steps: 22, dx, dy, lift: -36, s0: 1, sMid: 1.18, s1: 1, bank: 12, zLift: 44 });
-          streamBezierRibbon(fromOpp.x, fromOpp.y, arc.p1, arc.p2, arc.p3, 330, "#ff9a2b", "#ffd65a", 2);
-          SFX.play("whoosh");
-          gVictim.animate(arc.frames, { duration: 330, easing: "linear", fill: "forwards" }).onfinish = () => {
-            SFX.play("place");
-            FX.wave(toOpp.x, toOpp.y, "#ff9a2b", 76);
-            FX.dust(toOpp.x, toOpp.y + toOpp.h * 0.4, "#ffe2b0");
-            GLFX.impulseShake(4.5, 1, 0);
-            setTimeout(() => { gPuller.remove(); gVictim.remove(); }, 420);
-          };
-        }, 140);
-        break;
-      }
-
-      case "pushcard": {
-        if (!ensureInMatchForDemo("pushcard")) return;
-        const pusher = getLaneSlotRect(1, "me", 0);
-        const fromOpp = getLaneSlotRect(1, "opp", 2);
-        const toOpp = getLaneSlotRect(0, "opp", 2);
-        const gPusher = ghost(pusher, sampleDemoCardHTML("cuongphong", 2), "g9");
-        const gVictim = ghost(fromOpp, sampleDemoCardHTML("satvuong", 0), "g9");
-        SFX.play("boom");
-        FX.wave(fromOpp.x, fromOpp.y, "#5ad8ff", 95);
-        GLFX.arc(pusher.x, pusher.y, fromOpp.x, fromOpp.y, "#7fe8ff", 10, 0.8, false, 0.25);
-        pushOppNotif("CUỒNG PHONG CHƯỞNG ▸ ĐẨY VĂNG THẺ ĐỐI THỦ!", "#7fe8ff");
-        const dx = toOpp.x - fromOpp.x, dy = toOpp.y - fromOpp.y;
-        const arc = build3DArcFrames({ steps: 20, dx, dy, lift: -44, s0: 1, sMid: 1.2, s1: 1, bank: -14, zLift: 48 });
-        streamBezierRibbon(fromOpp.x, fromOpp.y, arc.p1, arc.p2, arc.p3, 310, "#5ad8ff", "#ffffff", 2);
-        gVictim.animate(arc.frames, { duration: 310, easing: "linear", fill: "forwards" }).onfinish = () => {
-          SFX.play("place");
-          FX.wave(toOpp.x, toOpp.y, "#5ad8ff", 72);
-          GLFX.impulseShake(4.2, -1, 0);
-          setTimeout(() => { gPusher.remove(); gVictim.remove(); }, 400);
-        };
-        break;
-      }
-
-      case "morphcard": {
-        if (!ensureInMatchForDemo("morphcard")) return;
-        const slot = getLaneSlotRect(1, "me", 0);
-        const g = ghost(slot, sampleDemoCardHTML("cuhou", 0), "g9");
-        SFX.play("morph");
-        CFX.morph(g);
-        setTimeout(() => {
-          const keys = Object.keys(C);
-          const nextId = C.phuonghoang ? "phuonghoang" : keys[Math.floor(Math.random() * keys.length)];
-          g.innerHTML = sampleDemoCardHTML(nextId, 4);
-          FX.wave(slot.x, slot.y, "#ffd65a", 86);
-          FX.sparks(slot.x, slot.y, "#d46bff", 22, 240);
-          pushOppNotif(`BIẾN HÌNH 3D ▸ HOÁ THÀNH ${(C[nextId] ? C[nextId].n : "THẦN THÚ").toUpperCase()}!`, "#e0b0ff");
-        }, 250);
-        setTimeout(() => g.remove(), 860);
-        break;
-      }
-
-      /* ===== NHÓM 3: PHÁ HUỶ & TĂNG GIẢM ĐIỂM ===== */
-      case "destroyer": {
-        if (!ensureInMatchForDemo("destroyer")) return;
-        const boardEl = $id("board");
-        const br = boardEl ? boardEl.getBoundingClientRect() : { top: 110, height: 420 };
-        SFX.play("laser");
-        pushOppNotif("TIA HUỶ DIỆT TOÀN BÀN ▸ QUÉT SẠCH MỌI CHIẾN ĐỊA!", "#ff6a2b");
-        const beamEl = document.createElement("div");
-        beamEl.className = "gpu-laser-sweep";
-        beamEl.style.top = br.top + "px";
-        document.body.appendChild(beamEl);
-        beamEl.animate([
-          { transform: "translateY(0px) scaleY(0.4)", opacity: 0.4 },
-          { transform: `translateY(${(br.height * 0.15).toFixed(0)}px) scaleY(1.35)`, opacity: 1, offset: 0.18 },
-          { transform: `translateY(${(br.height * 0.85).toFixed(0)}px) scaleY(1.25)`, opacity: 1, offset: 0.82 },
-          { transform: `translateY(${br.height.toFixed(0)}px) scaleY(0.3)`, opacity: 0 }
-        ], { duration: 540, easing: "cubic-bezier(0.22, 0.8, 0.32, 1)", fill: "forwards" }).onfinish = () => beamEl.remove();
-
-        [0, 1, 2].forEach((li) => {
-          setTimeout(() => {
-            const sl = getLaneSlotRect(li, li === 1 ? "me" : "opp", li === 1 ? 1 : 2);
-            SFX.play("destroy");
-            CFX.destroy({ x: sl.x, y: sl.y, w: sl.w, h: sl.h, html: sampleDemoCardHTML(li === 0 ? "satvuong" : li === 1 ? "bachho" : "loithan", 0) });
-          }, 95 + li * 115);
-        });
-        gpuFlash("#ff4d1f", 0.28, 360);
-        GLFX.impulseShake(9.5, 0, 1);
-        break;
-      }
-
-      case "destroy3d": {
-        if (!ensureInMatchForDemo("destroy3d")) return;
-        const sl = getLaneSlotRect(1, "opp", 2);
-        pushOppNotif("KIẾM QUYỀN ▸ CHÉM VỠ THẺ ĐỐI THỦ 6 MẢNH 3D!", "#ff6b8a");
-        SFX.play("slash");
-        SFX.play("destroy");
-        CFX.destroy({ x: sl.x, y: sl.y, w: sl.w, h: sl.h, html: sampleDemoCardHTML("satvuong", 0) });
-        break;
-      }
-
-      case "summon": {
-        if (!ensureInMatchForDemo("summon")) return;
-        const sl = getLaneSlotRect(demoLocIdx % 3, "me", 2);
-        demoLocIdx++;
-        const g = ghost(sl, sampleDemoCardHTML("thanhlong", 4), "g9");
-        SFX.play("summon");
-        CFX.summon(g, "#3dffb4");
-        FX.pillar(sl.x, sl.y + 18, "#3dffb4", 46, 150);
-        FX.sparks(sl.x, sl.y, "#7dffb0", 22, 230);
-        pushOppNotif("TRIỆU HỒI LINH THÚ ▸ CỔNG PHÙ VĂN TRỖI DẬY!", "#7dffb0");
-        setTimeout(() => g.remove(), 820);
-        break;
-      }
-
-      case "buffpw": {
-        if (!ensureInMatchForDemo("buffpw")) return;
-        const live = document.querySelector("#board .side.me [data-mc]");
-        const sl = getLaneSlotRect(1, "me", 0);
-        const target = live || ghost(sl, sampleDemoCardHTML("bachho", 6), "g9");
-        const r = target.getBoundingClientRect();
-        const tx = r.left + r.width / 2, ty = r.top + r.height / 2;
-        SFX.play("buff");
-        CFX.buff(target, 6);
-        FX.ring(tx, ty, "#3dffb4", 76, 5);
-        FX.rise(tx, ty + 14, "#7dffb0", 20);
-        FX.float(tx, ty - 18, "+6 SỨC MẠNH", "#5effb8");
-        pushOppNotif("CƯỜNG HOÁ LINH LỰC ▸ +6 SỨC MẠNH!", "#5effb8");
-        if (!live) setTimeout(() => target.remove(), 740);
-        break;
-      }
-
-      case "debuffpw": {
-        if (!ensureInMatchForDemo("debuffpw")) return;
-        const live = document.querySelector("#board .side.opp [data-mc]");
-        const sl = getLaneSlotRect(1, "opp", 2);
-        const target = live || ghost(sl, sampleDemoCardHTML("satvuong", -4), "g9");
-        const r = target.getBoundingClientRect();
-        const tx = r.left + r.width / 2, ty = r.top + r.height / 2;
-        SFX.play("debuff");
-        CFX.debuff(target);
-        FX.ring(tx, ty, "#ff4d7d", 72, 5);
-        FX.sparks(tx, ty, "#ff4d7d", 20, 220);
-        FX.float(tx, ty - 18, "−4 SỨC MẠNH", "#ff6b8a");
-        GLFX.impulseShake(3.8);
-        pushOppNotif("ÁM KHÍ ĂN MÒN ▸ −4 SỨC MẠNH ĐỐI THỦ!", "#ff6b8a");
-        if (!live) setTimeout(() => target.remove(), 720);
-        break;
-      }
-
-      case "doublepw": {
-        if (!ensureInMatchForDemo("doublepw")) return;
-        const ln = document.querySelector('#board [data-lane="1"]') || document.querySelector("#board [data-lane]");
-        const pwBadge = ln && ln.querySelector(".pw.p");
-        const r = (pwBadge || ln).getBoundingClientRect();
-        const tx = r.left + r.width / 2, ty = r.top + r.height / 2;
-        SFX.play("snap");
-        SFX.play("buff");
-        FX.rays(tx, ty, "#ffd65a", 125);
-        FX.wave(tx, ty, "#ffb32e", 110);
-        FX.holo(tx, ty, "#ffd65a", 40);
-        FX.float(tx, ty - 22, "×2 TỔNG SỨC MẠNH!", "#ffe37a");
-        if (pwBadge) {
-          smoothAnim(pwBadge, [
-            { transform: "translateX(-50%) scale(1)" },
-            { transform: "translateX(-50%) scale(1.65)", filter: "brightness(2)", offset: 0.4 },
-            { transform: "translateX(-50%) scale(1.08)" }
-          ], { duration: 520 });
-        }
-        GLFX.impulseShake(5.5);
-        pushOppNotif("DUY TRÌ NHÂN ĐÔI ▸ ×2 TỔNG SỨC MẠNH CHIẾN ĐỊA!", "#ffd65a");
-        break;
-      }
-
-      /* ===== NHÓM 4: HỆ NGUYÊN TỐ & CƯỢC SNAP ===== */
-      case "snapcube": {
-        const stakes = [["×2", "#b07bff"], ["×4", "#3fe0ff"], ["×8", "#ffd65a"]];
-        const [txt, col] = stakes[demoSnapIdx % stakes.length];
-        demoSnapIdx++;
-        SFX.play("snap");
-        if (typeof snapFx === "function") snapFx(col, txt);
-        pushOppNotif(`CƯỢC SNAP NHÂN ĐÔI ▸ MỨC CƯỢC LÊN ${txt}!`, col, { allowLobby: true });
-        break;
-      }
-
-      case "locklane": {
-        if (!ensureInMatchForDemo("locklane")) return;
-        const ln = document.querySelector(`#board [data-lane="${demoLocIdx % 3}"]`) || document.querySelector("#board [data-lane]");
-        demoLocIdx++;
-        if (!ln) return;
-        const lr = ln.getBoundingClientRect();
-        const lx = lr.left + lr.width / 2, ly = lr.top + lr.height / 2;
-        SFX.play("chain");
-        if (typeof window.playV16 === "function") window.playV16("khoa_dia", lx, ly, Math.max(148, lr.width * 1.15), 620, 0);
-        GLFX.arc(lr.left + 6, ly - 55, lr.right - 6, ly + 55, "#59e8ff", 9, 0.35, false, 0.45);
-        GLFX.arc(lr.right - 6, ly - 55, lr.left + 6, ly + 55, "#59e8ff", 9, 0.35, false, 0.45);
-        FX.wave(lx, ly, "#59e8ff", 110);
-        FX.float(lx, ly, "⛓ KHOÁ CHIẾN ĐỊA!", "#9ef4ff");
-        GLFX.impulseShake(4.8);
-        pushOppNotif("PHONG ẤN KHÔNG GIAN ▸ KHOÁ CỨNG CHIẾN ĐỊA!", "#7fe8ff");
-        break;
-      }
-
-      case "shieldfx": {
-        if (!ensureInMatchForDemo("shieldfx")) return;
-        const sl = getLaneSlotRect(1, "me", 0);
-        const g = ghost(sl, sampleDemoCardHTML("kimquy", 3), "g9");
-        SFX.play("shield");
-        if (typeof window.playV16 === "function") window.playV16("khien_chan", sl.x, sl.y, 148, 620, 0);
-        FX.ring(sl.x, sl.y, "#ffd65a", 68, 6);
-        FX.ring(sl.x, sl.y, "#7fe8ff", 52, 4);
-        FX.holo(sl.x, sl.y, "#ffd65a", 34);
-        FX.float(sl.x, sl.y - 16, "🛡 BẤT TỬ HỘ THỂ", "#ffe68a");
-        pushOppNotif("KHIÊN HỘ THỂ BẤT DIỆT ▸ CHẶN ĐỨNG SÁT THƯƠNG!", "#ffd65a");
-        setTimeout(() => g.remove(), 760);
-        break;
-      }
-
-      case "fire": {
-        SFX.play("boom");
-        SFX.play("e_lua");
-        if (typeof window.playV16 === "function") {
-          window.playV16("thieu_dot", cx, cy, 220, 660, 0);
-          window.playV16("no_lua", cx, cy, 240, 560, 60);
-        }
-        FX.pillar(cx, cy + 60, "#ff6a1f", 72, 260);
-        FX.wave(cx, cy, "#ff8a2b", 165);
-        FX.burst(cx, cy, "#ff5518", 55, 320);
-        FX.sparks(cx, cy, "#ffd65a", 45, 380);
-        FX.rise(cx, cy + 30, "#ffb02e", 28);
-        gpuFlash("#ff6a1f", 0.28, 320);
-        GLFX.impulseShake(8.5);
-        pushOppNotif("HOẢ NGỤC BÙNG NỔ ▸ THIÊU RỤI CHIẾN ĐỊA!", "#ffd65a", { allowLobby: true });
-        break;
-      }
-
-      case "thunder": {
-        SFX.play("e_sam");
-        if (typeof window.playV16 === "function") window.playV16("set_danh", cx, cy, 220, 620, 0);
-        const targets = [
-          [cx - 115, cy - 45],
-          [cx + 115, cy - 35],
-          [cx - 95, cy + 80],
-          [cx + 105, cy + 75]
-        ];
-        GLFX.arc(cx, 20, cx, cy, "#7fe8ff", 16, 1.4, true, 0.42);
-        FX.wave(cx, cy, "#3fe0ff", 150);
-        targets.forEach(([tx, ty], i) => {
-          setTimeout(() => {
-            SFX.play("e_sam");
-            if (typeof window.playV16 === "function") window.playV16(i % 2 ? "no_set" : "set_danh", tx, ty, 136, 500, 0);
-            GLFX.arc(cx, cy, tx, ty, i % 2 ? "#b99aff" : "#3fe0ff", 12, 1.3, true, 0.34);
-            FX.sparks(tx, ty, "#7fe8ff", 24, 280);
-            FX.ring(tx, ty, "#ffffff", 74);
-            GLFX.impulseShake(4.8);
-          }, 60 + i * 65);
-        });
-        gpuFlash("#7fe8ff", 0.24, 280);
-        pushOppNotif("LÔI THẦN ▸ GIÁNG SÉT LIÊN HOÀN!", "#7fe8ff", { allowLobby: true });
-        break;
-      }
-
-      case "frost": {
-        SFX.play("e_bang");
-        if (typeof window.playV16 === "function") {
-          window.playV16("dong_bang", cx, cy, 220, 640, 0);
-          window.playV16("no_bang", cx, cy, 236, 560, 50);
-        }
-        FX.wave(cx, cy, "#9ef0ff", 160);
-        FX.rays(cx, cy, "#dffaff", 145);
-        FX.shards(cx, cy, "#7fe8ff");
-        FX.shards(cx, cy, "#ffffff");
-        FX.burst(cx, cy, "#5ad8ff", 40, 260);
-        gpuFlash("#bff6ff", 0.24, 300);
-        GLFX.impulseShake(5.5);
-        pushOppNotif("BĂNG VƯƠNG ▸ ĐÓNG BĂNG TUYỆT ĐỐI!", "#bff6ff", { allowLobby: true });
-        break;
-      }
-
-      case "ult": {
-        const s5Keys = Object.keys(C).filter((k) => C[k].h === "S5");
-        const pickId = s5Keys[Math.floor(Math.random() * s5Keys.length)] || Object.keys(C)[0];
-        ult({ id: pickId, own: "p" });
-        setTimeout(() => {
-          SFX.play("slash");
-          FX.slash(cx, cy, "#ffd65a");
-        }, 260);
-        break;
-      }
-
-      /* ===== NHÓM 5: NHẠC NỀN & TỐC ĐỘ HOẠT ẢNH ===== */
-      case "bgm_lobby": {
-        if (window.BGM) { store.bgm = true; BGM.play("lobby"); }
-        pushOppNotif("NHẠC NỀN SẢNH CHỜ ▸ 92 BPM COSMIC SYNTH!", "#8ceeff", { allowLobby: true });
-        break;
-      }
-      case "bgm_b1": {
-        if (window.BGM) { store.bgm = true; BGM.play("battle1"); }
-        pushOppNotif("NHẠC CHIẾN ĐẤU LƯỢT 1–3 ▸ 114 BPM CYBER PULSE!", "#3fe0ff", { allowLobby: true });
-        break;
-      }
-      case "bgm_b2": {
-        if (window.BGM) { store.bgm = true; BGM.play("battle2"); }
-        pushOppNotif("NHẠC CAO TRÀO LƯỢT 4–5 ▸ 116 BPM DRIVING ARP!", "#c45cff", { allowLobby: true });
-        break;
-      }
-      case "bgm_climax": {
-        if (window.BGM) { store.bgm = true; BGM.play("climax"); }
-        pushOppNotif("NHẠC LƯỢT CUỐI / SNAP ▸ 122 BPM HEROIC CLIMAX!", "#ffd65a", { allowLobby: true });
-        break;
-      }
-      case "bgm_toggle": {
-        if (window.BGM) {
-          const next = store.bgm === false;
-          BGM.toggle(next);
-          pushOppNotif(next ? "ĐÃ BẬT NHẠC NỀN TRẬN ĐẤU!" : "ĐÃ TẮT NHẠC NỀN TRẬN ĐẤU!", next ? "#6effc8" : "#ff8a9e", { allowLobby: true });
-        }
-        break;
-      }
-      case "spd_fast": {
-        if (typeof setSpd10 === "function") setSpd10("nhanh");
-        SFX.play("pick");
-        pushOppNotif("TỐC ĐỘ HOẠT ẢNH: NHANH (0.78×)!", "#6effc8", { allowLobby: true });
-        break;
-      }
-      case "spd_norm": {
-        if (typeof setSpd10 === "function") setSpd10("vua");
-        SFX.play("pick");
-        pushOppNotif("TỐC ĐỘ HOẠT ẢNH: CHUẨN MARVEL SNAP (1.0×)!", "#3fe0ff", { allowLobby: true });
-        break;
-      }
-      case "spd_slow": {
-        if (typeof setSpd10 === "function") setSpd10("cham");
-        SFX.play("pick");
-        pushOppNotif("TỐC ĐỘ HOẠT ẢNH: CHẬM (1.3×)!", "#ffd65a", { allowLobby: true });
-        break;
-      }
-    }
-  }
-
-  buildVfxLab();
-  window.VFXLAB = { openLab, toggleLab, runDemo };
-})();
-
-/* Tab "🎭 Chiêu Lật" của bảng test (từ 09-card-choreo.js) */
-(function () {
-  "use strict";
-
-  const $id = (id) => document.getElementById(id);
-  const {
-    executeChoreoStrike, runPhysicalTether, spawnPaintedBurst, spawnProp, PULL_MAP, PUSH_MAP, getPullKind, getPushKind,
-    pickCardSpriteKey, resolveStyle
-  } = window.CardChoreo;
-
-  /* ==================== 9. BẢNG TEST ✨ VFX CỐ ĐỊNH: TAB "🎭 CHIÊU LẬT" + CHỌN THỬ TOÀN BỘ 314 THẺ ==================== */
-  const CHOREO_DEMOS = [
-    ["ch_fist", "🥊 Thiết Quyền Đấm Vỡ Thẻ", true],
-    ["ch_arena", "🥋 Lôi Đài Kéo & Đấm KO", true],
-    ["ch_dagger", "🗡️ Nón Lá Xoáy Song Chuỷ", true],
-    ["ch_bow", "🏹 Cung Thần Mưa Tên Độc", true],
-    ["ch_blade", "⚔️ Long Đao Chém Đôi Thẻ", true],
-    ["ch_jaws", "🐯 Hồ Tinh Ngoạm Nuốt", true],
-    ["ch_claws", "🐾 Tử Trảo Cào 5 Vệt", false],
-    ["ch_web", "🕸️ Phi Ti Lang Lưới Tơ", true],
-    ["ch_tentacle", "🐙 Bạch Tuộc Xúc Tu Kéo", true],
-    ["ch_magnet", "🧲 Nam Châm Đông Sơn Hút", true],
-    ["ch_tusks", "🐘 Voi Chiến Ngà Húc Văng", false],
-    ["ch_forge", "🔨 Thợ Đúc Đồng Gõ Búa", false]
-  ];
-
-  function slotRect(laneIdx, side, idx) {
-    const ln = document.querySelector(`#board [data-lane="${laneIdx}"]`) || document.querySelector("#board [data-lane]");
-    if (!ln) return { x: window.innerWidth * 0.5, y: window.innerHeight * 0.4, w: 54, h: 76 };
-    const sls = ln.querySelectorAll(`.side.${side} .slot`);
-    const sl = sls[idx || 0] || sls[0] || ln;
-    const r = sl.getBoundingClientRect();
-    return { x: r.left + r.width / 2, y: r.top + r.height / 2, w: Math.max(48, r.width), h: Math.max(67, r.height) };
-  }
-
-  function demoCardHTML(id, dPw) {
-    const k = id && C[id] ? id : Object.keys(C)[0];
-    const d = C[k];
-    const pw = Math.max(0, d.p + (dPw || 0));
-    const cls = dPw > 0 ? "up" : dPw < 0 ? "down" : "";
-    return `<button type="button" class="mc q5" style="--hc:${HC[d.h] || "#ffd65a"}">${nbL(k)}${art(k)}<span class="mn">${logo(k)}</span><span class="pwh ${cls}">${pw}</span></button>`;
-  }
-
-  function ensureBoardReady(cb) {
-    if (typeof reduced !== "undefined" && reduced) {
-      store.fx = "on";
-      reduced = false;
-      document.body.classList.remove("rm");
-    }
-    const lobby = $id("lobby");
-    if (lobby && lobby.classList.contains("on") && typeof newGame === "function") {
-      newGame();
-      lobby.classList.remove("on");
-      if (window.BGM) BGM.syncGame(G);
+  /* ---------- diễn MỘT thẻ qua lượt thật ---------- */
+  async function runCard(id) {
+    const t0 = performance.now(), d = C[id];
+    ST.cur = id; renderList();
+    const p = PLAN.plan(id, ST.seed);
+    caption(id, p);
+    const row = { id, n: d.n, h: d.h, t: d.t, x: d.x, setup: p.kn || "—", k: p.k, simEffect: p.effect, simDiff: p.d, simEv: [...new Set(p.evk)], notes: p.notes, fired: [], taps: [], fx: {}, ev: [], warn: [], err: [], bad: false, ms: 0 };
+    if (!p.spec) { row.warn.push("không dựng được thế cờ (" + (p.tried.map((t) => t.why).filter(Boolean)[0] || "?") + ")"); row.bad = true; ST.rows.set(id, row); renderLog(); return row; }
+    await settle(6000); cleanLeft();
+    ensureMatch(); applySpeed();
+    const rec = (ST.rec = { taps: [], fx: {}, ev: [], err: [] });
+    let g;
+    try {
+      g = PLAN.newG(id, p.spec, ST.seed);
+      const stg = PLAN.stage(g, id, p.spec);
+      if (!stg.ok) row.warn.push("dựng thế cờ: " + stg.why);
+      G = g; resetUiCaches(g);
+      try { if (W.BGM) BGM.syncGame(G); } catch (e) {}
+      try { resetTimer(false); } catch (e) {}
+      G.msg = `<b>Bảng test:</b> ${esc(d.n)} — ${esc(p.kn)}`;
       render();
-      const dr = $id("vfxLabDrawer");
-      if (dr) dr.classList.add("on");
-      setTimeout(cb, 90);
-      return;
+    } catch (e) { rec.err.push("dựng: " + (e && e.message || e)); }
+    await sleep(380);
+    const before = PLAN.snap(G);
+    try {
+      if (p.spec.start && typeof startShow === "function") await startShow();
+      if (ST.stopReq) throw new Error("stop");
+      const turn = async () => {
+        ddPlan = true; let hung = false;
+        await Promise.race([endTurnUI(), sleep(45000).then(() => { hung = true; })]);
+        if (hung) { rec.err.push("lượt treo > 45 s"); try { TURN_BUSY = false; } catch (e) {} }
+      };
+      await turn();
+      if (p.spec.next && G === g && G.phase === "play") {
+        await settle(6000);
+        stageNext2(g, p.spec); render(); await sleep(300);
+        await turn();
+      }
+    } catch (e) { if (String(e && e.message) !== "stop") rec.err.push("lượt: " + (e && e.message || e)); }
+    const calm = await settle(9000);
+    await sleep(260);
+    const after = PLAN.snap(G);
+    let lo = leftovers();
+    for (let k = 0; k < 4 && (lo.hid.length || lo.pw.length || lo.dom.length); k++) { await sleep(500); lo = leftovers(); } /* lá rút / tổng điểm có thể còn đang chạy nhịp cuối */
+    ST.rec = null;
+    /* kết quả */
+    row.taps = rec.taps; row.fx = rec.fx;
+    row.ev = rec.ev.map((e) => e.k).slice(0, 80);
+    const keys = [...new Set(rec.taps.map((t) => t.replace(/@.*/, "")))];
+    row.fired = keys.concat(Object.keys(rec.fx).filter((k) => /^CFX\./.test(k)).map((k) => k + "×" + rec.fx[k]));
+    const realDiff = PLAN.diff(after, before, -1).length;
+    const evKinds = [...new Set(rec.ev.map((e) => e.k))];
+    row.evKinds = evKinds;
+    row.err = rec.err.slice(0, 6);
+    row.ms = Math.round(performance.now() - t0);
+    if (d.t !== "none" && !p.effect) row.warn.push("mô phỏng: kỹ năng không tạo khác biệt trên mọi thế cờ thử" + (p.notes.length ? " (" + p.notes.join(", ") + ")" : ""));
+    if (p.err) { row.warn.push("engine lỗi: " + p.err); row.bad = true; }
+    if (rec.err.length) { row.warn.push("LỖI JS: " + rec.err[0]); row.bad = true; }
+    if (!calm) { row.warn.push("diễn chưa xong sau 9 s (HX/SIG/PA6 còn bận)"); row.bad = true; }
+    if (lo.dom.length) { row.warn.push("SÓT DOM " + lo.dom.map((x) => x[0] + "×" + x[1]).join(",")); row.bad = true; }
+    if (lo.hid.length) { row.warn.push("thẻ bị ẩn " + lo.hid.join(",")); row.bad = true; }
+    if (lo.sh) { row.warn.push("luật ẩn lá còn: " + lo.sh.slice(0, 60)); row.bad = true; }
+    if (lo.pw.length) { row.warn.push("tổng điểm hiển thị lệch " + lo.pw.join(",")); row.bad = true; }
+    const hits = keys.filter((k) => HIT_RE.test(k.replace(/^(HX|PA6|SIG) /, "")));
+    if (p.effect && p.others === 0 && !p.area && hits.length) row.warn.push("diễn đánh trúng (" + hits.slice(0, 3).join(",") + ") nhưng kỹ năng chỉ tác động chính nó/không nhắm thẻ khác");
+    const skillEv = rec.ev.some((e) => /^(skill|act|destroy|discard|summon|revive|move|morph|abcopy|tohand|sil|surge|egain|loc|locfx|clone|blocked|top|draw|lock)$/.test(e.k) && e.k !== "flip");
+    if (p.effect && !skillEv && !realDiff) row.warn.push("mô phỏng có tác dụng nhưng lượt thật không thấy sự kiện/kết quả nào");
+    const fxN = Object.keys(rec.fx).filter((k) => /^FX\./.test(k)).reduce((a, k) => a + rec.fx[k], 0);
+    if (p.effect && (skillEv || realDiff) && !keys.length && !Object.keys(rec.fx).some((k) => /^CFX\./.test(k) && k !== "CFX.drawIn") && fxN < 8) row.warn.push("kỹ năng chạy nhưng gần như không có hiệu ứng nào được gọi");
+    if (row.ms > 20000) row.warn.push("diễn quá lâu " + (row.ms / 1000).toFixed(1) + " s");
+    if (lo.dom.length || lo.hid.length) cleanLeft();
+    ST.rows.set(id, row);
+    renderLog(); renderList();
+    return row;
+  }
+  function stageNext2(g, spec) {
+    g.live = false; const cs = spec.next.plays.map(([cid, li]) => { const c = E.mk(g, cid, "p"); g.hand.p.push(c); return [c, li]; }); g.live = true;
+    g.energy.p = Math.max(g.energy.p, 12); g.energy.a = spec.foeE || 0;
+    for (const [c, li] of cs) E.queuePlay(g, "p", c.uid, li);
+  }
+
+  /* ---------- điều khiển ---------- */
+  async function loop() {
+    if (ST.busy) return; ST.busy = true;
+    try {
+      while (ST.on && !ST.stopReq && ST.mode === "audit" && ST.i < ST.list.length) {
+        while (ST.paused && !ST.stopReq && ST.on) await sleep(120);
+        if (ST.stopReq || !ST.on) break;
+        const i0 = ST.i; prog();
+        await runCard(ST.list[i0]);
+        await sleep(ST.speed === "4" ? 150 : 450);
+        if (ST.i === i0) ST.i++;
+      }
+      if (ST.mode === "audit" && ST.i >= ST.list.length) { caption(null, null, `Xong kiểm tra ${ST.list.length} thẻ — xem nhật ký (☰).`); ST.mode = "done"; }
+      while (ST.on && !ST.stopReq && ST.mode === "one" && ST.oneQ) { const id = ST.oneQ; ST.oneQ = null; prog(); await runCard(id); }
+      if (ST.mode === "one" && !ST.oneQ) ST.mode = "idle";
+    } finally { ST.busy = false; ST.stopReq = false; prog(); }
+  }
+  function startAudit(ids) {
+    ST.list = ids || listFor(ST.tier, "");
+    ST.i = 0; ST.mode = "audit"; ST.paused = false;
+    menu(false); prog(); loop();
+  }
+  function jump(id) {
+    if (ST.mode === "audit" && ST.list.includes(id)) { ST.i = ST.list.indexOf(id); ST.paused = false; skipCur(); }
+    else { ST.mode = "one"; ST.oneQ = id; skipCur(); }
+    menu(false); prog(); loop();
+  }
+  function skipCur() { /* thẻ đang diễn: chạm tua nhanh như người chơi, vòng lặp tự sang thẻ được chọn */
+    try { if (!idle()) D.body.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true })); } catch (e) {}
+  }
+  function menu(on) {
+    const dr = $id("vfxLabDrawer"); if (!dr) return;
+    const v = on == null ? !dr.classList.contains("open") : on;
+    dr.classList.toggle("open", v);
+  }
+  async function quick() { /* chỉ engine: lập bảng tức thì cho cả bậc */
+    const L = listFor(ST.tier, ST.q);
+    for (const id of L) {
+      const p = PLAN.plan(id, ST.seed), d = C[id];
+      const warn = [];
+      if (d.t !== "none" && !p.effect) warn.push("mô phỏng: kỹ năng không tạo khác biệt" + (p.notes.length ? " (" + p.notes.join(", ") + ")" : ""));
+      if (p.err) warn.push("engine lỗi: " + p.err);
+      if (!p.spec) warn.push("không dựng được thế cờ");
+      ST.rows.set(id, { id, n: d.n, h: d.h, t: d.t, x: d.x, setup: p.kn, k: p.k, simEffect: p.effect, simDiff: p.d, simEv: [...new Set(p.evk)], notes: p.notes, fired: ["(chỉ engine)"], taps: [], fx: {}, ev: [], warn, err: [], bad: !!p.err, ms: 0, quick: 1 });
     }
-    cb();
+    renderLog(); renderList();
   }
-
-  function runChoreoPreset(code) {
-    ensureBoardReady(() => {
-      const sp = slotRect(1, "me", 0);
-      const tp = slotRect(1, "opp", 2);
-
-      switch (code) {
-        case "ch_fist": {
-          const gSrc = ghost(sp, demoCardHTML("thietquyen", 0), "g9");
-          const stageR = Object.assign({}, tp, { html: demoCardHTML("giaphuydiet", 0) });
-          const gDst = ghost(tp, stageR.html, "g9");
-          if (window.pushOppNotif) pushOppNotif("VÕ SƯ ĐÔNG SƠN ▸ THIẾT QUYỀN RỒNG LỬA ĐẤM VỠ MẶT THẺ!", "#ffd65a");
-          executeChoreoStrike({
-            style: "melee_fist", stepKind: "kill", srcUid: -1, srcId: "thietquyen",
-            sp, tp, r0: stageR, srcEl: gSrc, dstEl: gDst,
-            onImpact: () => { gDst.remove(); SFX.play("destroy"); CFX.destroy(stageR); }
-          });
-          setTimeout(() => gSrc.remove(), 880);
-          break;
-        }
-        case "ch_arena": {
-          const gSrc = ghost(sp, demoCardHTML("giacdausi", 0), "g9");
-          const foeDeck = (typeof DECKZ === "function" && DECKZ("a")) || { x: window.innerWidth * 0.74, y: 34 };
-          SFX.play("chain");
-          runPhysicalTether({ kind: "hook", srcId: "giacdausi", src: sp, from: foeDeck, to: tp, extendMs: 130, holdMs: 35, pullMs: 285 });
-          const pulled = ghost(foeDeck, demoCardHTML("songchuynu", 0), "g9");
-          pulled.animate([
-            { transform: "translate3d(0,0,0) scale(0.6)" },
-            { transform: `translate3d(${(tp.x - foeDeck.x).toFixed(1)}px, ${(tp.y - foeDeck.y).toFixed(1)}px, 0) scale(1)` }
-          ], { duration: 365, fill: "forwards" });
-          setTimeout(() => {
-            pulled.remove();
-            const stageR = Object.assign({}, tp, { html: demoCardHTML("songchuynu", 0) });
-            const gVictim = ghost(tp, stageR.html, "g9");
-            executeChoreoStrike({
-              style: "arena_ko", stepKind: "kill", srcUid: -1, srcId: "giacdausi",
-              sp, tp, r0: stageR, srcEl: gSrc, dstEl: gVictim, liftMs: 42, flyMs: 225,
-              onImpact: () => {
-                gVictim.remove(); SFX.play("destroy"); CFX.destroy(stageR);
-                if (window.pushOppNotif) pushOppNotif("LÔI ĐÀI CHỦ ▸ MÓC CÂU ĐỒNG KÉO LÊN ĐÀI & ĐẤM HẠ ĐO VÁN!", "#ff7a3d");
-              }
-            });
-          }, 380);
-          setTimeout(() => gSrc.remove(), 1160);
-          break;
-        }
-        case "ch_dagger": {
-          const gSrc = ghost(sp, demoCardHTML("songchuynu", 0), "g9");
-          const stageR = Object.assign({}, tp, { html: demoCardHTML("tinhquyennu", 0) });
-          const gDst = ghost(tp, stageR.html, "g9");
-          if (window.pushOppNotif) pushOppNotif("SÁT THỦ NÓN LÁ ▸ PHÓNG NÓN LÁ SONG CHUỶ CHÉM ĐỨT ĐÔI THẺ!", "#ff4d6d");
-          executeChoreoStrike({
-            style: "throw_daggers", stepKind: "kill", srcUid: -1, srcId: "songchuynu", sp, tp, r0: stageR, srcEl: gSrc, dstEl: gDst,
-            onImpact: () => { gDst.remove(); SFX.play("destroy"); CFX.destroy(stageR); }
-          });
-          setTimeout(() => gSrc.remove(), 860);
-          break;
-        }
-        case "ch_bow": {
-          const gSrc = ghost(sp, demoCardHTML("docxanu", 0), "g9");
-          const targets = [slotRect(0, "opp", 1), slotRect(1, "opp", 2), slotRect(2, "opp", 1)];
-          const ghosts = targets.map((t) => ghost(t, demoCardHTML("loithan", -1), "g9"));
-          if (window.pushOppNotif) pushOppNotif("ĐỘC TIỄN ▸ GIƯƠNG ĐẠI CUNG TRE NGỌC BẮN MƯA TÊN ĐỘC!", "#6eff7a");
-          const center = { x: targets[1].x, y: targets[1].y };
-          targets.forEach((t, i) => {
-            executeChoreoStrike({
-              style: "shoot_venom_bow", stepKind: "down", srcUid: -1, srcId: "docxanu", sp, tp: t, srcEl: gSrc, dstEl: ghosts[i],
-              grp: { n: 3, i, c: center },
-              onImpact: () => { CFX.debuff(ghosts[i]); FX.float(t.x, t.y - 16, "−1", "#ff7a9a"); }
-            });
-          });
-          setTimeout(() => { gSrc.remove(); ghosts.forEach((g) => g.remove()); }, 920);
-          break;
-        }
-        case "ch_blade": {
-          const gSrc = ghost(sp, demoCardHTML("kiemlongnhan", 0), "g9");
-          const stageR = Object.assign({}, tp, { html: demoCardHTML("satvuong", 0) });
-          const gDst = ghost(tp, stageR.html, "g9");
-          if (window.pushOppNotif) pushOppNotif("LONG ĐAO KHÁCH ▸ LƯỚT TÀN ẢNH CHÉM ĐỨT ĐÔI MẶT THẺ!", "#5ce8ff");
-          executeChoreoStrike({
-            style: "slash_cleave", stepKind: "kill", srcUid: -1, srcId: "kiemlongnhan", sp, tp, r0: stageR, srcEl: gSrc, dstEl: gDst, col: "#5ce8ff",
-            onImpact: () => { gDst.remove(); SFX.play("destroy"); CFX.destroy(stageR); }
-          });
-          setTimeout(() => gSrc.remove(), 880);
-          break;
-        }
-        case "ch_jaws": {
-          const srcSlot = slotRect(0, "me", 0);
-          const ally = slotRect(1, "me", 0);
-          const gSrc = ghost(srcSlot, demoCardHTML("huyetdich", 4), "g9");
-          const stageR = Object.assign({}, ally, { html: demoCardHTML("thantien", 0) });
-          const gAlly = ghost(ally, stageR.html, "g9");
-          if (window.pushOppNotif) pushOppNotif("HỒ TINH CỬU VĨ ▸ HÀM NANH HOÀNG KIM NGOẠM NUỐT HÚT LINH HUYẾT!", "#ff5a3c");
-          executeChoreoStrike({
-            style: "beast_devour", stepKind: "kill", srcUid: -1, srcId: "huyetdich", sp: srcSlot, tp: ally, r0: stageR, srcEl: gSrc, dstEl: gAlly,
-            onImpact: () => {
-              gAlly.remove(); SFX.play("destroy"); CFX.destroy(stageR);
-              CFX.buff(gSrc, 4); FX.float(srcSlot.x, srcSlot.y - 16, "+4", "#7dffb0");
-            }
-          });
-          setTimeout(() => gSrc.remove(), 960);
-          break;
-        }
-        case "ch_claws": {
-          const gSrc = ghost(sp, demoCardHTML("tutraonu", 0), "g9");
-          const stageR = Object.assign({}, tp, { html: demoCardHTML("chonphao", 0) });
-          const gDst = ghost(tp, stageR.html, "g9");
-          if (window.pushOppNotif) pushOppNotif("TỬ TRẢO NỮ ▸ NGŨ TỬ TRẢO CÀO TOẠC MẶT THẺ!", "#ff3b6b");
-          executeChoreoStrike({
-            style: "claw_rip", stepKind: "kill", srcUid: -1, srcId: "tutraonu", sp, tp, r0: stageR, srcEl: gSrc, dstEl: gDst,
-            onImpact: () => { gDst.remove(); SFX.play("destroy"); CFX.destroy(stageR); }
-          });
-          setTimeout(() => gSrc.remove(), 880);
-          break;
-        }
-        case "ch_web": {
-          const puller = slotRect(2, "me", 0);
-          const fromOpp = slotRect(0, "opp", 2);
-          const toOpp = slotRect(2, "opp", 2);
-          const gSrc = ghost(puller, demoCardHTML("nhennhan", 0), "g9");
-          const gDst = ghost(fromOpp, demoCardHTML("loithan", 0), "g9");
-          SFX.play("web");
-          runPhysicalTether({ kind: "web", srcId: "nhennhan", src: puller, from: fromOpp, to: toOpp, extendMs: 185, holdMs: 65, pullMs: 455 });
-          setTimeout(() => {
-            gDst.animate([
-              { transform: "perspective(650px) translate3d(0,0,0) scale(1)" },
-              { transform: `perspective(650px) translate3d(${((toOpp.x - fromOpp.x) * 0.52).toFixed(1)}px, ${((toOpp.y - fromOpp.y) * 0.52 - 22).toFixed(1)}px, 42px) rotateZ(-8deg) scale(1.16)`, offset: 0.52 },
-              { transform: `perspective(650px) translate3d(${(toOpp.x - fromOpp.x).toFixed(1)}px, ${(toOpp.y - fromOpp.y).toFixed(1)}px, 0) scale(1)` }
-            ], { duration: 455, easing: "cubic-bezier(0.22, 1, 0.36, 1)", fill: "forwards" });
-          }, 250);
-          if (window.pushOppNotif) pushOppNotif("PHI TI LANG ▸ ĐINH BA & LƯỚI TƠ PHA LÊ TRÓI KÉO ĐỐI THỦ!", "#9ef6ff");
-          setTimeout(() => { gSrc.remove(); gDst.remove(); }, 920);
-          break;
-        }
-        case "ch_tentacle": {
-          const gSrc = ghost(sp, demoCardHTML("batty", 0), "g9");
-          const foeHand = (typeof zpt === "function" && zpt("avFoe")) || { x: window.innerWidth * 0.72, y: 38 };
-          SFX.play("tentacle");
-          runPhysicalTether({ kind: "tentacle", srcId: "batty", src: sp, from: foeHand, to: tp, extendMs: 185, holdMs: 65, pullMs: 445 });
-          if (window.pushOppNotif) pushOppNotif("BẠCH TUỘC TINH ▸ SONG XÚC TU TRANH VẼ UỐN LƯỢN LÔI THẺ ĐỊCH!", "#e09eff");
-          const gPulled = ghost(foeHand, demoCardHTML("bachho", 0), "g9");
-          setTimeout(() => {
-            gPulled.animate([
-              { transform: "translate3d(0,0,0) scale(0.6)" },
-              { transform: `translate3d(${(tp.x - foeHand.x).toFixed(1)}px, ${(tp.y - foeHand.y).toFixed(1)}px, 0) scale(1)` }
-            ], { duration: 445, easing: "cubic-bezier(0.22, 1, 0.36, 1)", fill: "forwards" });
-          }, 240);
-          setTimeout(() => {
-            spawnPaintedBurst("no_toi", tp.x, tp.y, 156, "#d580ff", 380);
-            spawnPaintedBurst("song_xung", tp.x, tp.y, 162, "#d580ff", 360);
-            SFX.play("place");
-          }, 680);
-          setTimeout(() => { gSrc.remove(); gPulled.remove(); }, 1020);
-          break;
-        }
-        case "ch_magnet": {
-          const puller = slotRect(1, "me", 0);
-          const fromOpp = slotRect(0, "opp", 1);
-          const toOpp = slotRect(1, "opp", 2);
-          const gSrc = ghost(puller, demoCardHTML("tunu", 0), "g9");
-          const gDst = ghost(fromOpp, demoCardHTML("thietquyen", 0), "g9");
-          SFX.play("magnet");
-          runPhysicalTether({ kind: "magnet", srcId: "tunu", src: puller, from: fromOpp, to: toOpp, extendMs: 185, holdMs: 65, pullMs: 450 });
-          setTimeout(() => {
-            gDst.animate([
-              { transform: "translate3d(0,0,0)" },
-              { transform: `translate3d(${(toOpp.x - fromOpp.x).toFixed(1)}px, ${(toOpp.y - fromOpp.y).toFixed(1)}px, 0)` }
-            ], { duration: 445, easing: "cubic-bezier(0.22, 1, 0.36, 1)", fill: "forwards" });
-          }, 245);
-          if (window.pushOppNotif) pushOppNotif("NAM CHÂM TIÊN ▸ NAM CHÂM ĐÔNG SƠN PHÓNG HỒ QUANG HÚT THẺ!", "#5ad8ff");
-          setTimeout(() => { gSrc.remove(); gDst.remove(); }, 920);
-          break;
-        }
-        case "ch_tusks": {
-          const gSrc = ghost(sp, demoCardHTML("batkhacan", 0), "g9");
-          const toOpp = slotRect(2, "opp", 2);
-          const gDst = ghost(tp, demoCardHTML("satvuong", 0), "g9");
-          SFX.play("horn");
-          const impactProp = spawnProp("batkhacan", tp.x - 18, tp.y, 172, 134, "#ffb84d", 42);
-          impactProp.animate([
-            { transform: "translateX(-28px) scale(0.55)", opacity: 0, easing: "cubic-bezier(0.16, 1, 0.3, 1)" },
-            { transform: "translateX(10px) scale(1.28)", opacity: 1, offset: 0.22 },
-            { transform: "translateX(18px) scale(1.22)", opacity: 1, offset: 0.84 },
-            { transform: "translateX(30px) scale(1.02)", opacity: 0 }
-          ], { duration: 440, easing: "linear", fill: "forwards" }).onfinish = () => impactProp.remove();
-          spawnPaintedBurst("song_xung", tp.x, tp.y, 172, "#ffb84d", 360);
-          spawnPaintedBurst("no_sang", tp.x, tp.y, 152, "#ffd65a", 380);
-          gDst.animate([
-            { transform: "translate3d(0,0,0)" },
-            { transform: `translate3d(${((toOpp.x - tp.x) * 0.55).toFixed(1)}px, ${(toOpp.y - tp.y - 30).toFixed(1)}px, 0) rotate(12deg) scale(1.14)`, offset: 0.55 },
-            { transform: `translate3d(${(toOpp.x - tp.x).toFixed(1)}px, ${(toOpp.y - tp.y).toFixed(1)}px, 0)` }
-          ], { duration: 450, fill: "forwards" });
-          if (window.GLFX) GLFX.impulseShake(6.8, 1, 0);
-          if (window.pushOppNotif) pushOppNotif("VOI CHIẾN CHÍN NGÀ ▸ NGÀ VÀNG ĐÔNG SƠN HÚC VĂNG ĐỐI THỦ!", "#ffb84d");
-          setTimeout(() => { gSrc.remove(); gDst.remove(); }, 880);
-          break;
-        }
-        case "ch_forge": {
-          const srcSlot = slotRect(0, "me", 0);
-          const ally = slotRect(1, "me", 0);
-          const gSrc = ghost(srcSlot, demoCardHTML("thoren", 0), "g9");
-          const gAlly = ghost(ally, demoCardHTML("kiemsu", 2), "g9");
-          if (window.pushOppNotif) pushOppNotif("THỢ ĐÚC ĐỒNG ĐÔNG SƠN ▸ BÚA RÈN NẶNG LỬA CỘNG +2 SỨC MẠNH!", "#ffb02e");
-          executeChoreoStrike({
-            style: "forge_strike", stepKind: "up", srcUid: -1, srcId: "thoren", sp: srcSlot, tp: ally, srcEl: gSrc, dstEl: gAlly,
-            onImpact: () => { CFX.buff(gAlly, 2); FX.float(ally.x, ally.y - 16, "+2", "#7dffb0"); }
-          });
-          setTimeout(() => { gSrc.remove(); gAlly.remove(); }, 950);
-          break;
-        }
-      }
-    });
+  function exportJSON() {
+    const rows = [...ST.rows.values()].map((r) => ({ id: r.id, n: r.n, h: r.h, t: r.t, setup: r.setup, k: r.k, simEffect: r.simEffect, simDiff: r.simDiff, simEv: r.simEv, fired: r.fired, taps: r.taps.slice(0, 60), fx: r.fx, evKinds: r.evKinds || [], warn: r.warn, err: r.err, bad: r.bad, ms: r.ms, notes: r.notes }));
+    return JSON.stringify({ ver: "gpu68-lab", at: new Date().toISOString(), n: rows.length, rows }, null, 1);
   }
-
-  function previewSpecificCard(cardId) {
-    if (!cardId || !C[cardId]) return;
-    ensureBoardReady(() => {
-      const d = C[cardId];
-      const txt = (d.x || "").toLowerCase();
-      const sp = slotRect(1, "me", 0);
-      const tpOpp = slotRect(1, "opp", 2);
-      const tpAlly = slotRect(2, "me", 0);
-      const gSrc = ghost(sp, demoCardHTML(cardId, 0), "g9");
-
-      const isPullCard = PULL_MAP[cardId] || /kéo|di chuyển .* đến chiến địa này|dời .* về chiến địa này|di chuyển .* đến đây/.test(txt);
-      const isPushCard = !isPullCard && (PUSH_MAP[cardId] || /di chuyển .* sang|dời .* sang|đi nơi khác/.test(txt));
-
-      if (isPullCard) {
-        const pk = getPullKind(cardId);
-        const fromPt = cardId === "batty" ? ((typeof zpt === "function" && zpt("avFoe")) || slotRect(0, "opp", 1))
-          : cardId === "linhtuonglai" ? ((typeof DECKZ === "function" && DECKZ("a")) || slotRect(0, "opp", 1))
-          : slotRect(0, "opp", 1);
-        const gDst = ghost(fromPt, demoCardHTML("loithan", 0), "g9");
-        SFX.play(pk === "web" || pk === "silk" ? "web" : pk === "magnet" ? "magnet" : pk === "tentacle" || pk === "blood_tentacle" ? "tentacle" : "chain");
-        runPhysicalTether({ kind: pk, srcId: cardId, src: sp, from: fromPt, to: tpOpp, extendMs: 185, holdMs: 65, pullMs: 450 });
-        setTimeout(() => {
-          gDst.animate([
-            { transform: "translate3d(0,0,0)" },
-            { transform: `translate3d(${(tpOpp.x - fromPt.x).toFixed(1)}px, ${(tpOpp.y - fromPt.y).toFixed(1)}px, 0)` }
-          ], { duration: 450, easing: "cubic-bezier(0.22, 1, 0.36, 1)", fill: "forwards" });
-        }, 245);
-        if (window.pushOppNotif) pushOppNotif(`${d.n.toUpperCase()} ▸ HOẠT CẢNH KÉO TRANH VẼ RIÊNG (${pk.toUpperCase()})!`, "#7fe8ff");
-        setTimeout(() => { gSrc.remove(); gDst.remove(); }, 940);
-        return;
+  async function act(a) {
+    switch (a) {
+      case "menu": menu(); break;
+      case "close": closeLab(); break;
+      case "pause": if (ST.mode === "audit") { ST.paused = !ST.paused; prog(); if (!ST.busy) loop(); } break;
+      case "next": if (ST.mode === "audit") { ST.i = Math.min(ST.list.length - 1, ST.i + 1); ST.paused = false; skipCur(); prog(); if (!ST.busy) loop(); } break;
+      case "prev": if (ST.mode === "audit") { ST.i = Math.max(0, ST.i - 1); ST.paused = false; skipCur(); prog(); if (!ST.busy) loop(); } break;
+      case "replay": if (ST.cur) { if (ST.mode === "audit") { ST.i = ST.list.indexOf(ST.cur); ST.paused = false; skipCur(); if (!ST.busy) loop(); } else jump(ST.cur); } break;
+      case "audit": startAudit(); break;
+      case "stop": ST.mode = "idle"; ST.stopReq = ST.busy; ST.paused = false; prog(); break;
+      case "quick": quick(); break;
+      case "cap": ST.capOn = !ST.capOn; { const c = $id("vlCap"); if (c) c.hidden = !ST.capOn; } break;
+      case "copy": {
+        const j = exportJSON(); W.VFXLAB_LAST = j;
+        try { await navigator.clipboard.writeText(j); toastL("Đã chép JSON nhật ký (" + ST.rows.size + " thẻ)"); }
+        catch (e) { const t = D.createElement("textarea"); t.value = j; D.body.appendChild(t); t.select(); try { D.execCommand("copy"); toastL("Đã chép JSON"); } catch (e2) { toastL("Không chép được — dùng VFXLAB.exportJSON()"); } t.remove(); }
+        break;
       }
-
-      if (isPushCard) {
-        const pushK = getPushKind(cardId);
-        const toLane = slotRect(2, "opp", 2);
-        const gDst = ghost(tpOpp, demoCardHTML("satvuong", 0), "g9");
-        SFX.play(pushK === "tusks" ? "horn" : pushK === "blade_knock" ? "slash" : pushK === "wind_gust" ? "e_gio" : pushK === "chess" ? "pick" : "punch");
-        const pushSprite = pushK === "punch_water" ? "quyen_nuoc"
-          : pushK === "blade_knock" ? pickCardSpriteKey(cardId, "kiemlongnhan", ["quet", "phong"])
-          : pushK === "tusks" ? pickCardSpriteKey(cardId, "batkhacan", ["quet", "phong"])
-          : pushK === "chess" ? "quan_co"
-          : pushK === "wind_gust" ? (cardId === "thukieu" ? "thukieu" : "phongnu")
-          : "nam_dam_lua";
-        const mdx = toLane.x - tpOpp.x, mdy = toLane.y - tpOpp.y;
-        const p = spawnProp(pushSprite, tpOpp.x - (pushK === "chess" ? 0 : 18), tpOpp.y - (pushK === "chess" ? 22 : 0), pushK === "chess" ? 152 : 168, pushK === "chess" ? 152 : 138, "#ffd65a", 42);
-        if (pushK === "chess") {
-          p.animate([
-            { transform: "translate3d(0, -28px, 0) scale(0.45)", opacity: 0, easing: "cubic-bezier(0.16, 1, 0.3, 1)" },
-            { transform: "translate3d(0, 0px, 0) scale(1.22)", opacity: 1, offset: 0.20 },
-            { transform: `translate3d(${mdx.toFixed(1)}px, ${(mdy - 24).toFixed(1)}px, 0) scale(1.26)`, opacity: 1, offset: 0.86 },
-            { transform: `translate3d(${mdx.toFixed(1)}px, ${mdy.toFixed(1)}px, 0) scale(0.92)`, opacity: 0 }
-          ], { duration: 580, easing: "linear", fill: "forwards" }).onfinish = () => p.remove();
-        } else {
-          p.animate([
-            { transform: "translateX(-28px) scale(0.55)", opacity: 0, easing: "cubic-bezier(0.16, 1, 0.3, 1)" },
-            { transform: "translateX(10px) scale(1.28)", opacity: 1, offset: 0.20 },
-            { transform: "translateX(18px) scale(1.22)", opacity: 1, offset: 0.85 },
-            { transform: "translateX(30px) scale(0.95)", opacity: 0 }
-          ], { duration: 520, easing: "linear", fill: "forwards" }).onfinish = () => p.remove();
-        }
-        spawnPaintedBurst("song_xung", tpOpp.x, tpOpp.y, 164, "#ffd65a", 360);
-        gDst.animate([
-          { transform: "translate3d(0,0,0)" },
-          { transform: `translate3d(${(mdx * 0.55).toFixed(1)}px, ${(mdy - 28).toFixed(1)}px, 0) rotate(11deg)`, offset: 0.55 },
-          { transform: `translate3d(${mdx.toFixed(1)}px, ${mdy.toFixed(1)}px, 0)` }
-        ], { duration: 480, fill: "forwards" });
-        if (window.pushOppNotif) pushOppNotif(`${d.n.toUpperCase()} ▸ HOẠT CẢNH ĐẨY TRANH VẼ RIÊNG (${pushK.toUpperCase()})!`, "#ffd65a");
-        setTimeout(() => { gSrc.remove(); gDst.remove(); }, 920);
-        return;
-      }
-
-      if (/vứt bỏ/.test(txt)) {
-        const foeDisc = /đối thủ|địch/.test(txt) && !/tay bạn/.test(txt);
-        const hz = foeDisc
-          ? (typeof zpt === "function" ? (zpt("oppSub") || zpt("avFoe")) : null)
-          : (typeof zpt === "function" ? zpt("hand") : null);
-        const tpD = hz
-          ? { x: hz.x, y: foeDisc ? hz.y + 28 : hz.y - 8, w: 54, h: 76, html: demoCardHTML(foeDisc ? "satvuong" : "cuongnhan", 0) }
-          : Object.assign({}, tpOpp, { html: demoCardHTML("satvuong", 0) });
-        const gDisc = ghost(tpD, tpD.html, "g9");
-        const stD = resolveStyle(cardId, "kill");
-        if (window.pushOppNotif) pushOppNotif(`${d.n.toUpperCase()} ▸ CHÉM VỨT BỎ BÀI ${foeDisc ? "ĐỐI PHƯƠNG" : "TRÊN TAY"}!`, "#ff9a4d");
-        executeChoreoStrike({
-          style: stD,
-          stepKind: "kill",
-          srcUid: -1,
-          srcId: cardId,
-          sp,
-          tp: tpD,
-          r0: tpD,
-          srcEl: gSrc,
-          dstEl: gDisc,
-          liftMs: 35,
-          flyMs: 195,
-          onImpact: () => {
-            gDisc.remove();
-            SFX.play("destroy");
-            if (typeof CFX !== "undefined" && CFX.burn) CFX.burn(tpD);
-            FX.float(tpD.x, tpD.y - 18, "VỨT BỎ!", "#ff9a4d");
-          }
-        });
-        setTimeout(() => { gSrc.remove(); if (gDisc.isConnected) gDisc.remove(); }, 860);
-        return;
-      }
-
-      const stepKind = /tiêu huỷ/.test(txt) ? "kill"
-        : /mất kỹ năng|xoá kỹ năng|vô hiệu/.test(txt) ? "sil"
-        : /sao chép|bản sao/.test(txt) ? "copy"
-        : /(−|-\d|trừ \d|giảm \d)/.test(txt) ? "down"
-        : /triệu hồi|thêm .* vào chiến địa|hồi sinh/.test(txt) ? "summon"
-        : "up";
-      const targetFriendly = stepKind === "up" || stepKind === "summon" || (/bạn tại đây/.test(txt) && stepKind === "kill");
-      const tp = targetFriendly ? tpAlly : tpOpp;
-      const stageR = Object.assign({}, tp, { html: demoCardHTML(targetFriendly ? "kiemsu" : "satvuong", stepKind === "up" ? 3 : stepKind === "down" ? -2 : 0) });
-      const gDst = ghost(tp, stageR.html, "g9");
-      const st = resolveStyle(cardId, stepKind);
-
-      if (window.pushOppNotif) pushOppNotif(`${d.n.toUpperCase()} ▸ DIỄN CHIÊU LẬT TRANH VẼ (${st.toUpperCase()})!`, "#ffd65a");
-      executeChoreoStrike({
-        style: st,
-        stepKind,
-        srcUid: -1,
-        srcId: cardId,
-        sp,
-        tp,
-        r0: stageR,
-        srcEl: gSrc,
-        dstEl: gDst,
-        onImpact: () => {
-          if (stepKind === "kill") {
-            gDst.remove();
-            SFX.play("destroy");
-            CFX.destroy(stageR);
-          } else if (stepKind === "down") {
-            CFX.debuff(gDst);
-            FX.float(tp.x, tp.y - 16, "−2", "#ff7a9a");
-          } else if (stepKind === "up") {
-            CFX.buff(gDst, 3);
-            FX.float(tp.x, tp.y - 16, "+3", "#7dffb0");
-          } else if (stepKind === "summon") {
-            CFX.summon(gDst, "#7dffb0");
-          }
-        }
-      });
-      setTimeout(() => { gSrc.remove(); if (gDst.isConnected) gDst.remove(); }, 940);
-    });
+      case "clear": ST.rows.clear(); renderLog(); renderList(); break;
+    }
   }
+  function toastL(t) { try { toast(t); } catch (e) { caption(null, null, t); } }
 
-  function mountChoreoLabTab() {
-    const drawer = $id("vfxLabDrawer");
-    const tabs = $id("vlTabs");
-    const grid = $id("vlGrid");
-    if (!drawer || !tabs || !grid || drawer.dataset.choreoMounted) return;
-    drawer.dataset.choreoMounted = "1";
-
-    const tabBtn = document.createElement("button");
-    tabBtn.type = "button";
-    tabBtn.className = "vl-tab";
-    tabBtn.dataset.vtab = "choreo";
-    tabBtn.textContent = "🎭 Chiêu Lật";
-    tabs.insertBefore(tabBtn, tabs.firstChild);
-
-    const cardBar = document.createElement("div");
-    cardBar.className = "vl-cardbar";
-    cardBar.id = "vlCardBar";
-    cardBar.hidden = true;
-
-    const revCards = Object.values(typeof C !== "undefined" ? C : {})
-      .filter((c) => c && (c.t === "rev" || c.t === "act"))
-      .sort((a, b) => a.n.localeCompare(b.n, "vi"));
-
-    const priorityIds = [
-      "thietquyen", "quyensu", "thuytoquyen", "giacdausi", "songchuynu", "docxanu",
-      "kiemlongnhan", "kiemsu", "kiemnuuminh", "huyetdich", "bachho", "tutraonu",
-      "nhennhan", "batty", "linhtuonglai", "tunu", "phongnu", "thukieu",
-      "batkhacan", "kychu", "satvuong", "nuloithan", "loithan", "baithu",
-      "camvuong", "mehoacnu", "xucgiacnu", "bachhau", "thoren", "tinhquyennu",
-      "chonphao", "cohoang", "tasu"
-    ].filter((id) => C[id]);
-
-    const optStar = priorityIds
-      .map((id) => `<option value="${id}">★ ${C[id].n} (${C[id].t === "act" ? "Kích Hoạt" : "Lật"})</option>`)
-      .join("");
-    const optAll = revCards
-      .filter((c) => !priorityIds.includes(c.id))
-      .map((c) => `<option value="${c.id}">${c.n} (${c.t === "act" ? "KH" : "Lật"})</option>`)
-      .join("");
-
-    cardBar.innerHTML = `
-      <select class="vl-sel" id="vlCardSelect" aria-label="Chọn thẻ Lật hoặc Kích Hoạt để test hoạt cảnh riêng">
-        <optgroup label="★ Các Thẻ Chiêu Tranh Vẽ Tiêu Biểu">${optStar}</optgroup>
-        <optgroup label="Toàn Bộ Thẻ Lật & Kích Hoạt (${revCards.length} thẻ)">${optAll}</optgroup>
-      </select>
-      <button type="button" class="vl-fire-card" id="vlFireCardBtn">▶ Diễn Thử</button>
-    `;
-    grid.parentNode.insertBefore(cardBar, grid);
-
-    const activateChoreoTab = () => {
-      drawer.classList.remove("min");
-      const minBtn = $id("vlMin");
-      if (minBtn) minBtn.textContent = "▾ Thu gọn";
-      tabs.querySelectorAll(".vl-tab").forEach((b) => b.classList.toggle("on", b === tabBtn));
-      cardBar.hidden = false;
-      grid.innerHTML = CHOREO_DEMOS
-        .map(([k, lbl, feat]) => `<button type="button" class="vl-btn${feat ? " vl-feat" : ""}" data-choreo="${k}">${lbl}</button>`)
-        .join("");
+  function openLab() {
+    build(); hook(); ST.on = true;
+    D.body.classList.add("vlab");
+    $id("vfxLabDrawer").classList.add("on", "open");
+    $id("vlBar").classList.add("on");
+    ensureMatch();
+    if (typeof G === "undefined" || !G) { try { newGame(); } catch (e) {} }
+    try { LVEIL = null; render(); } catch (e) {}
+    prog();
+  }
+  function closeLab() {
+    ST.on = false; ST.stopReq = ST.busy; ST.mode = "idle"; ST.paused = false;
+    const dr = $id("vfxLabDrawer"), bar = $id("vlBar");
+    if (dr) dr.classList.remove("on", "open"); if (bar) bar.classList.remove("on");
+    D.body.classList.remove("vlab");
+    const fin = async () => {
+      await settle(6000); unhook(); restoreSpeed(); cleanLeft();
+      const pv = ST.prev; ST.prev = null;
+      if (pv) {
+        try { if (pv.G) { G = pv.G; resetUiCaches(G); render(); } } catch (e) {}
+        try { if (pv.lobby || !pv.G) showLobby(); } catch (e) {}
+      }
     };
-
-    drawer.addEventListener("click", (ev) => {
-      const tBtn = ev.target.closest("[data-vtab]");
-      if (tBtn) {
-        if (tBtn.dataset.vtab === "choreo") {
-          ev.stopPropagation();
-          SFX.play("tap");
-          activateChoreoTab();
-        } else {
-          cardBar.hidden = true;
-        }
-        return;
-      }
-      const cBtn = ev.target.closest("[data-choreo]");
-      if (cBtn) {
-        ev.stopPropagation();
-        SFX.wake();
-        cBtn.classList.remove("vl-fired");
-        void cBtn.offsetWidth;
-        cBtn.classList.add("vl-fired");
-        setTimeout(() => cBtn.classList.remove("vl-fired"), 360);
-        runChoreoPreset(cBtn.dataset.choreo);
-        return;
-      }
-      if (ev.target.closest("#vlFireCardBtn")) {
-        ev.stopPropagation();
-        SFX.wake();
-        const sel = $id("vlCardSelect");
-        if (sel && sel.value) previewSpecificCard(sel.value);
-      }
-    }, true);
-
-    activateChoreoTab();
+    fin();
   }
+  function toggleLab() { const dr = $id("vfxLabDrawer"); if (dr && dr.classList.contains("on")) closeLab(); else openLab(); }
 
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", mountChoreoLabTab);
-  } else {
-    mountChoreoLabTab();
-  }
-
-  window.CardChoreo.runChoreoPreset = runChoreoPreset;
-  window.CardChoreo.previewSpecificCard = previewSpecificCard;
-})();
-
-/* bảng vừa được dựng: ép tính style một lần để lần mở đầu tiên vẫn có hiệu ứng mờ dần (opacity transition) như khi dựng sẵn */
-void document.getElementById("vfxLabDrawer").offsetWidth;
+  W.VFXLAB = {
+    openLab, toggleLab, closeLab, runCard, startAudit, jump, quick, exportJSON, listFor, plan: PLAN.plan, PLAN, state: ST,
+    rows: () => [...ST.rows.values()], idle, settle, setSpeed: (k) => { ST.speed = String(k); const s = $id("vlSpd"); if (s) s.value = ST.speed; applySpeed(); },
+    pause: (v) => { ST.paused = v == null ? !ST.paused : !!v; prog(); }
+  };
+})(typeof globalThis !== "undefined" ? globalThis : this);
