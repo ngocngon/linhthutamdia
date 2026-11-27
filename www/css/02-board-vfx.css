@@ -775,3 +775,16 @@ body.rm .slot[data-vks]::before{opacity:.9}
 .fxr.fxr-phu{overflow:hidden;border-radius:14px;z-index:38;opacity:0}
 .fxr-phu-s{position:absolute;inset:0;will-change:transform;transform:scale(.04);
   background:radial-gradient(farthest-corner ellipse at var(--gx) var(--gy),color-mix(in srgb,var(--b) 34%,transparent) 0,color-mix(in srgb,var(--a) 40%,transparent) 34%,color-mix(in srgb,var(--a) 26%,transparent) 50%,color-mix(in srgb,var(--b) 85%,transparent) 54%,color-mix(in srgb,var(--a) 55%,transparent) 57%,transparent 62%)}
+/* gpu68-audit2: hào quang thẻ mang dấu chờ kích hoạt (06 auraHtml). Chỉ opacity/transform để không tốn khung hình. */
+.aur{position:absolute;inset:-3px;border-radius:inherit;pointer-events:none;z-index:8;--ac:#7fe0ff;--ac2:#ffffff;border:2px solid var(--ac);box-shadow:0 0 12px 3px var(--ac),inset 0 0 14px 2px var(--ac);opacity:.9;animation:aurPulse 1.6s ease-in-out infinite}
+.aur>i{position:absolute;inset:1px;border-radius:inherit;border:1.5px solid var(--ac2);opacity:0;animation:aurPulse 1.6s ease-in-out .8s infinite}
+.aur-surge{--ac:#7fe0ff;--ac2:#e9fbff}
+.aur-surge::before,.aur-surge::after{content:"";position:absolute;width:38%;height:22%;background:no-repeat center/contain url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 24'%3E%3Cpath d='M2 12 L13 5 L17 14 L27 3 L23 13 L38 9' fill='none' stroke='%23bff4ff' stroke-width='2.4' stroke-linejoin='round' stroke-linecap='round'/%3E%3C/svg%3E");opacity:0;animation:aurBolt 1.3s steps(1) infinite}
+.aur-surge::before{left:-8%;top:18%;transform:rotate(-24deg)}
+.aur-surge::after{right:-8%;bottom:20%;transform:rotate(160deg);animation-delay:.65s}
+.aur-zg{--ac:#ff7ac0;--ac2:#ffd1ea}
+.aur-evil{--ac:#ff4d5e;--ac2:#ffb0b8;animation-duration:2.2s}
+@keyframes aurPulse{0%,100%{opacity:.65}50%{opacity:1}}
+@keyframes aurBolt{0%{opacity:0}8%{opacity:1}16%{opacity:.2}22%{opacity:.9}30%,100%{opacity:0}}
+@media (prefers-reduced-motion:reduce){.aur,.aur>i,.aur-surge::before,.aur-surge::after{animation:none}}
+body.reduced .aur>i{position:absolute;inset:1px;border-radius:inherit;border:1.5px solid var(--ac2);opacity:0;animation:aurPulse 1.6s ease-in-out .8s infinite}

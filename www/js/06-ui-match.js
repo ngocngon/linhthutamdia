@@ -658,7 +658,15 @@ function markList(c,where,zoom){
   if(!zoom&&G&&!c.sil&&!(c.ab&&c.ab!==c.id)){const s=abState(c);if(s.extra.length)top.push([BOOK,"#d58cff",`Đang có thêm ${s.extra.length} kỹ năng Duy Trì: ${s.extra.map(([x])=>cnm(x)).join(", ")}.`]);}
   return top.concat(r);
 }
+/* gpu68-audit2: HÀO QUANG THẺ MANG DẤU CHỜ KÍCH HOẠT — nhận biết ngay trên tay / trên bàn, kể cả các lượt sau:
+   surge (Lôi Quang Tiên truyền điện: đặt thẻ này -> lặp lại kỹ năng), zg (Bầy Xác Nuốt Sao: sẽ hoá bản sao), evil (Lục Ác: thẻ ÁC chờ hợp thể),
+   her (Kẻ Nuốt Sao Sơ Khai: thẻ được đánh dấu thừa hưởng). Chỉ CSS (opacity/transform), không JS mỗi khung. */
+const AURA=[["surge","surge"],["zg","zg"],["evil","evil"]];
+function auraHtml(c){if(!c||c.sil&&!c.surge)return "";for(const [k,cl] of AURA)if(c[k]&&!(k==="evil"&&c.evp))return `<i class="aur aur-${cl}" aria-hidden="true"><i></i></i>`;return "";}
 function markBadges(c,where){
+  return auraHtml(c)+markBadges0(c,where);
+}
+function markBadges0(c,where){
   const m=markList(c,where);
   if(c&&c.ug)m.push(["⬆"+c.ug,"#7dff8a"]); /* gpu35: huy hiệu nâng cấp vào chung cột (trước nằm dưới số sức mạnh nên bị che) */
   if(!m.length)return "";

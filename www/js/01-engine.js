@@ -2032,6 +2032,7 @@ function revealLoc(G, li, old) {
 function startTurn0(G) {
   G.turn++; G.newLoc = -1; G.depth = 0; if (G.msgs) G.msgs.length = 0; if (G.evs) G.evs.length = 0;
   if (G.pendingDouble) { G.stake = Math.min(8, G.stake * Math.pow(2, G.pendingDouble)); G.pendingDouble = 0; }
+  G.omega.p = 0; G.omega.a = 0; /* gpu68-audit2: Linh Môi Sư chỉ nuốt thẻ đặt sau nó TRONG LƯỢT kích hoạt (trước đây kéo sang lượt sau) */
   for (const s of SIDES) { G.cnt.movedTurn[s] = 0; G.bonusNow[s] = G.nextBonus[s]; if (G.bonusNow[s] > 0) for (const [k] of boardCards(G, other(s))) if (!k.sil && is(G, k, "catlun") && !k.used) { k.used = true; G.bonusNow[s] = 0; break; }
     G.energy[s] = Math.max(0, G.turn + G.maxE[s] + G.bonusNow[s]); G.nextBonus[s] = 0; }
   for (const s of SIDES) for (const [k, l] of boardCards(G, s)) if (!k.sil) {
@@ -2179,7 +2180,7 @@ function revealCard(G, inst, li, by, ef) {
     }
     if (aranaNow) { inst.bonus += 1; const cur = locOf(G, inst); if (cur >= 0 && cur < 2) moveCard(G, inst, cur, cur + 1); }
     if (grapNow) { const cur = locOf(G, inst); if (cur >= 0 && cur !== grapNow - 1) moveCard(G, inst, cur, grapNow - 1); }
-    if (omegaNow) { const f = find(G, omegaNow), cur = locOf(G, inst); if (f && cur >= 0) { const v = power(G, inst, cur); if (destroy(G, inst, cur)) { f.inst.bonus += v; nb(G, f.inst, v, inst, "nuot"); } return; } }
+    if (omegaNow) { const f = find(G, omegaNow), cur = locOf(G, inst); if (f && cur >= 0) { const v = power(G, inst, cur), sv = G.srcU; G.srcU = omegaNow; const ok = destroy(G, inst, cur); G.srcU = sv; if (ok) { f.inst.bonus += v; nb(G, f.inst, v, inst, "nuot"); ev(G, "absorb", { uid: f.inst.uid, from: inst.uid, fid: inst.id, v, li: cur, side: inst.side }); } return; } }
   }
   if (pl && locOf(G, inst) === li && inst.side === s) {
     if (L.cards[s].length >= cap(G, li) && boardCards(G, s).some(([k]) => k !== inst && !k.sil && is(G, k, "thosanhuyetthach"))) inst.bonus += 2;

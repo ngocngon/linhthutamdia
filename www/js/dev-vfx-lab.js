@@ -148,6 +148,8 @@
       tamkiemmienvien: [["h5", "Tay có thẻ từ 5 năng lượng", { subj: { at: "hand" }, hand: [V.c5, V.c6, V.c1] }]],
       horangkiem: [["deck4", "Bộ bài có thẻ 4 năng lượng", { subj: { at: "hand" } }]],
       giaohutmau: [], dakhonggian: [],
+      tamlinhtu: [["act", "Kích Hoạt rồi đặt thẻ (thẻ đó bị nuốt)", { subj: { at: "board", li: L1 }, act: true, actFirst: 1, plays: [[V.c4, L1]] }]],
+      diennu: [["next", "Đặt từ tay · lượt sau đặt lá được truyền điện", { subj: { at: "hand" }, deck: DECK.concat([V.c3]), next: { plays: [], surge: 1 } }]],
       vuabong: [["mix", "Thẻ tại đây đã được tăng / bị giảm sức mạnh", { subj: { at: "hand" }, own: [[V.c2, L1, { bonus: 3 }], [V.c1, 0]], foe: [[V.c3, L1, { bonus: -2 }], [V.c6, L1, { bonus: 2 }], [V.c1, 0]] }]],
       heonhen: [["act", "Kích Hoạt · tay đối thủ có thẻ kỹ năng", { subj: { at: "board", li: L1 }, act: true, foeHand: [H.revCard, H.endCard] }]],
       khuyendichchuyen: [["act", "Kích Hoạt rồi đặt thẻ", { subj: { at: "board", li: L1 }, act: true, actFirst: 1, plays: [[V.c2, 0]] }]],
@@ -316,6 +318,7 @@
       const ok = []; G.live = false; const cs = spec.next.plays.map(([cid, li]) => { const c = E.mk(G, cid, "p"); G.hand.p.push(c); return [c, li]; }); G.live = true;
       G.energy.p = Math.max(G.energy.p, 12); G.energy.a = spec.foeE || 0;
       for (const [c, li] of cs) ok.push(E.queuePlay(G, "p", c.uid, li));
+      if (spec.next.surge) for (const c of G.hand.p.filter((x) => x.surge)) ok.push(E.queuePlay(G, "p", c.uid, LANE));
       return ok.every(Boolean);
     }
     function runCand(id, cand, seed) {
@@ -680,6 +683,7 @@
     g.live = false; const cs = spec.next.plays.map(([cid, li]) => { const c = E.mk(g, cid, "p"); g.hand.p.push(c); return [c, li]; }); g.live = true;
     g.energy.p = Math.max(g.energy.p, 12); g.energy.a = spec.foeE || 0;
     for (const [c, li] of cs) E.queuePlay(g, "p", c.uid, li);
+    if (spec.next.surge) for (const c of g.hand.p.filter((x) => x.surge)) E.queuePlay(g, "p", c.uid, PLAN.LANE);
   }
 
   /* ---------- điều khiển ---------- */
