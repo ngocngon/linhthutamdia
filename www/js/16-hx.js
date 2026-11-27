@@ -1,8 +1,8 @@
 /* ===== Module 16 (gpu61): HỒN XUẤT vòng 2 — PA6 làm lõi, thêm 8 hiệu ứng Hồn Xuất =====
    Chỉ bật khi THẺ HÀNH ĐỘNG (thẻ nguồn) nằm trong 20 thẻ có ảnh tư thế (img/pose/pose.json); mọi thẻ khác giữ nguyên gpu60.
    (localStorage "ltd_hx_all" = "1": bật cho mọi thẻ — chỉ để duyệt thử.)
-   HX-01 Rút bài   : lá bay vòng cung nhanh từ bộ bài vào tay (≈0,5 s, lá sau lệch 120 ms), lúc đáp hồn loé khỏi khung.
-   HX-02 Lật thẻ   : lật kiểu cũ (.mc.flip + elFx) đẹp hơn: nhấc + xoay 3D + loé theo hệ + ấn dưới chân; S4/S5 ló nửa người, S1–S3 không xuất hồn.
+   RB-B Rút bài    : (gpu62, thay HX-01) đỉnh bộ bài loé ấn, lá bay úp rồi lật một vòng giữa không trung, đáp với vòng tia lửa theo hệ — KHÔNG hồn.
+   HX-02 Lật thẻ   : lật kiểu cũ (.mc.flip + elFx) đẹp hơn: nhấc + xoay 3D + loé theo hệ + ấn dưới chân; S4/S5 ló nửa người. S1–S3: lật y như gpu60.
    HX-03 Hủy thẻ   : nhát chém, hồn mục tiêu bị giật khỏi khung rồi vỡ thành mảnh ảnh thật, khung rỗng sụp vụn (CPU, lớp 2D).
    HX-04 Vứt bài   : lá nhấc khỏi tay, hồn rời thẻ, thẻ cháy thành tro (CPU), hồn chạy vào mộ bài.
    HX-05 Triệu hồi : khung mới thành hình trên ấn, hồn mới giáng xuống chui vào khung. Nhiều mục tiêu: một lần toả (fan-out).
@@ -47,7 +47,7 @@
     return j;
   }
   HXG.skip = () => { for (const j of [...ACT]) j.fin(true); cvClear(); };
-  HXG.clean = () => { HXG.skip(); document.querySelectorAll(".hxsoul,.hxds,.hxbolt").forEach((e) => e.remove()); for (const el of document.querySelectorAll(".hxpk,.hxm,.hx2z")) el.classList.remove("hxpk", "hxm", "hx2z"); };
+  HXG.clean = () => { HXG.skip(); document.querySelectorAll(".hxsoul,.hxds,.hxbolt,.hxemb,.hxbk,.hxclip,.hxorb,.hxrc,.fxg.hxold").forEach((e) => e.remove()); for (const el of document.querySelectorAll(".hxpk,.hxm,.hx2z")) el.classList.remove("hxpk", "hxm", "hx2z"); };
   HXG.busy = () => ACT.size + CV.L.length;
 
   /* ---------- lớp 2D (mảnh vỡ ảnh thật, cháy, tay linh hồn, dải năng lượng, nét chém) ---------- */
@@ -314,60 +314,76 @@
     return { d, img: d.querySelector("img"), x: b.left + b.width / 2, y: b.top + b.height / 2, w: b.width, h: b.height };
   }
 
-  /* ================= HX-01 RÚT BÀI ================= */
+  /* ================= RB-B RÚT BÀI "ÁNH LỬA ẤN" (gpu62, thay HX-01 — không hồn) =================
+     Đỉnh bộ bài loé ấn sáng; lá rời bộ bài ÚP (mặt lưng là lớp .hxbk trong chính lá), bay vòng cung và lật một vòng rotateY giữa không trung
+     (thấy mặt từ ~185 ms), đáp vào tay với vòng tia lửa theo hệ của lá. 1 lá ≈ 0,56 s; lá sau lệch 150 ms (3 lá ≈ 0,86 s). */
   const d0 = CFX.drawIn;
   CFX.drawIn = function (el, cr, k) {
     try {
       const u = +(el && el.dataset.hc), c = G && G.hand.p.find((x) => x.uid === u);
-      if (c && ok(c.id) && !ff()) { if (draw1(el, c, k | 0)) return; }
+      if (c && ok(c.id) && !ff()) { if (drawRB(el, c, k | 0)) return; }
     } catch (e) { console.error(e); }
     return d0.call(this, el, cr, k);
   };
-  function draw1(el, c, k) {
+  function drawRB(el, c, k) {
     const b = el.getBoundingClientRect();
     if (!b.width) return false;
     el.style.opacity = "";
-    const id = c.id, dz = (typeof DECKZ === "function" && DECKZ("p")) || { x: innerWidth * 0.86, y: innerHeight - 70 };
-    const cx = b.left + b.width / 2, cy = b.top + b.height / 2, dx = dz.x - cx, dy = dz.y - cy, T = 500, dl = k * 120, lite = isLite();
-    const lift = Math.min(90, 40 + Math.abs(dx) * 0.25), up = dy < -40, mx = up ? dx * 0.12 : dx / 2, my = up ? dy * 0.38 : Math.min(dy, 0) - lift;
-    const kf = [], N = 10, eo = (u) => 1 - Math.pow(1 - u, 2.2);
-    for (let i = 0; i <= N; i++) {
-      const u = i / N, e = eo(u), v = 1 - e, x = v * v * dx + 2 * v * e * mx, y = v * v * dy + 2 * v * e * my;
-      const s = lerp(0.45, 1.16, Math.min(1, e * 1.1)), r = lerp(22, -5, e);
-      kf.push({ transform: `translate(${x.toFixed(1)}px,${y.toFixed(1)}px) rotate(${r.toFixed(1)}deg) scale(${s.toFixed(3)})`, opacity: i === 0 ? 0 : 1, offset: u * 0.8 });
+    const id = c.id, dz = (typeof DECKZ === "function" && DECKZ("p")) || { x: innerWidth * 0.2, y: 50 };
+    const cx = b.left + b.width / 2, cy = b.top + b.height / 2, dx = dz.x - cx, dy = dz.y - cy, lite = isLite();
+    const T = 560, L0 = 70, LF = 400, dl = k * 150, FL = 185;
+    /* tư thế nghỉ của lá trên tay (quạt: translateY) -> khung cuối trùng khít, không giật khi hoạt ảnh xong */
+    let ry = 0;
+    try { const m = new DOMMatrixReadOnly(getComputedStyle(el).transform); ry = m.m42 || 0; } catch (e) {}
+    const up = dy < -40, mx = up ? dx * 0.16 : dx / 2, my = up ? dy * 0.4 : Math.min(dy, 0) - 80;
+    const bz = (u) => { const v = 1 - u; return [v * v * dx + 2 * v * u * mx, v * v * dy + 2 * v * u * my]; };
+    const eo = (u) => 1 - Math.pow(1 - u, 2.2), sm = (u) => u * u * (3 - 2 * u);
+    const s0 = clamp((dz.w || 40) / b.width, 0.32, 0.6);
+    const tf = (x, y, r, yr, s) => `perspective(900px) translate(${x.toFixed(1)}px,${(y + ry).toFixed(1)}px) rotate(${r.toFixed(2)}deg) rotateY(${yr.toFixed(1)}deg) scale(${s.toFixed(3)})`;
+    const yAt = (t) => 180 * (1 - sm(clamp((t - L0) / 230, 0, 1)));
+    const kf = [{ transform: tf(dx, dy, -12, 180, s0 * 0.8), opacity: 0, offset: 0 }, { transform: tf(dx, dy, -12, 180, s0), opacity: 1, offset: L0 / T }];
+    const N = 12;
+    for (let i = 1; i <= N; i++) {
+      const u = i / N, t = L0 + LF * u, e = eo(u), [x, y] = bz(e);
+      kf.push({ transform: tf(x, y, lerp(-12, 0, e), yAt(t), lerp(s0, 1, Math.min(1, e * 1.15)) * (1 + 0.18 * Math.sin(Math.PI * Math.min(1, u * 1.05)))), opacity: 1, offset: t / T });
     }
-    kf.push({ transform: "translateY(2px) rotate(1deg) scale(.95)", opacity: 1, offset: 0.9 }, { transform: "none", opacity: 1, offset: 1 });
-    el.animate(kf, { duration: T, delay: dl, easing: "linear", fill: "backwards" });
+    kf[kf.length - 1].transform = tf(0, 0, 0, 0, 1.06);
+    kf.push({ transform: tf(0, 0, 0, 0, 1), opacity: 1, offset: 1 });
+    const a = el.animate(kf, { duration: T, delay: dl, easing: "linear", fill: "backwards" });
+    /* mặt lưng: lớp trong lá, tắt đúng lúc lá quay qua 90° */
+    const bk = document.createElement("i");
+    bk.className = "hxbk"; bk.setAttribute("aria-hidden", "true");
+    try { bk.style.background = P6.back({ own: "p" }); } catch (e) { bk.style.background = "#2a2060"; }
+    el.appendChild(bk);
+    const ab = bk.animate([{ opacity: 1 }, { opacity: 1, offset: FL / T }, { opacity: 0, offset: Math.min(1, (FL + 1) / T) }, { opacity: 0 }], { duration: T, delay: dl, easing: "linear", fill: "both" });
+    const j = job((fast) => { bk.remove(); if (fast) { try { a.finish(); } catch (e) {} } }, dl + T);
+    ab.onfinish = () => j.fin(false);
     const { c1, c2, L } = cols(id), col = c.cr ? "#ffd65a" : c1;
-    /* đuôi sáng dọc đường bay */
-    for (let i = 1; i <= (lite ? 4 : 8); i++) {
-      const u = i / (lite ? 5 : 9), e = eo(u), v = 1 - e, x = cx + v * v * dx + 2 * v * e * mx, y = cy + v * v * dy + 2 * v * e * my;
-      E6({ x, y, vx: rnd(-25, 25), vy: rnd(-25, 25), c: L[i % L.length], kind: 0, s0: rnd(7, 12), s1: 2, drag: 1.5, dur: 0.32, a: 0.8, delay: (dl + T * 0.8 * u) / 1000 });
+    /* đỉnh bộ bài loé: quầng + vòng + ấn xoay */
+    fxT(() => {
+      glow(dz.x, dz.y, "#ffd76a", 64, 0.36, 0.75);
+      ring(dz.x, dz.y, "#ffd76a", 46, 0.32, 0.9);
+      if (!lite) { try { FX.sigil(dz.x, dz.y, "#ffd76a", 22, 6, false, 0.4); } catch (e) {} }
+      try { SFX.play("whoosh"); } catch (e) {}
+    }, dl);
+    /* đuôi sáng theo hệ dọc đường bay (hạt GPU, có trần) */
+    const n = lite ? 5 : 10;
+    for (let i = 1; i <= n; i++) {
+      const u = i / (n + 1), e = eo(u), [x, y] = bz(e);
+      E6({ x: cx + x, y: cy + y, vx: rnd(-20, 20), vy: rnd(-20, 20), c: [c1, c2, "#ffd76a"][i % 3], kind: 0, s0: rnd(6, 10), s1: 1.5, drag: 1.5, dur: 0.3, a: 0.85, delay: (dl + L0 + LF * u) / 1000 });
     }
     fxT(() => {
       if (!el.isConnected) return;
       const q = ctrR(el.getBoundingClientRect());
-      ring(q.x, q.y, col, q.w * 1.25, 0.38, 0.9);
-      glow(q.x, q.y, c2, q.w * 1.5, 0.3, 0.55);
-      star(q.x, q.y - q.h * 0.2, "#ffffff", q.w * 0.9, 0.22);
-      if (!lite) streaks(q.x, q.y - q.h * 0.3, L, 10, 220, -2.6, -0.5, 0.4, 5);
-      /* hồn loé: ảnh tư thế bật khỏi khung rồi tan (chỉ khi ảnh đã giải mã) */
-      const im = imgReady(K.soulUrl(id));
-      if (im && !lite) {
-        const d = document.createElement("div"), w = q.w * 0.92, h = q.h * 0.92;
-        d.className = "hxsoul hxfl";
-        d.style.cssText = `left:${(q.x - w / 2).toFixed(1)}px;top:${(q.y - h / 2).toFixed(1)}px;width:${w.toFixed(1)}px;height:${h.toFixed(1)}px;--c:${c1}`;
-        d.innerHTML = `<img src="${im.src}" alt="" style="object-fit:contain;object-position:50% 100%">`;
-        document.body.appendChild(d);
-        const a = d.animate([{ transform: "translateY(0) scale(.85)", opacity: 0 }, { transform: "translateY(-30%) scale(1)", opacity: 0.85, offset: 0.35 }, { transform: "translateY(-52%) scale(1.06)", opacity: 0 }], { duration: 360, easing: "cubic-bezier(.2,.8,.3,1)", fill: "both" });
-        const rm = () => d.remove();
-        a.onfinish = rm; fxT(rm, 600);
-      }
+      if (!q.w) return;
+      ring(q.x, q.y, col, q.w * 1.2, 0.38, 0.95);
+      glow(q.x, q.y, c1, q.w * 1.5, 0.3, 0.55);
+      streaks(q.x, q.y, [c1, c2, "#ffffff"], lite ? 7 : 14, 280, 0, 6.283, 0.36, 5);
       try { SFX.play("place"); } catch (e) {}
-      tap("HX01:land", { id, uid: c.uid });
-    }, dl + T * 0.8);
+      tap("RB:land", { id, uid: c.uid });
+    }, dl + L0 + LF + 10);
     live(dl + T + 60);
-    tap("HX01", { id, uid: c.uid, k });
+    tap("RB", { id, uid: c.uid, k });
     return true;
   }
   const IMR = new Map();
@@ -385,6 +401,8 @@
   HXG.flip = function (uid, p) {
     const id = idOf(uid);
     if (!ok(id) || ff() || !p) return false;
+    /* gpu62: S1–S3 (và mọi bậc khác ngoài S4/S5) lật đúng kiểu cũ gpu59/gpu60 — kể cả khi ltd_hx_all=1 */
+    if (!/^S[45]$/.test((C[id] || {}).h || "")) return false;
     const el = mcOf(uid);
     if (!el || !el.classList.contains("flip")) return false;
     const d = C[id], h5 = d.h === "S5" || d.h === "S4", { e, c1, c2, L } = cols(id), lite = isLite(), T = 420;
@@ -460,14 +478,15 @@
     for (const st of stops) {
       const ks = new Set(st.list.map((q) => q.s.k));
       st.fan = st.list.length > 1;
-      st.hx = ks.has("kill") ? "kill" : ks.has("bounce") || ks.has("steal") ? "arm" : ks.has("summon") || ks.has("revive") ? "sum" : ks.has("down") ? "down" : ks.has("up") ? "up" : st.fan ? "fan" : "";
+      st.hx = ks.has("kill") ? "kill" : ks.has("bounce") || ks.has("steal") ? "arm" : ks.has("summon") || ks.has("revive") ? "sum" : st.list.some((q) => q.s.hx15c) ? "copy" : ks.has("down") ? "down" : ks.has("up") ? "up" : st.fan ? "fan" : "";
       if (st.hx === "arm") st.hold = 200;
       else if (st.hx === "down") st.hold = 170;
       else if (st.hx === "sum") st.hold = 200;
       else if (st.hx === "up") st.hold = 90;
+      else if (st.hx === "copy") st.hold = 520;
     }
   };
-  HXG.ownRev = (ev) => REV.has(ev.uid);
+  HXG.ownRev = (ev) => REV.has(ev.uid) || (typeof R14 !== "undefined" && R14.has(ev.uid));
   /* HX-09: hồn ở lại cạnh thẻ nguồn (không bay tới mục tiêu), chỉ nghiêng về phía mục tiêu rồi vươn tay */
   HXG.goStop = function (ch, st, dur) {
     if (st.hx !== "arm") return false;
@@ -553,8 +572,9 @@
       }
       try { SFX.play("whoosh"); } catch (e) {}
     }
+    else if (st.hx === "copy") { for (const q of st.list) if (q.s.hx15c) { try { mimic15(ch, q); } catch (e) { console.error(e); } } }
     else if (st.hx === "sum") {
-      for (const q of st.list) if (q.s.k === "revive") { const el = mcOf(q.s.dst); REV.delete(q.s.dst); if (el) materialize(el, q.s.dst, 0); }
+      for (const q of st.list) if (q.s.k === "revive") { const el = mcOf(q.s.dst); REV.delete(q.s.dst); if (el && !rev14(el, q.s.dst, ch.src, { chain: 1 })) { el.classList.remove("hx14h"); materialize(el, q.s.dst, 0); } }
     }
     if (st.fan && !lite) { converge(ch.x, ch.y, L, 14, ch.bw * 0.8, 0.25); }
   };
@@ -708,11 +728,16 @@
     CFX.revive = function (el) {
       try {
         const uid = +(el && el.dataset.mc);
+        /* gpu62 (HX-14): hồi sinh của thẻ Hồn Xuất (thẻ được hồi sinh hoặc thẻ nguồn) */
+        if (uid && !REV.has(uid) && R14.has(uid)) { const src = R14.get(uid); R14.delete(uid); if (rev14(el, uid, src, {})) return; }
         if (uid && REV.has(uid)) {
-          el.style.opacity = "0";
+          el.style.opacity = "0"; el.classList.add("hx14h");
+          /* bàn vẽ lại trong lúc chờ: lá mới cũng ẩn */
+          const keep = () => { if (!REV.has(uid)) return; const n = mcOf(uid); if (n && !n.classList.contains("hx14h")) n.classList.add("hx14h"); requestAnimationFrame(keep); };
+          requestAnimationFrame(keep);
           const st = REV.get(uid), ch = K.ch();
           /* lưới an toàn: chuỗi PA6 bị huỷ/tua nhanh -> hiện ngay */
-          const wd = () => { if (!REV.has(uid)) return; const c = K.ch(); if (c && !c.dead && c === ch) { fxT(wd, 200); return; } REV.delete(uid); const e2 = mcOf(uid); if (e2) { e2.style.opacity = ""; rv0.call(CFX, e2); } else el.style.opacity = ""; };
+          const wd = () => { if (!REV.has(uid)) return; const c = K.ch(); if (c && !c.dead && c === ch) { fxT(wd, 200); return; } REV.delete(uid); el.classList.remove("hx14h"); const e2 = mcOf(uid); if (e2) { e2.classList.remove("hx14h"); e2.style.opacity = ""; rv0.call(CFX, e2); } else el.style.opacity = ""; };
           fxT(wd, 600);
           return;
         }
@@ -850,17 +875,683 @@
     requestAnimationFrame(find);
   }
 
-  /* ---------- sự kiện của bước đang diễn (HX-05 hồi sinh cần biết thẻ nguồn) ---------- */
+  /* ======================================================================================================
+     gpu62: HỒN XUẤT VÒNG 3 — DT-B (Duy Trì bám lần đầu), HX-14 Hồi sinh, HX-15 Sao chép kỹ năng, HX-16 Biến đổi thẻ,
+     HX-19 Năng lượng, HX-20 Cuối lượt. Cùng cổng: thẻ hành động (nguồn; hồi sinh/biến đổi: thẻ bị tác động hoặc nguồn) có ảnh tư thế,
+     trừ khi ltd_hx_all=1. Mức Nhẹ: DT-B/HX-20 bản rẻ (không ló / ít hạt); HX-14/15/16/19 về đường cũ. Giảm chuyển động / FFTURN: đường cũ.
+     Chạm màn hình: tua nhanh (mọi đòn đã dời lịch trúng ngay, lớp phủ dọn sạch).
+     ====================================================================================================== */
+  const R3 = new Set(); /* việc vòng 3 đang diễn (để chạm-tua-nhanh khi không có chuỗi PA6) */
+  function job3(end, ms) { const j = job((f) => { R3.delete(j); end(f); }, ms); R3.add(j); return j; }
+  const okId = (id) => !!id && ok(id);
+  const artOf = (el) => { const a = el && el.querySelector(":scope>img.art"); return a && a.complete && a.naturalWidth ? a : null; };
+  const soulImg = (id, el) => imgReady(K.soulUrl(id)) || artOf(el);
+  const flt = (x, y, t, c) => { try { if (typeof say === "function" && say.length >= 4) say(x, y, t, c); else FX.float(x, y, t, c); } catch (e) {} };
+  const bez2 = (a, c, b, u) => { const v = 1 - u; return [v * v * a[0] + 2 * v * u * c[0] + u * u * b[0], v * v * a[1] + 2 * v * u * c[1] + u * u * b[1]]; };
+  /* tạo .hxsoul ở tâm (x,y), cỡ w×h, ảnh src (contain, chân chạm đáy) */
+  function soulAt(src, x, y, w, h, c, cls) {
+    const d = document.createElement("div");
+    d.className = "hxsoul" + (cls ? " " + cls : "");
+    d.style.cssText = `left:${(x - w / 2).toFixed(1)}px;top:${(y - h / 2).toFixed(1)}px;width:${w.toFixed(1)}px;height:${h.toFixed(1)}px;--c:${c || "#8ab4ff"}`;
+    d.innerHTML = `<img src="${src}" alt="" draggable="false" style="object-fit:contain;object-position:50% 100%">`;
+    document.body.appendChild(d);
+    return d;
+  }
+  const kfT = (dx, dy, s, r, o, off, sx) => ({ transform: `translate(${dx.toFixed(1)}px,${dy.toFixed(1)}px) rotate(${(r || 0).toFixed(2)}deg) scale(${((sx || 1) * s).toFixed(3)},${s.toFixed(3)})`, opacity: o, offset: off });
+
+  /* ---------- lịch: dời các bước plan8 cho nhịp vòng 3 (gọi trong plan8 qua P6.shift) ---------- */
+  let HX3S = null;
   {
+    const sh0 = P6.shift;
+    P6.shift = function (steps) {
+      let x = 0;
+      try { x = sh0.apply(this, arguments) || 0; } catch (e) { console.error(e); }
+      let y = 0;
+      try { y = r3plan(steps); } catch (e) { console.error(e); }
+      if (y) HX3S = steps;
+      return x + y;
+    };
+  }
+  const later = (steps, t, D, skip) => { for (const s of steps) if (!(skip && skip.has(s)) && (s.t0 || 0) >= t) s.t0 = (s.t0 || 0) + D; };
+  function r3plan(steps) {
+    if (ff() || !G || reduced) return 0;
+    let extra = 0;
+    /* HX-15: sao chép kỹ năng do thẻ Hồn Xuất -> bản song sinh (dài hơn đòn cũ ~0,9 s) */
+    for (const s of steps) {
+      if (s.k !== "copy" || s.hx15 || s.hx15c || !s.sp || !s.tp || !okU(s.src) || isLite()) continue;
+      if (!mcOf(s.dst) || !artOf(mcOf(s.dst))) continue;
+      /* thẻ nguồn đang xuất hồn PA6: chính hồn PA6 tới mục tiêu, bản soi gương hiện cạnh mục tiêu (HXG.impact) */
+      const ch = K.ch();
+      if (ch && !ch.dead && ch.src === s.src) { s.hx15c = 1; continue; }
+      if (!mcOf(s.src) || !artOf(mcOf(s.src))) continue;
+      s.hx15 = 1;
+      later(steps, (s.t0 || 0) + 1, X15, null);
+      extra += X15;
+    }
+    /* DT-B: hiệu ứng Duy Trì bám lần đầu */
+    extra += dtPlan(steps);
+    return extra;
+  }
+
+  /* ================= DT-B ẤN HỒN SAU LƯNG ================= */
+  const ONGS = { g: null, s: new Set() };
+  const ongSeen = () => { if (ONGS.g !== G) { ONGS.g = G; ONGS.s = new Set(); } return ONGS.s; };
+  HXG.ongSeen = (uid) => ongSeen().has(uid);
+  /* thẻ X đang tác động lên những thẻ nào (so sức mạnh khi tạm tắt kỹ năng của X) */
+  function ongAff(X, uids) {
+    const out = [], sv = X.sil;
+    try {
+      for (const u of uids) {
+        const f = E.find(G, u);
+        if (!f) continue;
+        const v1 = E.power(G, f.inst, f.li);
+        X.sil = true;
+        let v2 = v1;
+        try { v2 = E.power(G, f.inst, f.li); } finally { X.sil = sv; }
+        if (v1 !== v2) out.push(u);
+      }
+    } finally { X.sil = sv; }
+    return out;
+  }
+  function dtPlan(steps) {
+    const ong = steps.filter((s) => s.ong && !s.fl && (s.k === "up" || s.k === "down") && s.dst && s.tp);
+    if (!ong.length) return 0;
+    const seen = ongSeen(), cands = [];
+    for (let li = 0; li < 3; li++) for (const sd of E.SIDES) for (const c of G.locs[li].cards[sd]) {
+      if (!c.rev || c.sil || seen.has(c.uid)) continue;
+      const a = C[E.ab(c)];
+      if (a && a.t === "on" && ok(c.id)) cands.push(c);
+    }
+    let extra = 0, nth = 0;
+    for (const X of cands) {
+      const aff = ongAff(X, ong.map((s) => s.dst));
+      if (!aff.length) continue;
+      const L = ong.filter((s) => aff.includes(s.dst) && !s.hxDt);
+      if (!L.length || !mcOf(X.uid)) continue;
+      seen.add(X.uid);
+      const t0 = Math.min(...L.map((s) => s.t0 || 0)) + nth * 150, oth = L.filter((s) => s.dst !== X.uid).sort((a, b) => a.tp.x - b.tp.x);
+      const D0 = oth.length ? 660 : 380, D = D0 + Math.max(0, oth.length - 1) * 60, skip = new Set(L);
+      later(steps, t0, D, skip);
+      for (const s of L) { s.hxDt = 1; s.t0 = s.dst === X.uid ? t0 + 380 : t0 + D0 + oth.indexOf(s) * 60; }
+      const tg = oth.map((s) => s.dst);
+      fxT(() => { try { dtB(X.uid, X.id, tg, L.some((s) => s.dst === X.uid)); } catch (e) { console.error(e); } }, t0);
+      extra += D; nth++;
+      tap("DTB:plan", { uid: X.uid, n: tg.length, self: L.some((s) => s.dst === X.uid) });
+    }
+    return extra;
+  }
+  /* ấn: bóng nhân vật tô màu hệ + quầng + lõi sáng + 35% chi tiết ảnh — dựng MỘT lần mỗi thẻ */
+  const EMBC = new Map();
+  function embCanvas(id, c, el) {
+    const k = id + "|" + c;
+    if (EMBC.has(k)) return EMBC.get(k);
+    const im = soulImg(id, el);
+    if (!im) return null;
+    const S = 256, P = 30, sil = document.createElement("canvas"), cv = document.createElement("canvas");
+    sil.width = sil.height = cv.width = cv.height = S;
+    const iw = im.naturalWidth, ih = im.naturalHeight, k2 = Math.min((S - 2 * P) / iw, (S - 2 * P) / ih), w = iw * k2, h = ih * k2, X = (S - w) / 2, Y = S - P - h;
+    const sx = sil.getContext("2d"), x = cv.getContext("2d");
+    const paint = (col) => { sx.globalCompositeOperation = "source-over"; sx.clearRect(0, 0, S, S); sx.drawImage(im, X, Y, w, h); sx.globalCompositeOperation = "source-in"; sx.fillStyle = col; sx.fillRect(0, 0, S, S); };
+    paint(c);
+    x.shadowColor = c; x.shadowBlur = 16; x.drawImage(sil, 0, 0); x.shadowBlur = 26; x.drawImage(sil, 0, 0); x.shadowBlur = 0;
+    paint("#fff1cc");
+    x.globalAlpha = 0.85; x.drawImage(sil, 0, 0);
+    x.globalAlpha = 0.35; x.globalCompositeOperation = "source-atop"; x.drawImage(im, X, Y, w, h);
+    EMBC.set(k, cv);
+    return cv;
+  }
+  function dtB(uid, id, tgts, self) {
+    const el = mcOf(uid);
+    if (!el || !el.isConnected || !el.parentElement || !on() || ff()) return;
+    const { c1, c2, L } = cols(id), lite = isLite(), cvs = embCanvas(id, c1, el);
+    const b = el.getBoundingClientRect(), w = b.width, h = b.height, x = b.left + w / 2, top = b.top;
+    tap("DTB", { uid, id, n: tgts.length, emb: !!cvs });
+    let e = null;
+    const place = (n) => {
+      /* ô vuông ~1,8× chiều cao lá, tâm cao hơn tâm lá: bóng nhân vật khổng lồ đứng sau lưng, lộ phần trên khỏi mép lá */
+      const W0 = n.offsetHeight * 1.8, cx = n.offsetLeft + n.offsetWidth / 2, cy = n.offsetTop + n.offsetHeight / 2 - W0 * 0.24;
+      e.style.cssText = `left:${(cx - W0 / 2).toFixed(1)}px;top:${(cy - W0 / 2).toFixed(1)}px;width:${W0.toFixed(1)}px;height:${W0.toFixed(1)}px;--c:${c1}`;
+      n.parentElement.insertBefore(e, n);
+    };
+    let ea = null, cur = el;
+    if (cvs) {
+      e = document.createElement("div");
+      e.className = "hxemb"; e.setAttribute("aria-hidden", "true");
+      const k = document.createElement("canvas");
+      k.width = cvs.width; k.height = cvs.height; k.getContext("2d").drawImage(cvs, 0, 0);
+      e.appendChild(k);
+      place(el);
+      /* nhịp: hiện 0–300 ms (vượt đà), giữ tới ~860 ms (sợi sáng chạm các thẻ), tắt dần tới 1130 ms — easing theo từng đoạn, tổng thể tuyến tính */
+      ea = e.animate([{ transform: "scale(.55)", opacity: 0, easing: "cubic-bezier(.2,.8,.3,1)" }, { transform: "scale(1.06)", opacity: 1, offset: 0.27, easing: "ease-out" }, { transform: "scale(1)", opacity: 1, offset: 0.4 }, { transform: "scale(1)", opacity: 1, offset: 0.76, easing: "ease-in" }, { transform: "scale(1.12)", opacity: 0 }], { duration: 1130, easing: "linear", fill: "both" });
+    }
+    const j = job3(() => { if (e) e.remove(); }, 1200);
+    if (ea) ea.onfinish = () => j.fin(false);
+    else fxT(() => j.fin(false), 900);
+    /* lá bị vẽ lại giữa chừng: chuyển ấn sang ô mới (hoạt ảnh WAAPI giữ nguyên nhịp) */
+    if (e) { const chk = () => { if (j.dead) return; const n = mcOf(uid); if (n && n !== cur && n.parentElement) { cur = n; place(n); } else if (!n && !e.isConnected) { j.fin(true); return; } requestAnimationFrame(chk); }; requestAnimationFrame(chk); }
+    /* ấn phù văn xoay + quầng sáng tại thẻ */
+    /* vòng phù văn xoay ở ngực bóng (trên mép lá, không che mặt lá) */
+    if (!lite) { try { FX.sigil(x, top - h * 0.28, c1, w * 0.8, 6, false, 1.05); } catch (er) {} }
+    glow(x, top - h * 0.2, c1, w * 2.4, 0.9, 0.55);
+    try { SFX.play("chime"); } catch (er) {}
+    if (self || !tgts.length) fxT(() => { if (j.dead) return; ring(x, b.top + h / 2, c1, w * 1.15, 0.4, 0.9); glow(x, b.top + h / 2, c2, w * 1.5, 0.35, 0.5); }, 380);
+    /* sợi sáng từ hai mép ấn tới mép trên từng thẻ được tác động + đốm sáng chạy theo sợi */
+    fxT(() => {
+      if (j.dead) return;
+      tgts.forEach((u, i) => {
+        const t = mcOf(u);
+        if (!t) return;
+        const q = ctrR(t.getBoundingClientRect()), sd = q.x < x - 4 ? -1 : q.x > x + 4 ? 1 : (i % 2 ? 1 : -1);
+        const a0 = [x + sd * w * 0.55, top - h * 0.22], b0 = [q.x + sd * q.w * 0.12, q.y - q.h / 2 + 5], cp = [a0[0] + sd * 22, Math.min(a0[1], b0[1]) - 26];
+        glow(a0[0], a0[1], c1, 34, 0.9, 0.8);
+        if (!lite) cvAdd({ k: "rib", a: () => a0, b: () => b0, amp: 5, f: 1, sp: 10, ph: i * 2, w: 2.4, c: c1, life: 0.9, grow: 0.35, a0: 0.9 });
+        else beam(a0[0], a0[1], b0[0], b0[1], c1, 4, 0.45);
+        const n = lite ? 4 : 9, dl0 = 0.1 + i * 0.06;
+        for (let m = 0; m <= n; m++) { const u2 = m / n, p = bez2(a0, cp, b0, 1 - Math.pow(1 - u2, 2)); E6({ x: p[0], y: p[1], c: m % 2 ? "#ffffff" : c1, kind: 0, s0: m === n ? 16 : 10, s1: 2, drag: 0, dur: 0.16, a: 0.95, delay: dl0 + 0.3 * u2 }); }
+        fxT(() => { if (j.dead) return; ring(q.x, q.y, c1, q.w * 0.95, 0.4, 0.9); glow(q.x, q.y, c1, q.w * 1.6, 0.42, 0.55); tap("DTB:hit", { uid: u }); }, 400 + i * 60);
+      });
+    }, 260);
+    live(1200);
+  }
+
+  /* ================= HX-20 CUỐI LƯỢT: loé hồn rất nhanh (lên 0,15 s · giữ 0,08 s · xuống 0,14 s) ================= */
+  const EOT = new Set();
+  HXG.eot = function (uid) {
+    const id = idOf(uid);
+    if (!ok(id) || ff()) return false;
+    const el = mcOf(uid);
+    if (!el) return false;
+    const q = ctrR(el.getBoundingClientRect());
+    if (!q.w) return false;
+    const { c1, c2 } = cols(id), lite = isLite();
+    EOT.add(uid);
+    if (!lite) peek(el, [PK(0, 1, 0), PK(-40, 1.14, -2), PK(-43, 1.14, 0), PK(0, 1, 0)].map((k, i) => Object.assign(k, { offset: [0, 0.4, 0.62, 1][i], easing: ["cubic-bezier(.2,.8,.3,1)", "linear", "cubic-bezier(.5,0,.8,.5)", "linear"][i] })), 370, { easing: "linear" });
+    glow(q.x, q.y - q.h * 0.18, c1, q.w * 2, 0.35, 0.7);
+    fxT(() => { streaks(q.x, q.y - q.h * 0.5, [c1, c2, "#ffffff"], lite ? 4 : 8, 150, -2.8, -0.3, 0.4, 5); ring(q.x, q.y + q.h * 0.42, c1, q.w * 1.1, 0.35, 0.7, 0.32); }, 140);
+    live(380);
+    tap("HX20", { uid, id, peek: !lite });
+    return true;
+  };
+  /* thẻ Cuối Lượt Hồn Xuất: nhịp loé hồn thay cho màn ra mắt bản gọn (mini40) -> không chờ thêm ~0,25 s trước mỗi thẻ */
+  {
+    const m0 = mini40;
+    mini40 = function (evs) {
+      try { const sv = (evs || []).find((e) => e.k === "skill" || e.k === "act"); if (sv && sv.k === "skill" && sv.t === "end" && okU(sv.uid) && !ff() && mcOf(sv.uid)) return null; } catch (e) {}
+      return m0.apply(this, arguments);
+    };
+  }
+  /* bước Cuối Lượt đã loé hồn -> nghỉ ngắn hơn giữa các thẻ (3 thẻ ≤ 1,5 s) */
+  HXG.eotFast = function (evs) { const r = (evs || []).some((e) => e.k === "skill" && e.t === "end" && EOT.has(e.uid)); EOT.clear(); return r; };
+
+  /* ================= HX-15 SAO CHÉP KỸ NĂNG ================= */
+  const X15 = 880;
+  {
+    const r8 = run8;
+    run8 = function (s) {
+      if (s && s.k === "copy" && s.hx15c) { s._ran = 1; return; }
+      if (s && s.k === "copy" && s.hx15 && !s._hx15) {
+        s._hx15 = 1;
+        let done = false;
+        try { done = copy15(s); } catch (e) { console.error(e); }
+        if (done) { s._ran = 1; return; }
+      }
+      return r8.apply(this, arguments);
+    };
+  }
+  function copy15(s) {
+    const se = mcOf(s.src), te = mcOf(s.dst);
+    if (!se || !te || ff() || !on()) return false;
+    const sid = idOf(s.src), tid = idOf(s.dst), sa = artOf(se), ta = artOf(te);
+    if (!sid || !tid || !sa || !ta) return false;
+    const sI = soulImg(sid, se), tI = soulImg(tid, te);
+    const sr = ctrR(se.getBoundingClientRect()), tr = ctrR(te.getBoundingClientRect());
+    if (!sr.w || !tr.w || !sI || !tI) return false;
+    const sc = cols(sid), tc = cols(tid), TT = 1800;
+    tap("HX15", { src: s.src, dst: s.dst });
+    /* người sao chép ló nửa người suốt cảnh */
+    peek(se, [PK(0, 1, 0), PK(-42, 1.16, -2), PK(-44, 1.17, -3), PK(-46, 1.18, 0), PK(-50, 1.24, 0), PK(0, 1, 0)].map((k, i) => Object.assign(k, { offset: [0, 0.1, 0.5, 0.86, 0.93, 1][i] })), TT, { easing: "linear" });
+    glow(sr.x, sr.y, sc.c1, sr.w * 2, 0.45, 0.6);
+    /* bản song sinh (dáng mình) và bản hoá dáng mục tiêu (soi gương) — mỗi bản một hoạt ảnh WAAPI suốt cảnh */
+    const w = sr.w * 0.95, h = sr.h * 0.95, ax = sr.x, ay = sr.y - sr.h * 0.42;
+    /* bản hoá dáng đứng về phía biển chiến địa (trên lá phe mình / dưới lá phe địch) — không đè lá bên cạnh */
+    const mine = (() => { try { const f = E.find(G, s.dst); return f && G.locs[f.li].cards.p.includes(f.inst); } catch (e) { return true; } })(), side = tr.x < innerWidth / 2 ? 1 : -1;
+    const px = clamp(tr.x + side * tr.w * 0.25, w / 2 + 4, innerWidth - w / 2 - 4), py = clamp(tr.y + (mine ? -1 : 1) * tr.h * 0.92, h / 2 + 4, innerHeight - h / 2 - 4);
+    const A = soulAt(sI.currentSrc || sI.src, ax, ay, w, h, sc.c1, "hxtw"), B = soulAt(tI.currentSrc || tI.src, px, py, w, h, sc.c1, "hxtw");
+    A.style.opacity = "0"; B.style.opacity = "0";
+    const o = (t) => t / TT, cA = [ax + (px - ax) * 0.5, Math.min(ay, py) - 70];
+    const kA = [kfT(0, 0, 0.6, 0, 0, 0), kfT(0, 0, 0.75, 0, 0.85, o(180)), kfT(28, -22, 0.86, 10, 0.85, o(300))];
+    for (let i = 1; i <= 6; i++) { const u = i / 6, p = bez2([ax + 28, ay - 22], cA, [px, py], u * u * (3 - 2 * u)); kA.push(kfT(p[0] - ax, p[1] - ay, lerp(0.86, 1, u), lerp(10, 0, u), 0.85, o(300 + 300 * u))); }
+    kA.push(kfT(px - ax, py - ay, 1, 0, 0, o(800)), kfT(px - ax, py - ay, 1, 0, 0, o(1100)), kfT(px - ax, py - ay, 1, 0, 0.85, o(1260)));
+    for (let i = 1; i <= 6; i++) { const u = i / 6, p = bez2([px, py], [cA[0], cA[1] + 20], [ax, ay - 6], u * u * (3 - 2 * u)); kA.push(kfT(p[0] - ax, p[1] - ay, lerp(1, 0.8, u), 0, 0.85, o(1260 + 340 * u))); }
+    kA.push(kfT(0, -6, 0.5, 0, 0, o(1760)), kfT(0, -6, 0.5, 0, 0, 1));
+    const aA = A.animate(kA, { duration: TT, easing: "linear", fill: "both" });
+    const wob = [];
+    for (let i = 0; i <= 8; i++) { const u = i / 8, wv = Math.sin(u * Math.PI * 3), kk = Math.abs(wv); wob.push(kfT(0, -3 * kk, 1 + 0.04 * kk, 4 * wv, 0.85, o(800 + 480 * u), -1)); }
+    const aB = B.animate([kfT(0, 0, 1, 0, 0, 0, -1), kfT(0, 0, 1, 0, 0, o(560), -1), kfT(0, 0, 1, 0, 0.85, o(780), -1), ...wob, kfT(0, 0, 1, 0, 0, o(1290), -1), kfT(0, 0, 1, 0, 0, 1, -1)], { duration: TT, easing: "linear", fill: "both" });
+    /* mục tiêu lắc cùng nhịp với bản hoá dáng */
+    const tw = [];
+    for (let i = 0; i <= 8; i++) { const u = i / 8, wv = Math.sin(u * Math.PI * 3), kk = Math.abs(wv); tw.push({ transform: `rotate(${(-4 * wv).toFixed(2)}deg) scale(${(1 + 0.04 * kk).toFixed(3)})` }); }
+    const tA = te.animate(tw, { duration: 480, delay: 800, easing: "linear" });
+    const j = job3(() => { A.remove(); B.remove(); try { tA.cancel(); } catch (e) {} }, TT);
+    aA.onfinish = () => j.fin(false);
+    try { SFX.play("whoosh"); } catch (e) {}
+    fxT(() => {
+      if (j.dead) return;
+      glow(px, py, sc.c1, 110, 0.35, 0.7);
+      if (!isLite()) cvAdd({ k: "rib", a: () => [tr.x, tr.y - 6], b: () => [px - side * 12, py], amp: 6, f: 1.5, sp: 16, ph: 0, w: 2.6, c: tc.c1, life: 0.6, grow: 0.3, a0: 0.95 });
+      for (let i = 0; i < kN(14); i++) { const sx = tr.x + rnd(-10, 10), sy = tr.y + rnd(-14, 6); E6({ x: sx, y: sy, vx: (px - sx) * 2.2, vy: (py - sy) * 2.2, c: i % 2 ? tc.c1 : "#ffffff", kind: 3, s0: rnd(9, 14), s1: 4, drag: 0, dur: 0.42, a: 0.9, rot: rnd(0, 6), delay: i * 0.03 }); }
+      flt(tr.x, tr.y - tr.h * 0.6, K8.copy ? K8.copy[2] : "BỊ SAO CHÉP", "#bff4ff");
+      try { SFX.fam("copy", { el: elOf(sid) }); } catch (e) {}
+      tap("HX15:mimic", { dst: s.dst });
+    }, 780);
+    fxT(() => { if (j.dead) return; glow(px, py, tc.c1, 120, 0.4, 0.7); ring(px, py, tc.c1, 60, 0.35, 0.9); }, 1280);
+    fxT(() => {
+      if (j.dead) return;
+      converge(ax, ay, [tc.c1, sc.c1, "#ffffff"], 18, 60, 0.25, 1);
+      glow(ax, ay, tc.c1, 140, 0.45, 0.7);
+      ring(sr.x, sr.y, tc.c1, sr.w * 1.1, 0.4, 0.9);
+      const nm = s.abId && C[s.abId] ? C[s.abId].n : "";
+      flt(sr.x, sr.y - sr.h * 0.62, "CHÉP KỸ NĂNG" + (nm ? ": " + (nm.length > 14 ? nm.slice(0, 13) + "…" : nm) : ""), "#bff4ff");
+      tap("HX15:back", { src: s.src });
+    }, 1620);
+    live(TT + 120);
+    return true;
+  }
+
+  /* HX-15 trong chuỗi PA6: hồn PA6 đứng trước mục tiêu, bản soi gương (dáng mục tiêu) hiện phía bên kia, lắc cùng nhịp; phù văn kỹ năng chảy vào hồn PA6 */
+  function mimic15(ch, q) {
+    const s = q.s, te = mcOf(s.dst), tid = idOf(s.dst), sid = idOf(s.src);
+    if (!te || !tid) return;
+    const tr = ctrR(te.getBoundingClientRect()), tI = soulImg(tid, te);
+    if (!tI || !tr.w) return;
+    const tc = cols(tid), w = tr.w * 0.95, h = tr.h * 0.95, side = Math.sign(tr.x - ch.x) || 1, TT = 640;
+    /* phía đối diện hồn PA6 so với mục tiêu (hồn PA6 đứng trước mục tiêu, bản soi gương đứng sau) */
+    const vy = Math.sign(tr.y - ch.y) || 1, px = clamp(tr.x + side * tr.w * 0.3, w / 2 + 4, innerWidth - w / 2 - 4), py = clamp(tr.y + vy * tr.h * 0.85, h / 2 + 4, innerHeight - h / 2 - 4);
+    const B = soulAt(tI.currentSrc || tI.src, px, py, w, h, tc.c1, "hxtw"), o = (t) => t / TT;
+    B.style.opacity = "0";
+    const wob = [];
+    for (let i = 0; i <= 6; i++) { const u = i / 6, wv = Math.sin(u * Math.PI * 2), kk = Math.abs(wv); wob.push(kfT(0, -3 * kk, 1 + 0.04 * kk, 4 * wv, 0.85, o(140 + 340 * u), -1)); }
+    const aB = B.animate([kfT(0, 6, 0.8, 0, 0, 0, -1), ...wob, kfT(-side * 10, -4, 0.7, 0, 0, 1, -1)], { duration: TT, easing: "linear", fill: "both" });
+    const tw = [];
+    for (let i = 0; i <= 6; i++) { const u = i / 6, wv = Math.sin(u * Math.PI * 2); tw.push({ transform: `rotate(${(-4 * wv).toFixed(2)}deg) scale(${(1 + 0.04 * Math.abs(wv)).toFixed(3)})` }); }
+    const tA = te.animate(tw, { duration: 340, delay: 140, easing: "linear" });
+    const j = job(() => { B.remove(); try { tA.cancel(); } catch (e) {} }, TT);
+    aB.onfinish = () => j.fin(false);
+    tap("HX15", { src: s.src, dst: s.dst, chain: 1 });
+    glow(px, py, tc.c1, 110, 0.35, 0.7);
+    flt(tr.x, tr.y - tr.h * 0.6, K8.copy ? K8.copy[2] : "BỊ SAO CHÉP", "#bff4ff");
+    if (!isLite()) cvAdd({ k: "rib", a: () => [tr.x, tr.y - 6], b: () => [ch.x, ch.y], amp: 6, f: 1.5, sp: 16, ph: 0, w: 2.6, c: tc.c1, life: 0.55, grow: 0.3, a0: 0.95 });
+    for (let i = 0; i < kN(12); i++) { const sx = tr.x + rnd(-10, 10), sy = tr.y + rnd(-14, 6); E6({ x: sx, y: sy, vx: (ch.x - sx) * 2.2, vy: (ch.y - sy) * 2.2, c: i % 2 ? tc.c1 : "#ffffff", kind: 3, s0: rnd(9, 14), s1: 4, drag: 0, dur: 0.42, a: 0.9, rot: rnd(0, 6), delay: 0.12 + i * 0.025 }); }
+    try { SFX.fam("copy", { el: elOf(sid) }); } catch (e) {}
+    fxT(() => {
+      if (j.dead) return;
+      converge(ch.x, ch.y, [tc.c1, ch.col.c1, "#ffffff"], 16, ch.bw * 0.7, 0.25, 1);
+      glow(ch.x, ch.y, tc.c1, ch.bw * 1.4, 0.4, 0.7);
+      const nm = s.abId && C[s.abId] ? C[s.abId].n : "";
+      flt(ch.x, ch.y - ch.bh * ch.s * 0.45, "CHÉP KỸ NĂNG" + (nm ? ": " + (nm.length > 14 ? nm.slice(0, 13) + "…" : nm) : ""), "#bff4ff");
+      tap("HX15:back", { src: s.src, chain: 1 });
+    }, 480);
+  }
+
+  /* ================= HX-16 BIẾN ĐỔI THẺ: khung luôn có ảnh (ảnh cũ mờ dần -> ảnh mới), hồn cũ bị giật ra, hồn mới xoáy vào ================= */
+  const TFS = new Map();
+  HXG.ownTf = (uid) => TFS.has(uid);
+  {
+    const mo0 = CFX.morph;
+    CFX.morph = function (el) {
+      try {
+        const uid = +(el && el.dataset.mc), t = TFS.get(uid);
+        if (t) {
+          TFS.delete(uid);
+          const ch = K.ch(), D = ch && !ch.dead && t.src && ch.src === t.src ? clamp((ch.off0 || 0) + 160 - (performance.now() - ch.t0) / SPD, 0, 1400) : 0;
+          if (tf16(el, uid, t, D)) return;
+        }
+      } catch (e) { console.error(e); }
+      return mo0.apply(this, arguments);
+    };
+  }
+  function tf16(el, uid, t, D) {
+    D = D || 0;
+    if (!el || !el.isConnected || ff() || !on()) return false;
+    const nid = idOf(uid), b = el.getBoundingClientRect(), r0 = t.r0;
+    if (!nid || !b.width || !r0 || !r0.html) return false;
+    const nI = soulImg(nid, el), art = artOf(el);
+    if (!nI || !art) return false;
+    const q = ctrR(b), oc = cols(t.old), nc = cols(nid), lite = isLite();
+    /* lá cũ phủ đúng chỗ lá mới (z thấp hơn hồn) */
+    const g = ghost({ x: q.x, y: q.y, w: q.w, h: q.h }, r0.html, "hxold");
+    const gArt = g.querySelector("img.art");
+    if (!gArt || !(gArt.complete && gArt.naturalWidth)) { g.remove(); return false; }
+    tap("HX16", { uid, from: t.old, to: nid });
+    let so = null, rc = null, cur = el;
+    const j = job3(() => { g.remove(); if (so) so.remove(); if (rc) rc.remove(); try { const a = cur.querySelector(":scope>img.art"); if (a) for (const an of a.getAnimations()) if (an.id === "hx16") an.cancel(); } catch (e) {} }, 1300 + D);
+    /* gió từ thẻ nguồn (lá cũ phủ sẵn từ đầu; nhịp biến đổi bắt đầu sau D ms khi thẻ nguồn đang xuất hồn PA6) */
+    fxT(() => { if (!j.dead) wind(); }, D);
+    const wind = () => {
+    const se = t.src && t.src !== uid ? mcOf(t.src) : null;
+    if (se) {
+      const sp = ctrR(se.getBoundingClientRect()), sc = cols(idOf(t.src));
+      for (let i = 0; i < (lite ? 1 : 2); i++) cvAdd({ k: "rib", a: () => [sp.x, sp.y - 10], b: () => [q.x, q.y], amp: 10 + i * 6, f: 1.2 + i * 0.6, sp: 16, ph: i * 2, w: 2.6 - i * 0.8, c: i ? sc.c2 : sc.c1, life: 0.8, grow: 0.25, a0: 0.9 });
+      converge(sp.x, sp.y, [sc.c1, sc.c2, "#ffffff"], 14, 54, 0.28, 1);
+    }
+    glow(q.x, q.y, oc.c1, q.w * 1.6, 0.5, 0.55);
+    try { SFX.play("whoosh"); } catch (e) {}
+    };
+    /* ảnh mới trong lá mới: mờ (không bao giờ trống) tới khi hồn mới chui vào */
+    art.animate([{ opacity: 0.32 }, { opacity: 0.32, offset: (880 + D) / (1080 + D) }, { opacity: 1 }], { duration: 1080 + D, easing: "linear", id: "hx16" });
+    /* 240 ms: hồn cũ bị giật khỏi lá cũ, xoáy lên và tan thành khói màu hệ cũ; lá cũ mờ dần lộ lá mới */
+    fxT(() => {
+      if (j.dead) return;
+      const ob = gArt.getBoundingClientRect();
+      so = soulAt(gArt.currentSrc || gArt.src, ob.left + ob.width / 2, ob.top + ob.height / 2, ob.width, ob.height, oc.c1);
+      so.querySelector("img").style.objectFit = getComputedStyle(gArt).objectFit;
+      so.querySelector("img").style.objectPosition = getComputedStyle(gArt).objectPosition;
+      gArt.style.visibility = "hidden";
+      g.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 360, easing: "ease-in", fill: "forwards" });
+      const kf = [];
+      for (let i = 0; i <= 8; i++) { const u = i / 8, e = 1 - Math.pow(1 - u, 2); kf.push(kfT(Math.sin(u * 10) * 10 * u, -74 * e, 1 - 0.4 * u, u * 240, i === 8 ? 0 : 1 - Math.max(0, (u - 0.6) / 0.4) * 0.9, u)); }
+      so.animate(kf, { duration: 380, easing: "linear", fill: "both" });
+      for (let i = 0; i < kN(16); i++) E6({ x: q.x + rnd(-14, 14), y: q.y - rnd(0, 70), vx: rnd(-50, 50), vy: rnd(-80, -20), c: [oc.c1, oc.c2, "#ffffff"][i % 3], kind: 0, s0: rnd(10, 16), s1: 26, drag: 1.5, dur: rnd(0.4, 0.6), a: 0.55, delay: rnd(0, 0.3) });
+      tap("HX16:out", { uid });
+    }, 240 + D);
+    /* 300 ms: dải màu hệ mới quét từ trên xuống trong lá mới */
+    fxT(() => {
+      if (j.dead || !cur.isConnected) return;
+      rc = document.createElement("i");
+      rc.className = "hxrc"; rc.style.setProperty("--c", nc.c1); rc.setAttribute("aria-hidden", "true");
+      rc.innerHTML = "<b></b>";
+      cur.appendChild(rc);
+      rc.firstChild.animate([{ transform: "translateY(-110%)", opacity: 0 }, { transform: "translateY(-40%)", opacity: 0.9, offset: 0.25 }, { transform: "translateY(240%)", opacity: 0.6 }], { duration: 600, easing: "ease-in-out", fill: "both" }).onfinish = () => { if (rc) { rc.remove(); rc = null; } };
+    }, 300 + D);
+    /* 600 ms: hồn mới xoáy ốc vào khung */
+    fxT(() => {
+      if (j.dead) return;
+      if (so) { so.remove(); so = null; }
+      g.remove();
+      const ab = (cur.isConnected ? cur : el).querySelector(":scope>img.art"), r = (ab || cur).getBoundingClientRect(), cy = r.top + r.height / 2;
+      const ns = soulAt(nI.currentSrc || nI.src, q.x, cy, r.width, r.height, nc.c1);
+      so = ns;
+      const kf = [];
+      for (let i = 0; i <= 10; i++) { const u = i / 10, e = 1 - Math.pow(1 - u, 2), an = e * Math.PI * 2.3, R0 = 62 * (1 - e); kf.push(kfT(Math.cos(an) * R0, Math.sin(an) * R0 * 0.55 - 40 * (1 - e), lerp(0.8, 1, e), Math.sin(an) * 10 * (1 - e), i === 0 ? 0 : i === 10 ? 0.25 : 1, u)); }
+      ns.animate(kf, { duration: 480, easing: "linear", fill: "both" });
+      for (let i = 0; i < kN(12); i++) E6({ x: q.x, y: cy, vx: rnd(-40, 40), vy: rnd(-40, 40), c: nc.L[i % 4], kind: 0, s0: rnd(5, 9), s1: 1.5, drag: 1.4, dur: 0.3, a: 0.85, delay: i * 0.03 });
+      tap("HX16:in", { uid });
+    }, 600 + D);
+    fxT(() => {
+      if (j.dead) return;
+      glow(q.x, q.y, "#ffffff", q.w * 1.1, 0.16, 0.9);
+      ring(q.x, q.y, nc.c1, q.w * 1.3, 0.4, 0.9);
+      streaks(q.x, q.y, nc.L, isLite() ? 7 : 14, 260, 0, 6.283, 0.45, 5);
+      const a3 = cur.querySelector(":scope>img.art");
+      if (a3) a3.animate([{ transform: "scale(1.1)" }, { transform: "scale(.97)", offset: 0.6 }, { transform: "none" }], { duration: 240, easing: "ease-out" });
+      const nm = C[nid] ? C[nid].n : "";
+      flt(q.x, q.y - q.h * 0.6, "BIẾN THÀNH " + (nm.length > 14 ? nm.slice(0, 13) + "…" : nm), "#ffb3e0");
+      try { SFX.play("morph"); } catch (e) {}
+      j.fin(false);
+      tap("HX16:done", { uid });
+    }, 1090 + D);
+    /* lá mới bị vẽ lại giữa chừng: dải quét theo lá mới */
+    const chk = () => { if (j.dead) return; const n = mcOf(uid); if (n && n !== cur) { cur = n; if (rc) n.appendChild(rc); const a = n.querySelector(":scope>img.art"); if (a) a.animate([{ opacity: 0.32 }, { opacity: 1 }], { duration: 400, id: "hx16" }); } requestAnimationFrame(chk); };
+    requestAnimationFrame(chk);
+    live(1350 + D);
+    return true;
+  }
+
+  /* ================= HX-14 HỒI SINH: hồn trèo ra khỏi mộ bài, bay về ô, mảnh khung vàng tụ lại, hồn chui vào lá ================= */
+  const R14 = new Map(); /* uid -> src (hồi sinh diễn bằng HX-14 trong bước này) */
+  let RVK = { t: 0, n: 0 };
+  function rev14(el, uid, src, o) {
+    o = o || {};
+    if (!el || !el.isConnected || ff() || !on() || isLite()) return false;
+    const id = idOf(uid), b = el.getBoundingClientRect();
+    if (!id || !b.width) return false;
+    const sI = soulImg(id, el);
+    if (!sI) return false;
+    const now = performance.now();
+    if (now - RVK.t > 300) RVK = { t: now, n: 0 };
+    const k = RVK.n++, dl = k * 120, PILE = PILEPT(), { c1, c2, L } = cols(id);
+    const q = ctrR(b), w = q.w * 1.12, h = q.h * 1.12, pb = document.getElementById("btnPiles"), ph = pb ? pb.getBoundingClientRect().height : 24;
+    /* mộ bài ở mép trên màn (bố cục hiện tại): hồn chui XUỐNG khỏi cổng mộ thay vì trèo lên (không tràn mép màn) */
+    const upM = PILE.y - ph / 2 - h > 8, line = upM ? PILE.y - ph / 2 + 4 : PILE.y + ph / 2 + 2;
+    tap("HX14", { uid, id, k });
+    let cur = el, shown = false, clip = null, so = null, cx = 0, cy = 0;
+    /* ẩn bằng lớp !important: thắng cả hoạt ảnh CSS lật (.flip) đang chạy trên lá vừa hồi sinh */
+    const hide = (n) => { n.classList.add("hx14h"); };
+    hide(cur);
+    const j = job3((fast) => { shown = true; if (clip) clip.remove(); if (so) so.remove(); for (const n of [cur, mcOf(uid)]) if (n) { n.classList.remove("hx14h"); n.style.opacity = ""; } }, 1650 + dl);
+    /* bàn vẽ lại giữa chừng: lá mới cũng ẩn tới đúng lúc hồn hạ vào */
+    const chk = () => { if (j.dead) return; const n = mcOf(uid); if (n && n !== cur) { cur = n; if (!shown) hide(cur); } requestAnimationFrame(chk); };
+    requestAnimationFrame(chk);
+    /* mộ mở (một lần cho cả loạt) + sợi thuốc từ thẻ nguồn tới mộ */
+    if (k === 0) {
+      glow(PILE.x, line, "#9a46ff", 110, 1.0, 0.8);
+      ring(PILE.x, line, "#d8b8ff", 54, 0.5, 0.9, 0.4);
+      try { pulse("#btnPiles", [{ transform: "scale(1)" }, { transform: "scale(1.12)", offset: 0.35 }, { transform: "scale(1)" }], 320); } catch (e) {}
+      const se = !o.chain && src && src !== uid ? mcOf(src) : null;
+      if (se) { const sp = ctrR(se.getBoundingClientRect()), sc = cols(idOf(src)); cvAdd({ k: "rib", a: () => [sp.x, sp.y + 10], b: () => [PILE.x, PILE.y - 10], amp: 12, f: 1.4, sp: 12, ph: 0, w: 3, c: sc.c1, life: 0.8, grow: 0.3, a0: 0.9 }); }
+      try { SFX.play("rise"); } catch (e) {}
+    }
+    /* 180: hồn trèo lên khỏi mặt mộ (hộp overflow:hidden có đáy cố định ở mặt mộ; ảnh chỉ đổi transform) */
+    fxT(() => {
+      if (j.dead) return;
+      const x0 = clamp(PILE.x, w / 2 + 4, innerWidth - w / 2 - 4);
+      clip = document.createElement("div");
+      clip.className = "hxclip"; clip.style.cssText = `left:${(x0 - w / 2).toFixed(1)}px;top:${(upM ? line - h : line).toFixed(1)}px;width:${w.toFixed(1)}px;height:${h.toFixed(1)}px;--c:${c1}`;
+      clip.innerHTML = `<img src="${sI.currentSrc || sI.src}" alt="" draggable="false">`;
+      document.body.appendChild(clip);
+      const kf = [];
+      for (let i = 0; i <= 8; i++) { const u = i / 8, e = 1 - Math.pow(1 - u, 2); kf.push({ transform: `translate(${(Math.sin(u * 14) * 2).toFixed(1)}px,${((upM ? 100 : -100) * (1 - e)).toFixed(1)}%) rotate(${(Math.sin(u * 13) * 6 * (1 - u)).toFixed(2)}deg)`, offset: u }); }
+      clip.firstChild.animate(kf, { duration: 440, easing: "linear", fill: "both" });
+      for (let i = 0; i < kN(14); i++) E6({ x: x0 + rnd(-22, 22), y: line + rnd(-4, 4), vx: rnd(-20, 20), vy: upM ? rnd(-90, -40) : rnd(40, 90), c: ["#9a46ff", "#d8b8ff", c1][i % 3], kind: 0, s0: rnd(6, 11), s1: 1, drag: 0.5, dur: rnd(0.3, 0.5), a: 0.9, delay: rnd(0, 0.35) });
+      tap("HX14:climb", { uid });
+      /* 440: thay hộp cắt bằng hồn tự do (cùng toạ độ, cùng ảnh -> liền mạch) rồi bay về trên ô, chờ khung tụ */
+      fxT(() => {
+        if (j.dead) return;
+        cx = x0; cy = upM ? line - h / 2 : line + h / 2;
+        so = soulAt(sI.currentSrc || sI.src, cx, cy, w, h, c1);
+        clip.remove(); clip = null;
+        const tx = q.x, ty = q.y - q.h * 0.42, cp = [(cx + tx) / 2, Math.min(cy, ty) - 80], kf2 = [];
+        for (let i = 0; i <= 10; i++) { const u = i / 10, e = u * u * (3 - 2 * u), p = bez2([cx, cy], cp, [tx, ty], e); kf2.push(kfT(p[0] - cx, p[1] - cy, lerp(1, 0.92, e), Math.sin(u * Math.PI) * (tx < cx ? -10 : 10), 1, u * (420 / 680))); }
+        kf2.push(kfT(tx - cx, ty - cy - 4, 0.92, 0, 1, 1));
+        so.animate(kf2, { duration: 680, easing: "linear", fill: "both" });
+        afterimg(so);
+        tap("HX14:fly", { uid });
+      }, 440);
+    }, 180 + dl);
+    const afterimg = (d) => { for (let i = 1; i <= 3; i++) E6({ x: cx, y: cy, vx: 0, vy: -20, c: c1, kind: 0, s0: q.w * 0.6, s1: q.w * 0.9, drag: 0, dur: 0.3, a: 0.25, delay: 0.04 * i }); };
+    /* 880: mảnh khung vàng tụ vào viền ô */
+    fxT(() => {
+      if (j.dead) return;
+      const hw = q.w / 2, hh = q.h / 2, n = kN(28);
+      for (let i = 0; i < n; i++) { const t = (i / n) * 4, sd = Math.floor(t), f = t - sd, px = sd === 0 ? lerp(-hw, hw, f) : sd === 1 ? hw : sd === 2 ? lerp(hw, -hw, f) : -hw, py = sd === 0 ? -hh : sd === 1 ? lerp(-hh, hh, f) : sd === 2 ? hh : lerp(hh, -hh, f), an = rnd(0, 6.283), d0 = rnd(40, 80);
+        E6({ x: q.x + px + Math.cos(an) * d0, y: q.y + py + Math.sin(an) * d0, vx: -Math.cos(an) * d0 / 0.28, vy: -Math.sin(an) * d0 / 0.28, c: i % 2 ? "#ffd76a" : "#fff3c4", kind: 3, s0: rnd(8, 12), s1: 5, rot: rnd(0, 6), drag: 0, dur: 0.28, a: 0.95 }); }
+      glow(q.x, q.y, "#ffd76a", q.w * 1.4, 0.4, 0.5);
+      try { SFX.play("summon"); } catch (e) {}
+      tap("HX14:frame", { uid });
+    }, 180 + 440 + 260 + dl);
+    /* 1300: lá hiện (đã có ảnh) đúng lúc hồn hạ vào — không lúc nào có khung rỗng */
+    fxT(() => {
+      if (j.dead) return;
+      shown = true;
+      const n = mcOf(uid) || cur;
+      n.classList.remove("hx14h"); cur.classList.remove("hx14h"); n.style.opacity = "";
+      n.animate([{ opacity: 0 }, { opacity: 1, offset: 0.6 }, { opacity: 1 }], { duration: 220, easing: "linear" });
+      n.animate([{ transform: "scale(.9)" }, { transform: "scale(1.04)", offset: 0.6 }, { transform: "none" }], { duration: 220, easing: "cubic-bezier(.2,.8,.3,1)" });
+      if (so) { const tx = q.x, ty = q.y - q.h * 0.42; so.animate([kfT(tx - cx, ty - cy - 4, 0.92, 0, 1, 0), kfT(q.x - cx, q.y - cy, 0.86, 0, 0, 1)], { duration: 220, easing: "ease-in", fill: "both" }); }
+      glow(q.x, q.y, "#ffffff", q.w * 1.1, 0.16, 0.9);
+      ring(q.x, q.y, "#ffd76a", q.w * 1.25, 0.38, 0.9);
+      streaks(q.x, q.y, [c1, c2, "#ffd76a", "#ffffff"], 14, 240, 0, 6.283, 0.5, 5);
+      flt(q.x, q.y - q.h * 0.6, "HỒI SINH", "#8dffc0");
+      tap("HX14:in", { uid });
+      fxT(() => j.fin(false), 240);
+    }, 180 + 440 + 680 + dl);
+    live(1700 + dl);
+    return true;
+  }
+
+  /* ================= HX-19 NĂNG LƯỢNG: quả cầu năng lượng bật ra, hồn nắm lấy, ném vào ngọc năng lượng thật (#orb) ================= */
+  function nrg19(o) {
+    if (ff() || !on() || isLite()) return false;
+    const orb = document.getElementById("orb"), el = o.el;
+    if (!orb) return false;
+    /* thẻ nguồn đang xuất hồn PA6: quả cầu bật ra từ chính hồn PA6, khi hồn đã ra khỏi khung */
+    if (o.ch) {
+      const ch = o.ch, D = clamp((ch.off0 || 0) + 220 - (performance.now() - ch.t0) / SPD, 0, 1500);
+      if (o.e0 != null) orb.textContent = String(o.e0);
+      const j0 = job3(() => {}, D + 100);
+      fxT(() => {
+        if (j0.dead) { if (o.e1 != null) orb.textContent = String(o.e1()); return; }
+        j0.fin(false);
+        const live6 = K.ch() === ch && !ch.dead, w = ch.bw * (ch.s || 1), h = ch.bh * (ch.s || 1);
+        const pt = live6 ? { gx: ch.x - w * 0.32, gy: ch.y - h * 0.18, hx: ch.x + 6, hy: ch.y - h * 0.42 } : null;
+        if (!nrg19(Object.assign({}, o, { ch: null, pt, el: pt ? null : mcOf(o.src) }))) { if (o.e1 != null) orb.textContent = String(o.e1()); }
+      }, D);
+      live(D + 1100);
+      return true;
+    }
+    if (!o.pt && (!el || !el.isConnected)) return false;
+    const b = o.pt ? null : el.getBoundingClientRect(), obr = orb.getBoundingClientRect();
+    if ((b && !b.width) || !obr.width) return false;
+    const ob = ctrR(obr), onBoard = !!(el && el.closest("#board")), bl = ["#5ab8ff", "#bff4ff", "#ffffff"];
+    const gx = o.pt ? o.pt.gx : b.left + b.width * 0.14, gy = o.pt ? o.pt.gy : b.top + b.width * 0.14, hx = o.pt ? o.pt.hx : b.left + b.width / 2 + 6, hy = o.pt ? o.pt.hy : onBoard ? b.top - b.height * 0.2 : b.top - 18;
+    tap("HX19", { id: o.id, n: o.n, max: !!o.max, board: onBoard });
+    if (o.e0 != null) orb.textContent = String(o.e0);
+    const d = document.createElement("i");
+    d.className = "hxorb"; d.setAttribute("aria-hidden", "true");
+    d.style.left = gx.toFixed(1) + "px"; d.style.top = gy.toFixed(1) + "px";
+    document.body.appendChild(d);
+    const TT = 820, P = (t) => {
+      if (t <= 300) { const u = t / 300, e = 1 - Math.pow(1 - u, 2); return [lerp(gx, hx, e), lerp(gy, hy, e) - Math.sin(Math.PI * u) * 24, 1]; }
+      if (t <= 440) { const u = (t - 300) / 140; return [hx, hy - 3 * Math.sin(Math.PI * u), 1 + 0.3 * Math.sin(Math.PI * u)]; }
+      const u = (t - 440) / 360, e = u * u, p = bez2([hx, hy], [(hx + ob.x) / 2 + 30, Math.min(hy, ob.y) - 50], [ob.x, ob.y], e); return [p[0], p[1], lerp(1, 0.7, u)];
+    };
+    const kf = [];
+    for (let t = 0; t <= 800; t += 40) { const [x, y, s] = P(t); kf.push({ transform: `translate(${(x - gx).toFixed(1)}px,${(y - gy).toFixed(1)}px) scale(${s.toFixed(3)})`, opacity: t === 0 ? 0 : 1, offset: t / TT }); }
+    kf.push({ transform: `translate(${(ob.x - gx).toFixed(1)}px,${(ob.y - gy).toFixed(1)}px) scale(.6)`, opacity: 0, offset: 1 });
+    const a = d.animate(kf, { duration: TT, easing: "linear", fill: "both" });
+    for (let t = 40; t <= 780; t += 45) { const [x, y] = P(t); E6({ x: x + rnd(-4, 4), y: y + rnd(-4, 4), vx: rnd(-20, 20), vy: rnd(-20, 20), c: bl[(t / 45) % 3 | 0], kind: 0, s0: rnd(6, 10), s1: 1, drag: 1, dur: 0.3, a: 0.85, delay: t / 1000 }); }
+    const fin = (fast) => { d.remove(); if (o.e1 != null) orb.textContent = String(o.e1()); };
+    const j = job3(fin, TT + 200);
+    /* nguồn: ló nửa người nắm quả cầu (trên bàn) / lá trên tay nhấc nhẹ + ngọc chi phí nảy */
+    if (o.pt) { /* hồn PA6 tự nắm quả cầu */ }
+    else if (onBoard) peek(el, [PK(0, 1, 0), PK(-52, 1.2, -2), PK(-56, 1.2, -4), PK(-52, 1.22, 6), PK(-50, 1.2, 2), PK(0, 1, 0)].map((k, i) => Object.assign(k, { offset: [0, 0.27, 0.37, 0.53, 0.8, 1][i] })), 1000, { easing: "ease-in-out" });
+    else {
+      try { el.animate([{ transform: "translateY(0)" }, { transform: "translateY(-12px)", offset: 0.4 }, { transform: "translateY(0)" }], { duration: 700, easing: "ease-in-out", composite: "add" }); } catch (e) {}
+      const cst = el.querySelector(".cst");
+      if (cst) cst.animate([{ transform: "scale(1)" }, { transform: "scale(1.6)", offset: 0.35 }, { transform: "scale(1)" }], { duration: 460 });
+    }
+    glow(gx, gy, bl[0], 70, 0.6, 0.8);
+    ring(gx, gy, bl[0], 30, 0.35, 0.9);
+    try { SFX.play("chime"); } catch (e) {}
+    fxT(() => { if (j.dead) return; ring(hx, hy, bl[0], 40, 0.3, 0.9); glow(hx, hy, bl[1], 60, 0.3, 0.7); }, 300);
+    fxT(() => { if (j.dead) return; try { SFX.play("whoosh"); } catch (e) {} tap("HX19:throw", { id: o.id }); }, 440);
+    fxT(() => {
+      if (j.dead) return;
+      ring(ob.x, ob.y, bl[0], 56, 0.4, 0.95);
+      glow(ob.x, ob.y, bl[0], 110, 0.45, 0.8);
+      streaks(ob.x, ob.y, bl, 14, 200, 0, 6.283, 0.45, 5);
+      try { orb.animate([{ transform: "scale(1)" }, { transform: "scale(1.45)", offset: 0.3 }, { transform: "scale(1)" }], { duration: 440, easing: "ease-out" }); } catch (e) {}
+      if (o.e1 != null) orb.textContent = String(o.e1());
+      flt(ob.x, ob.y - 36, "+" + o.n + (o.max ? " năng lượng tối đa" : " năng lượng"), "#7fe0ff");
+      try { SFX.fam("egain", { el: elOf(o.id) }); } catch (e) {}
+      tap("HX19:orb", { id: o.id });
+    }, 800);
+    a.onfinish = () => j.fin(false);
+    live(TT + 260);
+    return true;
+  }
+  /* playFxCore (05): năng lượng hiện tại tăng do kỹ năng của SRC */
+  HXG.nrg = function (src, n, e0) {
+    const id = idOf(src);
+    if (!ok(id) || !(n > 0)) return false;
+    const ch = K.ch();
+    return nrg19({ el: mcOf(src), src, ch: ch && !ch.dead && ch.src === src ? ch : null, id, n, e0, e1: () => (G ? G.energy.p : e0 + n) });
+  };
+  /* cardFx (05): năng lượng tối đa tăng (búa cũ) */
+  let EGH = 0;
+  HXG.nrgMax = function (evs, n) {
+    if (EGH && performance.now() - EGH < 400) return true; /* đã diễn ở sự kiện egain có id (Phán Quan Thiên Giới) */
+    const sv = (evs || []).find((e) => e.k === "skill" || e.k === "act");
+    if (!sv || !okU(sv.uid)) return false;
+    const ch = K.ch();
+    return nrg19({ el: mcOf(sv.uid), src: sv.uid, ch: ch && !ch.dead && ch.src === sv.uid ? ch : null, id: idOf(sv.uid), n: n || 1, max: 1 });
+  };
+  /* đầu lượt: năng lượng do thẻ (egain có id, vd. Phán Quan Thiên Giới lượt 3) — nguồn ở trên bàn / trên tay / bộ bài */
+  function egain19(e) {
+    if (e.side !== "p" || !e.id || !ok(e.id)) return;
+    let el = null;
+    try { for (let li = 0; li < 3 && !el; li++) for (const c of G.locs[li].cards.p) if (c.id === e.id && c.rev) { el = mcOf(c.uid); break; } } catch (x) {}
+    if (!el) { const c = G.hand.p.find((x) => x.id === e.id); if (c) el = document.querySelector(`#hand [data-hc="${c.uid}"]`); }
+    if (!el) return;
+    const e1 = G.energy.p;
+    if (nrg19({ el, id: e.id, n: 1, e0: e1 - 1, e1: () => (G ? G.energy.p : e1), max: 0 })) EGH = performance.now();
+  }
+
+  /* ---------- tua nhanh (chạm màn hình) khi việc vòng 3 đang diễn mà không có chuỗi PA6 ---------- */
+  function r3skip() {
+    for (const j of [...R3]) j.fin(true);
+    const P = W.PLAN8;
+    if (P && P.tms && P.tms.length && HX3S && P.tms[0] && HX3S.includes(P.tms[0][0])) {
+      for (const [s, tm] of P.tms) {
+        if (s._ran) continue;
+        clearTimeout(tm); s._ran = 1;
+        try { if (s.k === "copy") q8(s, () => hit8(s)); else run8(s); } catch (e) { console.error(e); }
+      }
+      clearTimeout(P.pt);
+      const steps = P.tms.map((x) => x[0]);
+      setTimeout(() => { for (const s of steps) try { post8(s); } catch (e) {} }, 420);
+      P.tms = [];
+      HX3S = null;
+      try { clearTimeout(PWHT); PWH = 0; tickPw(); } catch (e) {}
+      try { hold29Info(0); } catch (e) {}
+    }
+    try { FX_UNTIL = Math.min(FX_UNTIL, performance.now() + 420 * SPD); } catch (e) {}
+    tap("HX3:skip", {});
+  }
+  HXG.skip3 = r3skip;
+  document.addEventListener("pointerdown", () => {
+    if (!R3.size) return;
+    try { const ch = P6.ch(); if (ch && !ch.dead) return; } catch (e) {}
+    try { noClick = Date.now() + 450; } catch (e) {}
+    r3skip();
+  }, true);
+
+  /* ---------- sự kiện của bước đang diễn (HX-05 hồi sinh cần biết thẻ nguồn; vòng 3: hồi sinh / biến đổi / năng lượng) ---------- */
+  {
+    const sf0 = stepFx;
+    stepFx = function (G0, evs) { HXG._g0 = { G0, evs }; return sf0.apply(this, arguments); };
     const pc0 = playFxCore;
-    playFxCore = function (evs) { if (arguments[3] !== 1) HXG._evs = evs; return pc0.apply(this, arguments); };
+    playFxCore = function (evs, R0) {
+      let eg = null;
+      if (arguments[3] !== 1) { HXG._evs = evs; try { eg = pre3(evs, R0); } catch (e) { console.error(e); } }
+      const r = pc0.apply(this, arguments);
+      if (eg) for (const e of eg) { try { egain19(e); } catch (x) { console.error(x); } }
+      return r;
+    };
+  }
+  function pre3(evs, R0) {
+    R14.clear(); TFS.clear();
+    if (!G || !on() || ff() || isLite()) return null;
+    const g0 = HXG._g0 && HXG._g0.evs === evs ? HXG._g0.G0 : null;
+    let eg = null;
+    for (const e of evs) {
+      if (e.k === "revive") { if (okId(idOf(e.uid)) || okU(e.src)) R14.set(e.uid, e.src || 0); }
+      else if (e.k === "morph" && g0 && R0 && R0.get(e.uid)) {
+        let old = null;
+        try { const f = E.find(g0, e.uid); old = f ? f.inst.id : null; } catch (x) {}
+        const nid = idOf(e.uid);
+        if (old && nid && old !== nid && C[old] && (okId(nid) || okId(old) || okU(e.src))) TFS.set(e.uid, { old, src: e.src || 0, r0: R0.get(e.uid) });
+      }
+      else if (e.k === "egain" && e.id && e.side === "p" && ok(e.id)) { (eg = eg || []).push(e); EGH = performance.now(); /* búa năng lượng tối đa cũ (cardFx) nhường cho HX-19 */ }
+    }
+    return eg;
   }
 
   /* ---------- kiểm tra (test): ảnh của mọi lớp Hồn Xuất đang hiện đều đã giải mã ---------- */
   HXG.audit = function () {
     const bad = [];
-    for (const im of document.querySelectorAll(".hxsoul img,img.hxds,.fxg.hxd img.art,.mc.hxpk>img.art,.p6soul img")) {
-      const v = getComputedStyle(im).visibility !== "hidden" && +getComputedStyle(im.closest(".hxsoul,.fxg,.mc,.p6soul") || im).opacity > 0.05;
+    for (const im of document.querySelectorAll(".hxsoul img,img.hxds,.fxg.hxd img.art,.fxg.hxold img.art,.hxclip img,.mc.hxpk>img.art,.p6soul img")) {
+      const v = getComputedStyle(im).visibility !== "hidden" && +getComputedStyle(im.closest(".hxsoul,.hxclip,.fxg,.mc,.p6soul") || im).opacity > 0.05;
       if (v && !(im.complete && im.naturalWidth)) bad.push(im.className || im.parentElement.className);
     }
     return bad;

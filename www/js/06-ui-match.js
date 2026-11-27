@@ -208,7 +208,7 @@ async function endTurnRun(auto){
     const evs=G.evs.slice();await artReady12(evs);
     if(G.msgs.length)G.msg=`<b>Cuối lượt:</b> `+G.msgs.slice(0,4).join(" · ");
     stepFx(G0,evs,R0,P0);
-    await sleep(reduced?65:480);
+    await sleep(reduced?65:(window.HXG&&HXG.eotFast&&HXG.eotFast(evs))?300:480); /* gpu62 (HX-20): thẻ Hồn Xuất loé hồn Cuối Lượt -> nhịp ngắn hơn */
   }
   pvApply();E.finishEndTurn(G);
   if(G.turn>=E.turns(G)){await endReveal(G);E.finish(G,"end");showEnd();return;}
