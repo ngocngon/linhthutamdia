@@ -1112,7 +1112,7 @@
     peek(se, [PK(0, 1, 0), PK(-42, 1.16, -2), PK(-44, 1.17, -3), PK(-46, 1.18, 0), PK(-50, 1.24, 0), PK(0, 1, 0)].map((k, i) => Object.assign(k, { offset: [0, 0.1, 0.5, 0.86, 0.93, 1][i] })), TT, { easing: "linear" });
     glow(sr.x, sr.y, sc.c1, sr.w * 2, 0.45, 0.6);
     /* bản song sinh (dáng mình) và bản hoá dáng mục tiêu (soi gương) — mỗi bản một hoạt ảnh WAAPI suốt cảnh */
-    const w = sr.w * 0.95, h = sr.h * 0.95, ax = sr.x, ay = sr.y - sr.h * 0.42;
+    const w = sr.w * 1.12, h = sr.h * 1.12, ax = sr.x, ay = sr.y - sr.h * 0.42;
     /* bản hoá dáng đứng về phía biển chiến địa (trên lá phe mình / dưới lá phe địch) — không đè lá bên cạnh */
     const mine = (() => { try { const f = E.find(G, s.dst); return f && G.locs[f.li].cards.p.includes(f.inst); } catch (e) { return true; } })(), side = tr.x < innerWidth / 2 ? 1 : -1;
     const px = clamp(tr.x + side * tr.w * 0.25, w / 2 + 4, innerWidth - w / 2 - 4), py = clamp(tr.y + (mine ? -1 : 1) * tr.h * 0.92, h / 2 + 4, innerHeight - h / 2 - 4);
@@ -1164,7 +1164,7 @@
     if (!te || !tid) return;
     const tr = ctrR(te.getBoundingClientRect()), tI = soulImg(tid, te);
     if (!tI || !tr.w) return;
-    const tc = cols(tid), w = tr.w * 0.95, h = tr.h * 0.95, side = Math.sign(tr.x - ch.x) || 1, TT = 640;
+    const tc = cols(tid), w = tr.w * 1.12, h = tr.h * 1.12, side = Math.sign(tr.x - ch.x) || 1, TT = 640;
     /* phía đối diện hồn PA6 so với mục tiêu (hồn PA6 đứng trước mục tiêu, bản soi gương đứng sau) */
     const vy = Math.sign(tr.y - ch.y) || 1, px = clamp(tr.x + side * tr.w * 0.3, w / 2 + 4, innerWidth - w / 2 - 4), py = clamp(tr.y + vy * tr.h * 0.85, h / 2 + 4, innerHeight - h / 2 - 4);
     const B = soulAt(tI.currentSrc || tI.src, px, py, w, h, tc.c1, "hxtw"), o = (t) => t / TT;
