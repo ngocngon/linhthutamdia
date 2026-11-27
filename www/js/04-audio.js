@@ -507,9 +507,10 @@ const SFX = (() => {
       if (!id || (voiceIdx && !voiceIdx[id])) return false;
       const t0 = ac.currentTime;
       /* nhiều thẻ dồn dập: không chồng 2 câu — câu mới chỉ phát khi câu trước đã nói xong (hoạt ảnh đã được kéo dài theo thoại) */
-      if (t0 < voiceEnd - 0.05 && t0 >= voiceLastT) return false;
       const uk = (o.uid || 0) + ":" + id;
       if (o.uid && uk === voiceLastUid && t0 - voiceLastT < 3) return false;
+      /* gpu68: câu trước chưa dứt -> xếp hàng nói tiếp ngay sau (đọc đủ), chỉ bỏ khi phải chờ quá 3 s (lệch hẳn khỏi hoạt ảnh) */
+      if (t0 < voiceEnd - 0.05) { const w = voiceEnd - t0 + 0.12; if (w > 3) return false; o = Object.assign({}, o, { delay: Math.max(o.delay == null ? VOICE_DELAY : o.delay, w) }); }
       voiceLastT = t0; voiceLastUid = uk; /* giữ chỗ ngay để lời gọi sau không chen */
       if (voiceIdx && voiceIdx[id]) voiceEnd = Math.max(voiceEnd, t0 + (o.delay == null ? VOICE_DELAY : o.delay) + (+voiceIdx[id][2] || 0));
       const delay = o.delay == null ? VOICE_DELAY : o.delay;
