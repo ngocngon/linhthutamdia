@@ -1620,8 +1620,9 @@ body.rm .l47 { display: none; }
 body[data-l51~="0"] #board [data-lane="0"] .locw .loc,
 body[data-l51~="1"] #board [data-lane="1"] .locw .loc,
 body[data-l51~="2"] #board [data-lane="2"] .locw .loc { opacity: 0; }
-.l51-bg { position: fixed; inset: 0; z-index: 39; pointer-events: none; background: rgba(2, 4, 16, 0.35); opacity: 0; }
+.l51-bg { position: fixed; inset: 0; z-index: 39; pointer-events: none; background: rgba(2, 4, 16, 0.2); opacity: 0; }
 .l51-k.locw, .l51-c, .l51-sw { position: fixed; z-index: 40; pointer-events: none; margin: 0; }
+.l51-c *, .l51-k *, .l51-sw * { pointer-events: none !important; }
 .l51-k .loc { width: 100%; height: 100%; box-sizing: border-box; }
 .l51-k .loc .in { height: 100%; box-sizing: border-box; }
 .l51-c { will-change: transform; opacity: 0; }

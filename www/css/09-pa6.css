@@ -111,3 +111,29 @@
 }
 
 body.rm .p6soul, body.rm .p6ai, body.rm .p6say, body.rm .fxg.p6bk { display: none !important; }
+
+/* gpu68 (vis): ngôn ngữ đổi chỉ số — nhãn nhỏ cạnh ô số + viền ô số xanh/đỏ (không phóng to ô số) */
+.stchip {
+  position: fixed;
+  z-index: 47;
+  padding: 1px 6px 2px;
+  border-radius: 9px;
+  font: 900 13px/1.15 var(--f-body, system-ui), sans-serif;
+  color: #fff;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.7);
+  pointer-events: none;
+  white-space: nowrap;
+  opacity: 0;
+}
+.stchip.up { background: linear-gradient(180deg, #2fd07a, #0a7a3a); box-shadow: 0 0 0 1.5px #c8ffe0, 0 0 10px rgba(93, 255, 168, 0.8); }
+.stchip.dn { background: linear-gradient(180deg, #ff4d6d, #9a0a2a); box-shadow: 0 0 0 1.5px #ffd0da, 0 0 10px rgba(255, 107, 134, 0.8); }
+.cst.st-up, .pwh.st-up, .lcc.st-up, .lcp.st-up { box-shadow: 0 0 0 2px #c8ffe0, 0 0 12px 2px #5dffa8 !important; }
+.cst.st-dn, .pwh.st-dn, .lcc.st-dn, .lcp.st-dn { box-shadow: 0 0 0 2px #ffd0da, 0 0 12px 2px #ff6b86 !important; }
+body.rm .stchip { display: none; }
+
+/* gpu68 (vis): mặt thẻ đầy đủ cho lá hiện ra từ bộ bài / tay / lá tạo ra (faceHTML, 05) — phủ đúng khung chứa, giữ nguyên khung + ô số */
+.fxface { position: absolute !important; inset: 0 !important; display: block !important; width: 100% !important; height: 100% !important; max-width: none !important; min-width: 0 !important;
+  margin: 0 !important; transform: none !important; animation: none !important; transition: none !important; overflow: visible !important; pointer-events: none; flex: none !important; }
+
+/* gpu68 (vis): bỏ dải chữ Duy Trì toàn bàn ngay dưới ô cược (giữa nửa trên màn) — thừa; thông tin vẫn xem khi chạm thẻ */
+#dhGlob { display: none !important; }

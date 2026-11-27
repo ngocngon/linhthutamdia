@@ -2010,41 +2010,36 @@
       ], { duration: 560 });
     };
 
-    CFX.buff = function (el, d) {
-      if (reduced || !el) return;
-      const r = el.getBoundingClientRect();
-      if (r.width > 0 && typeof window.playV16 === "function") {
-        window.playV16("tang_suc", r.left + r.width / 2, r.top + r.height / 2, Math.max(96, r.width * 1.85), 250, 0);
-      }
-      if (typeof holdFx === "function") holdFx(260);
-      smoothAnim(el, [
-        { transform: "translate3d(0,0,0) scale(1)" },
-        { transform: "perspective(600px) translate3d(0,-7px,22px) scale(1.16)", offset: 0.38 },
-        { transform: "translate3d(0,0,0) scale(1)" }
-      ], { duration: 250 });
-      const pwh = el.querySelector(".pwh");
-      if (pwh) {
-        smoothAnim(pwh, [
-          { transform: "scale(1)" },
-          { transform: "scale(1.85) rotate(-8deg)", offset: 0.38 },
-          { transform: "scale(1)" }
-        ], { duration: 240 });
-      }
+    /* gpu68 (vis): tăng/giảm sức mạnh theo ngôn ngữ đổi chỉ số chung (P6.stat): lá nhích nhẹ, ô sức mạnh đếm cũ -> mới + nhãn nhỏ.
+       Bỏ ảnh "tang_suc"/"giam_suc" lớn đè lên mặt thẻ và cú phóng to ô số 1,85×. d: lượng đổi (dương), o.v1: số mới, o.lab: nhãn (×2). */
+    const statPow = (el, dd, o) => {
+      o = o || {};
+      if (!dd || o.stat === false || !window.P6 || !P6.stat) return;
+      const pw = el.querySelector(":scope>.pwh,.lc>.lcp,.gc>.pwh");
+      const v1 = o.v1 != null ? o.v1 : pw ? parseInt(pw.textContent, 10) : NaN;
+      if (!isFinite(v1)) return;
+      P6.stat({ el, k: "pow", v0: v1 - dd, v1, lab: o.lab, src: o.src, i: o.i, dl: o.dl, uid: o.uid });
     };
-
-    CFX.debuff = function (el) {
+    CFX.buff = function (el, d, o) {
       if (reduced || !el) return;
-      const r = el.getBoundingClientRect();
-      if (r.width > 0 && typeof window.playV16 === "function") {
-        window.playV16("giam_suc", r.left + r.width / 2, r.top + r.height / 2, Math.max(96, r.width * 1.85), 250, 0);
-      }
-      if (typeof holdFx === "function") holdFx(260);
+      if (typeof holdFx === "function") holdFx(420);
       smoothAnim(el, [
         { transform: "translate3d(0,0,0) scale(1)" },
-        { transform: "translate3d(-5px, 2px, 0) rotate(-3deg) scale(0.94)", offset: 0.24 },
-        { transform: "translate3d(5px, 1px, 0) rotate(3deg) scale(0.96)", offset: 0.52 },
+        { transform: "translate3d(0,-4px,0) scale(1.05)", offset: 0.4 },
         { transform: "translate3d(0,0,0) scale(1)" }
-      ], { duration: 250 });
+      ], { duration: 300 });
+      statPow(el, Math.abs(+d || 0), o);
+    };
+    CFX.debuff = function (el, d, o) {
+      if (reduced || !el) return;
+      if (typeof holdFx === "function") holdFx(420);
+      smoothAnim(el, [
+        { transform: "translate3d(0,0,0)" },
+        { transform: "translate3d(-3px,1px,0) rotate(-1.5deg)", offset: 0.3 },
+        { transform: "translate3d(3px,1px,0) rotate(1.5deg)", offset: 0.6 },
+        { transform: "translate3d(0,0,0)" }
+      ], { duration: 280 });
+      statPow(el, -Math.abs(+d || 0), o);
     };
   }
 
@@ -2083,14 +2078,12 @@
         GLFX.impulseShake(7.8, dx, dy);
         gpuFlash("#ff4d6d", 0.2);
       } else if (s.k === "up" || s.k === "lplus") {
-        FX.ring(tp.x, tp.y, "#3dffb4", 68);
-        FX.rise(tp.x, tp.y + 12, "#7dffb0", 16);
-        GLFX.impulseShake(2.4, 0, -1);
+        /* gpu68 (vis): gọn — vòng nhỏ + vài hạt, không rung (số đổi do P6.stat trên ô sức mạnh) */
+        FX.ring(tp.x, tp.y, "#3dffb4", 40);
+        FX.rise(tp.x, tp.y + 12, "#7dffb0", 6);
       } else if (s.k === "down" || s.k === "lminus") {
-        FX.sparks(tp.x, tp.y, "#ff4d7d", 18, 230);
-        FX.ring(tp.x, tp.y, "#ff4d7d", 64);
-        if (sp) GLFX.arc(sp.x, sp.y, tp.x, tp.y, "#ff5a8a", 8, 0.85, false, 0.22);
-        GLFX.impulseShake(3.8, dx, dy);
+        FX.sparks(tp.x, tp.y, "#ff4d7d", 8, 180);
+        FX.ring(tp.x, tp.y, "#ff4d7d", 40);
       } else if (s.k === "sil" || s.k === "steal" || s.k === "copy") {
         const col = s.k === "copy" ? "#3fe0ff" : "#c45cff";
         if (sp) GLFX.arc(sp.x, sp.y, tp.x, tp.y, col, 10, 1.1, true, 0.28);
@@ -2488,7 +2481,8 @@
       k.style.cssText = `left:${r0.left.toFixed(1)}px;top:${r0.top.toFixed(1)}px;width:${r0.width.toFixed(1)}px;height:${r0.height.toFixed(1)}px;--lc:#3a376e`;
       /* lá lớn: cỡ + vị trí */
       const VW = innerWidth, VH = innerHeight, asp = r0.width / Math.max(1, r0.height);
-      const cw = Math.round(Math.min(VW * 0.78, VH * 0.4 * asp, Math.min(((document.getElementById("board") || {}).clientWidth || VW), 520))), ch = Math.round(cw / asp); /* fix55: máy tính không vượt bề rộng bàn / 520px */
+      /* gpu68 (vis): lá lớn gọn hơn (≤56% bề ngang, ≤26% chiều cao, ≤340px) — trước 78%/40%/520px quá to; không chặn chạm (pointer-events: none) */
+      const cw = Math.round(Math.min(VW * 0.56, VH * 0.26 * asp, Math.min(((document.getElementById("board") || {}).clientWidth || VW), 340))), ch = Math.round(cw / asp);
       const rdc = parseFloat(getComputedStyle(lc).borderTopLeftRadius) || 16, rd = rdc * (cw / r0.width);
       const th = (typeof LTH !== "undefined" && LTH[L.id]) || "thieng";
       const col = (typeof LHUE !== "undefined" && LHUE[L.id]) || (typeof LTC !== "undefined" && LTC[th]) || "#ffd65a";
@@ -2496,7 +2490,7 @@
       c = l51Add(document.createElement("div")); c.className = "l51-c" + (lo ? " lo" : "");
       c.setAttribute("aria-hidden", "true"); bg.setAttribute("aria-hidden", "true");
       const url = IMGL.has(L.id) ? IMGS.l[L.id] : "";
-      c.style.cssText = `left:${Math.round((VW - cw) / 2)}px;top:0;width:${cw}px;height:${ch}px;--rd:${rd.toFixed(1)}px;--lc:${col};font-size:${(cw * 0.074).toFixed(1)}px`;
+      c.style.cssText = `left:${Math.round((VW - cw) / 2)}px;top:0;width:${cw}px;height:${ch}px;--rd:${rd.toFixed(1)}px;--lc:${col};font-size:${Math.max(13, cw * 0.074).toFixed(1)}px`;
       c.innerHTML = `<div class="l51-f"${url ? ` style="background-image:url(${url})"` : ""}><i class="l51-sh"></i></div><div class="l51-tx"><div class="l51-nm"><b></b></div><div class="l51-ds"></div></div>`;
       c.querySelector(".l51-nm b").textContent = def.n;
       const nm = c.querySelector(".l51-nm"), ds = c.querySelector(".l51-ds"), sh = c.querySelector(".l51-sh");

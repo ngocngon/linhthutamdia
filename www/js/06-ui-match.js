@@ -83,7 +83,7 @@ function render0(){
     if(play&&selInst){acts+=`<button type="button" class="ib alt" data-do="zoomsel">🔍 Chi tiết thẻ</button>`;}
     info=cardInfo(selInst,-1,"hand")+markList(selInst,"hand").map(([i,col,t])=>`<br><span style="color:${col}">${i}</span> <i>${t}</i>`).join("")+extra;
   }else if(look){
-    if(look.kind==="loc"){const L=G.locs[look.li];info=L.rvl?`<b>${LOC[L.id].n}</b><br>${LOC[L.id].x}`:`<b>Chiến địa chưa lộ diện</b><br>Sẽ lộ diện ở lượt ${look.li+1}. Bạn vẫn đặt bài vào đây được.`;}
+    if(look.kind==="loc"){const L=G.locs[look.li];/* gpu68 (vis): chiến địa đang trong màn lộ diện (body[data-l51]) -> chạm xem được ngay thông tin thật */const l51=(document.body.dataset.l51||"").split(" ").includes(String(look.li))&&LOC[L.id];info=L.rvl||l51?`<b>${LOC[L.id].n}</b><br>${LOC[L.id].x}`:`<b>Chiến địa chưa lộ diện</b><br>Sẽ lộ diện ở lượt ${look.li+1}. Bạn vẫn đặt bài vào đây được.`;}
     else{
       const f=findAny(look.uid);
       if(f){
@@ -122,12 +122,12 @@ function render0(){
 }
 
 let ddPlan=false;
-/* ==================== gpu21: TỰ TUA NHANH KHI HOẠT ẢNH CỦA MỘT LƯỢT KÉO DÀI QUÁ 15 GIÂY ====================
-   Đếm từ lúc bấm Kết thúc lượt (lật bài, kỹ năng, cuối lượt, đầu lượt mới). Quá 15 giây thì phần còn lại
+/* ==================== gpu21 -> gpu68: TỰ TUA NHANH CHỈ KHI HOẠT ẢNH CỦA MỘT LƯỢT KÉO DÀI QUÁ 60 GIÂY ====================
+   (Người chơi chốt: dưới 60 s mọi hiệu ứng và câu thoại diễn đủ.) Đếm từ lúc bấm Kết thúc lượt (lật bài, kỹ năng, cuối lượt, đầu lượt mới). Quá 60 giây thì phần còn lại
    chạy ở tốc độ tua nhanh và hiện nhãn "⏩ Tua nhanh"; hết lượt trả về tốc độ người chơi đã chọn. */
 (function () {
   "use strict";
-  const FF_AFTER = 15000, FF_SPD = 0.45;
+  const FF_AFTER = 60000, FF_SPD = 0.45;
   const FF = { iv: 0, t0: 0, on: false };
   let chip = null;
   function showChip(on) {

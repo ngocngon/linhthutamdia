@@ -243,33 +243,40 @@
     return q ? { x: q.x, y: q.t - q.h * 0.1, w: q.w } : { x: innerWidth / 2, y: innerHeight / 2, w: 60 };
   }
 
-  /* ---------- năng lượng trên tay: bước "cost" (cost12 / mask29 giữ số cũ) do ấn đóng xuống mới hiện số mới ---------- */
-  function costHit(s) {
+  /* ---------- năng lượng trên tay: bước "cost" (cost12 / mask29 giữ số cũ) — ngôn ngữ đổi chỉ số chung (P6.stat, 15-pa6.js) ----------
+     gpu68 (vis): bỏ ấn ngọc vuông lớn và cú phóng to ô năng lượng 2,2×. Đạo cụ phát một sợi sáng tới ĐÚNG ô năng lượng của từng lá,
+     ô số đếm cũ -> mới, nhãn "−1" nhỏ cạnh ô; dưới đạo cụ một bộ đếm gọn "−1 ×n" tăng theo từng lá (nhịp đếm kiểu Tiểu Trạng Nguyên). */
+  function costHit(s, src, i) {
     try { unmask29(s); } catch (e) {}
     const el = hcOf(s.hc), c = el && el.querySelector(".cst");
-    if (c) { try { c.animate([{ transform: "scale(2.2)", filter: "brightness(2)" }, { transform: "scale(.9)", offset: 0.55 }, { transform: "none", filter: "none" }], { duration: 420, easing: "cubic-bezier(.2,.8,.3,1)" }); } catch (e) {} }
+    if (c && P6.stat) { const v1 = parseInt(c.textContent, 10); P6.stat({ el, k: "cost", v0: v1 - (s.d || 0), v1, src: src || null, c: "#5fe0a8", uid: s.hc }); }
     try { SFX.fam(s.d > 0 ? "costup" : "costdn", { el: null }); } catch (e) {}
   }
-  /* ấn ngọc bích bay từ (a) tới từng lá có năng lượng đổi, đóng xuống ở mốc t0 + i*gap */
-  function seals(P, j, a, diffs, t0, gap, total) {
+  const LINK = 200;
+  /* sợi sáng từ a tới ô năng lượng của từng lá có năng lượng đổi; ô số đổi ở mốc t0 + i*gap */
+  function seals(P, j, a, diffs, t0, gap) {
     const jade = "#5fe0a8";
+    const n0 = diffs.length, dd = (diffs[0] && diffs[0].d) || -1, same = diffs.every((x) => x.d === dd);
+    let cn = null, k = 0;
+    j.at(Math.max(0, t0 - LINK - 60), () => {
+      const txt = same ? (dd > 0 ? "+" : "−") + Math.abs(dd) + " năng lượng" : "đổi năng lượng";
+      cn = j.add(el0("sgx sm sgct", a.x, a.y + 30, 150, 24, jade, `<b>${esc(txt)} <em>×0</em></b>`));
+      tl(cn, [{ t: 0, x: a.x, y: a.y + 30, s: 0.6, o: 0 }, { t: 140, x: a.x, y: a.y + 26, s: 1, o: 1 }, { t: LINK + 60 + n0 * gap + 520, x: a.x, y: a.y + 24, s: 1, o: 1 }, { t: LINK + 60 + n0 * gap + 760, x: a.x, y: a.y + 14, s: 0.9, o: 0 }], LINK + 60 + n0 * gap + 760);
+    });
     diffs.forEach((st, i) => {
-      const tl0 = t0 - 300 + i * gap, d = { u: st.hc, dd: st.d || -1 };
-      j.at(tl0, () => {
-        const el = hcOf(d.u), q = rc(el);
+      j.at(t0 - LINK + i * gap, () => {
+        const el = hcOf(st.hc), q = rc(el);
         if (!q) { P.hit(st); return; }
-        const s = Math.max(30, q.w * 0.62), b = { x: q.x - q.w * 0.18, y: q.t + q.w * 0.22 };
-        const sd = j.add(el0("sgseal", a.x, a.y, s, s, jade, `<i>${d.dd > 0 ? "+" : "−"}${Math.abs(d.dd)}</i>`));
-        tl(sd, [{ t: 0, x: a.x, y: a.y, s: 0.4, o: 0 }, { t: 60, x: a.x, y: a.y, s: 0.8, o: 1 }, ...arc(a, { x: b.x, y: b.y - s * 0.6 }, 70, 60, 260, { s0: 0.8, s1: 1.25, r0: -20, r1: 0 }), { t: 300, x: b.x, y: b.y, s: 0.88, e: "cubic-bezier(.3,1.6,.5,1)" }, { t: 380, x: b.x, y: b.y, s: 1 }, { t: 560, x: b.x, y: b.y - 4, s: 1, o: 1, e: "ease-in" }, { t: 700, x: b.x, y: b.y - 14, s: 1.2, o: 0 }], 700);
-        trail(a, b, 70, 0, 260, [jade, "#ffffff", "#c8ffe8"], 5);
-        j.at(tl0 + 300, () => {
-          P.hit(st);
-          ring(b.x, b.y, jade, s * 1.6, 0.4, 0.95);
-          glow(b.x, b.y, jade, s * 2.2, 0.35, 0.7);
-          if (!lite()) star(b.x, b.y, "#ffffff", s * 1.3, 0.25);
-          fl(q.x, q.t - 8, (d.dd > 0 ? "+" : "−") + Math.abs(d.dd) + " năng lượng", "#9dffd2");
+        const cs = el.querySelector(".cst"), cb = cs ? cs.getBoundingClientRect() : null, b = cb && cb.width ? { x: cb.left + cb.width / 2, y: cb.top + cb.height / 2 } : { x: q.x - q.w * 0.3, y: q.t + 10 };
+        trail(a, b, 50, 0, LINK, [jade, "#ffffff", "#c8ffe8"], 4);
+        st._sigSrc = a;
+        P.hit(st);
+        j.at(t0 + i * gap, () => {
+          k++;
+          if (cn) { const e = cn.querySelector("em"); if (e) { e.textContent = "×" + k; try { e.animate([{ transform: "scale(1.5)" }, { transform: "scale(1)" }], { duration: 200, easing: "cubic-bezier(.2,.8,.3,1)" }); } catch (x) {} } }
+          if (!lite()) star(a.x, a.y, "#ffffff", 40, 0.18);
           sfx("place");
-          tap("sig:seal", { id: P.id, u: d.u });
+          tap("sig:seal", { id: P.id, u: st.hc });
         });
       });
     });
@@ -283,7 +290,7 @@
   function hitOwn(s) {
     if (!s || s._sigHit) return;
     s._sigHit = 1; s._hit = 1; s._ran = 1;
-    try { if (s.k === "loc") locHit(s); else if (s.k === "cost" && s.hc) costHit(s); else q8(s, () => hit8(s)); } catch (e) { console.error(e); }
+    try { if (s.k === "loc") locHit(s); else if (s.k === "cost" && s.hc) costHit(s, s._sigSrc); else q8(s, () => hit8(s)); } catch (e) { console.error(e); }
   }
   function locHit(s) {
     if (s.ov) { const o = s.ov; s.ov = null; try { const a = o.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 160, fill: "forwards" }); a.onfinish = () => o.remove(); } catch (e) { o.remove(); } fxT(() => o.remove(), 400); }
@@ -473,6 +480,7 @@
       try { clearTimeout(PWHT); PWH = 0; tickPw(); } catch (e) {}
       try { hold29Info(0); } catch (e) {}
     }
+    try { P6.statEnd(); } catch (e) {}
     try { FX_UNTIL = Math.min(FX_UNTIL, performance.now() + 520 * SPD); } catch (e) {}
     tap("sig:skip", {});
   }, true);
@@ -784,10 +792,8 @@
       for (const [s, o] of by) j.at(o.t, () => {
         P.hit(s);
         const q = rc(mcOf(s.dst)) || o.q;
-        ring(q.x, q.y, sc, q.w * 1.15, 0.45, 0.9);
-        if (!lite()) converge(q.x, q.y, [sc, "#ffffff"], 10, q.w * 0.8, 0.3, 1);
-        const pw = mcOf(s.dst) && mcOf(s.dst).querySelector(".pwh");
-        if (pw) try { pw.animate([{ transform: "rotate(0) scale(1)" }, { transform: "rotate(-360deg) scale(1.6)", offset: 0.6 }, { transform: "rotate(-360deg) scale(1)" }], { duration: 460, easing: "cubic-bezier(.3,.7,.3,1)" }); } catch (e) {}
+        ring(q.x, q.y, sc, q.w * 1.0, 0.4, 0.8);
+        /* gpu68 (vis): số trên ô sức mạnh đếm về gốc do hit8 -> P6.stat (không xoay/phóng ô số) */
       });
       if (!P.owned.length) j.at(P.T + 200, () => fl(c.x, c.y - 30, "VỀ SỨC MẠNH GỐC", "#c9b0ff"));
     },
@@ -890,7 +896,7 @@
         streaks(dz.x, dz.y, ["#ffffff", "#dfefff"], 16, 280, 0, 6.283, 0.45, 5);
         sfx("chime");
       });
-      stamp(j, dz.x + (dz.x < innerWidth / 2 ? 50 : -50), dz.y + (P.mine ? 46 : 40), "0/0", "#e8f4ff", 30, P.T + 120, 560);
+      /* gpu68 (vis): không đóng dấu "0/0" lớn — chính lá trên cùng (mặt thẻ đầy đủ) đếm ô số về 0/0 (P6.stat) */
     },
   });
 
@@ -985,5 +991,15 @@
       });
     },
   });
+
+  /* gpu68 (vis): CỔNG LUẬT TRÌNH DIỄN (15-pa6.js, đầu tệp) — lớp ngoài cùng của playFxCore: nhịp kỹ năng không bao giờ bắt đầu khi màn ra mắt [A] còn mở */
+  {
+    const pcG = playFxCore;
+    playFxCore = function (evs, R0, P0, part) {
+      const self = this, args = arguments;
+      if (part === 1 || !P6.seq) return pcG.apply(self, args);
+      return P6.seq.skill(() => pcG.apply(self, args));
+    };
+  }
 
 })();

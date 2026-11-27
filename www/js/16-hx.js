@@ -1439,7 +1439,7 @@
     else {
       try { el.animate([{ transform: "translateY(0)" }, { transform: "translateY(-12px)", offset: 0.4 }, { transform: "translateY(0)" }], { duration: 700, easing: "ease-in-out", composite: "add" }); } catch (e) {}
       const cst = el.querySelector(".cst");
-      if (cst) cst.animate([{ transform: "scale(1)" }, { transform: "scale(1.6)", offset: 0.35 }, { transform: "scale(1)" }], { duration: 460 });
+      if (cst) cst.animate([{ transform: "scale(1)" }, { transform: "scale(1.2)", offset: 0.35 }, { transform: "scale(1)" }], { duration: 460 });
     }
     glow(gx, gy, bl[0], 70, 0.6, 0.8);
     ring(gx, gy, bl[0], 30, 0.35, 0.9);

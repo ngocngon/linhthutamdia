@@ -10,6 +10,18 @@
    Hiệu năng: chỉ transform/opacity trên DOM; ánh sáng/vệt/hạt/sóng vẽ ở lớp WebGL (GLFX, hoà trộn cộng) có trần hạt theo mức máy; thiếu WebGL -> lớp 2D FX.
    Mức máy "Đầy đủ / Vừa / Nhẹ": tự chọn theo khung hình đo đầu trận (08) hoặc chọn tay trong Cài đặt (localStorage "ltd_p6lv").
    Chạm màn hình trong lúc chuỗi diễn: tua nhanh (mọi đòn còn lại trúng ngay, nhân vật chui về, thẻ hạ) — thoại vẫn nói tiếp. */
+/* ===== gpu68 (vis): LUẬT TRÌNH DIỄN MỘT THẺ — BẮT BUỘC, DO SEQ (dưới đây) CƯỠNG CHẾ =====
+   [A] RA MẮT: phóng lớn + lật mặt + câu thoại ra mắt + chú thích kỹ năng (ultShow 05 / slotShow) — đọc trọn, không gì đè lên.
+   [B] KỸ NĂNG: hồn/đạo cụ rời thẻ -> tới mục tiêu -> kết quả (số đổi theo ngôn ngữ đổi chỉ số P6.stat, nhãn nhỏ cạnh ô số).
+   [C] THẺ KẾ TIẾP: chỉ khi [B] của thẻ trước xong (06 chờ FX_UNTIL/sleep; [B] giữ holdFx tới hết).
+   Luật:
+   1. Không phần nào của [B] (playFxCore nhịp kỹ năng: heroUp/PA6, plan8, ấn ký 17-sig, Hồn Xuất 16-hx, đổi chỉ số) được bắt đầu khi [A]
+      còn trên màn: playFxCore (trừ nhịp lật, part 1) đi qua SEQ.skill(); nếu SEQ đang mở [A], phần kỹ năng xếp hàng và chạy ngay khi [A] đóng.
+   2. Thứ tự một bước có thẻ ra mắt: nhịp lật trên bàn (part 1) -> [A] (từng thẻ một) -> [B] (part 2). Bước chỉ có thẻ lật (Duy Trì) cũng vậy.
+   3. Một kỹ năng nhiều mục tiêu: mọi mục tiêu trúng CÙNG LÚC (gom mốc trúng, HXG.shift/plan8 nhóm); đổi chỉ số so le ≤90 ms/lá.
+   4. Chữ không chồng: bong bóng thoại [A] tắt trước khi [B] bắt đầu; bong bóng kỹ năng [B] đặt phía xa mục tiêu; không chữ to giữa màn khi đổi số.
+   5. Chạm màn hình: tua phần đang diễn ([A] thu về ngay -> [B] chạy; [B] trúng hết ngay, số cuối đặt đúng). Tua lượt máy (FFTURN) CHỈ khi phần diễn của lượt đã quá 60 s (06, FF_AFTER) — dưới 60 s mọi hiệu ứng + câu thoại diễn đủ:
+      [A]/[B] rút ngắn nhưng thứ tự giữ nguyên. Giảm chuyển động: không [A], kết quả hiện thẳng. */
 (function () {
   "use strict";
   const W = window, LVK = "ltd_p6lv", VER = "gpu60";
@@ -21,6 +33,44 @@
   const ff = () => !!(W.FFTURN && FFTURN.on);
   const on = () => { try { return !reduced && !!G; } catch (e) { return false; } };
   P6.on = on;
+
+  /* ---------- SEQ: bộ xếp lịch [A] -> [B] (luật ở đầu tệp) ---------- */
+  const SEQ = { open: 0, q: [], wd: 0, n: 0 };
+  P6.seq = SEQ;
+  SEQ.zoomOn = function (uid) {
+    SEQ.open++; SEQ.n++;
+    tap("Q:A", { uid, open: SEQ.open });
+    clearTimeout(SEQ.wd);
+    SEQ.wd = setTimeout(() => { if (SEQ.open) { SEQ.open = 0; tap("Q:A/", { wd: 1 }); SEQ.flush(); } }, 9000 * SPD);
+  };
+  SEQ.zoomOff = function (uid) {
+    if (!SEQ.open) return;
+    SEQ.open--;
+    tap("Q:A/", { uid, open: SEQ.open });
+    if (!SEQ.open) { clearTimeout(SEQ.wd); SEQ.flush(); }
+  };
+  SEQ.flush = function () { const L = SEQ.q.splice(0); for (const f of L) { try { f(); } catch (e) { console.error(e); } } };
+  /* chạy phần kỹ năng ngay nếu không có [A] đang mở; nếu có: xếp hàng, giữ lượt chờ */
+  SEQ.skill = function (f) {
+    if (!SEQ.open) { tap("Q:B", {}); return f(); }
+    tap("Q:Bq", { open: SEQ.open });
+    try { holdFx(1200); } catch (e) {}
+    SEQ.q.push(() => { tap("Q:B", { late: 1 }); f(); });
+    return 0;
+  };
+  /* bọc ultShow (05): mở [A] khi bắt đầu, đóng đúng lúc màn ra mắt gọi done (kể cả khi bị tua / lỗi) */
+  try {
+    const us0 = ultShow;
+    ultShow = function (inst, done, nth) {
+      if (reduced || !inst) return us0.apply(this, arguments);
+      let closed = 0;
+      const uid = inst.uid;
+      const fin = () => { if (closed) return; closed = 1; SEQ.zoomOff(uid); if (done) { const f = done; done = null; f(); } };
+      SEQ.zoomOn(uid);
+      const safety = setTimeout(fin, 8000 * SPD);
+      return us0.call(this, inst, () => { clearTimeout(safety); fin(); }, nth);
+    };
+  } catch (e) {}
 
   /* ---------- mức máy ---------- */
   let man = "auto";
@@ -102,6 +152,68 @@
   const beam = (x1, y1, x2, y2, c, w, dur) => { if (reduced) return; if (gl()) { live.push(performance.now() + (dur || 0.3) * SPD * 1000); GLFX.tether(x1, y1, x2, y2, c, w || 9, 0.18, dur || 0.3); } else { FXBIG = true; try { FX.comet(x1, y1, x2, y2, c); } finally { FXBIG = false; } } };
   const shake = (p, dx, dy) => { if (reduced || tier() === "lite") return; try { if (gl()) GLFX.impulseShake(p, dx, dy); else { FXBIG = true; try { FX.shake(p * 0.6); } finally { FXBIG = false; } } } catch (e) {} };
   P6.fx = { glow, ring, star, streaks, converge, beam };
+
+  /* ---------- gpu68 (vis): NGÔN NGỮ ĐỔI CHỈ SỐ — MỘT KIỂU CHO MỌI THẺ ----------
+     Mọi lần năng lượng (cost) hoặc sức mạnh (pow) của một thẻ khác đổi vì kỹ năng (tay bài, bàn, lá vừa lật từ bộ bài):
+       1. (nếu có nguồn) một sợi sáng mảnh nối đạo cụ/hồn/thẻ nguồn -> đúng ô số của thẻ bị đổi (WebGL, 0,2 s gốc),
+       2. chính ô số trên thẻ đếm từng bước cũ -> mới (kiểu Tiểu Trạng Nguyên: +1, +2…), mỗi nhịp nảy nhẹ ≤1,22×,
+          viền ô sáng XANH khi có lợi (năng lượng giảm / sức mạnh tăng), ĐỎ khi bất lợi,
+       3. một nhãn nhỏ "−1" / "+3" / "×2" mọc cạnh ô số, nổi lên rồi tan (không chữ to giữa màn, không phóng to ô số).
+     Nhiều thẻ: gọi lần lượt với i = 0,1,2… -> các thẻ đếm so le 90 ms (vẫn cùng một nhịp, không chờ nhau).
+     Giảm chuyển động: chỉ đặt số mới. Tua lượt máy: không sợi sáng, một nhịp. Luôn đặt đúng số cuối (kể cả khi bị tua). */
+  const STL = new Set();
+  const badgeOf = (el, k) => el && el.querySelector(k === "cost" ? ":scope>.cst,:scope>.lcc,.gc>.cst,.lc>.lcc" : ":scope>.pwh,:scope>.lcp,.gc>.pwh,.lc>.lcp");
+  P6.stat = function (o) {
+    const el = o && o.el, k = o.k === "cost" ? "cost" : "pow", b = badgeOf(el, k);
+    if (!b) return 0;
+    let v1 = o.v1 != null ? +o.v1 : parseInt(b.textContent, 10), v0 = +o.v0;
+    if (!isFinite(v1)) return 0;
+    if (!isFinite(v0)) v0 = v1;
+    const fin = String(o.fin != null ? o.fin : v1);
+    const d = v1 - v0, good = k === "cost" ? d < 0 : d > 0, col = good ? "#5dffa8" : "#ff6b86";
+    const lab = o.lab || (d === 0 ? "" : (d > 0 ? "+" : "−") + Math.abs(d));
+    if (reduced || !d) { b.textContent = fin; return 0; }
+    const fast = ff(), dl = (o.dl || 0) + (o.i || 0) * 90, LINK = o.src && !fast ? 200 : 0;
+    const rb = () => { const q = b.getBoundingClientRect(); return { x: q.left + q.width / 2, y: q.top + q.height / 2, w: Math.max(14, q.width) }; };
+    b.textContent = String(v0);
+    const job = { b, fin, dead: 0, tms: [] };
+    STL.add(job);
+    const end = () => { if (job.dead) return; job.dead = 1; STL.delete(job); for (const t of job.tms) clearTimeout(t); b.textContent = fin; b.classList.remove("st-up", "st-dn"); };
+    job.end = end;
+    const at = (f, ms) => job.tms.push(fxT(() => { if (!job.dead) { try { f(); } catch (e) { console.error(e); } } }, ms));
+    if (LINK) at(() => { const q = rb(); beam(o.src.x, o.src.y, q.x, q.y, o.c || col, 4, 0.22); glow(o.src.x, o.src.y, o.c || col, 26, 0.25, 0.6); }, dl);
+    const steps = fast ? 1 : Math.min(6, Math.abs(d)), TK = 75;
+    at(() => {
+      const q = rb();
+      b.classList.add(good ? "st-up" : "st-dn");
+      ring(q.x, q.y, col, q.w * 2.1, 0.32, 0.9);
+      if (tier() !== "lite") star(q.x, q.y, "#ffffff", q.w * 1.6, 0.2);
+      chip(q, el, lab, good, k);
+      tap("stat", { k, d, uid: o.uid });
+    }, dl + LINK);
+    for (let s = 1; s <= steps; s++) at(() => {
+      b.textContent = s === steps ? fin : String(Math.round(v0 + d * s / steps));
+      try { b.animate([{ transform: "scale(1)" }, { transform: "scale(1.22)", offset: 0.4 }, { transform: "scale(1)" }], { duration: 130, easing: "ease-out", composite: "add" }); } catch (e) {}
+    }, dl + LINK + (s - 1) * TK);
+    at(end, dl + LINK + steps * TK + 520);
+    job.tms.push(setTimeout(end, (dl + LINK + steps * TK + 900) * SPD + 400));
+    return dl + LINK;
+  };
+  /* nhãn "−1" cạnh ô số: phía ngoài thẻ (ô năng lượng góc trái -> nhãn bên trái, ô sức mạnh góc phải -> bên phải) */
+  function chip(q, el, txt, good, k) {
+    if (!txt) return;
+    const d = document.createElement("div");
+    d.className = "stchip " + (good ? "up" : "dn");
+    d.textContent = txt;
+    document.body.appendChild(d);
+    const w = d.offsetWidth, h = d.offsetHeight, side = k === "cost" ? -1 : 1;
+    const x = clamp(q.x + side * (q.w * 0.55 + w / 2 + 2) - w / 2, 4, innerWidth - w - 4), y = clamp(q.y - h - 2, 4, innerHeight - h - 4);
+    d.style.left = x.toFixed(1) + "px"; d.style.top = y.toFixed(1) + "px";
+    const a = d.animate([{ opacity: 0, transform: "translateY(6px) scale(.7)" }, { opacity: 1, transform: "translateY(-2px) scale(1.06)", offset: 0.18 }, { opacity: 1, transform: "translateY(-6px) scale(1)", offset: 0.75 }, { opacity: 0, transform: "translateY(-14px) scale(.95)" }], { duration: 900 * SPD, easing: "ease-out", fill: "forwards" });
+    a.onfinish = () => d.remove();
+    setTimeout(() => d.remove(), 1300 * SPD);
+  }
+  P6.statEnd = () => { for (const j of [...STL]) j.end(); document.querySelectorAll(".stchip").forEach((e) => e.remove()); };
 
   /* FX.shake (05) trong trận: cộng dồn (composite add) với máy quay PA6 thay vì đè lên; mức Nhẹ: không rung khi chuỗi đang diễn */
   try {
@@ -673,6 +785,7 @@
     tap("D:land", { uid });
   };
   P6.clean = function () {
+    try { P6.statEnd(); } catch (e) {}
     if (W.HXG) { try { HXG.clean(); } catch (e) {} }
     if (CH) end(CH, true);
     for (const k of [...COVER.keys()]) P6.uncover(k, 1);
@@ -736,6 +849,7 @@
       if (CH === ch) relight(ch);
       if (H && HERO === H) { try { heroDown(false); } catch (e) { console.error(e); } }
     }, 100 * SPD);
+    try { P6.statEnd(); } catch (e) {}
     try { FX_UNTIL = Math.min(FX_UNTIL, performance.now() + 520 * SPD); } catch (e) {}
     return true;
   };

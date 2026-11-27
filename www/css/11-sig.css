@@ -52,3 +52,7 @@ body.rm .sgp, body.rm .sgsoul, body.rm .sga, body.rm .sgx, body.rm .sgseal, body
 .sga.pic > img { object-fit: contain; filter: drop-shadow(0 0 2px #fff) drop-shadow(0 0 8px #ffd65a); }
 .sgscroll.pic > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 0 2px #fff) drop-shadow(0 0 12px var(--c, #ffd65a)); }
 .sgscroll.pic > .sgcnt { top: 46%; }
+/* gpu68 (vis): bộ đếm gọn dưới đạo cụ khi đổi năng lượng nhiều lá ("−1 năng lượng ×3") */
+.sgx.sgct > b { font: 900 13px/1.2 var(--f-body, system-ui), sans-serif; font-style: normal; padding: 2px 8px 3px; border-radius: 10px; color: #eafff4;
+  background: linear-gradient(180deg, rgba(20, 70, 52, .95), rgba(8, 34, 26, .95)); box-shadow: 0 0 0 1.5px #5fe0a8, 0 0 10px rgba(95, 224, 168, .6); text-shadow: 0 1px 0 #000; }
+.sgx.sgct > b > em { font-style: normal; display: inline-block; color: #fff; }
