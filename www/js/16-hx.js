@@ -960,7 +960,8 @@
     for (let li = 0; li < 3; li++) for (const sd of E.SIDES) for (const c of G.locs[li].cards[sd]) {
       if (!c.rev || c.sil || seen.has(c.uid)) continue;
       const a = C[E.ab(c)];
-      if (a && a.t === "on" && ok(c.id)) cands.push(c);
+      /* gpu66: thẻ có ấn ký kỹ năng riêng (17-sig.js) tự diễn lúc Duy Trì bắt đầu -> không chồng thêm DT-B */
+      if (a && a.t === "on" && ok(c.id) && !(W.SIGK && SIGK.has(c.id))) cands.push(c);
     }
     let extra = 0, nth = 0;
     for (const X of cands) {
