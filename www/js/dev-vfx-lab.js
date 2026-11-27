@@ -668,7 +668,8 @@
     const skillEv = rec.ev.some((e) => /^(skill|act|destroy|discard|summon|revive|move|morph|abcopy|tohand|sil|surge|egain|loc|locfx|clone|blocked|top|draw|lock|hbuff|hide)$/.test(e.k) && e.k !== "flip");
     if (p.effect && !skillEv && !realDiff) row.warn.push("mô phỏng có tác dụng nhưng lượt thật không thấy sự kiện/kết quả nào");
     const fxN = Object.keys(rec.fx).filter((k) => /^FX\./.test(k)).reduce((a, k) => a + rec.fx[k], 0);
-    if (p.effect && (skillEv || realDiff) && !keys.length && !Object.keys(rec.fx).some((k) => /^CFX\./.test(k) && k !== "CFX.drawIn") && fxN < 8) row.warn.push("kỹ năng chạy nhưng gần như không có hiệu ứng nào được gọi");
+    const visK = keys.filter((k) => !/^PA6 (Q:|shift|plan)/.test(k)); /* mốc xếp lịch của SEQ/PA6 không phải hình vẽ */
+    if (p.effect && (skillEv || realDiff) && !visK.length && !Object.keys(rec.fx).some((k) => /^CFX\./.test(k) && k !== "CFX.drawIn") && fxN < 8) row.warn.push("kỹ năng chạy nhưng gần như không có hiệu ứng nào được gọi");
     if (row.ms > 20000) row.warn.push("diễn quá lâu " + (row.ms / 1000).toFixed(1) + " s");
     if (lo.dom.length || lo.hid.length) cleanLeft();
     ST.rows.set(id, row);

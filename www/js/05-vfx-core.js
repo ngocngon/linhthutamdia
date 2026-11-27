@@ -867,12 +867,12 @@ function srcFx(evs,R0){
       if(ev.deck&&!evs.some(x=>x.k==="clone"&&x.uid===ev.uid)){const from=DECKPT();proj(from,to,"#9fd8ff","",480,true);if(sp)beam(sp,to,(sg&&sg.c)||"#9fd8ff","",0);if(sg&&sg.c==="#ffd65a")fxT(()=>fireworks(to),480);}
       else if(sp)beam(sp,to,(sg&&sg.c)||"#c8ff9a","",0);}
     else if(ev.k==="tohand"&&ev.side==="p"&&!R0.has(ev.uid))handFrom.set(ev.uid,sp||null);
-    else if(ev.k==="destroy"&&!R0.has(ev.uid)&&ev.li!=null&&!document.querySelector(`#board [data-mc="${ev.uid}"]`)){try{gone68(ev,R0);}catch(e){console.error(e);}}
+    else if(ev.k==="destroy"&&!R0.has(ev.uid)&&ev.li!=null&&!document.querySelector(`#board [data-mc="${ev.uid}"]`)){try{CFX.gone(ev,R0);}catch(e){console.error(e);}}
     else if(ev.k==="destroy"&&sp&&!S8.has("d"+ev.uid)){const tc=R0.get(ev.uid);if(tc&&(Math.abs(tc.x-sp.x)+Math.abs(tc.y-sp.y))>8){const c0=cardOf(ev.src);if(c0&&c0.side!==ev.side||sg&&sg.dart)proj(sp,tc,(sg&&sg.c)||"#ff4d5e",sg&&sg.dart?"":"orb",380,!!(sg&&sg.dart));}}
-    else if(ev.k==="egain"&&ev.uid){try{egain68(ev,R0);}catch(e){console.error(e);}}
-    else if(ev.k==="hbuff"){try{hbuff68(ev,R0);}catch(e){console.error(e);}}
-    else if(ev.k==="hide"){try{hide68(ev);}catch(e){console.error(e);}}
-    else if(ev.k==="lockswap"){try{swap68(ev,R0);}catch(e){console.error(e);}}
+    else if(ev.k==="egain"&&ev.uid){try{CFX.egain(ev,R0);}catch(e){console.error(e);}}
+    else if(ev.k==="hbuff"){try{CFX.hbuff(ev,R0);}catch(e){console.error(e);}}
+    else if(ev.k==="hide"){try{CFX.hide(ev);}catch(e){console.error(e);}}
+    else if(ev.k==="lockswap"){try{CFX.lockswap(ev,R0);}catch(e){console.error(e);}}
     else if(ev.k==="egain"&&ev.side==="p"){const lw=document.querySelector(`[data-lane="${ev.li}"] .locw`);if(lw){const a=ctr(lw),o=ctr($("orb"));proj(a,o,"#ffd65a","coin",620,true);fxT(()=>{SFX.fam("egain",{el:null,vol:.9});FX.float(o.x,o.y-30,"+1","#ffd65a");pulse("#orb",[{transform:"scale(1.4)",filter:"brightness(2)"},{transform:"scale(1)"}],480);},620);}}}
   return handFrom;}
 /* gpu68-audit2: kỹ năng Đầu Lượt / bị động trước đây không vẽ gì (Khối Băng, Nhện Thượng Đẳng, Loạn Xạ, Huyễn Cơ Nữ, Ẩn Nữ)
@@ -910,6 +910,8 @@ function gone68(ev,R0){if(reduced)return;const r=window.slotRect9?slotRect9(ev.l
   const sp=ev.src?srcPt(ev.src,R0):null;if(sp)beam(sp,r,"#c8ff9a","",0);FX.glow(r.x,r.y,"#c8ff9a",56,.35);
   fxT(()=>{CFX.shatter({x:r.x,y:r.y,w:r.w,h:r.h,html},"#ff4d5e",true);g.remove();FX.float(r.x,r.y-r.h*.5,"BỊ TIÊU HUỶ","#ff9aa8");try{SFX.fam("destroy",{el:null});}catch(e){}},720);
   fxT(()=>g.remove(),1300);holdFx(1400);}
+/* qua đối tượng CFX để Bảng Test VFX đếm được */
+CFX.egain=egain68;CFX.hbuff=hbuff68;CFX.hide=hide68;CFX.lockswap=swap68;CFX.gone=gone68;
 
 CFX.shatter=function(r,c,slash){if(reduced||!r||!r.html)return;const g=ghost(r,r.html);if(slash)FX.slash(r.x,r.y,c);
   rmAfter(anim(g,[{transform:"none",filter:"none",opacity:1},{transform:"translateY(-14px) scale(1.08)",filter:"brightness(1.8) sepia(1) saturate(6) hue-rotate(-30deg)",opacity:1,offset:.35},{transform:"translateY(40px) scale(.9) rotate(6deg)",filter:"brightness(.4) blur(3px)",opacity:0}],{duration:700}),g);

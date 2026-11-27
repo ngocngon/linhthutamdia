@@ -151,7 +151,8 @@ try {
     for (const id of A2) {
       const r = rows.find(x => x.id === id);
       const w = r ? r.warn.filter(x => /gần như không có hiệu ứng|diễn đánh trúng|mô phỏng|^(LỖI JS|SÓT DOM|thẻ bị ẩn|diễn chưa xong)/.test(x)) : ["thiếu dòng"];
-      ok(!w.length, `${id}: có tác dụng + có hiệu ứng (${r && r.setup}) · ${r && r.fired.filter(k => !/drawIn/.test(k)).slice(0, 4).join(" ")} ${w.join(" | ")}`);
+      const fxs = r ? Object.entries(r.fx).filter(([k]) => k !== "CFX.drawIn").map(([k, v]) => k.replace(/^FX\./, "") + "×" + v).join(" ") : "";
+      ok(!w.length, `${id}: có tác dụng + có hiệu ứng (${r && r.setup}) · ${r && r.fired.filter(k => !/drawIn|PA6 Q:/.test(k)).slice(0, 4).join(" ")} · ${fxs.slice(0, 90)} ${w.join(" | ")}`);
     }
     { const r = rows.find(x => x.id === "dahanh"); ok(r && r.taps.some(t => /^HX HX08/.test(t)), "Dạ Hành tự di chuyển: HX-08 (bản không hồn) chạy"); }
     { const r = rows.find(x => x.id === "khuyendichchuyen"); ok(r && r.evKinds.includes("lockswap"), "Khuyển Dịch Chuyển: đổi lá với bộ bài có sự kiện + diễn"); }
