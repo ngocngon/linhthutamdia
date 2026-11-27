@@ -1,0 +1,63 @@
+/* ==================== gpu61/gpu62: HỒN XUẤT vòng 2 + vòng 3 (16-hx.js) ====================
+   Chỉ transform/opacity được hoạt ảnh; viền sáng là lọc TĨNH. Mọi lớp phủ bị xoá khi diễn xong. */
+
+/* HX-02: thẻ Hồn Xuất lật bằng nhịp WAAPI riêng (thay keyframes flip/gpuCardFlip), giữ vệt bóng ::before và vòng ::after */
+#board .mc.flip.hx2,
+#board .mc.qf.q6.flip.hx2 { animation: none !important; }
+#board .mc.flip.hx2z { z-index: 12 !important; }
+
+/* ló khỏi khung: tạm bỏ cắt khung, nhân vật vượt qua viền (phần trong vẫn nằm dưới tên/sức mạnh); nổi trên các ô bên cạnh */
+.mc.hxpk.hxpk,
+#board .mc.hxpk.hxpk { overflow: visible !important; z-index: 20 !important; }
+.mc.hxpk > img.art { will-change: transform; transform-origin: 50% 62%; }
+
+/* HX-05: khung mới thành hình trước, nhân vật giáng xuống sau */
+.mc.hxm > img.art { opacity: 0 !important; }
+.hxds {
+  position: absolute;
+  z-index: 21;
+  pointer-events: none;
+  will-change: transform, opacity;
+  filter: drop-shadow(0 0 2px #fff) drop-shadow(0 0 7px var(--c, #8ab4ff));
+}
+
+/* hồn rời thẻ (HX-01 loé, HX-03 bị giật, HX-04 bỏ chạy, tia hồn toả) */
+.hxsoul {
+  position: fixed;
+  z-index: 32;
+  pointer-events: none;
+  transform-origin: 50% 55%;
+  will-change: transform, opacity;
+}
+.hxsoul > img { display: block; width: 100%; height: 100%; filter: drop-shadow(0 0 2px #fff) drop-shadow(0 0 7px var(--c, #8ab4ff)); }
+.hxsoul.hxbolt > img { filter: drop-shadow(0 0 5px var(--c, #8ab4ff)); }
+
+/* HX-04: lá bị vứt nhấc khỏi tay */
+.fxg.hxd { z-index: 32; pointer-events: none; }
+
+/* lớp 2D: mảnh vỡ ảnh thật, cháy, tay linh hồn, dải năng lượng (chỉ tồn tại khi đang diễn) */
+.hxcv { position: fixed; left: 0; top: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 33; }
+
+/* ===== gpu62: vòng 3 ===== */
+/* RB-B: mặt lưng trong chính lá đang rút (tắt đúng lúc lá quay qua 90°) */
+.hand .hc > .hxbk { position: absolute; inset: -2px; border-radius: inherit; z-index: 9; pointer-events: none; background-size: cover !important; background-position: center !important; box-shadow: inset 0 0 0 2px rgba(255, 214, 120, .65); }
+/* DT-B: ấn hồn sau lưng — nằm trong ô, DƯỚI mọi lá (lá z 11), trên nền làn */
+.hxemb { position: absolute; z-index: 10; pointer-events: none; transform-origin: 50% 80%; will-change: transform, opacity; }
+.hxemb > canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+/* HX-14: lá vừa hồi sinh ẩn tới lúc hồn hạ vào (thắng cả hoạt ảnh CSS lật đang chạy) */
+#board .mc.hx14h { opacity: 0 !important; }
+/* HX-14: hộp cắt ở mặt mộ (hồn trèo lên — chỉ ảnh bên trong đổi transform) */
+.hxclip { position: fixed; z-index: 32; overflow: hidden; pointer-events: none; }
+.hxclip > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; object-position: 50% 100%; will-change: transform; filter: drop-shadow(0 0 2px #fff) drop-shadow(0 0 7px var(--c, #8ab4ff)); }
+/* HX-15: bản song sinh trong suốt */
+.hxsoul.hxtw > img { filter: drop-shadow(0 0 3px #fff) drop-shadow(0 0 9px var(--c, #8ab4ff)) brightness(1.12); }
+/* HX-16: lá cũ phủ lá mới (dưới lớp hồn / lớp 2D) + dải màu hệ mới quét trong lá */
+.fxg.hxold { z-index: 31; }
+.mc > .hxrc { position: absolute; inset: 0; z-index: 6; pointer-events: none; overflow: hidden; border-radius: inherit; }
+.mc > .hxrc > b { position: absolute; left: 0; right: 0; top: 0; height: 46%; mix-blend-mode: screen; will-change: transform, opacity;
+  background: linear-gradient(180deg, transparent 0, color-mix(in srgb, var(--c, #ffb3e0) 70%, transparent) 55%, rgba(255, 255, 255, .85) 72%, transparent 100%); }
+/* HX-19: quả cầu năng lượng */
+.hxorb { position: fixed; z-index: 34; width: 26px; height: 26px; margin: -13px 0 0 -13px; border-radius: 50%; pointer-events: none; will-change: transform, opacity;
+  background: radial-gradient(circle, #fff 0 22%, #bff4ff 34%, rgba(90, 184, 255, .75) 52%, rgba(90, 184, 255, 0) 72%); }
+
+body.rm .hxcv, body.rm .hxsoul, body.rm .hxds, body.rm .hxemb, body.rm .hxclip, body.rm .hxorb, body.rm .hxrc, body.rm .hxbk { display: none !important; }

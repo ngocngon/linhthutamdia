@@ -2033,7 +2033,7 @@ function startTurn0(G) {
     else if (is(G, k, "hauduethoikhong") && lead(G, l) === s) k.lv = Math.min(6, (k.lv || 1) + 1);
   }
   for (const s of SIDES) {
-    if (G.turn === 3 && G.arishem[s]) { G.maxE[s] += 1; G.energy[s] += 1; }
+    if (G.turn === 3 && G.arishem[s]) { G.maxE[s] += 1; G.energy[s] += 1; ev(G, "egain", { side: s, id: "phanquanthiengioi" }); }
     for (const [k, l] of boardCards(G, s)) if (!k.sil) {
       if (k.id === "khoibang") { G.energy[s] += 1; if (G.locs[l].cards[s].length >= cap(G, l)) destroy(G, k, l); }
       else if (is(G, k, "hoanhanmay")) k.bonus += Math.max(0, G.bonusNow[s]);
