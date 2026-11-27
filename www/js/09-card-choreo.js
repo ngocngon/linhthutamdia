@@ -10,6 +10,22 @@
   const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
   const lerp = (a, b, t) => a + (b - a) * t;
 
+  /* gpu68: toạ độ Ô trên bàn theo (làn, phe, thứ tự trong engine) — khớp cách 06-ui-match.js xếp ô:
+     phe "p" (dưới) ô i; phe "a" (trên) thứ tự [2,3,0,1]. Không rõ thứ tự -> ô trống đầu tiên; ngoài khoảng -> null */
+  function slotRect9(li, side, ix) {
+    if (li == null || li < 0) return null;
+    const ln = document.querySelector(`#board [data-lane="${li}"]`);
+    const sd = ln && ln.querySelector(side === "p" ? ".side.me" : ".side.opp");
+    if (!sd) return null;
+    const slots = sd.querySelectorAll(":scope > .slot"), ord = (n) => (side === "p" ? n : [2, 3, 0, 1][n]);
+    let k = ix != null && ix >= 0 ? ix : -1;
+    if (k < 0) for (let n = 0; n < 4; n++) { const sl = slots[ord(n)]; if (sl && !sl.children.length) { k = n; break; } }
+    const el = k >= 0 && k <= 3 ? slots[ord(k)] : null;
+    if (!el) return null;
+    const r = el.getBoundingClientRect();
+    return { x: r.left + r.width / 2, y: r.top + r.height / 2, w: r.width, h: r.height, el };
+  }
+
   /* gpu24: nhịp gọn hơn (SPD mặc định đã là 'rất chậm' ×2.0 nên thời gian gốc phải ngắn để vẫn rõ mà không ì) */
   try {
     if (typeof T8 === "object" && T8) {
@@ -2148,11 +2164,17 @@
           const sp = W(e.src);
           if (!sp) continue;
           if (typeof holdFx === "function") holdFx(1520);
-          const ln = document.querySelector(`#board [data-lane="${e.li != null ? e.li : 1}"]`);
-          const oppSide = ln && ln.querySelector(sc && sc.side === "p" ? ".side.opp" : ".side.me");
-          const lr = (oppSide || ln || document.body).getBoundingClientRect();
-          const stagePt = { x: lr.left + lr.width / 2, y: lr.top + lr.height / 2, w: 54, h: 76, html: liteId(e.id) };
-          const foeDeck = (typeof DECKZ === "function" && DECKZ(sc && sc.side === "p" ? "a" : "p")) || { x: window.innerWidth * 0.74, y: 34 };
+          /* gpu68 (lỗi 9): thẻ bị kéo rồi bị tiêu huỷ ngay KHÔNG có trên bàn ở cả R0 lẫn R1 -> diễn đúng Ô TRỐNG nơi nó đã
+             được đặt (sự kiện mang li/ix/side/id từ engine), KHÔNG dùng giữa làn (trước đây mặc định làn 1 -> nổ trúng thẻ khác) */
+          const sm = evs.find((x) => x.k === "summon" && x.uid === e.uid);
+          const vSide = e.side || (sm && sm.side) || (sc && sc.side === "p" ? "a" : "p");
+          const vLi = e.li != null ? e.li : sm && sm.li != null ? sm.li : null;
+          const slotR = slotRect9(vLi, vSide, e.ix != null ? e.ix : sm && sm.ix);
+          if (!slotR) continue;
+          const vid = e.id || (sm && sm.id) || ((anyC(e.uid) || {}).id);
+          const stagePt = { x: slotR.x, y: slotR.y, w: slotR.w, h: slotR.h, uid: e.uid, html: liteId(vid) };
+          const foeDeck = (typeof DECKZ === "function" && DECKZ(vSide)) || { x: window.innerWidth * 0.74, y: 34 };
+          if (typeof window.__choreoTap === "function") window.__choreoTap("pullKill", { uid: e.uid, src: e.src, li: vLi, side: vSide, ix: e.ix, x: slotR.x, y: slotR.y });
 
           SFX.play("chain");
           runPhysicalTether({ kind: "hook", srcId: sid, src: sp, from: foeDeck, to: stagePt, extendMs: 130, holdMs: 35, pullMs: 285 });
@@ -2179,8 +2201,8 @@
               onImpact: () => {
                 SFX.play("destroy");
                 CFX.destroy(stagePt);
-                const victimNm = e.id && C[e.id] ? C[e.id].n.toUpperCase() : "ĐỐI THỦ";
-                if (window.pushOppNotif) pushOppNotif(`LÔI ĐÀI CHỦ ▸ KÉO ${victimNm} LÊN ĐÀI & ĐẤM HẠ ĐO VÁN!`, "#ff7a3d");
+                const victimNm = vid && C[vid] ? C[vid].n.toUpperCase() : "ĐỐI THỦ";
+                if (window.pushOppNotif) pushOppNotif(sid === "giacdausi" || !(sid && C[sid]) ? `LÔI ĐÀI CHỦ ▸ KÉO ${victimNm} LÊN ĐÀI & ĐẤM HẠ ĐO VÁN!` : `${C[sid].n.toUpperCase()} ▸ TIÊU HUỶ ${victimNm}`, "#ff7a3d");
               }
             });
           }, 385);
