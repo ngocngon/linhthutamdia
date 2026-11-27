@@ -73,7 +73,7 @@ try {
   /* kỹ năng thử (thay tạm E.REV): mỗi kỹ năng gây đúng loại sự kiện engine */
   await page.evaluate((POSE) => {
     window.__POSE = POSE;
-    const NEG = Object.keys(C).find(k => (C[k].h === "S5" || C[k].h === "S4") && C[k].t === "rev" && !POSE.includes(k) && C[k].c <= 6);
+    const NEG = Object.keys(C).find(k => C[k].t === "rev" && !POSE.includes(k) && C[k].c <= 6);
     window.__NEG = NEG;
     window.__S3 = Object.keys(C).filter(k => /^S[123]$/.test(C[k].h) && C[k].t === "rev" && !POSE.includes(k) && C[k].c <= 4).slice(0, 3);
     const foes = (G) => [0, 1, 2].flatMap(li => G.locs[li].cards.a.filter(c => c.rev).map(c => [c, li]));
