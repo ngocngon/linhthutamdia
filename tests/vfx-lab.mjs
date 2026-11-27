@@ -143,6 +143,18 @@ try {
     if (tm) ok(tm.fired.some(k => /^PA6 /.test(k)) && tm.evKinds.includes("revive"), `Tử Thần Miền Viễn (S5): chuỗi PA6 + hồi sinh thật (${tm.fired.filter(k => !/^PA6/.test(k)).slice(0, 6).join(" ")})`);
     const bd = rows.find(r => r.id === "bachdich");
     if (bd) ok(bd.fired.some(k => /^SIG /.test(k)), `Bạch Địch: ấn ký riêng SIGK chạy (${bd.fired.filter(k => /^SIG/.test(k)).slice(0, 4).join(" ")})`);
+    /* gpu68-audit2: thẻ trước đây "kỹ năng chạy nhưng không vẽ gì" / "diễn đánh trúng mà chỉ đổi chính nó" */
+    const A2 = ["khoibang", "nhenthuongdang", "huyenconu", "heonhen", "khuyendichchuyen", "annu", "dahanh", "camapcan", "vuabong", "trinu", "dothan", "nuhondoc", "maynuotthoigian"];
+    await page.evaluate((ids) => VFXLAB.startAudit(ids), A2);
+    ok(await waitDone(page, 8 * 60e3, "audit2"), "nhóm audit2 chạy xong");
+    rows = await page.evaluate(() => VFXLAB.rows());
+    for (const id of A2) {
+      const r = rows.find(x => x.id === id);
+      const w = r ? r.warn.filter(x => /gần như không có hiệu ứng|diễn đánh trúng|mô phỏng|^(LỖI JS|SÓT DOM|thẻ bị ẩn|diễn chưa xong)/.test(x)) : ["thiếu dòng"];
+      ok(!w.length, `${id}: có tác dụng + có hiệu ứng (${r && r.setup}) · ${r && r.fired.filter(k => !/drawIn/.test(k)).slice(0, 4).join(" ")} ${w.join(" | ")}`);
+    }
+    { const r = rows.find(x => x.id === "dahanh"); ok(r && r.taps.some(t => /^HX HX08/.test(t)), "Dạ Hành tự di chuyển: HX-08 (bản không hồn) chạy"); }
+    { const r = rows.find(x => x.id === "khuyendichchuyen"); ok(r && r.evKinds.includes("lockswap"), "Khuyển Dịch Chuyển: đổi lá với bộ bài có sự kiện + diễn"); }
     /* xuất JSON */
     const j = JSON.parse(await page.evaluate(() => VFXLAB.exportJSON()));
     ok(j.rows.length === rows.length && j.rows[0].id, `xuất JSON: ${j.rows.length} dòng`);

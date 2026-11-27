@@ -83,13 +83,84 @@
       }
       add("hand:idle", "Nằm trên tay", { subj: { at: "hand", keep: 1 }, plays: [[VAN.c3, L]] });
       if (d && d.t === "start") add("start", "Đầu Ván (bộ bài có thẻ này)", { subj: { at: "hand" }, start: 1 });
+      for (const [k, n, o] of XTRA[id] || []) add("x:" + k, n, o);
       return out;
     }
+    /* thế cờ RIÊNG cho thẻ có điều kiện mà các cách dựng chung không chạm tới (gpu68-audit2).
+       tw(G, subj) chỉnh ván ngay trước khi xếp hàng; mv: [[li, ix, to]] = thẻ ta ở (li, ix) dời sang to. */
+    const L1 = LANE, V = VAN;
+    const XTRA = {
+      nuhondoc: [["full", "Trên bàn · đặt thẻ làm đầy phía bạn", { subj: { at: "board", li: L1 }, own: [[V.c2, L1], [V.c1, L1], [V.c3, 0]], plays: [[V.c3, L1]] }]],
+      manhkiemquy: [["mh", "Có Móng Hoang trên bàn · bị vứt bỏ", { subj: { at: "handR" }, own: [["monghoang", L1], [V.c1, 0]], plays: [[H.discR, 0]] }]],
+      tenmoc: [["next", "Đặt từ tay rồi đặt thẻ ở chiến địa khác", { subj: { at: "hand" }, plays: [[V.c2, 0]] }]],
+      datam: [["deck", "Bộ bài có Đá Vô Cực", { subj: { at: "hand" }, deck: DECK.concat(["dathuc", "dahon"]) }]],
+      daluc: [["bv", "Bá Vương Tím trên bàn · đã đặt 5 viên Đá", { subj: { at: "hand" }, own: [["bavuongtim", L1], [V.c1, 0]], tw: (G) => { G.stones.p = 5; } }]],
+      cucquangung: [["loc", "Chiến địa có hiệu ứng (Long Cung)", { subj: { at: "hand" }, loc: ["meadow", "longcung", "meadow"] }]],
+      cucquanggau: [["loc", "Chiến địa có hiệu ứng lộ diện (Hang Ổ)", { subj: { at: "hand" }, loc: ["meadow", "den", "meadow"] }]],
+      daodo: [["on", "Có thẻ Duy Trì của bạn tại đây", { subj: { at: "hand" }, own: [[H.onCard, L1], [V.c2, L1], [V.c1, 0]] }]],
+      nhasuutam: [["tohand", "Trên bàn · thẻ được thêm vào tay", { subj: { at: "board", li: L1 }, plays: [["tuyetve", 0]] }]],
+      vohannhan: [["blk", "Lượt trước đã đặt thẻ (bị cấm đặt)", { subj: { at: "hand" } }]],
+      mieunuot: [["next4", "Lượt sau đặt thẻ 4 năng lượng tại đây", { subj: { at: "hand" }, next: { plays: [[V.c4, L1]] } }]],
+      phuongtamnu: [["next0", "Lượt sau đặt thẻ ở chiến địa khác", { subj: { at: "hand" }, next: { plays: [[V.c2, 0]] } }]],
+      quanthoigian: [["cm", "Tay có thẻ bị tăng/giảm năng lượng", { subj: { at: "hand" }, tw: (G) => { G.hand.p.forEach((c) => (c.cm = 2)); G.hand.a.forEach((c) => (c.cm = -1)); } }]],
+      nhentre: [["mv", "Nằm trên tay · có thẻ di chuyển lượt này", { subj: { at: "hand", keep: 1 }, own: [[V.c6, 0], [V.c1, L1]], plays: [[H.pullHi, 2]] }]],
+      cuocthu: [["mv", "Trên bàn · thẻ ta khác di chuyển", { subj: { at: "board", li: 0 }, own: [[V.c6, L1], [V.c1, 0]], plays: [[H.pullHi, 2]] }]],
+      nuloithan: [["deck0", "Bộ bài có thẻ 0 năng lượng", { subj: { at: "hand" }, deck: DECK.concat(["ongnu"]).concat(DECK.slice(0, 2)) }]],
+      bongma: [["end", "Có thẻ Cuối Lượt tại đây", { subj: { at: "hand" }, own: [[V.c2, L1], [H.endCard, L1], [V.c1, 0]], foe: [[V.c1, L1], [H.endCard, L1], [V.c3, 0], [V.c4, 2]] }]],
+      maynuotthoigian: [["prio", "Bạn lật trước · địch đặt thẻ tại đây", { subj: { at: "hand" }, own: [[V.c6, 0], [V.c6, 2], [V.c2, L1]], foe: [[V.c1, L1], [V.c1, 0]], foePlays: [["thoren", L1]] }]],
+      thachlucnu: [["kill", "Thẻ 1 và 6 năng lượng của bạn bị tiêu huỷ", { subj: { at: "board", li: 0 }, own: [[V.c1, L1], [V.c6, L1], [V.c2, 2]], plays: [[H.killOwn, L1]] }]],
+      kenuotsao: [["solo", "Thẻ duy nhất của bạn tại đây · địch trống", { subj: { at: "hand" }, own: [[V.c1, 0], [V.c3, 2]], foe: [[V.c1, 0], [V.c2, 2]] }]],
+      chienthan: [["top", "Đỉnh bộ bài của bạn mạnh hơn", { subj: { at: "hand" }, deck: DECK.concat([V.c6, V.c5, V.c6]) }]],
+      duclongnhan: [["deck", "Bộ bài có thẻ Duy Trì", { subj: { at: "hand" }, deck: DECK.concat([H.onCard, H.onCard]) }]],
+      phiconamcanh: [["cr", "Tay có thẻ được tạo ra", { subj: { at: "hand" }, tw: (G) => { G.hand.p.forEach((c) => (c.cr = true)); } }]],
+      giacnguu: [["cr", "Tay đối thủ có thẻ được tạo ra", { subj: { at: "hand" }, tw: (G) => { G.hand.a.forEach((c) => (c.cr = true)); } }]],
+      nuphanquan: [["lo", "Tay có thẻ sức mạnh ≤1", { subj: { at: "hand" }, tw: (G) => { G.hand.p.forEach((c) => (c.bonus = -6)); } }]],
+      dathep: [["hurt", "Thẻ ta hàng trước bị trừ sức mạnh", { subj: { at: "hand" }, own: [[V.c2, L1], [V.c1, 0]], plays: [["ongvang", L1]] }]],
+      cuongtri: [["full", "Trên bàn · tay đầy", { subj: { at: "board", li: L1 }, hand: [V.c1, V.c2, V.c3, V.c1, V.c2, V.c3, V.c1] }]],
+      quytu: [["sk", "Trên bàn · đặt một kỹ năng", { subj: { at: "board", li: L1 }, plays: [["daodo", 0]] }]],
+      kychu: [["rev", "Có thẻ Lật của bạn tại đây (chiến địa trái)", { lane: 0, subj: { at: "hand" }, own: [["tinhquyennu", 0], [V.c2, L1]] }]],
+      catlun: [["bn", "Trên bàn · đối thủ có năng lượng thưởng", { subj: { at: "board", li: L1 }, tw: (G) => { G.nextBonus.a = 2; } }]],
+      tackehoa: [["pre", "Đặt sau một thẻ Lật cùng chiến địa", { subj: { at: "hand" }, pre: [[H.buffAlly, L1]] }]],
+      loanxa: [["bn", "Trên bàn · đối thủ có năng lượng thưởng", { subj: { at: "board", li: L1 }, tw: (G) => { G.nextBonus.a = 2; } }]],
+      maythichnghi: [["act", "Địch có thẻ Kích Hoạt tại đây", { subj: { at: "hand" }, foe: [[V.c1, L1], ["nguuma", L1], [V.c3, 0]] }]],
+      ngunhan: [["ltp", "Lượt trước mỗi bên đã đặt thẻ", { subj: { at: "hand" }, tw: (G) => { G.ltp.p = G.locs[L1].cards.p[0].uid; G.ltp.a = G.locs[L1].cards.a[0].uid; } }]],
+      thietthieunien: [["top", "Đỉnh bộ bài là thẻ có kỹ năng", { subj: { at: "hand" }, deck: DECK.concat(["thaphoankhaimo"]) }]],
+      trungvuong: [["neg", "Thẻ ta có sức mạnh âm", { subj: { at: "hand" }, own: [[V.c1, L1, { bonus: -5 }], [V.c2, 0, { bonus: -6 }]] }]],
+      quandoanmotnguoi: [["loc", "Chiến địa này có hiệu ứng (Long Cung)", { subj: { at: "hand" }, loc: ["meadow", "longcung", "meadow"] }]],
+      cuongtu: [["big", "Nằm trên tay · có thẻ ta ≥10 sức mạnh", { subj: { at: "hand", keep: 1 }, own: [[V.c6, L1], [V.c1, 0]], plays: [[V.c3, 2]] }]],
+      linhchindau: [["snap", "Đã có người Snap", { subj: { at: "hand" }, tw: (G) => { G.snap.p = true; } }]],
+      hoanhanmay: [["bn", "Trên bàn · có năng lượng thưởng", { subj: { at: "board", li: L1 }, tw: (G) => { G.nextBonus.p = 2; } }]],
+      phiungtre: [["r1", "Đặt từ tay rồi đặt thẻ Lật 1 năng lượng tại đây", { subj: { at: "hand" }, plays: [["tinhquyennu", L1]] }]],
+      dihien: [["mv", "Có thẻ di chuyển lượt này · tay có thẻ Dời Được", { subj: { at: "hand" }, hand: [V.c2, "dahanh", V.c1], own: [[V.c6, 0], [V.c1, L1]], plays: [[H.pullHi, 2]] }]],
+      buisao: [["sum", "Trên bàn · có thẻ đưa thẻ vào chiến địa", { subj: { at: "board", li: L1 }, plays: [["docnutrang", 0]] }]],
+      comaychien: [["blk", "Trên bàn · địch cấm đặt thẻ 4+ tại đây", { subj: { at: "board", li: 0 }, foe: [[V.c1, L1], ["mieunuot", L1]], plays: [[V.c4, L1]] }]],
+      phuthuytre: [["spent", "Các lượt trước đã dùng hết năng lượng", { subj: { at: "hand" }, tw: (G) => { G.cnt.allSpent.p = G.turn; } }]],
+      vuongbathu: [["buff", "Thẻ ta đã được tăng sức mạnh", { subj: { at: "hand" }, own: [[V.c2, L1, { bonus: 2 }], [V.c1, 0, { bonus: 1 }]] }]],
+      haplucchiare: [["ab", "Tay đối thủ có thẻ kỹ năng", { subj: { at: "hand" }, foeHand: [H.revCard, "quaituong", H.endCard] }]],
+      longbattu: [["two", "Đã nhiều lượt đặt 2 thẻ", { subj: { at: "hand" }, tw: (G) => { G.cnt.two.p = 2; } }]],
+      tinhchuathaiduong: [["us", "Đã có lượt còn năng lượng chưa dùng", { subj: { at: "hand" }, tw: (G) => { G.cnt.unspentTurns.p = 2; } }]],
+      trumthanhpho: [["top", "Nằm trên tay · bạn có thẻ mạnh nhất", { subj: { at: "hand", keep: 1 }, own: [[V.c6, L1, { bonus: 6 }], [V.c1, 0]], plays: [[V.c3, 2]] }]],
+      bavuongmienvien: [["shots", "Đã nạp Phát Bắn", { subj: { at: "hand" }, tw: (G) => { G.shots.p = [1, 0, 3]; } }]],
+      nghichtuvuong: [["h34", "Tay có thẻ 3–4 năng lượng", { subj: { at: "hand" }, hand: [V.c3, V.c4, V.c1] }]],
+      thienthantimkiem: [["cr", "Tay có thẻ được tạo ra", { subj: { at: "hand" }, tw: (G) => { G.hand.p.forEach((c) => (c.cr = true)); } }]],
+      tiensigamma: [["rng", "Còn năng lượng chưa dùng (thử nhiều hạt ngẫu nhiên)", { subj: { at: "hand" }, rng: 1 }]],
+      thandong: [["back", "Hàng sau, phía trước là thẻ Lật", { subj: { at: "hand" }, own: [[H.buffAlly, L1], [V.c2, L1], [V.c1, 0]] }]],
+      tamkiemmienvien: [["h5", "Tay có thẻ từ 5 năng lượng", { subj: { at: "hand" }, hand: [V.c5, V.c6, V.c1] }]],
+      horangkiem: [["deck4", "Bộ bài có thẻ 4 năng lượng", { subj: { at: "hand" } }]],
+      giaohutmau: [], dakhonggian: [],
+      vuabong: [["mix", "Thẻ tại đây đã được tăng / bị giảm sức mạnh", { subj: { at: "hand" }, own: [[V.c2, L1, { bonus: 3 }], [V.c1, 0]], foe: [[V.c3, L1, { bonus: -2 }], [V.c6, L1, { bonus: 2 }], [V.c1, 0]] }]],
+      heonhen: [["act", "Kích Hoạt · tay đối thủ có thẻ kỹ năng", { subj: { at: "board", li: L1 }, act: true, foeHand: [H.revCard, H.endCard] }]],
+      khuyendichchuyen: [["act", "Kích Hoạt rồi đặt thẻ", { subj: { at: "board", li: L1 }, act: true, actFirst: 1, plays: [[V.c2, 0]] }]],
+      huyenconu: [["lead", "Trên bàn · đang thắng tại đây", { subj: { at: "board", li: L1 }, own: [[V.c6, L1], [V.c1, 0]], foe: [[V.c1, L1], [V.c3, 0]] }]]
+    };
+    /* thẻ không có tác dụng lên ván để dựng (chỉ thông tin / chữ / Đầu Ván) — ghi chú "đúng thiết kế" */
+    const NOTE = { ngantoc: "Luôn trong tay khởi đầu (Đầu Ván)", maymannu: "Chỉ đổi lượt rút bài (Đầu Ván)", vitthamtu: "Chỉ cho xem thẻ (giao diện)", chubao: "Chỉ đổi biểu cảm chữ", vouy: "Chỉ ảnh hưởng thông tin lượt 5" };
     /* thứ tự ưu tiên theo dạng + chữ kỹ năng */
     function cands(id) {
       const d = C[id], x = txt(id), all = allCands(id), pri = [];
       const P = (...ks) => { for (const k of ks) if (!pri.includes(k)) pri.push(k); };
       if (!d) return [];
+      if (XTRA[id]) P(...XTRA[id].map((x) => "x:" + x[0]));
       if (d.t === "start") P("start");
       if (d.t === "act") P("act");
       if (/Vứt Bỏ/.test(x)) P("disc:self");
@@ -161,6 +232,7 @@
         if (f0) { G.lastPlay.a = f0.uid; G.prevPlay.a = f0.uid; }
       } catch (e) {}
       G.energy.p = 12; G.energy.a = 6; G.maxE.p = 0; G.maxE.a = 0; G.nextBonus.p = 0; G.nextBonus.a = 0;
+      if (spec.tw) { try { spec.tw(G, subj); } catch (e) {} }
       G.live = true;
       /* hàng đợi: thẻ được thử (nếu đặt từ tay) rồi các thẻ phụ */
       const res = { subj, ok: true, why: "", lane: spec.lane };
@@ -171,8 +243,9 @@
         if (!ok) { res.ok = false; res.why = "không đặt được ở chiến địa nào"; }
         res.lane = li;
       }
+      if (spec.act && spec.actFirst && !E.queueAct(G, "p", subj.uid)) { res.ok = false; res.why = "không Kích Hoạt được"; }
       for (const [cid, li] of spec.plays) { const c = mk(cid, "p"); G.hand.p.push(c); if (!E.queuePlay(G, "p", c.uid, li)) { G.hand.p.splice(G.hand.p.indexOf(c), 1); res.ok = false; res.why = res.why || "thẻ phụ " + C[cid].n + " không đặt được"; } }
-      if (spec.act && !E.queueAct(G, "p", subj.uid)) { res.ok = false; res.why = "không Kích Hoạt được"; }
+      if (spec.act && !spec.actFirst && !E.queueAct(G, "p", subj.uid)) { res.ok = false; res.why = "không Kích Hoạt được"; }
       if (spec.move != null && !E.queueMove(G, "p", subj.uid, spec.move)) { res.ok = false; res.why = "không di chuyển được"; }
       for (const [cid, li] of spec.foePlays) { const c = mk(cid, "a"); G.hand.a.push(c); G.energy.a = 10; if (!E.queuePlay(G, "a", c.uid, li)) { G.hand.a.splice(G.hand.a.indexOf(c), 1); res.ok = false; res.why = "địch không đặt được"; } }
       G.energy.a = spec.foeE || 0;
@@ -186,7 +259,7 @@
       const rec = (c, z, li) => {
         let pw = (c.bp != null ? c.bp : C[c.id] ? C[c.id].p : 0) + (c.bonus || 0), cs = "";
         if (li != null && li >= 0) { try { pw = E.power(G, c, li); } catch (e) {} }
-        if (z === "hand") { try { cs = E.cost(G, c, null); } catch (e) {} }
+        if (z === "hand" || z === "deck") { try { cs = E.cost(G, c, null); } catch (e) {} }
         m.set(c.uid, [z, c.side, c.id, c.ab || "", pw, cs, c.sil ? 1 : 0].join("|"));
       };
       for (const s of ["p", "a"]) {
@@ -194,8 +267,17 @@
         for (const z of ["hand", "deck", "dead", "disc"]) for (const c of G[z][s] || []) rec(c, z, null);
       }
       let lp = ""; try { lp = [0, 1, 2].map((i) => E.locPower(G, i, "p") + "/" + E.locPower(G, i, "a")).join(","); } catch (e) {}
-      const g = { lp, loc: G.locs.map((L) => L.id + (L.gone ? "x" : "")).join(","), e: [G.energy.p, G.energy.a, G.maxE.p, G.maxE.a, G.nextBonus.p, G.nextBonus.a].join(",") };
+      const g = { lp, loc: G.locs.map((L) => L.id + (L.gone ? "x" : "")).join(","), e: [G.energy.p, G.energy.a, G.maxE.p, G.maxE.a, G.nextBonus.p, G.nextBonus.a].join(","), st: stFlags(G) };
       return { m, g };
+    }
+    /* cờ trạng thái ván do kỹ năng đặt cho lượt sau (ngập, Dời Được, móc kéo, bỏ qua chiến địa…) — so như một tác dụng */
+    const STF = [["flood", "ngập"], ["cloak", "dời tới (mọi thẻ)"], ["hell", "dời tới (thẻ ta)"], ["grant", "được dời"], ["lock", "khoá đặt"]];
+    function stFlags(G) {
+      const o = [];
+      G.locs.forEach((L, i) => { for (const [k, n] of STF) { const v = L[k]; if (v && (typeof v !== "object" || v.p || v.a)) o.push("L" + i + " " + n + "=" + (typeof v === "object" ? (v.p || 0) + "/" + (v.a || 0) : v)); } });
+      if (G.noLoc) o.push("bỏ qua chiến địa=" + G.noLoc);
+      for (const [k, n] of [["grapple", "móc kéo"], ["sling", "đu tơ"]]) if (G[k] && (G[k].p || G[k].a)) o.push(n + "=" + G[k].p + "/" + G[k].a);
+      return o.join("; ");
     }
     const F = ["vùng", "phe", "thẻ", "kỹ năng", "sức mạnh", "năng lượng", "mất kỹ năng"];
     function diff(A, B, subjUid) {
@@ -213,6 +295,7 @@
       if (A.g.loc !== B.g.loc) out.push({ u: 0, w: "chiến địa " + B.g.loc + "→" + A.g.loc, loc: 1 });
       if (A.g.lp !== B.g.lp && !out.length) out.push({ u: 0, w: "tổng sức mạnh chiến địa " + B.g.lp + "→" + A.g.lp, lp: 1 });
       if (A.g.e !== B.g.e) out.push({ u: 0, w: "năng lượng " + B.g.e + "→" + A.g.e, en: 1 });
+      if (A.g.st !== B.g.st) out.push({ u: 0, w: "trạng thái " + (B.g.st || "—") + " → " + (A.g.st || "—"), st: 1 });
       return out;
     }
 
@@ -244,7 +327,12 @@
         return { st, G, before, after: snap(G), evs: r.evs, err: r.err };
       };
       const A = one(false);
-      if (!A.st.ok) return { cand, ok: false, why: A.st.why, score: 0, d: [] };
+      if (!A.st.ok) {
+        /* kỹ năng CẤM/GIỚI HẠN chính thẻ (vd Vô Hạn Nhân): bật thì không dựng được, xoá kỹ năng thì dựng được -> đó là tác dụng */
+        const B0 = one(true);
+        if (B0.st.ok) return { cand, ok: true, block: 1, score: 1, d: [{ u: 0, w: "kỹ năng ngăn: " + A.st.why, rule: 1 }], others: 0, self: true, evk: [], evs: [], subjUid: A.st.subj.uid, lane: A.st.lane };
+        return { cand, ok: false, why: A.st.why, score: 0, d: [] };
+      }
       if (A.err) return { cand, ok: true, err: A.err, score: 0, d: [], evs: A.evs };
       const B = one(true);
       const su = A.st.subj.uid;
@@ -262,7 +350,11 @@
       const list = cands(id), tried = [];
       let pick = null, first = null;
       for (const c of list) {
-        const r = runCand(id, c, seed); tried.push({ k: c.k, ok: r.ok, score: r.score, err: r.err || "", why: r.why || "" });
+        /* kỹ năng may rủi: thử thêm vài hạt ngẫu nhiên, giữ hạt cho ra tác dụng (bảng diễn dùng lại hạt đó) */
+        const seeds = c.spec.rng ? [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map((k) => (seed + k * 7919) >>> 0) : [seed];
+        let r = null;
+        for (const sd of seeds) { r = runCand(id, c, sd); r.seed = sd; if (r.ok && r.score > 0 && !r.err) break; }
+        tried.push({ k: c.k, ok: r.ok, score: r.score, err: r.err || "", why: r.why || "" });
         if (r.ok && !first) first = r;
         if (r.ok && r.score > 0 && !r.err) { pick = r; break; }
       }
@@ -273,11 +365,12 @@
       if (/Nhiệm Vụ/.test(d.x)) notes.push("Nhiệm Vụ nhiều lượt");
       if (/[Kk]hi kết thúc ván|[Cc]uối ván/.test(d.x)) notes.push("Chỉ chạy khi kết thúc ván");
       if (d.t === "start") notes.push("Đầu Ván");
+      if (NOTE[id] && !pick) notes.push(NOTE[id]);
       return {
-        id, n: d.n, h: d.h, t: d.t, x: d.x, seed,
+        id, n: d.n, h: d.h, t: d.t, x: d.x, seed: r && r.seed != null ? r.seed : seed, block: !!(r && r.block),
         k: r ? r.cand.k : "", kn: r ? r.cand.n : "", spec: r ? r.cand.spec : null,
         effect: !!pick, score: r ? r.score : 0, others: r ? r.others || 0 : 0, self: !!(r && r.self),
-        area: !!(r && ((r.d && r.d.some((x) => x.loc || x.lp || x.en || x.start)) || (r.evk || []).some((k) => /^(summon|destroy|discard|move|tohand|sil|revive|morph|clone|abcopy|surge)$/.test(k)))),
+        area: !!(r && ((r.d && r.d.some((x) => x.loc || x.lp || x.en || x.start || x.st)) || (r.evk || []).some((k) => /^(summon|destroy|discard|move|tohand|sil|revive|morph|clone|abcopy|surge)$/.test(k)))),
         d: r ? r.d.slice(0, 12).map((x) => x.w + (x.u ? " #" + x.u : "")) : [], evk: r ? r.evk || [] : [],
         err: r && r.err ? r.err : "", tried, notes
       };
@@ -312,7 +405,7 @@
   const SAVED = {};
   function hook() {
     if (ST.hooked) return; ST.hooked = true;
-    const tapK = (pre) => (k, o) => { const r = ST.rec; if (r) r.taps.push(pre + k + (o && o.id ? "@" + o.id : "")); };
+    const tapK = (pre) => (k, o) => { const r = ST.rec; if (r) r.taps.push(pre + k + (o && o.self ? ":self" : "") + (o && o.id ? "@" + o.id : "")); };
     for (const [nm, pre] of [["HX_TAP", "HX "], ["PA6_TAP", "PA6 "], ["SIG_TAP", "SIG "]]) {
       SAVED[nm] = W[nm]; const mine = tapK(pre), prev = W[nm];
       W[nm] = function (k, o) { try { mine(k, o); } catch (e) {} if (typeof prev === "function") return prev.apply(this, arguments); };
@@ -520,9 +613,9 @@
     const rec = (ST.rec = { taps: [], fx: {}, ev: [], err: [] });
     let g;
     try {
-      g = PLAN.newG(id, p.spec, ST.seed);
+      g = PLAN.newG(id, p.spec, p.seed);
       const stg = PLAN.stage(g, id, p.spec);
-      if (!stg.ok) row.warn.push("dựng thế cờ: " + stg.why);
+      if (!stg.ok && !p.block) row.warn.push("dựng thế cờ: " + stg.why);
       G = g; resetUiCaches(g);
       try { if (W.BGM) BGM.syncGame(G); } catch (e) {}
       try { resetTimer(false); } catch (e) {}
@@ -572,7 +665,7 @@
     if (lo.pw.length) { row.warn.push("tổng điểm hiển thị lệch " + lo.pw.join(",")); row.bad = true; }
     const hits = keys.filter((k) => HIT_RE.test(k.replace(/^(HX|PA6|SIG) /, "")));
     if (p.effect && p.others === 0 && !p.area && hits.length) row.warn.push("diễn đánh trúng (" + hits.slice(0, 3).join(",") + ") nhưng kỹ năng chỉ tác động chính nó/không nhắm thẻ khác");
-    const skillEv = rec.ev.some((e) => /^(skill|act|destroy|discard|summon|revive|move|morph|abcopy|tohand|sil|surge|egain|loc|locfx|clone|blocked|top|draw|lock)$/.test(e.k) && e.k !== "flip");
+    const skillEv = rec.ev.some((e) => /^(skill|act|destroy|discard|summon|revive|move|morph|abcopy|tohand|sil|surge|egain|loc|locfx|clone|blocked|top|draw|lock|hbuff|hide)$/.test(e.k) && e.k !== "flip");
     if (p.effect && !skillEv && !realDiff) row.warn.push("mô phỏng có tác dụng nhưng lượt thật không thấy sự kiện/kết quả nào");
     const fxN = Object.keys(rec.fx).filter((k) => /^FX\./.test(k)).reduce((a, k) => a + rec.fx[k], 0);
     if (p.effect && (skillEv || realDiff) && !keys.length && !Object.keys(rec.fx).some((k) => /^CFX\./.test(k) && k !== "CFX.drawIn") && fxN < 8) row.warn.push("kỹ năng chạy nhưng gần như không có hiệu ứng nào được gọi");

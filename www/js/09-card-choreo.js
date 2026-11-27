@@ -25,6 +25,7 @@
     const r = el.getBoundingClientRect();
     return { x: r.left + r.width / 2, y: r.top + r.height / 2, w: r.width, h: r.height, el };
   }
+  window.slotRect9 = slotRect9; /* gpu68-audit2: 05 gone68 (thẻ đến-rồi-đi trong một bước) */
 
   /* gpu24: nhịp gọn hơn (SPD mặc định đã là 'rất chậm' ×2.0 nên thời gian gốc phải ngắn để vẫn rõ mà không ì) */
   try {

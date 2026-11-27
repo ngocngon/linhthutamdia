@@ -835,11 +835,19 @@
     const m0 = move10;
     move10 = function (s) {
       const r = m0.apply(this, arguments);
-      try { if (s && s.k === "move" && !ff() && (okU(s.dst) || okU(s.src))) ride(s); } catch (e) { console.error(e); }
+      try {
+        if (s && s.k === "move" && !ff() && (okU(s.dst) || okU(s.src))) ride(s);
+        /* gpu68-audit2: thẻ tự dời bằng kỹ năng của chính nó ("Có thể di chuyển": Dạ Hành, Huyễn Cơ, Thuỷ Ngân Nữ, Cá Heo Con, Cá Mập Cạn…)
+           không có ảnh tư thế -> HX-08 bản không hồn: vệt hạt bám lá đang bay + vòng đáp + nhãn kỹ năng */
+        else if (s && s.k === "move" && !ff() && on() && !s.src && selfMover(s.dst)) ride(s, 1);
+      } catch (e) { console.error(e); }
       return r;
     };
   }
-  function ride(s) {
+  function selfMover(uid) {
+    try { const c = anyC(uid); if (!c || c.sil) return false; const a = E.ab(c); return !!C[a] && /[Cc]ó thể di chuyển/.test(C[a].x || "") && c.mt === G.turn; } catch (e) { return false; }
+  }
+  function ride(s, noSoul) {
     const t0 = performance.now(), id = idOf(s.dst), { c1, c2, L } = cols(id), lite = isLite();
     let ph = null, an = null;
     const find = () => {
@@ -851,8 +859,9 @@
     };
     const go = () => {
       const tm = an.effect.getTiming(), D = (+tm.duration) / SPD, ct = (+an.currentTime || 0) / SPD - (tm.delay || 0) / SPD, rest = Math.max(120, D - Math.max(0, ct));
-      const mc = ph.querySelector(".mc") || ph.firstElementChild;
-      tap("HX08", { uid: s.dst, src: s.src, peek: !!mc });
+      const mc = noSoul ? null : ph.querySelector(".mc") || ph.firstElementChild;
+      tap("HX08", { uid: s.dst, src: s.src, peek: !!mc, self: noSoul ? 1 : 0 });
+      if (noSoul) { const b0 = ph.getBoundingClientRect(); if (b0.width) { glow(b0.left + b0.width / 2, b0.top + b0.height / 2, c1, b0.width * 1.3, 0.3, 0.6); ring(b0.left + b0.width / 2, b0.top + b0.height / 2, c1, b0.width * 0.9, 0.3, 0.85); } }
       if (mc) peek(mc, [PK(0, 1, 0), PK(-42, 1.16, -6), PK(-44, 1.18, 4), PK(-40, 1.15, -3), PK(0, 1, 0)].map((k, i) => Object.assign(k, { offset: [0, 0.22, 0.5, 0.78, 1][i] })), rest, { easing: "ease-in-out" });
       /* đuôi hạt bám theo lá đang bay */
       const T1 = performance.now();
@@ -869,6 +878,7 @@
         ring(r1.x, r1.y + (r1.h || 70) * 0.42, "#d8c8a8", (r1.w || 50) * 1.4, 0.45, 0.75, 0.32);
         glow(r1.x, r1.y, c1, (r1.w || 50) * 1.5, 0.35, 0.55);
         if (!lite && P6.hasHx("dat")) { try { playV16("hx_dat", r1.x, r1.y + (r1.h || 70) * 0.3, Math.max(110, (r1.w || 50) * 2.2), 480, 0, 0, true); } catch (e) {} }
+        if (noSoul) { try { FX.float(r1.x, r1.y - (r1.h || 70) * 0.5, "TỰ DI CHUYỂN", c1); } catch (e) {} }
         tap("HX08:land", { uid: s.dst });
       }, rest);
     };

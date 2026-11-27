@@ -451,7 +451,9 @@
       P.q0 = rc(mcOf(P.uid)) || P.q0;
       if (!P.chain) P.ms = miniSoul(P, j, total);
       try { def.run(P, j, total); } catch (e) { console.error(e); }
-      j.at(P.T, () => tap("sig:hit", { id: P.id }));
+      /* gpu68-audit2: mốc trúng chỉ rơi vào CHÍNH thẻ (Trí Nữ đếm, Đồ Thần đếm, Vua Bóng khi chỉ chính nó đổi) -> self:1 */
+      const selfHit = !!def.selfHit || (P.owned.length > 0 && P.owned.every((s) => s.dst === P.uid));
+      j.at(P.T, () => tap("sig:hit", { id: P.id, self: selfHit ? 1 : 0 }));
       j.at(total, () => j.fin(false));
     });
   }
@@ -582,7 +584,7 @@
 
   /* 3. Tiểu Trạng Nguyên — Lật: +2 cho mỗi giá trị sức mạnh khác nhau. Cuộn sớ mở trên chiến địa, từng giá trị sáng lên và đếm +2. */
   SG.add("trinu", {
-    kind: "rev", T: (P) => 520 + P.groups.length * 190 + 160, dur: (P) => 520 + P.groups.length * 190 + 160 + 520,
+    kind: "rev", selfHit: 1, T: (P) => 520 + P.groups.length * 190 + 160, dur: (P) => 520 + P.groups.length * 190 + 160 + 520,
     prep(P) {
       const m = new Map();
       for (const sd of E.SIDES) for (const c of G.locs[P.li].cards[sd]) {
@@ -938,11 +940,11 @@
 
   /* 12. Chủ Bút Sơn Hà — Duy Trì: +2 cho MỖI thẻ Lật trên bàn. Bút lông lớn quét nét mực vàng nối mọi lá Lật, mỗi lá +2, mực chảy về Chủ Bút. */
   SG.add("dothan", {
-    kind: "on", T: (P) => 420 + P.tg.length * 160 + 260, dur: (P) => 420 + P.tg.length * 160 + 260 + 480,
+    kind: "on", selfHit: 1, T: (P) => 420 + P.tg.length * 160 + 260, dur: (P) => 420 + P.tg.length * 160 + 260 + 480,
     prep(P) {
       P.tg = [];
       for (let li = 0; li < 3; li++) for (const sd of E.SIDES) for (const c of G.locs[li].cards[sd]) if (c.rev && C[E.ab(c)] && C[E.ab(c)].t === "rev") P.tg.push({ u: c.uid, li, sd });
-      P.tg = P.tg.slice(0, 10);
+      P.n = P.tg.length; P.tg = P.tg.slice(0, 10);
     },
     run(P, j, total) {
       const a = srcPt(P), w = P.q0 ? P.q0.w : 60, sz = PS(P, 1.89), gd = "#ffd65a";
@@ -977,7 +979,8 @@
         const q = rc(mcOf(p.u)) || p.q;
         ring(q.x, q.y, gd, q.w * 1.15, 0.4, 0.95);
         glow(q.x, q.y, gd, q.w * 1.4, 0.35, 0.6);
-        fl(q.x, q.t + 6, "+2", "#ffe08a");
+        /* gpu68-audit2: thẻ Lật chỉ được ĐẾM (sức mạnh của nó không đổi) — nhãn đếm "LẬT n" thay cho "+2" dễ hiểu nhầm */
+        fl(q.x, q.t + 6, "LẬT " + (i + 1), "#ffe08a");
         if (lite()) beam(prev.x, prev.y, q.x, q.y, gd, 5, 0.2);
         tap("sig:ink", { id: P.id, u: p.u });
       }));
@@ -986,7 +989,7 @@
         ring(q.x, q.y, gd, q.w * 1.4, 0.5, 0.95);
         glow(q.x, q.y, gd, q.w * 2, 0.45, 0.75);
         streaks(q.x, q.y, [gd, "#ffffff", P.c1], 16, 280, 0, 6.283, 0.5, 5);
-        fl(q.x, q.t - 12, P.tg.length + " thẻ Lật × 2", "#ffe08a");
+        fl(q.x, q.t - 12, P.n + " thẻ Lật × 2", "#ffe08a");
         sfx("chime");
       });
     },
