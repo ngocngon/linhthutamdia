@@ -33,10 +33,12 @@ GROUPS = {
     "img/u": ["bk_huyenthoai_2.webp", "bk_vocuc_3.webp", "pack_CB.webp"],
     "img/a": [],
     "img/fx": [],
+    # gpu65: 194 ảnh tư thế S5 -> gói (~2,5 MB/gói), tải ngầm sau cùng
+    "img/pose": ["camapcan.webp", "cuongnhanxam.webp", "haplucchiare.webp", "kenuotsao.webp", "kysituduc.webp", "nangtocdo.webp", "nhennon.webp", "phonglinhnu.webp", "thetdich.webp", "toctu.webp", "xachongphuthuy.webp"],
 }
 # gpu60: img/pose (ảnh tư thế PA6) và img/hx (tờ va chạm theo hệ) KHÔNG đóng gói: chép nguyên tệp lẻ (bước 1) vì 15-pa6.js tải trực tiếp theo URL + tệp kê .json
 READY_DIRS = ["img/u", "img/v"]  # gói phải có trước khi vào sảnh; còn lại tải ngầm
-WARM_ORDER = ["img/v", "img/fx", "img/l", "img/nen", "img/a", "img/u"]
+WARM_ORDER = ["img/v", "img/fx", "img/l", "img/nen", "img/a", "img/u", "img/pose"]
 MAX_FILES = 300
 SKIP_FILES = {".nojekyll", "sw.js"}
 SKIP_DIRS = set()
@@ -195,6 +197,7 @@ for rel, n in (("js/09-card-choreo.js", 2), ("js/08-vfx-webgl.js", 1)):
 patch("js/08-vfx-webgl.js", '<img class="bfx-sig" src="${m.sig}"', '<img class="bfx-sig" src="${window.PAK?PAK.k(m.sig):m.sig}"')
 patch("js/08-vfx-webgl.js", '<img class="bfx-crest" src="${m.img}"', '<img class="bfx-crest" src="${window.PAK?PAK.k(m.img):m.img}"')
 patch("js/07-meta-modes.js", 'UI(uKey)||("img/u/"+uKey+".webp")', 'UI(uKey)||(window.PAK?PAK.k("img/u/"+uKey+".webp"):"img/u/"+uKey+".webp")')
+patch("js/15-pa6.js", 'const poseUrl = (id) => new URL("img/pose/" + id + ".webp?v=" + VER, document.baseURI).href;', 'const poseUrl = (id) => { const u = new URL("img/pose/" + id + ".webp?v=" + VER, document.baseURI).href; return window.PAK ? (PAK.sync(u) || "") : u; };')
 patch("js/11-nen-the.js", "url(${nbUrl(id)})", "url(${window.PAK?PAK.k(nbUrl(id)):nbUrl(id)})")
 patch("js/05-vfx-core.js", "function reCard12(u){", "function reCard12(u){if(window.PAK){const m=u.match(/\\/(ct?)\\/([^/?]+)\\.webp/);if(m){const k=m[2]+(m[1]===\"c\"?\"@f\":\"\");delete SP.k[k];delete SP.c[k];spLoad(k);}return Promise.resolve();}")
 s = open(os.path.join(OUT, "index.html"), encoding="utf8").read()
