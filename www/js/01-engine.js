@@ -1071,7 +1071,7 @@ function destroy(G, inst, li) {
   if (ix < 0 || !inst.rev) return false;
   if (noDestroy(G, inst, li)) { log(G, C[inst.id].n + " không thể bị tiêu huỷ"); ev(G, "blocked", { uid: inst.uid, w: "d" }); return false; }
   G.cnt.destPow += power(G, inst, li);
-  arr.splice(ix, 1); G.cnt.dest++; G.cnt.destOwn[inst.own]++; ev(G, "destroy", { uid: inst.uid, side: inst.side, src: G.srcU || 0 });
+  arr.splice(ix, 1); G.cnt.dest++; G.cnt.destOwn[inst.own]++; ev(G, "destroy", { uid: inst.uid, id: inst.id, side: inst.side, li, ix, src: G.srcU || 0 });
   const d = C[inst.id];
   if (!d.tok) G.dead[inst.own].push(inst);
   log(G, d.n + " bị tiêu huỷ");
@@ -1160,7 +1160,7 @@ function summon(G, side, id, li, pw, at) {
   if (pw != null) t.bp = pw;
   const arr = G.locs[li].cards[side];
   if (at != null && at <= arr.length) arr.splice(at, 0, t); else arr.push(t);
-  log(G, C[id].n + " xuất hiện"); ev(G, "summon", { uid: t.uid, src: G.srcU || 0 });
+  log(G, C[id].n + " xuất hiện"); ev(G, "summon", { uid: t.uid, id, side, li, ix: arr.indexOf(t), src: G.srcU || 0 });
   effReveal(G, t);
   return t;
 }
@@ -1206,7 +1206,7 @@ function revive(G, side, inst, li, prep) {
   const L = G.locs[li];
   if (lon(G, L) && L.id === "shrine") { inst.bonus += 2; nb(G, inst, 2, "L:shrine", "dia"); }
   if (prep) prep(inst);
-  log(G, C[inst.id].n + " được hồi sinh"); ev(G, "revive", { uid: inst.uid, src: G.srcU || 0 });
+  log(G, C[inst.id].n + " được hồi sinh"); ev(G, "revive", { uid: inst.uid, side, li, src: G.srcU || 0 });
   effReveal(G, inst);
   return inst;
 }
@@ -1234,7 +1234,7 @@ function moveCard(G, inst, from, to) {
 }
 function transform(G, inst, id) { tfNote(G, inst, null); inst.id = id; inst.ab = null; inst.bonus = 0; inst.bp = null; inst.sil = null; inst.act = false; inst.age = 0; inst.turn = G.turn; log(G, "Biến thành " + C[id].n); ev(G, "morph", { uid: inst.uid }); }
 function copyInto(G, inst, src) { tfNote(G, inst, src); inst.abBy = src.abBy || null; inst.id = src.id; inst.ab = src.ab || null; inst.bonus = src.bonus; inst.bp = src.bp; inst.sil = src.sil; inst.act = false; inst.turn = G.turn; log(G, "Sao chép " + C[src.id].n); ev(G, "clone", { uid: inst.uid, from: src.uid, into: 1 }); ev(G, "morph", { uid: inst.uid }); }
-function clone1(G, src, side) { const c = mk(G, src.id, side); c.bonus = src.bonus; c.bp = src.bp; c.cm = src.cm; c.ab = src.ab || null; c.abBy = src.abBy || null; if (src.hist) c.hist = src.hist.map(h => Object.assign({}, h)); c._b = src.bonus; c._bp = src.bp; c._m = src.cm; c.eb = c.bonus; ev(G, "clone", { uid: c.uid, from: src.uid, side }); return c; }
+function clone1(G, src, side, fu) { const c = mk(G, src.id, side); c.bonus = src.bonus; c.bp = src.bp; c.cm = src.cm; c.ab = src.ab || null; c.abBy = src.abBy || null; if (src.hist) c.hist = src.hist.map(h => Object.assign({}, h)); c._b = src.bonus; c._bp = src.bp; c._m = src.cm; c.eb = c.bonus; if (fu !== 0) ev(G, "clone", { uid: c.uid, from: fu || src.uid, side }); return c; }
 function lowHigh(G, arr, sign) { // lá có năng lượng hiện tại thấp/cao nhất trên tay/bàn, hoà thì ngẫu nhiên
   if (!arr.length) return null;
   let best = [], bv = null;
@@ -1260,11 +1260,11 @@ function bounce(G, c, li) {
 }
 function sw(G, c, li) {
   const o = other(c.side); if (!space(G, li, o) || profX(G, li)) return false;
-  const a = G.locs[li].cards[c.side]; a.splice(a.indexOf(c), 1); c.side = o; G.locs[li].cards[o].push(c);
+  const a = G.locs[li].cards[c.side], ix = a.indexOf(c); if (ix < 0) return false; a.splice(ix, 1); c.side = o; G.locs[li].cards[o].push(c);
   log(G, C[c.id].n + " đổi phe"); ev(G, "morph", { uid: c.uid }); return true;
 }
-function place(G, c, li, s) { c.side = s; c.rev = true; c.sum = true; c.turn = G.turn; G.locs[li].cards[s].push(c); ev(G, "summon", { uid: c.uid, src: G.srcU || 0, deck: 1 }); effReveal(G, c); }
-function shove(G, c, from, to) { if (c.rev) return moveCard(G, c, from, to); const s = c.side; if (!space(G, to, s) || noMove(G, c, from, to)) return false; const a = G.locs[from].cards[s]; a.splice(a.indexOf(c), 1); G.locs[to].cards[s].push(c); return true; }
+function place(G, c, li, s) { c.side = s; c.rev = true; c.sum = true; c.turn = G.turn; const a = G.locs[li].cards[s]; a.push(c); ev(G, "summon", { uid: c.uid, id: c.id, side: s, li, ix: a.length - 1, src: G.srcU || 0, deck: 1 }); effReveal(G, c); }
+function shove(G, c, from, to) { if (c.rev) return moveCard(G, c, from, to); const s = c.side; if (!space(G, to, s) || noMove(G, c, from, to)) return false; const a = G.locs[from].cards[s], ix = a.indexOf(c); if (ix < 0) return false; a.splice(ix, 1); G.locs[to].cards[s].push(c); return true; }
 const pw0 = c => basePow(c) + c.bonus;
 function lowPow(G, arr, charOnly) {
   let src = arr;
@@ -1346,7 +1346,7 @@ const REV = {
   gangchandong(G, i, li) { const t = strongest(G, shown(G, li, i.side).filter(c => c !== i), li); if (t) t.bonus += 2; G.nextBonus[i.side] += 1; },
   nghithuctrieuhoii(G, i) { const s = i.side, dd = G.dead[s], dm = dorm(G, s); let t = null; for (const c of dd) if (!t || pw0(c) > pw0(t)) t = c; if (!t || !dm) { toHand(G, s, mk(G, "nghithuctrieuhoii", s)); return; } dd.splice(dd.indexOf(t), 1); dm.bonus += Math.max(0, pw0(t)); nb(G, dm, Math.max(0, pw0(t)), t, "nuot"); toHand(G, s, mk(G, "nghithuctrieuhoiii", s)); },
   nghithuctrieuhoiii(G, i, li) { const dm = dorm(G, i.side); let n = 0; for (const sd of SIDES) for (const c of shown(G, li, sd)) if (c !== i) { c.bonus -= 1; n++; } if (dm) dm.bonus += n; toHand(G, i.side, mk(G, "nghithuctrieuhoiiii", i.side)); },
-  nghithuctrieuhoiiii(G, i, li) { const s = i.side, cs = shown(G, li, s).filter(c => c !== i && !noDestroy(G, c, li)); if (cs.length < 2) { toHand(G, s, mk(G, "nghithuctrieuhoiiii", s)); return; } for (const c of shuffle(G, cs).slice(0, 2)) destroy(G, c, li); const dm = fromHandDeck(G, s, c => c.id === "hacdiemchua"); if (dm) { if (space(G, li, s)) place(G, dm, li, s); else G.hand[s].push(dm); } },
+  nghithuctrieuhoiiii(G, i, li) { const s = i.side, cs = shown(G, li, s).filter(c => c !== i && !noDestroy(G, c, li)); if (cs.length < 2) { toHand(G, s, mk(G, "nghithuctrieuhoiiii", s)); return; } for (const c of shuffle(G, cs).slice(0, 2)) destroy(G, c, li); const dm = fromHandDeck(G, s, c => c.id === "hacdiemchua"); if (dm) { if (space(G, li, s) && !profX(G, li) && !stardust(G)) place(G, dm, li, s); else if (!toHand(G, s, dm)) G.deck[s].push(dm); } },
   matthethientuyen(G, i) { const s = i.side, e = boardCards(G, s).filter(([c]) => c !== i), dk = G.deck[s]; if (!e.length || !dk.length) return; let lo = e[0]; for (const x of e) if (power(G, x[0], x[1]) < power(G, lo[0], lo[1])) lo = x; const kx = Math.floor(rnd(G) * dk.length), nw = dk[kx], a = G.locs[lo[1]].cards[s]; dk[kx] = lo[0]; lo[0].rev = false; lo[0].played = false; lo[0].turn = 0; a[a.indexOf(lo[0])] = nw; nw.side = s; nw.rev = true; nw.sum = true; nw.turn = G.turn; ev(G, "summon", { uid: nw.uid }); effReveal(G, nw); },
   quyensuthaphoan(G, i) { const s = i.side; for (const c of G.hand[s].concat(G.deck[s], boardCards(G, s).map(e => e[0]))) if (c.id === "thaphoan") { c.id = "thaphoankhaimo"; if (c.rev) ev(G, "morph", { uid: c.uid }); } },
   thaphoan(G, i, li) { const t = pick(G, shown(G, li, i.side).filter(c => c !== i)); if (t) t.bonus += 1; },
@@ -1478,8 +1478,14 @@ const REV = {
   longchu(G, i, li) { const h = G.hand[i.side], c = pick(G, h); if (c && space(G, li, i.side) && !profX(G, li)) { h.splice(h.indexOf(c), 1); place(G, c, li, i.side); } },
   cunemthantoc(G, i, li) { const t = strongest(G, shown(G, li, i.side).filter(c => c !== i), li); if (!t) return; const v = power(G, t, li); if (destroy(G, t, li) && v > 0) { const e = pick(G, shown(G, li, other(i.side))); if (e) hurt(G, e, li, v); } },
   hoasu(G, i, li) { const t = pick(G, G.disc[i.side].concat(G.dead[i.side]).filter(c => C[c.id].c === 3)); if (t) revive(G, i.side, t, li); else rvNote(G, i, "không có thẻ 3 năng lượng bị vứt bỏ / tiêu huỷ"); },
-  giacdausi(G, i, li) { const o = other(i.side), d = G.deck[o]; if (!d.length || !space(G, li, o) || profX(G, li)) return; const c = d.splice(Math.floor(rnd(G) * d.length), 1)[0]; place(G, c, li, o); if (power(G, c, li) < power(G, i, li)) destroy(G, c, li); },
-  kychu(G, i, li) { if (li === 1) return; const t = pick(G, shown(G, li, i.side).filter(c => c !== i && !c.sil && C[ab(c)].t === "rev" && REV[ab(c)])); if (t && moveCard(G, t, li, 1) && G.depth < 6) { G.depth++; REV[ab(t)](G, t, 1); } },
+  giacdausi(G, i, li) { const o = other(i.side), d = G.deck[o]; if (!d.length || !space(G, li, o) || profX(G, li)) return; const c = d.splice(Math.floor(rnd(G) * d.length), 1)[0]; place(G, c, li, o);
+    /* Lật của thẻ bị kéo chạy trước (có thể tự dời đi / làm Giác Đấu Sĩ rời bàn) -> so & tiêu huỷ đúng thẻ ĐÓ ở vị trí hiện tại của nó */
+    const cl = locOf(G, c), il = locOf(G, i); if (cl >= 0 && c.rev && il >= 0 && power(G, c, cl) < power(G, i, il)) destroy(G, c, cl); },
+  kychu(G, i, li) { if (li === 1) return; const t = pick(G, shown(G, li, i.side).filter(c => c !== i && !c.sil && C[ab(c)].t === "rev" && REV[ab(c)])); if (t && moveCard(G, t, li, 1) && G.depth < 6) {
+      /* thẻ có thể bị dời tiếp khi tới giữa (Lực Thần, Cước Thủ...) -> chạy lại Lật đúng nơi nó đang đứng, phát sự kiện để diễn hoạt nhắm đúng thẻ */
+      const tl = locOf(G, t); if (tl < 0 || t.sil) return;
+      if (revBlocked(G, tl, t.side)) { log(G, "Kỹ năng Lật bị chặn"); ev(G, "blocked", { uid: t.uid }); return; }
+      G.depth++; ev(G, "skill", { uid: t.uid, t: "rev" }); const sv = G.srcU; G.srcU = t.uid; try { REV[ab(t)](G, t, tl); } finally { G.srcU = sv; } } },
   niemluctu(G, i, li) { const L = G.locs[li]; L.hell = L.hell || { p: 0, a: 0 }; L.hell[i.side] = G.turn + 1; },
   khisatthu(G, i) { i.bonus += 2 * Math.max(0, G.cnt.playedNow[i.side] - 1); },
   thuynhan(G) { for (const s of SIDES) { const d = G.deck[s]; if (d.length) { const c = d[d.length - 1], [c0, p0] = topSt(G, c); c.cm = 1 - C[c.id].c; topEv(G, s, c, "cost", c0, p0); } } },
@@ -1528,7 +1534,7 @@ const REV = {
   phongnu(G, i, li) { const f = find(G, G.lastPlay[other(i.side)]); if (f && f.inst.side !== i.side && f.li !== li) moveCard(G, f.inst, f.li, li); },
   matvumuoiba(G, i) { addRand(G, i.side, () => true); },
   dacvutruong(G, i) { addRand(G, i.side, id => C[id].c === 4); addRand(G, i.side, id => C[id].c === 5); },
-  naomay(G, i, li) { const t = pick(G, shown(G, li, i.side).filter(c => c !== i)); if (!t) return; const snap = clone1(G, t, i.side); if (destroy(G, t, li)) for (const l of [0, 1, 2]) if (l !== li && space(G, l, i.side) && !profX(G, l)) place(G, clone1(G, snap, i.side), l, i.side); },
+  naomay(G, i, li) { const t = pick(G, shown(G, li, i.side).filter(c => c !== i)); if (!t) return; const snap = clone1(G, t, i.side, 0); /* bản chụp không lên bàn: không phát sự kiện; các bản sao "bay ra" từ đúng thẻ bị tiêu huỷ (t.uid) */ if (destroy(G, t, li)) for (const l of [0, 1, 2]) if (l !== li && space(G, l, i.side) && !profX(G, l)) place(G, clone1(G, snap, i.side, t.uid), l, i.side); },
   namtuocamthuat(G, i) { const d = G.deck[other(i.side)]; if (d.length) { const c = d[d.length - 1], [c0, p0] = topSt(G, c); c.fix6 = true; topEv(G, other(i.side), c, "fix6", c0, p0); } },
   mieuthan(G, i) { for (const c of G.hand[i.side]) { c.bp = 3; c.bonus = 0; } },
   lamthu(G, i, li) { for (const c of shown(G, li, i.side)) if (c !== i && bounce(G, c, li)) c.tcm = { t: G.turn + 1, a: -1 }; },
@@ -1588,7 +1594,7 @@ const REV = {
   congchuacongnghe(G, i, li) { G.shuri[i.side] = li + 1; },
   ngankiemsi(G) { for (const s of SIDES) discard(G, s, lowPow(G, G.hand[s], true)); },
   nganluot(G, i) { for (const [c] of boardCards(G, i.side)) if (c !== i && C[c.id].c === 3) c.bonus += 2; },
-  nhennhan(G, i, li) { const ol = otherLocs(G, li, i.side); if (!ol.length) return; const to = pick(G, ol), t = pick(G, shown(G, li, other(i.side))); if (moveCard(G, i, li, to) && t) moveCard(G, t, li, to); },
+  nhennhan(G, i, li) { const ol = otherLocs(G, li, i.side); if (!ol.length) return; const to = pick(G, ol), t = pick(G, shown(G, li, other(i.side))); if (moveCard(G, i, li, to) && t) { const cur = locOf(G, i); if (cur >= 0 && cur !== li) moveCard(G, t, li, cur); } },
   kiemlongnhan(G, i, li) { const t = pick(G, shown(G, li, other(i.side))); if (t && li < 2) moveCard(G, t, li, li + 1); },
   baonu(G, i, li) { G.locs[li].flood = G.turn + 1; ev(G, "lock", { li, t: "flood" }); log(G, "Chiến địa bị ngập: lượt sau là lượt cuối đặt được thẻ tại đây"); },
   suphunhai(G, i) { const f = find(G, G.prevPlay[i.side]); if (f) i.bp = power(G, f.inst, f.li); },
