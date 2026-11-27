@@ -720,10 +720,12 @@
     const hits = keys.filter((k) => HIT_RE.test(k.replace(/^(HX|PA6|SIG) /, "")));
     if (p.effect && p.others === 0 && !p.area && hits.length) row.warn.push("diễn đánh trúng (" + hits.slice(0, 3).join(",") + ") nhưng kỹ năng chỉ tác động chính nó/không nhắm thẻ khác");
     const skillEv = rec.ev.some((e) => /^(skill|act|destroy|discard|summon|revive|move|morph|abcopy|tohand|sil|surge|egain|loc|locfx|clone|blocked|top|draw|lock|hbuff|hide)$/.test(e.k) && e.k !== "flip");
-    if (p.effect && !skillEv && !realDiff) row.warn.push("mô phỏng có tác dụng nhưng lượt thật không thấy sự kiện/kết quả nào");
+    const endOnly = !!(p.spec && p.spec.endGame);
+    if (endOnly) row.info = "ℹ Hiệu ứng KẾT THÚC VÁN: đã kiểm bằng mô phỏng engine (endGame) — bảng chỉ diễn một lượt thường";
+    if (p.effect && !endOnly && !skillEv && !realDiff) row.warn.push("mô phỏng có tác dụng nhưng lượt thật không thấy sự kiện/kết quả nào");
     const fxN = Object.keys(rec.fx).filter((k) => /^FX\./.test(k)).reduce((a, k) => a + rec.fx[k], 0);
     const visK = keys.filter((k) => !/^PA6 (Q:|shift|plan)/.test(k)); /* mốc xếp lịch của SEQ/PA6 không phải hình vẽ */
-    if (p.effect && (skillEv || realDiff) && !visK.length && !Object.keys(rec.fx).some((k) => /^CFX\./.test(k) && k !== "CFX.drawIn") && fxN < 8) row.warn.push("kỹ năng chạy nhưng gần như không có hiệu ứng nào được gọi");
+    if (p.effect && !endOnly && (skillEv || realDiff) && !visK.length && !Object.keys(rec.fx).some((k) => /^CFX\./.test(k) && k !== "CFX.drawIn") && fxN < 8) row.warn.push("kỹ năng chạy nhưng gần như không có hiệu ứng nào được gọi");
     if (row.ms > 20000) row.warn.push("diễn quá lâu " + (row.ms / 1000).toFixed(1) + " s");
     if (lo.dom.length || lo.hid.length) cleanLeft();
     verdict(row); ST.busyCard = false;

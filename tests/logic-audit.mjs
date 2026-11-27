@@ -206,11 +206,40 @@ test("Thạch Lực Nữ: thẻ 1 và 6 năng lượng của bạn không bị t
   play(G, "p", inHand(G, "p", "xacmay"), 1);
   ok(LT.locOf(G, a) === 1 && LT.locOf(G, b) === 1 && LT.locOf(G, c) < 0, "chỉ thẻ 2 năng lượng bị huỷ");
 });
+test("Linh Môi Sư (tamlinhtu): Kích Hoạt rồi đặt thẻ -> thẻ đó bị huỷ, Linh Môi Sư nhận ĐÚNG sức mạnh, sự kiện destroy.src + absorb; hết hạn cuối lượt", () => {
+  const G = setup(); const t = onBoard(G, "p", "tamlinhtu", 0); const c = inHand(G, "p", "thachquai");
+  ok(LT.queueAct(G, "p", t.uid)); ok(LT.queuePlay(G, "p", c.uid, 1)); for (const st of LT.beginReveal(G)) LT.doStep(G, st);
+  eq(LT.locOf(G, c), -1, "thẻ bị nuốt"); eq(pw(G, t), 1 + 7, "Linh Môi Sư 1 + 7");
+  const d = evsOf(G, "destroy").find(e => e.uid === c.uid), a = evsOf(G, "absorb")[0];
+  ok(d && d.src === t.uid, "destroy.src = Linh Môi Sư"); ok(a && a.uid === t.uid && a.from === c.uid && a.v === 7, "absorb " + JSON.stringify(a));
+  /* đặt thẻ TRƯỚC rồi mới Kích Hoạt: lượt này không nuốt; lượt sau cũng không (chỉ trong lượt kích hoạt) */
+  const G2 = setup(); const t2 = onBoard(G2, "p", "tamlinhtu", 0); const c2 = inHand(G2, "p", "thachquai");
+  ok(LT.queuePlay(G2, "p", c2.uid, 1)); ok(LT.queueAct(G2, "p", t2.uid)); for (const st of LT.beginReveal(G2)) LT.doStep(G2, st);
+  ok(LT.locOf(G2, c2) === 1, "thẻ đặt trước khi kích hoạt không bị nuốt");
+  nextTurn(G2); G2.energy.p = 30; const c3 = inHand(G2, "p", "docnhan"); play(G2, "p", c3, 2);
+  ok(LT.locOf(G2, c3) === 2 && pw(G2, t2) === 1, "lượt sau: không còn nuốt (trước đây nuốt nhầm sang lượt sau)");
+});
+test("Lôi Quang Tiên (diennu): đỉnh bộ bài -1 năng lượng +1 sức mạnh + dấu surge; đặt lá đó -> lặp lại lên lá đỉnh mới (chuỗi), sự kiện surge.src = lá vừa đặt", () => {
+  const G = setup(); const b2 = inDeck(G, "p", "docnhan"), b1 = inDeck(G, "p", "chanthu");
+  play(G, "p", inHand(G, "p", "diennu"), 0);
+  ok(b1.surge && b1.cm === -1 && b1.bonus === 1 && !b2.surge, "lá đỉnh được truyền điện");
+  G.deck.p.splice(G.deck.p.indexOf(b1), 1); G.hand.p.push(b1); G.evs = [];
+  play(G, "p", b1, 1);
+  const e = evsOf(G, "surge")[0]; ok(e && e.src === b1.uid && e.uid === b2.uid, "lặp lại từ lá vừa đặt " + JSON.stringify(G.evs.filter(x => x.k === "surge")));
+  ok(!b1.surge && b2.surge && b2.cm === -1 && b2.bonus === 1, "dấu chuyển sang lá đỉnh mới");
+});
 test("Bảng Test VFX: mọi thẻ ưu tiên (Nữ Lôi Thần, Bóng Ma, Mây Nuốt Thời Gian, Thạch Lực Nữ, Kẻ Nuốt Sao, Tiến Sĩ Gamma, Chiến Thần…) có thế cờ cho thấy tác dụng", () => {
   const PLAN = require(path.join(www, "js", "dev-vfx-lab.js"));
   const bad = [];
   for (const id of ["nuloithan", "bongma", "maynuotthoigian", "thachlucnu", "kenuotsao", "tiensigamma", "chienthan", "nuhondoc", "vohannhan", "vuabong", "heonhen", "khuyendichchuyen", "huyenconu", "annu", "khoibang", "dahanh"]) { const p = PLAN.plan(id, 777); if (!p.effect) bad.push(id); }
   eq(bad.join(","), "", "thẻ chưa có thế cờ cho thấy tác dụng");
+});
+
+test("Bảng Test VFX (kiểm nhanh engine): MỌI thẻ có kỹ năng đều cho thấy tác dụng hoặc có giải thích đã kiểm (0 cảnh báo không giải thích)", () => {
+  const PLAN = require(path.join(www, "js", "dev-vfx-lab.js"));
+  const bad = [];
+  for (const id of Object.keys(C)) { if (C[id].t === "none") continue; const p = PLAN.plan(id, 777); if (p.err) bad.push(id + "(lỗi: " + p.err + ")"); else if (!p.effect && !p.notes.length) bad.push(id); }
+  eq(bad.join(", "), "", "thẻ không tác dụng, không giải thích");
 });
 
 /* ---------------- B. trình duyệt ---------------- */
