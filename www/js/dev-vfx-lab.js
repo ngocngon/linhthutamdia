@@ -277,6 +277,7 @@
         id, n: d.n, h: d.h, t: d.t, x: d.x, seed,
         k: r ? r.cand.k : "", kn: r ? r.cand.n : "", spec: r ? r.cand.spec : null,
         effect: !!pick, score: r ? r.score : 0, others: r ? r.others || 0 : 0, self: !!(r && r.self),
+        area: !!(r && ((r.d && r.d.some((x) => x.loc || x.lp || x.en || x.start)) || (r.evk || []).some((k) => /^(summon|destroy|discard|move|tohand|sil|revive|morph|clone|abcopy|surge)$/.test(k)))),
         d: r ? r.d.slice(0, 12).map((x) => x.w + (x.u ? " #" + x.u : "")) : [], evk: r ? r.evk || [] : [],
         err: r && r.err ? r.err : "", tried, notes
       };
@@ -570,7 +571,7 @@
     if (lo.sh) { row.warn.push("luật ẩn lá còn: " + lo.sh.slice(0, 60)); row.bad = true; }
     if (lo.pw.length) { row.warn.push("tổng điểm hiển thị lệch " + lo.pw.join(",")); row.bad = true; }
     const hits = keys.filter((k) => HIT_RE.test(k.replace(/^(HX|PA6|SIG) /, "")));
-    if (p.effect && p.others === 0 && hits.length) row.warn.push("diễn đánh trúng (" + hits.slice(0, 3).join(",") + ") nhưng kỹ năng chỉ tác động chính nó/không nhắm thẻ khác");
+    if (p.effect && p.others === 0 && !p.area && hits.length) row.warn.push("diễn đánh trúng (" + hits.slice(0, 3).join(",") + ") nhưng kỹ năng chỉ tác động chính nó/không nhắm thẻ khác");
     const skillEv = rec.ev.some((e) => /^(skill|act|destroy|discard|summon|revive|move|morph|abcopy|tohand|sil|surge|egain|loc|locfx|clone|blocked|top|draw|lock)$/.test(e.k) && e.k !== "flip");
     if (p.effect && !skillEv && !realDiff) row.warn.push("mô phỏng có tác dụng nhưng lượt thật không thấy sự kiện/kết quả nào");
     const fxN = Object.keys(rec.fx).filter((k) => /^FX\./.test(k)).reduce((a, k) => a + rec.fx[k], 0);
