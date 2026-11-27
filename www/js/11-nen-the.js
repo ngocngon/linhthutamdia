@@ -18,21 +18,21 @@
   add("kim", "Kim Ngân", "nh", 0, "Nhiệm vụ"); add("moc", "Mộc Lâm", "nh", 0, "Nhiệm vụ"); add("thuy", "Thuỷ Triều", "nh", 0, "Nhiệm vụ");
   add("hoa", "Hoả Diệm", "nh", 0, "Nhiệm vụ"); add("tho", "Thổ Địa", "nh", 0, "Nhiệm vụ");
   // [Hoạ tiết Việt] — tranh vẽ ChatGPT (lưới 4×4, cắt bằng tools/cat_luoi_nen.py) ở img/nen/<id>.webp
-  add("donghoo", "Tranh Đông Hồ", "vn", 1, "Cửa hàng"); add("gomlam", "Gốm Lam Chu Đậu", "vn", 1, "Cửa hàng"); add("gachbong", "Gạch Bông Men Lam", "vn", 1, "Cửa hàng");
+  add("donghoo", "Tranh Dân Gian", "vn", 1, "Cửa hàng"); add("gomlam", "Gốm Lam Men Cổ", "vn", 1, "Cửa hàng"); add("gachbong", "Gạch Bông Men Lam", "vn", 1, "Cửa hàng");
   add("maingoi", "Mái Ngói Rêu Phong", "vn", 1, "Nhiệm vụ"); add("ruonglua", "Đồng Lúa Chiều Quê", "vn", 1, "Nhiệm vụ");
-  add("trongdong", "Trống Đồng Đông Sơn", "vn", 2, "Cửa hàng"); add("chamgo", "Chạm Gỗ Đình Làng", "vn", 2, "Cửa hàng"); add("senthuymac", "Sen Thuỷ Mặc", "vn", 2, "Cửa hàng");
-  add("denlong", "Đèn Lồng Hội An", "vn", 2, "Cửa hàng"); add("thocam", "Thổ Cẩm Núi Rừng", "vn", 2, "Cửa hàng");
+  add("trongdong", "Trống Đồng Thần Điểu", "vn", 2, "Cửa hàng"); add("chamgo", "Chạm Gỗ Đình Làng", "vn", 2, "Cửa hàng"); add("senthuymac", "Sen Thuỷ Mặc", "vn", 2, "Cửa hàng");
+  add("denlong", "Đèn Lồng Phố Cổ", "vn", 2, "Cửa hàng"); add("thocam", "Thổ Cẩm Núi Rừng", "vn", 2, "Cửa hàng");
   add("sonmai", "Sơn Mài Son Vàng", "vn", 3, "Cửa hàng"); add("khamxacu", "Khảm Xà Cừ", "vn", 3, "Cửa hàng"); add("luatheu", "Lụa Thêu Rồng Mây", "vn", 3, "Cửa hàng");
-  add("maycungdinh", "Mây Cung Đình Huế", "vn", 3, "Thẻ tháng"); add("phudieucham", "Phù Điêu Chăm Pa", "vn", 3, "Cửa hàng"); add("tranhkinh", "Tranh Kính Hoa Sen", "vn", 3, "Cửa hàng");
+  add("maycungdinh", "Mây Cung Đình", "vn", 3, "Thẻ tháng"); add("phudieucham", "Phù Điêu Tháp Cổ", "vn", 3, "Cửa hàng"); add("tranhkinh", "Tranh Kính Hoa Sen", "vn", 3, "Cửa hàng");
   // [Phong cảnh] — 16 tranh vẽ ChatGPT (img/nen) + 6 cảnh dùng tranh chiến địa sẵn có (img/l)
-  add("hoguom", "Cầu Thê Húc Đêm", "pc", 2, "Cửa hàng"); add("muine", "Đồi Cát Mũi Né", "pc", 2, "Cửa hàng"); add("bangioc", "Thác Bản Giốc", "pc", 2, "Cửa hàng");
-  add("dalat", "Rừng Thông Đà Lạt", "pc", 2, "Cửa hàng"); add("chonoi", "Chợ Nổi Bình Minh", "pc", 2, "Nhiệm vụ"); add("trangan", "Bến Thuyền Tràng An", "pc", 2, "Cửa hàng");
-  add("thapcham", "Tháp Chàm", "pc", 2, "Cửa hàng"); add("ngocson", "Đền Ngọc Sơn", "pc", 2, "Cửa hàng"); add("vanmieu", "Văn Miếu", "pc", 2, "Cửa hàng");
-  add("halong", "Vịnh Hạ Long Sương Sớm", "pc", 3, "Cửa hàng"); add("bacthang", "Ruộng Bậc Thang Mùa Vàng", "pc", 3, "Cửa hàng"); add("hue", "Ngọ Môn Hoàng Hôn", "pc", 3, "Cửa hàng");
-  add("fansipan", "Fansipan Biển Mây", "pc", 3, "Cửa hàng"); add("bienchieu", "Biển Đảo Hoàng Hôn", "pc", 3, "Cửa hàng"); add("ructrang", "Rừng Trúc Đêm Trăng", "pc", 3, "Cửa hàng");
-  add("thanglong", "Hoàng Thành Thăng Long", "pc", 3, "Cửa hàng"); add("hoian", "Phố Cổ Hội An", "pc", 3, "Cửa hàng"); add("sapa", "Sa Pa Mây Phủ", "pc", 3, "Thẻ tháng"); add("phongnha", "Động Phong Nha", "pc", 3, "Cửa hàng");
-  add("sondoong", "Cột Sáng Sơn Đoòng", "pc", 4, "Cửa hàng"); add("nuilua", "Núi Lửa Thần Thoại", "pc", 4, "Cửa hàng");
-  add("thuyte", "Cung Điện Thuỷ Tề", "pc", 4, "Thẻ tháng"); add("tanvien", "Tản Viên Mây Ngũ Sắc", "pc", 4, "Cửa hàng");
+  add("hoguom", "Hồ Kiếm Thánh Đêm Trăng", "pc", 2, "Cửa hàng"); add("muine", "Đồi Cát Bay", "pc", 2, "Cửa hàng"); add("bangioc", "Thác Song Long", "pc", 2, "Cửa hàng");
+  add("dalat", "Rừng Thông Sương Mù", "pc", 2, "Cửa hàng"); add("chonoi", "Chợ Nổi Bình Minh", "pc", 2, "Nhiệm vụ"); add("trangan", "Bến Thuyền Hang Ngọc", "pc", 2, "Cửa hàng");
+  add("thapcham", "Tháp Vĩnh Hằng", "pc", 2, "Cửa hàng"); add("ngocson", "Đền Ngọc", "pc", 2, "Cửa hàng"); add("vanmieu", "Thư Viện Hiền Triết", "pc", 2, "Cửa hàng");
+  add("halong", "Vịnh Rồng Ngủ", "pc", 3, "Cửa hàng"); add("bacthang", "Ruộng Bậc Thang Mùa Vàng", "pc", 3, "Cửa hàng"); add("hue", "Cổng Hoàng Thành Hoàng Hôn", "pc", 3, "Cửa hàng");
+  add("fansipan", "Đỉnh Olympus Biển Mây", "pc", 3, "Cửa hàng"); add("bienchieu", "Biển Đảo Hoàng Hôn", "pc", 3, "Cửa hàng"); add("ructrang", "Rừng Trúc Đêm Trăng", "pc", 3, "Cửa hàng");
+  add("thanglong", "Hoàng Thành Cổ", "pc", 3, "Cửa hàng"); add("hoian", "Phố Đèn Lồng", "pc", 3, "Cửa hàng"); add("sapa", "Ruộng Mây", "pc", 3, "Thẻ tháng"); add("phongnha", "Động Rồng Đá", "pc", 3, "Cửa hàng");
+  add("sondoong", "Cột Sáng Hang Khổng Lồ", "pc", 4, "Cửa hàng"); add("nuilua", "Núi Lửa Thần Thoại", "pc", 4, "Cửa hàng");
+  add("thuyte", "Cung Điện Thuỷ Tề", "pc", 4, "Thẻ tháng"); add("tanvien", "Núi Sơn Thần Mây Ngũ Sắc", "pc", 4, "Cửa hàng");
   // [Thần thoại] — tranh vẽ ChatGPT (img/nen)
   add("rungnam", "Rừng Nấm Linh Thú", "tt", 3, "Cửa hàng"); add("bangtuyet", "Băng Tuyết Pha Lê", "tt", 3, "Cửa hàng"); add("giongbao", "Giông Bão Sấm Tím", "tt", 3, "Nhiệm vụ");
   add("nganha", "Dải Ngân Hà", "tt", 4, "Cửa hàng"); add("dungnham", "Dung Nham Rực Cháy", "tt", 4, "Cửa hàng"); add("amphu", "Âm Phủ Lửa Xanh", "tt", 4, "Cửa hàng");
