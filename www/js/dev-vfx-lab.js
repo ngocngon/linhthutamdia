@@ -533,11 +533,16 @@
     try {
       if (p.spec.start && typeof startShow === "function") await startShow();
       if (ST.stopReq) throw new Error("stop");
-      ddPlan = true; await endTurnUI();
+      const turn = async () => {
+        ddPlan = true; let hung = false;
+        await Promise.race([endTurnUI(), sleep(45000).then(() => { hung = true; })]);
+        if (hung) { rec.err.push("lượt treo > 45 s"); try { TURN_BUSY = false; } catch (e) {} }
+      };
+      await turn();
       if (p.spec.next && G === g && G.phase === "play") {
         await settle(6000);
         stageNext2(g, p.spec); render(); await sleep(300);
-        ddPlan = true; await endTurnUI();
+        await turn();
       }
     } catch (e) { if (String(e && e.message) !== "stop") rec.err.push("lượt: " + (e && e.message || e)); }
     const calm = await settle(9000);

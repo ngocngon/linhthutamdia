@@ -54,9 +54,10 @@ const inView = (page) => page.evaluate(() => {
   const bar = document.getElementById("vlBar").getBoundingClientRect();
   return { out, bar: Math.round(bar.height), w: innerWidth };
 });
-async function waitDone(page, maxMs, tag) {
-  const t0 = Date.now(); let last = -1;
+async function waitDone(page, maxMs, tag, saveTo) {
+  const t0 = Date.now(); let last = -1, ts = Date.now();
   while (Date.now() - t0 < maxMs) {
+    if (saveTo && Date.now() - ts > 60000) { ts = Date.now(); try { await writeFile(saveTo, await page.evaluate(() => VFXLAB.exportJSON())); } catch (e) {} }
     const st = await page.evaluate(() => ({ m: VFXLAB.state.mode, i: VFXLAB.state.i, n: VFXLAB.state.list.length, busy: VFXLAB.state.busy, cur: VFXLAB.state.cur }));
     if (st.i !== last && (st.i % 20 === 0 || st.n < 40)) { console.log(`  … ${tag} ${st.i}/${st.n} ${st.cur || ""}`); last = st.i; }
     if (!st.busy && (st.m === "done" || st.m === "idle")) return true;
@@ -83,7 +84,7 @@ try {
   if (FULL) {
     console.log("\n== FULL: kiểm tra MỌI bậc");
     await page.evaluate(() => VFXLAB.startAudit(Object.keys(LT.C).sort((a, b) => LT.C[a].h.localeCompare(LT.C[b].h) || LT.C[a].c - LT.C[b].c)));
-    const done = await waitDone(page, 4 * 3600e3, "ALL");
+    const done = await waitDone(page, 4 * 3600e3, "ALL", OUT);
     ok(done, "kiểm tra mọi bậc chạy xong");
     const rows = await page.evaluate(() => VFXLAB.rows());
     const json = await page.evaluate(() => VFXLAB.exportJSON());
