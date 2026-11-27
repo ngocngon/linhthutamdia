@@ -100,7 +100,7 @@ try {
     const want = ["B:pop", "D:dive", "D:in", "D:land"], pos = want.map(k => seq.indexOf(k));
     const hits = seq.map((k, x) => k === "C:hit" ? x : -1).filter(x => x >= 0);
     const ordered = pos.every(p => p >= 0) && pos.every((p, x) => !x || p > pos[x - 1]) && hits.every(h => h > pos[0] && h < pos[1]);
-    if (!ordered && !seq.includes("S:skip")) { bad++; if (bad < 4) console.log("  thứ tự sai:", seq.join(" > ")); }
+    if (!ordered && !seq.includes("S:skip")) { bad++; if (bad < 4) { console.log("  thứ tự sai:", seq.join(" > ")); if (process.env.DBG) console.log("   quanh:", r.ev.slice(Math.max(0, i - 6), i + 8).map(e => ((e.t - r.ev[i].t) | 0) + ":" + e.k + "@" + e.uid).join(" ")); } }
   }
   ok(nCh >= 2, `có ${nCh} chuỗi xuất hồn`);
   ok(bad === 0, "mọi chuỗi đúng thứ tự xuất hồn > trúng > chui về > đáp ô");
