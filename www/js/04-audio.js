@@ -324,8 +324,8 @@ const SFX = (() => {
   }
   function loadSprite(name, optional) {
     return Promise.all([
-      fetch("sfx/" + name + ".json?v=gpu60").then((r) => { if (!r.ok) throw new Error(name); return r.json(); }),
-      fetch("sfx/" + name + ".mp3?v=gpu60").then((r) => { if (!r.ok) throw new Error(name); return r.arrayBuffer(); })
+      fetch("sfx/" + name + ".json?v=gpu61").then((r) => { if (!r.ok) throw new Error(name); return r.json(); }),
+      fetch("sfx/" + name + ".mp3?v=gpu61").then((r) => { if (!r.ok) throw new Error(name); return r.arrayBuffer(); })
     ])
       .then(([idx, ab]) => new Promise((res, rej) => {
         const p = ac.decodeAudioData(ab, (b) => res([idx, b]), rej);
@@ -360,14 +360,14 @@ const SFX = (() => {
   function loadCardIndex() {
     if (cardIdxState) return;
     cardIdxState = 1;
-    fetch("sfx/the.json?v=gpu60").then((r) => { if (!r.ok) throw new Error("the.json"); return r.json(); })
+    fetch("sfx/the.json?v=gpu61").then((r) => { if (!r.ok) throw new Error("the.json"); return r.json(); })
       .then((j) => { cardIdx = j; cardIdxState = 2; const w = spWait.splice(0); w.forEach((f) => { try { f(); } catch (e) {} }); })
       .catch(() => { cardIdxState = 3; spWait.length = 0; });
   }
   function loadCardSprite(n) {
     if (spState[n] || !ac || !cardIdx) return Promise.resolve();
     spState[n] = 1;
-    return fetch("sfx/the-" + n + ".mp3?v=gpu60").then((r) => { if (!r.ok) throw new Error("the-" + n); return r.arrayBuffer(); })
+    return fetch("sfx/the-" + n + ".mp3?v=gpu61").then((r) => { if (!r.ok) throw new Error("the-" + n); return r.arrayBuffer(); })
       .then((ab) => new Promise((res, rej) => { const p = ac.decodeAudioData(ab, res, rej); if (p && p.catch) p.catch(rej); }))
       .then((big) => {
         const sr = big.sampleRate, src = big.getChannelData(0);
@@ -430,7 +430,7 @@ const SFX = (() => {
     const vd = voiceEnd > now ? 0.6 : 1; /* đang có lời thoại: hạ tiếng kỹ năng riêng còn ~60% để nghe rõ thoại */
     return playSample(n, (o.vol == null ? 1 : o.vol) * vd, { delay: o.delay, rate: 1, skill: src.id }) !== false;
   }
-  /* ===== Lời thoại thẻ S5 (gpu60): mỗi thẻ S5 có 1 câu thoại 1–4 s, phát MỘT lần ở màn ra mắt =====
+  /* ===== Lời thoại thẻ S5 (gpu61): mỗi thẻ S5 có 1 câu thoại 1–4 s, phát MỘT lần ở màn ra mắt =====
      Cùng cách đóng gói như tiếng thẻ: chỉ mục sfx/thoai.json (id thẻ -> [số sprite, bắt đầu, độ dài]) + sprite sfx/thoai-N.mp3, nạp lười.
      Thiếu tệp -> im lặng, không lỗi. Công tắc "Lời thoại thẻ" lưu ở localStorage "ltd_voice_v1" (mặc định bật); âm lượng theo thanh "Hiệu ứng". */
   const VOICE_KEY = "ltd_voice_v1";
@@ -444,14 +444,14 @@ const SFX = (() => {
   function loadVoiceIndex() {
     if (voiceIdxState) return;
     voiceIdxState = 1;
-    fetch("sfx/thoai.json?v=gpu60").then((r) => { if (!r.ok) throw new Error("thoai.json"); return r.json(); })
+    fetch("sfx/thoai.json?v=gpu61").then((r) => { if (!r.ok) throw new Error("thoai.json"); return r.json(); })
       .then((j) => { voiceIdx = j; voiceIdxState = 2; voiceWait.splice(0).forEach((f) => { try { f(); } catch (e) {} }); })
       .catch(() => { voiceIdxState = 3; voiceWait.length = 0; });
   }
   function loadVoiceSprite(n) {
     if (voiceSp[n] || !ac || !voiceIdx) return Promise.resolve();
     voiceSp[n] = 1;
-    return fetch("sfx/thoai-" + n + ".mp3?v=gpu60").then((r) => { if (!r.ok) throw new Error("thoai-" + n); return r.arrayBuffer(); })
+    return fetch("sfx/thoai-" + n + ".mp3?v=gpu61").then((r) => { if (!r.ok) throw new Error("thoai-" + n); return r.arrayBuffer(); })
       .then((ab) => new Promise((res, rej) => { const p = ac.decodeAudioData(ab, res, rej); if (p && p.catch) p.catch(rej); }))
       .then((big) => {
         const sr = big.sampleRate, src = big.getChannelData(0);
@@ -481,7 +481,7 @@ const SFX = (() => {
   }
   /* Phát câu thoại của thẻ id. o.delay: giây sau lúc gọi (mặc định 0,32 = sau tiếng ra mắt); o.uid: chống phát lại cùng lần ra mắt.
      Trả true nếu đã xếp phát (hoặc đang chờ nạp sprite tối đa 1,4 s), false nếu bỏ qua. */
-  /* gpu60: thoại theo GIAI ĐOẠN. Khoá sprite "<id>@rm" (ra mắt / phóng lớn), "<id>@kn" (phát động kỹ năng), "<id>@dv" (Đầu Ván).
+  /* gpu61: thoại theo GIAI ĐOẠN. Khoá sprite "<id>@rm" (ra mắt / phóng lớn), "<id>@kn" (phát động kỹ năng), "<id>@dv" (Đầu Ván).
      Bản cũ chỉ có "<id>" -> coi như câu ra mắt. */
   function vkey(id, ph) {
     ph = ph || "rm";
