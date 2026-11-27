@@ -84,7 +84,10 @@ try {
   await pg.evaluate(() => SFX.launch(5, { id: "nguyetlong", uid: 9203 }));
   await w(pg, 1000);
   v = await voices(pg);
-  ok(v.length === 1 && v[0] === "voice:namtuocmatna", "3 ra mắt trong ~1,1 s: chỉ thẻ đầu nói: " + JSON.stringify(v));
+  { const d = await pg.evaluate(() => window.__snd.filter(x => x.n.startsWith("voice:")).map(x => [x.n, x.d || 0, x.t]));
+    /* gpu68: câu sau xếp hàng sau câu trước (không chồng, đọc đủ) */
+    const okq = d.length >= 1 && d[0][0] === "voice:namtuocmatna" && d.slice(1).every(x => x[1] > 0.3);
+    ok(okq, "3 ra mắt dồn dập: câu đầu nói ngay, câu sau xếp hàng (trễ > 0,3 s): " + JSON.stringify(d.map(x => [x[0], +x[1].toFixed(2)]))); }
   await w(pg, 1500); await reset(pg);
   await pg.evaluate(() => SFX.launch(5, { id: "tammanu", uid: 9204 }));
   await w(pg, 900);
@@ -135,7 +138,9 @@ try {
   await w(pg, 400);
   v = await voices(pg);
   ok(v.length === 1 && v[0] === "voice:hacdichbinh@kn", "phát động kỹ năng -> câu @kn: " + JSON.stringify(v));
-  ok(await pg.evaluate(() => SFX.voiceLine("tammanu", { uid: 9702 }) === false), "câu trước chưa đọc xong -> câu mới không chen");
+  { await pg.evaluate(() => SFX.voiceLine("tammanu", { uid: 9702 })); await w(pg, 300);
+    const q = await pg.evaluate(() => window.__snd.filter(x => x.n === "voice:tammanu").map(x => x.d || 0));
+    ok(!q.length || q[0] > 0.3, "câu trước chưa đọc xong -> câu mới xếp hàng sau, không chen: " + JSON.stringify(q)); }
   await w(pg, 1600); await reset(pg);
   await pg.evaluate(() => SFX.voiceLine("bavuongtim", { ph: "dv", delay: 0.05 }));
   await w(pg, 400);
