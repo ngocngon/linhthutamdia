@@ -2033,7 +2033,7 @@ function startTurn0(G) {
   G.turn++; G.newLoc = -1; G.depth = 0; if (G.msgs) G.msgs.length = 0; if (G.evs) G.evs.length = 0;
   if (G.pendingDouble) { G.stake = Math.min(8, G.stake * Math.pow(2, G.pendingDouble)); G.pendingDouble = 0; }
   G.omega.p = 0; G.omega.a = 0; /* gpu68-audit2: Linh Môi Sư chỉ nuốt thẻ đặt sau nó TRONG LƯỢT kích hoạt (trước đây kéo sang lượt sau) */
-  for (const s of SIDES) { G.cnt.movedTurn[s] = 0; G.bonusNow[s] = G.nextBonus[s]; if (G.bonusNow[s] > 0) for (const [k] of boardCards(G, other(s))) if (!k.sil && is(G, k, "catlun") && !k.used) { k.used = true; G.bonusNow[s] = 0; break; }
+  for (const s of SIDES) { G.cnt.movedTurn[s] = 0; G.bonusNow[s] = G.nextBonus[s]; if (G.bonusNow[s] > 0) for (const [k] of boardCards(G, other(s))) if (!k.sil && is(G, k, "catlun") && !k.used) { k.used = true; ev(G, "eblock", { uid: k.uid, side: s, n: G.bonusNow[s] }); G.bonusNow[s] = 0; break; }
     G.energy[s] = Math.max(0, G.turn + G.maxE[s] + G.bonusNow[s]); G.nextBonus[s] = 0; }
   for (const s of SIDES) for (const [k, l] of boardCards(G, s)) if (!k.sil) {
     if (is(G, k, "loanxa") && G.bonusNow[other(s)] > 0) { G.bonusNow[other(s)]--; G.energy[other(s)] = Math.max(0, G.energy[other(s)] - 1); G.energy[s]++; ev(G, "egain", { side: s, uid: k.uid, id: k.id, n: 1, from: other(s) }); }
@@ -2043,7 +2043,7 @@ function startTurn0(G) {
     if (G.turn === 3 && G.arishem[s]) { G.maxE[s] += 1; G.energy[s] += 1; ev(G, "egain", { side: s, id: "phanquanthiengioi" }); }
     for (const [k, l] of boardCards(G, s)) if (!k.sil) {
       if (is(G, k, "khoibang")) { G.energy[s] += 1; ev(G, "egain", { side: s, uid: k.uid, id: k.id, n: 1 }); if (G.locs[l].cards[s].length >= cap(G, l)) destroy(G, k, l); }
-      else if (is(G, k, "hoanhanmay")) k.bonus += Math.max(0, G.bonusNow[s]);
+      else if (is(G, k, "hoanhanmay")) { const n = Math.max(0, G.bonusNow[s]); k.bonus += n; if (n) ev(G, "pbuff", { uid: k.uid, side: s, n }); }
       else if (is(G, k, "bato")) G.locs[l].grant[s] = G.turn;
     }
   }
@@ -2055,7 +2055,7 @@ function startTurn0(G) {
     else if (is(G, k, "nhenthuongdang") && boardCards(G, s).some(([c]) => c.bonus > 0)) { G.energy[s] += 1; ev(G, "egain", { side: s, uid: k.uid, id: k.id, n: 1 }); }
   }
   for (const s of SIDES) draw(G, s);
-  for (const s of SIDES) if (G.hand[s].length >= HAND_MAX) for (const [k] of boardCards(G, s)) if (!k.sil && is(G, k, "cuongtri")) k.bonus += 2;
+  for (const s of SIDES) if (G.hand[s].length >= HAND_MAX) for (const [k] of boardCards(G, s)) if (!k.sil && is(G, k, "cuongtri")) { k.bonus += 2; ev(G, "pbuff", { uid: k.uid, side: s, n: 2 }); }
   G.phase = "play";
 }
 function priority(G) {

@@ -147,7 +147,8 @@
       thandong: [["back", "Hàng sau, phía trước là thẻ Lật", { subj: { at: "hand" }, own: [[H.buffAlly, L1], [V.c2, L1], [V.c1, 0]] }]],
       tamkiemmienvien: [["h5", "Tay có thẻ từ 5 năng lượng", { subj: { at: "hand" }, hand: [V.c5, V.c6, V.c1] }]],
       horangkiem: [["deck4", "Bộ bài có thẻ 4 năng lượng", { subj: { at: "hand" } }]],
-      giaohutmau: [], dakhonggian: [],
+      giaohutmau: [["ref", "Có Huyết Sát Vương trên bàn", { subj: { at: "hand" }, own: [["huyetsatvuong", 0], [V.c1, L1]] }]],
+      dakhonggian: [["ref", "Có Cơ Hoàng Vô Cực ở chiến địa khác", { subj: { at: "hand" }, own: [["cohoangvocuc", 2], [V.c1, L1]] }]],
       /* Nhiệm Vụ: dựng tiến độ còn thiếu 1 bước rồi để lượt thử hoàn thành */
       kysituduc: [["q", "Nhiệm Vụ 3/4 · thêm 1 thẻ ta bị tiêu huỷ", { subj: { at: "board", li: L1 }, own: [[V.c1, L1], [V.c2, 0]], plays: [[H.killOwn, L1]], tw: (G, c) => { c.prog = 3; } }]],
       kysitudich: [["q", "Nhiệm Vụ: thẻ trên bàn đã bị trừ ≥5", { subj: { at: "board", li: L1 }, tw: (G) => { G.locs[0].cards.a[0].bonus = -6; }, plays: [[V.c1, 0]] }]],
@@ -400,7 +401,7 @@
         id, n: d.n, h: d.h, t: d.t, x: d.x, seed: r && r.seed != null ? r.seed : seed, block: !!(r && r.block),
         k: r ? r.cand.k : "", kn: r ? r.cand.n : "", spec: r ? r.cand.spec : null,
         effect: !!pick, score: r ? r.score : 0, others: r ? r.others || 0 : 0, self: !!(r && r.self),
-        area: !!(r && ((r.d && r.d.some((x) => x.loc || x.lp || x.en || x.start || x.st)) || (r.evk || []).some((k) => /^(summon|destroy|discard|move|tohand|sil|revive|morph|clone|abcopy|surge)$/.test(k)))),
+        area: !!(r && ((r.d && r.d.some((x) => x.loc || x.lp || x.en || x.start || x.st)) || (r.evk || []).some((k) => /^(summon|destroy|discard|move|tohand|sil|revive|morph|clone|abcopy|surge|top|absorb|hide|lockswap|hbuff)$/.test(k)) || (r.evs || []).some((e) => e.k === "top" && e.a === "peek"))),
         d: r ? r.d.slice(0, 12).map((x) => (x.n ? x.n + (x.u === r.subjUid ? " (thẻ thử)" : "") + ": " : "") + x.w) : [], evk: r ? r.evk || [] : [],
         err: r && r.err ? r.err : (chk ? "luật Đầu Ván sai: " + chk : ""), tried, notes
       };
@@ -719,9 +720,10 @@
     if (lo.pw.length) { row.warn.push("tổng điểm hiển thị lệch " + lo.pw.join(",")); row.bad = true; }
     const hits = keys.filter((k) => HIT_RE.test(k.replace(/^(HX|PA6|SIG) /, "")));
     if (p.effect && p.others === 0 && !p.area && hits.length) row.warn.push("diễn đánh trúng (" + hits.slice(0, 3).join(",") + ") nhưng kỹ năng chỉ tác động chính nó/không nhắm thẻ khác");
-    const skillEv = rec.ev.some((e) => /^(skill|act|destroy|discard|summon|revive|move|morph|abcopy|tohand|sil|surge|egain|loc|locfx|clone|blocked|top|draw|lock|hbuff|hide)$/.test(e.k) && e.k !== "flip");
-    const endOnly = !!(p.spec && p.spec.endGame);
-    if (endOnly) row.info = "ℹ Hiệu ứng KẾT THÚC VÁN: đã kiểm bằng mô phỏng engine (endGame) — bảng chỉ diễn một lượt thường";
+    const skillEv = rec.ev.some((e) => /^(skill|act|destroy|discard|summon|revive|move|morph|abcopy|tohand|sil|surge|egain|loc|locfx|clone|blocked|top|draw|lock|hbuff|hide|pbuff|eblock|absorb|lockswap)$/.test(e.k) && e.k !== "flip");
+    const endOnly = !!(p.spec && p.spec.endGame) || !!p.block;
+    if (p.block) row.info = "ℹ Kỹ năng CẤM/GIỚI HẠN: " + (p.d[0] || "") + " (không có màn diễn riêng — thẻ/hành động bị chặn)";
+    else if (endOnly) row.info = "ℹ Hiệu ứng KẾT THÚC VÁN: đã kiểm bằng mô phỏng engine (endGame) — bảng chỉ diễn một lượt thường";
     if (p.effect && !endOnly && !skillEv && !realDiff) row.warn.push("mô phỏng có tác dụng nhưng lượt thật không thấy sự kiện/kết quả nào");
     const fxN = Object.keys(rec.fx).filter((k) => /^FX\./.test(k)).reduce((a, k) => a + rec.fx[k], 0);
     const visK = keys.filter((k) => !/^PA6 (Q:|shift|plan)/.test(k)); /* mốc xếp lịch của SEQ/PA6 không phải hình vẽ */

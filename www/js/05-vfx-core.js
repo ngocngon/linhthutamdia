@@ -874,6 +874,8 @@ function srcFx(evs,R0){
     else if(ev.k==="egain"&&ev.uid){try{CFX.egain(ev,R0);}catch(e){console.error(e);}}
     else if(ev.k==="hbuff"){try{CFX.hbuff(ev,R0);}catch(e){console.error(e);}}
     else if(ev.k==="hide"){try{CFX.hide(ev);}catch(e){console.error(e);}}
+    else if(ev.k==="pbuff"){try{CFX.pbuff(ev,R0);}catch(e){console.error(e);}}
+    else if(ev.k==="eblock"){try{CFX.eblock(ev,R0);}catch(e){console.error(e);}}
     else if(ev.k==="absorb"){try{CFX.absorb(ev,R0);}catch(e){console.error(e);}}
     else if(ev.k==="lockswap"){try{CFX.lockswap(ev,R0);}catch(e){console.error(e);}}
     else if(ev.k==="egain"&&ev.side==="p"){const lw=document.querySelector(`[data-lane="${ev.li}"] .locw`);if(lw){const a=ctr(lw),o=ctr($("orb"));proj(a,o,"#ffd65a","coin",620,true);fxT(()=>{SFX.fam("egain",{el:null,vol:.9});FX.float(o.x,o.y-30,"+1","#ffd65a");pulse("#orb",[{transform:"scale(1.4)",filter:"brightness(2)"},{transform:"scale(1)"}],480);},620);}}}
@@ -920,8 +922,17 @@ function absorb68(ev,R0){if(reduced)return;const to=document.querySelector(`#boa
     FX.comet(a.x,a.y,q.x,q.y,c);FX.float(a.x,a.y-a.h*.45,"NUỐT +"+ev.v,"#e0b0ff");},D);
   fxT(()=>{FX.glow(q.x,q.y,c,Math.max(60,q.w*1.3),.45);FX.ring(q.x,q.y,"#e0b0ff",Math.max(34,q.w*.85),4);FX.vortex(q.x,q.y,c,12);pulse(`#board [data-mc="${ev.uid}"]`,[{transform:"scale(1)"},{transform:"scale(1.22)",offset:.4},{transform:"scale(1)"}],420);},D+520);
   holdFx(D+1100);}
+/* bị động Đầu Lượt tự cộng sức mạnh (Cuồng Trí, Ông Táo Con…): ấn dưới chân + loé; số trên ô do P6.stat đổi */
+function pbuff68(ev,R0){if(reduced)return;const el=document.querySelector(`#board [data-mc="${ev.uid}"]`);if(!el)return;const p=rc68(el),c="#7dffb0";
+  FX.sigil(p.x,p.y+p.h*.42,c,p.w*.85,6,true,.9);FX.glow(p.x,p.y,c,Math.max(54,p.w*1.1),.4);FX.ring(p.x,p.y,"#c8ffd8",Math.max(30,p.w*.8),3);FX.rise(p.x,p.y+10,c,10);
+  FX.float(p.x,p.y-p.h*.62,"ĐẦU LƯỢT","#c8ffd8");pulse(`#board [data-mc="${ev.uid}"]`,[{transform:"scale(1.16)"},{transform:"scale(1)"}],360);holdFx(800);}
+/* Cát Lún: chặn năng lượng thưởng của đối thủ */
+function eblock68(ev,R0){if(reduced)return;const el=document.querySelector(`#board [data-mc="${ev.uid}"]`);if(!el)return;const p=rc68(el),c="#d8b27a",t=$(ev.side==="p"?"orb":"avFoe");
+  FX.sigil(p.x,p.y+p.h*.42,c,p.w*.85,6,true,.9);FX.glow(p.x,p.y,c,60,.4);pulse(`#board [data-mc="${ev.uid}"]`,[{transform:"scale(1.16)"},{transform:"scale(1)"}],360);
+  if(t){const q=ctr(t);FX.comet(p.x,p.y,q.x,q.y,c);fxT(()=>{FX.shards(q.x,q.y,"#ffd65a");FX.ring(q.x,q.y,c,48,4);FX.float(q.x,q.y-32,"−"+(ev.n||1)+"⚡ THƯỞNG BỊ CHẶN","#ffd59a");},420);}
+  try{SFX.fam("silence",{el});}catch(e){}holdFx(1000);}
 /* qua đối tượng CFX để Bảng Test VFX đếm được */
-CFX.absorb=absorb68;CFX.egain=egain68;CFX.hbuff=hbuff68;CFX.hide=hide68;CFX.lockswap=swap68;CFX.gone=gone68;
+CFX.pbuff=pbuff68;CFX.eblock=eblock68;CFX.absorb=absorb68;CFX.egain=egain68;CFX.hbuff=hbuff68;CFX.hide=hide68;CFX.lockswap=swap68;CFX.gone=gone68;
 
 CFX.shatter=function(r,c,slash){if(reduced||!r||!r.html)return;const g=ghost(r,r.html);if(slash)FX.slash(r.x,r.y,c);
   rmAfter(anim(g,[{transform:"none",filter:"none",opacity:1},{transform:"translateY(-14px) scale(1.08)",filter:"brightness(1.8) sepia(1) saturate(6) hue-rotate(-30deg)",opacity:1,offset:.35},{transform:"translateY(40px) scale(.9) rotate(6deg)",filter:"brightness(.4) blur(3px)",opacity:0}],{duration:700}),g);
