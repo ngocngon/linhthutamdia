@@ -57,7 +57,7 @@ try {
     for (const [k, id, li, side] of spec) { const c = E.mk(G, id, side || "p"); c.rev = true; c.played = true; c.turn = 1; G.locs[li].cards[side || "p"].push(c); U[k] = c.uid; }
     if (U.bato) G.locs[0].grant.p = G.turn;
     render(); return U;
-  }, spec);
+  }, spec).then(async (U) => { await page.waitForFunction(() => !document.querySelector("#board .mc.flip,#board .mc.land"), null, { timeout: 5000 }).catch(() => {}); return U; });
   const ctr = (sel) => page.evaluate((sel) => { const e = document.querySelector(sel); if (!e) return null; const r = e.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; }, sel);
   const cardAt = (u) => ctr(`#board [data-mc="${u}"]`), laneMe = (li) => ctr(`#board [data-lane="${li}"] .side.me`);
   const moves = () => page.evaluate(() => G.q.p.filter(a => a.t === "move").map(a => a.uid + ">" + a.to).join());
