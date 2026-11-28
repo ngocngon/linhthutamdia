@@ -50,7 +50,10 @@ function render0(){
     const pa=E.locPower(G,li,"a"),pp=E.locPower(G,li,"p"),ld=E.lead(G,li);
     const dg=v=>{const L=String(v).length;return L>=4?" d4":L===3?" d3":"";}; /* gpu35: số 3–4 chữ số -> nhãn ×/+ lùi ra ngoài lục giác */
     const mxb=(sd,tot)=>{let sum=0;for(const c of L.cards[sd])if(c.rev)sum+=E.power(G,c,li);if(tot===sum)return "";const r=sum>0?tot/sum:0;return `<i class="mx ${sd} ${tot>sum?"up":"down"}${dg(tot)}">${r>1&&Number.isInteger(r)?"×"+r:(tot>sum?"+":"−")+Math.abs(tot-sum)}</i>`;};
-    const mine=L.cards.p.map(c=>mcHTML(c,li,false)).concat(G.q.p.filter(a=>a.t==="play"&&a.li===li&&a.row==="p").map(stgHTML));
+    /* gpu71 (L1): dời thẻ kiểu Marvel Snap — thẻ có lệnh dời (đang xếp G.q hoặc chờ giải G.pmv) hiện NGAY ở ô đích (sau thẻ đặt lượt này, đúng thứ tự engine đẩy vào), ô cũ trống */
+    const pmv=pmvList(),mvOut=new Set(pmv.map(m=>m.uid));
+    const mine=L.cards.p.filter(c=>!mvOut.has(c.uid)).map(c=>mcHTML(c,li,false)).concat(G.q.p.filter(a=>a.t==="play"&&a.li===li&&a.row==="p").map(stgHTML))
+      .concat(pmv.filter(m=>m.to===li).map(m=>{const f=E.find(G,m.uid);return f&&f.inst.side==="p"?mcHTML(f.inst,li,false).replace('class="mc','class="mc qmvin'):"";}).filter(Boolean));
     const theirs=L.cards.a.map(c=>mcHTML(c,li,false)).concat(G.q.p.filter(a=>a.t==="play"&&a.li===li&&a.row==="a").map(stgHTML));
     const order=[2,3,0,1],top=["","","",""];theirs.forEach((h,i)=>{if(i<4)top[order[i]]=h;});
     const cp=E.cap(G,li),def=LOC[L.id];
@@ -891,6 +894,9 @@ $("board").addEventListener("click",ev=>{
   look=look&&look.kind==="loc"&&look.li===li?null:{kind:"loc",li};render();
 });
 let drag=null,noClick=0,mvDrag=null;
+/* gpu71 (L1): lệnh dời của mình đang chờ (xếp trong lượt hoặc đã nộp, chưa tới bước dời) — chỉ phe mình (lệnh của đối thủ là thông tin ẩn) */
+function pmvList(){if(!G)return [];const o=G.q.p.filter(a=>a.t==="move").map(a=>({uid:a.uid,to:a.to}));if(G.pmv&&G.pmv.p)for(const m of G.pmv.p)if(!o.some(x=>x.uid===m.uid))o.push(m);
+  return o.filter(m=>{const f=E.find(G,m.uid);return f&&f.li!==m.to&&f.inst.side==="p";});}
 /* gpu70 (mục 5): khi kéo dời thẻ, mỗi chiến địa đích hợp lệ hiện số sức mạnh thẻ sẽ được/mất ở đó ("+4"), tính bằng cách MÔ PHỎNG dời trên BẢN SAO
    trạng thái (E.clone, không đụng ván thật, không sự kiện). Màu theo ngôn ngữ P6.stat (xanh có lợi / đỏ bất lợi). Thẻ có kỹ năng "khi di chuyển" luôn hiện (kể cả +0). */
 function mvGains(uid,T){const o={};try{const f0=E.find(G,uid);if(!f0)return o;const hasMv=!f0.inst.sil&&!!(E.MOVED&&E.MOVED[E.ab(f0.inst)]);
@@ -903,8 +909,13 @@ function mvGainHTML(li){const d=mvGainOf(li);if(d==null)return "";
 /* ===== i44 (mục 24): KÉO-THẢ DỜI THẺ TRÊN BÀN — thẻ đã lật của bạn có quyền dời (Dạ Hành, Huyền Cơ, Bà Tơ cho thẻ khác, Áo Choàng Tối, Cú Đu Tơ...)
    kéo tới đúng chiến địa muốn dời. Đích hợp lệ lấy từ E.moveTargets (khớp queueMove + chỗ trống); thẻ dời ngẫu nhiên/bị động vẫn ngẫu nhiên. ===== */
 $("board").addEventListener("pointerdown",ev=>{if(drag)return;const mc=ev.target.closest(".mc[data-mc]:not(.staged):not(.back)");if(!mc||!G||!playing()||(G.online&&OL.sub))return;
-  const uid=+mc.dataset.mc,f=E.find(G,uid);if(!f||f.inst.side!=="p"||!f.inst.rev||E.queued(G,"p",uid,"move"))return;const T=E.moveTargets(G,"p",uid);if(!T.length)return;
-  const r=mc.getBoundingClientRect();drag={mv:true,uid,T,x:ev.clientX,y:ev.clientY,on:false,html:mc.outerHTML,w:r.width,h:r.height,el:mc,pid:ev.pointerId};
+  const uid=+mc.dataset.mc,f=E.find(G,uid);if(!f||f.inst.side!=="p"||!f.inst.rev)return;
+  /* gpu71: thẻ đã có lệnh dời (lệnh mới nhất) kéo lại được: sang chiến địa khác = đổi lệnh, về chiến địa gốc = huỷ dời */
+  let T,re=null;const qm=E.queued(G,"p",uid,"move");
+  if(qm){if(!E.canUnqueue(G,"p",uid,"move"))return;E.unqueue(G,"p",uid,"move");T=E.moveTargets(G,"p",uid);E.queueMove(G,"p",uid,qm.to);re={to:qm.to,from:f.li};T=T.filter(l=>l!==qm.to).concat([f.li]);}
+  else T=E.moveTargets(G,"p",uid);
+  if(!T.length)return;
+  const r=mc.getBoundingClientRect();drag={mv:true,uid,T,re,x:ev.clientX,y:ev.clientY,on:false,html:mc.outerHTML,w:r.width,h:r.height,el:mc,pid:ev.pointerId};
   /* gpu70: cảm ứng — giữ con trỏ trên thẻ (setPointerCapture) để pointermove/up tới đủ khi ngón tay rời thẻ; thẻ có .mvable (touch-action:none) nên trang không cuộn/phóng */
   try{mc.setPointerCapture(ev.pointerId);}catch(e){}});
 function mvMove(ev){const d=drag,dx=ev.clientX-d.x,dy=ev.clientY-d.y;
@@ -915,7 +926,9 @@ function mvMove(ev){const d=drag,dx=ev.clientX-d.x,dy=ev.clientY-d.y;
   document.querySelectorAll("#board .lane.dhov").forEach(e=>{if(e!==ln)e.classList.remove("dhov");});if(ln&&ln.classList.contains("mvok"))ln.classList.add("dhov");}
 function mvEnd(ev,cancel){const d=drag;drag=null;const on=d.on;killGhost();mvDrag=null;if(!on)return;noClick=Date.now()+240;
   const el=cancel||!ev?null:document.elementFromPoint(ev.clientX,ev.clientY),ln=el&&el.closest("[data-lane]"),li=ln?+ln.dataset.lane:-1;
-  if(li>=0&&d.T.includes(li)&&playing()&&E.queueMove(G,"p",d.uid,li))SFX.play("place");
+  if(li>=0&&d.T.includes(li)&&playing()){
+    if(d.re){/* kéo lại thẻ đang chờ dời */if(E.canUnqueue(G,"p",d.uid,"move")){E.unqueue(G,"p",d.uid,"move");if(li===d.re.from)SFX.play("unplay");else if(E.queueMove(G,"p",d.uid,li))SFX.play("place");else E.queueMove(G,"p",d.uid,d.re.to);}}
+    else if(E.queueMove(G,"p",d.uid,li))SFX.play("place");}
   sel=null;look=null;render();}
 function killGhost(){document.querySelectorAll("#board .mc.mvsrc").forEach(e=>e.classList.remove("mvsrc"));document.querySelectorAll("#ghost").forEach(e=>e.remove());document.body.classList.remove("dragging");document.querySelectorAll(".lane.dhov").forEach(e=>e.classList.remove("dhov"));document.querySelectorAll(".hc.dsrc").forEach(e=>e.classList.remove("dsrc"));}
 /* ===== (b) HOÀN TÁC THEO NGĂN XẾP: chỉ hành động mới nhất (đặt / dời / kích hoạt) rút lại được; thẻ đặt trước bị khoá ===== */

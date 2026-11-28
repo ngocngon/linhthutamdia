@@ -39,3 +39,7 @@
 .lpc.dim>.art{opacity:.72}
 @media (min-width:700px){.lpn{bottom:auto;top:50%;left:auto;right:16px;transform:translate(10px,-50%);width:340px;max-height:70vh}.lpn.on{transform:translate(0,-50%)}}
 /* Ô chiến địa đang lộ diện giữ khung: xem 04-vfx-gpu.css (mục gpu51, sửa gpu71). */
+/* gpu71 (L1): thẻ đã kéo dời (chờ giải lượt) nằm sẵn ở ô đích — viền xanh nhạt nhấp nháy nhẹ + nhãn "➜ dời" */
+#board .mc.qmvin{animation:qmvin 1.6s ease-in-out infinite}
+@keyframes qmvin{0%,100%{box-shadow:0 0 0 2px var(--lam,#3fe0ff),0 0 8px rgba(63,224,255,.45)}50%{box-shadow:0 0 0 2px var(--lam,#3fe0ff),0 0 16px rgba(63,224,255,.85)}}
+body.rm #board .mc.qmvin{animation:none;box-shadow:0 0 0 2px var(--lam,#3fe0ff)}

@@ -1695,7 +1695,7 @@ function mcHTML(inst,li,staged){
     if(E.queued(G,"p",inst.uid,"act")){cls+=" qact";tags.push(`<i>KH ✓</i>`);}
     else if(E.ACT[E.ab(inst)]&&!inst.act&&!inst.sil)tags.push(`<i>KH</i>`);
     const mv=E.queued(G,"p",inst.uid,"move");
-    if(mv){cls+=" qmove";tags.push(`<i class="go">➜ ${mv.to+1}</i>`);}
+    if(mv){cls+=" qmove";tags.push(`<i class="go">➜ dời</i>`);if(G.phase==="play"&&E.canUnqueue(G,"p",inst.uid,"move")&&!(G.online&&typeof OL!=="undefined"&&OL.sub))cls+=" mvable";}/* gpu71: thẻ đang chờ dời nằm sẵn ở ô đích (06), kéo lại được */
     else if(G.phase==="play"&&!(G.online&&typeof OL!=="undefined"&&OL.sub)&&E.moveTargets(G,"p",inst.uid).length)cls+=" mvable";/* gpu70: thẻ được dời chủ động -> touch-action:none để kéo bằng ngón tay */
   }else if(live&&E.ACT[E.ab(inst)]&&!inst.act&&!inst.sil)tags.push(`<i>KH</i>`);
   if(inst.sil)tags.push(`<i class="x">✕</i>`);

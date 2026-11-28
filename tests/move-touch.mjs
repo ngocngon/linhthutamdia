@@ -104,6 +104,43 @@ try {
     await page.touchscreen.tap(l.x, l.y); await page.waitForTimeout(200);
     eq(await moves(), U.c + ">2");
   });
+  /* gpu71 (L1): kéo dời kiểu Marvel Snap — thả xong thẻ nằm NGAY ở chiến địa đích (DOM), kết thúc lượt vào đúng chiến địa/ô đó, không nhảy về chỗ cũ */
+  const laneOf = (u) => page.evaluate(u => { const e = document.querySelector(`#board [data-mc="${u}"]`); const l = e && e.closest("[data-lane]"); return l ? +l.dataset.lane : -1; }, u);
+  const slotOf = (u) => page.evaluate(u => { const e = document.querySelector(`#board [data-mc="${u}"]`); const sl = e && e.closest(".slot"); return sl ? [...sl.parentElement.children].indexOf(sl) : -1; }, u);
+  await test("Thả xong: thẻ hiện ngay ở chiến địa đích (ô cũ trống); kết thúc lượt -> engine đúng chiến địa + ô hiển thị, không nhảy về chỗ cũ", async () => {
+    const U = await scene([["c", "dahanh", 2], ["x", "da", 0]]); await page.waitForTimeout(400);
+    await page.evaluate(() => { G.hand.p = []; G.hand.a = []; render(); });
+    await swipe(await cardAt(U.c), await laneMe(0));
+    eq(await moves(), U.c + ">0", "lệnh dời");
+    eq(await laneOf(U.c), 0, "thẻ nằm ngay ở chiến địa đích trong DOM");
+    const sl = await slotOf(U.c); eq(sl, 1, "ô đích ngay sau thẻ đã có");
+    ok(await page.evaluate(u => document.querySelector(`#board [data-mc="${u}"]`).classList.contains("qmvin"), U.c), "có dấu đang dời");
+    eq(await page.evaluate(() => document.querySelectorAll('#board [data-lane="2"] .side.me .mc').length), 0, "ô cũ trống");
+    /* theo dõi DOM suốt lúc giải lượt: thẻ không bao giờ quay về chiến địa cũ */
+    await page.evaluate(u => { window.__jump = 0; window.__jt = setInterval(() => { const e = document.querySelector(`#board [data-mc="${u}"]`); const l = e && e.closest("[data-lane]"); if (l && +l.dataset.lane === 2) window.__jump++; }, 30); document.getElementById("btnEnd").click(); }, U.c);
+    await page.waitForFunction(() => !TURN_BUSY && G.phase === "play", null, { timeout: 120000 });
+    await page.waitForTimeout(400);
+    const r = await page.evaluate(u => { clearInterval(window.__jt); const f = E.find(G, u); return { li: f && f.li, ix: f ? G.locs[f.li].cards.p.indexOf(f.inst) : -1, jump: window.__jump }; }, U.c);
+    eq(r.li, 0, "engine: thẻ ở chiến địa đích"); eq(r.ix, sl, "engine: cùng ô đã hiển thị"); eq(r.jump, 0, "không nhảy về chỗ cũ lúc giải lượt");
+    eq(await laneOf(U.c), 0, "DOM sau lượt");
+  });
+  await test("Kéo lại thẻ đang chờ dời: sang chiến địa khác = đổi lệnh; về chiến địa gốc = huỷ; hoàn tác rút lệnh dời", async () => {
+    const U = await scene([["c", "dahanh", 2]]); await page.waitForTimeout(400);
+    await swipe(await cardAt(U.c), await laneMe(0)); eq(await moves(), U.c + ">0");
+    await swipe(await cardAt(U.c), await laneMe(1)); eq(await moves(), U.c + ">1", "đổi đích"); eq(await laneOf(U.c), 1);
+    await swipe(await cardAt(U.c), await laneMe(2)); eq(await moves(), "", "về gốc = huỷ dời"); eq(await laneOf(U.c), 2);
+    await swipe(await cardAt(U.c), await laneMe(0)); eq(await moves(), U.c + ">0");
+    await page.evaluate(() => undoLastUI()); await page.waitForTimeout(150);
+    eq(await moves(), "", "hoàn tác"); eq(await laneOf(U.c), 2, "hoàn tác -> thẻ về chỗ cũ");
+  });
+  await test("Ô đích đã đầy (tính cả thẻ đặt/dời đang chờ) thì không nhận dời", async () => {
+    const U = await scene([["c", "dahanh", 2], ["a1", "da", 0], ["a2", "da", 0], ["a3", "da", 0]]); await page.waitForTimeout(300);
+    const h = await page.evaluate(() => { const c = E.mk(G, "da", "p"); G.hand.p = [c]; G.energy.p = 10; render(); return E.queuePlay(G, "p", c.uid, 0); });
+    ok(h, "đặt thẻ thứ 4 vào chiến địa 1");
+    eq(await page.evaluate(u => E.moveTargets(G, "p", u).join(), U.c), "1", "chiến địa 1 đã kín (thẻ đặt chờ lật giữ chỗ)");
+    await page.evaluate(u => { G.q.p.length = 0; E.queueMove(G, "p", u, 1); const c = E.mk(G, "da", "p"); G.hand.p = [c]; }, U.c);
+    eq(await page.evaluate(() => [0, 1].map(li => G.locs[li].cards.p.length).join()), "3,0");
+  });
   ok(!errors.length, errors.join("\n"));
 } catch (e) { fails.push("ui: " + e.message); console.error(e); }
 finally { await browser.close(); server.close(); }

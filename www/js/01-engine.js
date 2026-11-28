@@ -1951,7 +1951,7 @@ function canPlay0(G, side, inst, li) {
   if (anyOn(G, side, "comaychien") && !G.locs[li].gone) { let n = G.locs[li].cards[side].length; for (const a of G.q[side]) if (a.t === "play" && a.li === li) n++; return n < cap(G, li) && cost(G, inst, li) <= G.energy[side]; }
   const L = G.locs[li], row = side, id = inst.sil ? "" : inst.id;
   let n = L.cards[row].length, q = 0;
-  for (const a of G.q[side]) if (a.t === "play") { q++; if (a.li === li && a.row === row) n++; }
+  for (const a of G.q[side]) { if (a.t === "play") { q++; if (a.li === li && a.row === row) n++; } else if (a.t === "move" && a.to === li) n++; } /* gpu71: lệnh dời tới đây giữ chỗ (thẻ hiện ngay ở ô đích) */
   if (n >= cap(G, li)) return false;
   if (lon(G, L) && L.id === "swamp" && G.turn === turns(G)) return false;
   if (L.lock[side] === G.turn) return false;
@@ -2005,8 +2005,14 @@ function moveRight(G, side, inst, li) { // "self" | "grant" | null
     && !(is(G, inst, "bato") && !inst.sil && G.sling[side] !== G.turn && !shown(G, li, side).some(k => k !== inst && !k.sil && is(G, k, "bato")))) return "grant";
   return null;
 }
+/* gpu71 (L1): ô trống tính cả lệnh đã xếp trong lượt (thẻ đặt + thẻ dời tới) — kéo dời kiểu Marvel Snap: thẻ nằm ngay ô đích, lúc giải lượt vào đúng ô đó */
+function qSpace(G, li, side) {
+  let n = G.locs[li].cards[side].length;
+  for (const s of SIDES) for (const a of G.q[s] || []) { if (a.t === "play" && a.li === li && a.row === side) n++; else if (s === side && a.t === "move" && a.to === li) n++; }
+  return n < cap(G, li);
+}
 function queueMove(G, side, uid, to) {
-  const f = find(G, uid); if (!f || f.li === to) return false;
+  const f = find(G, uid); if (!f || f.li === to || G.locs[to].gone || !qSpace(G, to, side)) return false;
   const r = moveRight(G, side, f.inst, f.li); if (!r) return false;
   if (r === "cloak" && G.locs[to].cloak !== G.turn && !(G.locs[to].hell && G.locs[to].hell[side] === G.turn)) return false;
   G.q[side].push({ t: "move", uid, to, from: f.li, grant: r === "grant" }); return true;
@@ -2212,6 +2218,8 @@ function beginReveal(G) {
   for (const s of SIDES) G.cnt.playedNow[s] = G.q[s].filter(a => a.t === "play" && a.ok).length;
   const steps = [];
   for (const s of order) for (const a of G.q[s]) steps.push({ s, t: a.t, uid: a.uid, to: a.to, ok: a.ok, grant: a.grant });
+  /* gpu71 (L1): lệnh dời đang chờ giải — giao diện giữ thẻ ở ô đích tới khi bước dời chạy (không nhảy về chỗ cũ) */
+  G.pmv = { p: G.q.p.filter(a => a.t === "move").map(a => ({ uid: a.uid, to: a.to })), a: G.q.a.filter(a => a.t === "move").map(a => ({ uid: a.uid, to: a.to })) };
   G.q = { p: [], a: [] };
   return steps;
 }
@@ -2517,6 +2525,7 @@ function startTurn(G) { startTurn0(G); startExtra(G); kissScan(G); spellFix(G); 
 function doStep(G, st) { const r = doStep0(G, st); kissScan(G); spellFix(G); s6Check(G); empScan(G); if (questScan(G)) empScan(G); return r; }
 function doStep0(G, st) {
   G.depth = 0; if (G.msgs) G.msgs.length = 0; if (G.evs) G.evs.length = 0;
+  if (st.t === "move" && G.pmv && G.pmv[st.s]) G.pmv[st.s] = G.pmv[st.s].filter(m => m.uid !== st.uid); /* gpu71: hết chờ dời */
   if (st.t === "play") {
     if (!st.ok) return false;
     const f = find(G, st.uid); if (!f || f.inst.rev) return false;
@@ -2541,6 +2550,7 @@ function doStep0(G, st) {
   return false;
 }
 function beginEndTurn(G) {
+  G.pmv = null; /* gpu71: mọi bước đặt/dời đã giải */
   const steps = [], order = [G.first || "p", other(G.first || "p")];
   for (const s of order) for (let li = 0; li < 3; li++) for (const inst of G.locs[li].cards[s]) {
     if (inst.rev && !inst.sil && inst.et !== G.turn && inst.side === s && END[ab(inst)]) steps.push({ t: "end_card", uid: inst.uid, s });
@@ -2921,7 +2931,7 @@ function prov(G, c) {
 function moveTargets(G, side, uid) {
   const f = find(G, uid); if (!f) return [];
   const r = moveRight(G, side, f.inst, f.li); if (!r) return [];
-  return [0, 1, 2].filter(to => to !== f.li && !G.locs[to].gone && space(G, to, side) && (r !== "cloak" || G.locs[to].cloak === G.turn || (G.locs[to].hell && G.locs[to].hell[side] === G.turn)));
+  return [0, 1, 2].filter(to => to !== f.li && !G.locs[to].gone && qSpace(G, to, side) && (r !== "cloak" || G.locs[to].cloak === G.turn || (G.locs[to].hell && G.locs[to].hell[side] === G.turn)));
 }
 
 /* gpu69 (làn A, hoạt cảnh): sự kiện cho hiệu ứng — CHỈ ghi khi G.evs bật (không đổi luật chơi)
