@@ -1,0 +1,32 @@
+/* ==================== gpu71 (làn C): TUYỆT KỸ DIỆN RỘNG S5 (19-mass.js) ====================
+   Chỉ transform/opacity được hoạt ảnh; viền/bóng là TĨNH. Mọi lớp phủ bị xoá khi diễn xong. */
+.msarea, .msghost, .msprop, .mshead, .mscnt, .mspile { position: fixed; pointer-events: none; will-change: transform, opacity; transform-origin: 50% 50%; }
+/* khung sân khấu: viền sáng theo hệ bao vùng bị tác động */
+.msarea { z-index: 31; border-radius: 14px;
+  box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--c, #ffd65a) 85%, #fff), inset 0 0 26px color-mix(in srgb, var(--c, #ffd65a) 45%, transparent), 0 0 18px color-mix(in srgb, var(--c, #ffd65a) 55%, transparent);
+  background: radial-gradient(ellipse at 50% 50%, color-mix(in srgb, var(--c, #ffd65a) 10%, transparent), rgba(6, 4, 16, .18) 75%); }
+/* ảnh nhân vật hiện mờ khổng lồ */
+.msghost { z-index: 32; }
+.msghost > img { display: block; width: 100%; height: 100%; object-fit: contain; object-position: 50% 100%; filter: drop-shadow(0 0 10px var(--c, #ffd65a)) brightness(1.15); }
+/* đạo cụ tuyệt kỹ */
+.msprop { z-index: 35; }
+.msprop > img { display: block; width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 0 2px #fff) drop-shadow(0 0 12px var(--c, #ffd65a)); }
+.msprop.med { border-radius: 50%; background: radial-gradient(circle, rgba(255, 255, 255, .5) 0, color-mix(in srgb, var(--c, #ffd65a) 70%, transparent) 58%, transparent 71%); }
+.msprop.med > img { width: 76%; height: 76%; margin: 12%; border-radius: 50%; object-fit: cover; object-position: 50% 20%; box-shadow: 0 0 0 2px #fff4c8, 0 0 0 4px var(--c, #ffd65a), 0 0 16px var(--c, #ffd65a); filter: none; }
+.msprop.ult { z-index: 33; }
+/* tên tuyệt kỹ + phạm vi */
+.mshead, .mscnt { z-index: 36; display: flex; align-items: center; justify-content: center; }
+.mshead > b { display: inline-flex; flex-direction: column; align-items: center; gap: 1px; white-space: nowrap; padding: 3px 10px 4px; border-radius: 10px;
+  background: linear-gradient(180deg, rgba(30, 18, 52, .94), rgba(10, 6, 22, .94)); box-shadow: 0 0 0 1.5px var(--c, #ffd65a), 0 0 12px color-mix(in srgb, var(--c, #ffd65a) 60%, transparent); }
+.mshead em { font: italic 900 14px/1.1 var(--f-body, system-ui), sans-serif; color: #fff7dc; letter-spacing: .6px; text-shadow: 0 0 6px var(--c, #ffd65a); }
+.mshead i { font: 800 10px/1.1 var(--f-body, system-ui), sans-serif; font-style: normal; color: var(--c, #ffd65a); letter-spacing: 1px; }
+/* bộ đếm k/n */
+.mscnt > b { white-space: nowrap; font: 900 13px/1.2 var(--f-body, system-ui), sans-serif; color: #eafff4; padding: 2px 9px 3px; border-radius: 10px;
+  background: linear-gradient(180deg, rgba(24, 24, 44, .95), rgba(8, 8, 20, .95)); box-shadow: 0 0 0 1.5px var(--c, #ffd65a), 0 0 10px color-mix(in srgb, var(--c, #ffd65a) 55%, transparent); text-shadow: 0 1px 0 #000; }
+.mscnt em { font-style: normal; display: inline-block; color: #fff; font-size: 16px; }
+.mscnt i { font-style: normal; color: #ffe7a0; }
+.mspile { z-index: 36; }
+/* nhãn loại hiệu ứng cạnh lá */
+.stchip.mslab { color: #fff; background: rgba(10, 8, 22, .92); box-shadow: 0 0 0 1.5px var(--c, #ffd65a), 0 0 8px var(--c, #ffd65a); }
+body.rm .msarea, body.rm .msghost, body.rm .msprop, body.rm .mshead, body.rm .mscnt, body.rm .mspile { display: none !important; }
+.mspile .dkp > b { bottom: auto; top: 100%; margin: 8px 0 0; }
