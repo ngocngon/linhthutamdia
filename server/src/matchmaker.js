@@ -1,5 +1,12 @@
 import { DurableObject } from "cloudflare:workers";
 import { hsx, cleanName } from "./util.js";
+import { okDeck } from "./authgame.js";
+
+/* Chế độ trận online (biến môi trường ONLINE_MODE):
+   "auth" (mặc định) — máy chủ giữ trạng thái trận khi CẢ HAI client hỗ trợ (seek.cap >= 1); client cũ -> lockstep cũ (dự phòng)
+   "auth-only"       — chỉ ghép client hỗ trợ; client cũ nhận lỗi update_required
+   "lockstep"        — tắt chế độ máy chủ giữ trạng thái, dùng lockstep cũ cho mọi trận */
+export function onlineMode(env) { const m = String((env && env.ONLINE_MODE) || "auth").trim(); return m === "lockstep" || m === "auth-only" ? m : "auth"; }
 
 const MAX_MSG = 8 * 1024;
 const RECENT_MS = 30 * 60 * 1000;
@@ -50,7 +57,9 @@ export class Matchmaker extends DurableObject {
       const code = typeof m.code === "string" ? m.code.replace(/[^a-zA-Z0-9_-]/g, "").slice(0, 24) : "";
       const keys = {};
       if (typeof m.keys === "object" && m.keys) for (const k of ["d", "s"]) if (typeof m.keys[k] === "string" && PKEY_RE.test(m.keys[k])) keys[k] = m.keys[k];
-      ws.serializeAttachment({ ...att, seeking: true, mode, code, keys, t0: Date.now(), pres: cleanPres(m.pres, att.uid, att.name) });
+      const cap = Number.isInteger(m.cap) && m.cap > 0 ? Math.min(m.cap, 9) : 0;
+      if (onlineMode(this.env) === "auth-only" && !cap) { try { ws.send('{"type":"error","error":"update_required"}'); } catch {} return; }
+      ws.serializeAttachment({ ...att, seeking: true, mode, code, keys, cap, t0: Date.now(), pres: cleanPres(m.pres, att.uid, att.name) });
       await this.tryPair();
       if (this.seekers().length) await this.ctx.storage.setAlarm(Date.now() + 2000);
     }
@@ -97,7 +106,15 @@ export class Matchmaker extends DurableObject {
     const mid = "m-" + hsx(host.p + "|" + guest.p + "|" + host.t0);
     const stub = this.env.MATCH.get(this.env.MATCH.idFromName(mid));
     const mk = (z) => ({ uid: z.s.a.uid, name: z.s.a.name, rating: z.s.a.rating, peer: z.p, keys: z.s.a.keys || {} });
-    const r = await stub.fetch("https://match/init", { method: "POST", body: JSON.stringify({ mid, mode: x.a.mode, players: [mk(host), mk(guest)] }) });
+    /* máy chủ giữ trạng thái trận: cả hai client hỗ trợ + bộ bài hợp lệ; hạt giống do máy chủ sinh, KHÔNG gửi cho client */
+    const auth = onlineMode(this.env) !== "lockstep" && host.s.a.cap >= 1 && guest.s.a.cap >= 1;
+    const init = { mid, mode: x.a.mode, players: [mk(host), mk(guest)] };
+    if (auth) {
+      const bad = [host, guest].filter((z) => !okDeck(z.s.a.pres && z.s.a.pres.dk));
+      if (bad.length) { for (const z of bad) { try { z.s.ws.send('{"type":"error","error":"bad_deck"}'); } catch {} z.s.ws.serializeAttachment({ ...z.s.a, seeking: false }); } return; }
+      init.auth = { seed: crypto.getRandomValues(new Uint32Array(1))[0], decks: { p: host.s.a.pres.dk, a: guest.s.a.pres.dk } };
+    }
+    const r = await stub.fetch("https://match/init", { method: "POST", body: JSON.stringify(init) });
     if (!r.ok) { used_fail(x, y); return; }
     // nhớ các trận vừa ghép (30 phút) để trang quản trị ước tính số trận đang diễn ra
     try {
@@ -106,9 +123,10 @@ export class Matchmaker extends DurableObject {
       rec.push({ mid, t: now });
       await this.ctx.storage.put("recent", rec.slice(-500));
     } catch {}
-    const info = (z) => ({ peer: z.p, t0: z.t0, pres: z.s.a.pres });
+    /* trận máy chủ giữ trạng thái: không gửi danh sách bộ bài của đối thủ */
+    const info = (z, isOpp) => ({ peer: z.p, t0: z.t0, pres: auth && isOpp ? { ...z.s.a.pres, dk: [] } : z.s.a.pres });
     for (const [me, opp] of [[host, guest], [guest, host]]) {
-      try { me.s.ws.send(JSON.stringify({ type: "found", mid, role: me === host ? "host" : "guest", me: info(me), opp: info(opp) })); } catch {}
+      try { me.s.ws.send(JSON.stringify({ type: "found", mid, role: me === host ? "host" : "guest", me: info(me, false), opp: info(opp, true), auth: auth ? 1 : 0 })); } catch {}
       me.s.ws.serializeAttachment({ ...me.s.a, seeking: false });
     }
   }

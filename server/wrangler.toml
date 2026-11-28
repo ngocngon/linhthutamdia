@@ -11,6 +11,8 @@ ALLOWED_ORIGINS = "https://tamdia.pages.dev,https://localhost,capacitor://localh
 GOOGLE_CLIENT_ID = ""
 # Đăng ký mở mặc định bật; quản trị bật/tắt ở /admin (lưu trong D1, ưu tiên hơn biến này). Đặt "0" để mặc định tắt.
 REGISTER_OPEN = "1"
+# Trận online: "auth" = máy chủ giữ trạng thái (mặc định, client cũ vẫn chơi lockstep), "auth-only" = chặn client cũ, "lockstep" = tắt chế độ máy chủ giữ trạng thái.
+ONLINE_MODE = "auth"
 
 [[durable_objects.bindings]]
 name = "MATCHMAKER"

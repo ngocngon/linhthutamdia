@@ -24,6 +24,8 @@ jobs:
         run: node tests/rules-revive.mjs
       - name: Hoàn tác trong lượt theo ngăn xếp
         run: node tests/rules-undo.mjs
+      - name: Trận online do máy chủ giữ trạng thái (khớp engine, không lộ thông tin ẩn, kết nối lại)
+        run: AUTH_GAMES=40 node tests/online-auth.mjs
 
   ui-smoke:
     runs-on: ubuntu-latest
