@@ -6,7 +6,7 @@
      "mốc trúng" (T) của màn diễn: dời lịch plan8 qua P6.shift, giữ tổng điểm qua pwHold, ẩn lá mới bằng một luật CSS,
      giữ số năng lượng cũ trên lá trên tay. Không đổi luật chơi.
    - Thẻ S5 đang xuất hồn PA6: đạo cụ bay ra từ hồn; hồn chờ (selfT) tới khi đạo cụ quay về. Thẻ khác: hồn nhỏ ló khỏi thẻ.
-   - Chạm màn hình: tua nhanh (mọi kết quả hiện ngay, lớp phủ dọn sạch). Mức Nhẹ: ít hạt, không hồn nhỏ, không nét mực.
+   - Nút "Bỏ qua" (gpu71, thay chạm màn hình): tua nhanh (mọi kết quả hiện ngay, lớp phủ dọn sạch). Mức Nhẹ: ít hạt, không hồn nhỏ, không nét mực.
      Giảm chuyển động / tua lượt máy (FFTURN): đường cũ.
    Hiệu năng: DOM chỉ đổi transform/opacity (WAAPI); ánh sáng/hạt/vệt ở lớp WebGL của PA6 (có trần); nét mực ở một canvas
    2D chỉ tồn tại khi đang vẽ. Thêm thẻ: SG.add("<id>", { kind:"rev"|"on", T, dur, run, ... }). */
@@ -516,10 +516,10 @@
   /* T và dur (ms gốc) tính lúc phát hiện để dời lịch đúng */
   function timing(P) { P.T = typeof P.def.T === "function" ? P.def.T(P) : P.def.T; P.dur = typeof P.def.dur === "function" ? P.def.dur(P) : P.def.dur; }
 
-  /* chạm màn hình: tua nhanh màn diễn (chuỗi PA6 nếu có tự tua phần của nó) */
-  document.addEventListener("pointerdown", () => {
+  /* nút "Bỏ qua": tua nhanh màn diễn (chuỗi PA6 nếu có tự tua phần của nó) */
+  /* gpu71 (L1): bỏ chạm-màn-hình-để-tua; chỉ nút "Bỏ qua" (06 FFTURN.skipNow) */
+  if (W.FFTURN && FFTURN.reg) FFTURN.reg(() => {
     if (!ACT.size) return;
-    try { noClick = Date.now() + 450; } catch (e) {}
     const chainLive = (() => { try { const ch = P6.ch(); return !!(ch && !ch.dead); } catch (e) { return false; } })();
     for (const j of [...ACT]) j.fin(true);
     if (!chainLive) {
@@ -541,7 +541,7 @@
     try { P6.statEnd(); } catch (e) {}
     try { FX_UNTIL = Math.min(FX_UNTIL, performance.now() + 520 * SPD); } catch (e) {}
     tap("sig:skip", {});
-  }, true);
+  });
   SG.clean = () => { for (const j of [...ACT]) j.fin(true); HID.clear(); hsSync(); document.querySelectorAll(".sgp,.sgsoul,.sga,.sgx,.sgseal,.sgvx,.sgbk,.sgsw,.sgcv").forEach((e) => e.remove()); CV.L.length = 0; cvGC(); };
 
   /* ============================== 12 MÀN DIỄN ============================== */

@@ -1,0 +1,41 @@
+/* gpu71 (L1, mục a): bảng thông tin chiến địa (js/19-loc-info.js). Nằm trên mọi lớp hiệu ứng (≤48), dưới nút "Bỏ qua" (51).
+   Không nhận chạm (trừ ✕) -> không chặn kéo thẻ / chạm tay bài / chạm chiến địa khác. */
+.lpn{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 104px);transform:translate(-50%,10px);z-index:50;width:min(94vw,420px);max-height:52vh;overflow:hidden;
+  box-sizing:border-box;padding:10px 12px 10px;border-radius:16px;pointer-events:none;opacity:0;transition:opacity .16s ease,transform .16s ease;
+  color:#eef0ff;font:500 12px/1.35 "Be Vietnam Pro",system-ui,sans-serif;
+  background:linear-gradient(180deg,rgba(26,24,70,.96),rgba(10,10,34,.97));box-shadow:0 0 0 1.5px rgba(150,170,255,.55),0 10px 30px rgba(0,0,0,.6)}
+.lpn.on{opacity:1;transform:translate(-50%,0)}
+.lpn[hidden]{display:none}
+.lpn .lpx{position:absolute;right:6px;top:6px;width:30px;height:30px;border:0;border-radius:50%;pointer-events:auto;cursor:pointer;
+  background:rgba(255,255,255,.12);color:#fff;font:700 15px/30px system-ui,sans-serif;padding:0;-webkit-tap-highlight-color:transparent}
+.lph{display:flex;gap:10px;align-items:flex-start;padding-right:30px}
+.lpi{flex:0 0 auto;width:86px;height:56px;border-radius:9px;background:#141a44 center/cover no-repeat;box-shadow:0 0 0 2px var(--lc,#6a6cf0),0 0 10px color-mix(in srgb,var(--lc,#6a6cf0) 60%,transparent)}
+.lpi.q{display:grid;place-items:center;font:800 26px/1 system-ui,sans-serif;color:#a8c5ff;
+  background:repeating-linear-gradient(135deg,rgba(127,210,255,.07) 0 6px,rgba(8,12,38,.07) 6px 12px),radial-gradient(circle at 50% 45%,#1d2764,#090d2a 85%)}
+.lpd{min-width:0}
+.lpd .lpnm{display:block;font-size:14.5px;font-weight:800;color:#fff3c4}
+.lpd small{color:#9fa8d8;font-size:10.5px}
+.lpd p{margin:3px 0 0;font-size:11.5px;color:#dfe3ff}
+.lps{display:flex;align-items:center;justify-content:center;gap:10px;margin:8px 0 4px}
+.lps>i{color:#7c86c0;font-style:normal}
+.lpsc{display:flex;align-items:center;gap:6px}
+.lpsc b{min-width:34px;height:28px;padding:0 6px;box-sizing:border-box;display:grid;place-items:center;border-radius:8px;font:800 17px/1 system-ui,sans-serif;color:#fff}
+.lpsc.me b{background:linear-gradient(160deg,#4fb6ff,#1554c8)}
+.lpsc.foe b{background:linear-gradient(160deg,#ff8a6e,#b8202c)}
+.lpsc.lead b{box-shadow:0 0 0 2px #ffd65a,0 0 12px #ffd65a}
+.lpsc small{color:#b9c0ea;font-size:11px}
+.lpr{margin-top:5px}
+.lpr>small{display:block;color:#9fa8d8;font-size:10.5px;margin-bottom:3px}
+.lpr.me>small{color:#8fd0ff}.lpr.foe>small{color:#ffab98}
+.lpg{display:flex;gap:5px;flex-wrap:wrap;min-height:20px}
+.lpg em{color:#7c86c0;font-size:11px}
+.lpc{position:relative;display:block;width:44px;height:58px;flex:0 0 auto;border-radius:7px;overflow:hidden;box-sizing:border-box}
+.lpc.gc.mini{aspect-ratio:auto;padding:0}
+.lpc.gc.mini>.art{left:1px;top:1px;width:calc(100% - 2px);height:calc(100% - 2px)}
+.lpc .pwh{position:absolute;right:-1px;bottom:-1px;min-width:18px;height:18px;font-size:11.5px}
+.lpc .lpn-n{display:none}
+.lpc.bk{border:2px solid rgba(160,170,230,.6);background:linear-gradient(160deg,#3a3f86,#151a44)}
+.lpc .lpt{position:absolute;left:0;right:0;top:0;padding:1px 0;font:700 8.5px/1.1 system-ui,sans-serif;font-style:normal;text-align:center;color:#fff;background:rgba(10,10,30,.78)}
+.lpc.dim>.art{opacity:.72}
+@media (min-width:700px){.lpn{bottom:auto;top:50%;left:auto;right:16px;transform:translate(10px,-50%);width:340px;max-height:70vh}.lpn.on{transform:translate(0,-50%)}}
+/* Ô chiến địa đang lộ diện giữ khung: xem 04-vfx-gpu.css (mục gpu51, sửa gpu71). */

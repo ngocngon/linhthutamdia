@@ -892,7 +892,7 @@
      gpu62: HỒN XUẤT VÒNG 3 — DT-B (Duy Trì bám lần đầu), HX-14 Hồi sinh, HX-15 Sao chép kỹ năng, HX-16 Biến đổi thẻ,
      HX-19 Năng lượng, HX-20 Cuối lượt. Cùng cổng: thẻ hành động (nguồn; hồi sinh/biến đổi: thẻ bị tác động hoặc nguồn) có ảnh tư thế,
      trừ khi ltd_hx_all=1. Mức Nhẹ: DT-B/HX-20 bản rẻ (không ló / ít hạt); HX-14/15/16/19 về đường cũ. Giảm chuyển động / FFTURN: đường cũ.
-     Chạm màn hình: tua nhanh (mọi đòn đã dời lịch trúng ngay, lớp phủ dọn sạch).
+     Nút "Bỏ qua" (gpu71, thay chạm màn hình): tua nhanh (mọi đòn đã dời lịch trúng ngay, lớp phủ dọn sạch).
      ====================================================================================================== */
   const R3 = new Set(); /* việc vòng 3 đang diễn (để chạm-tua-nhanh khi không có chuỗi PA6) */
   function job3(end, ms) { const j = job((f) => { R3.delete(j); end(f); }, ms); R3.add(j); return j; }
@@ -1503,7 +1503,7 @@
     if (nrg19({ el, id: e.id, n: 1, e0: e1 - 1, e1: () => (G ? G.energy.p : e1), max: 0 })) EGH = performance.now();
   }
 
-  /* ---------- tua nhanh (chạm màn hình) khi việc vòng 3 đang diễn mà không có chuỗi PA6 ---------- */
+  /* ---------- tua nhanh (nút "Bỏ qua") khi việc vòng 3 đang diễn mà không có chuỗi PA6 ---------- */
   function r3skip() {
     for (const j of [...R3]) j.fin(true);
     const P = W.PLAN8;
@@ -1525,12 +1525,12 @@
     tap("HX3:skip", {});
   }
   HXG.skip3 = r3skip;
-  document.addEventListener("pointerdown", () => {
+  /* gpu71 (L1): bỏ chạm-màn-hình-để-tua; chỉ nút "Bỏ qua" (06 FFTURN.skipNow) */
+  if (W.FFTURN && FFTURN.reg) FFTURN.reg(() => {
     if (!R3.size) return;
     try { const ch = P6.ch(); if (ch && !ch.dead) return; } catch (e) {}
-    try { noClick = Date.now() + 450; } catch (e) {}
     r3skip();
-  }, true);
+  });
 
   /* ---------- sự kiện của bước đang diễn (HX-05 hồi sinh cần biết thẻ nguồn; vòng 3: hồi sinh / biến đổi / năng lượng) ---------- */
   {

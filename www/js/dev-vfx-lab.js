@@ -491,7 +491,7 @@
       const f0 = E[fn]; SAVED.e[fn] = f0;
       E[fn] = function () { const r = f0.apply(this, arguments); try { const R = ST.rec; if (R && typeof G !== "undefined" && arguments[0] === G && G.evs) for (const e of G.evs) R.ev.push(e); } catch (e) {} return r; };
     }
-    /* bảng thử: máy không rút lui / không cược, không tự tua nhanh lượt (giữ đúng màn diễn đầy đủ) */
+    /* bảng thử: máy không rút lui / không cược, không hiện nút "Bỏ qua" của lượt (giữ đúng màn diễn đầy đủ) */
     SAVED.retreat = E.aiWantsRetreat; SAVED.snap = E.aiWantsSnap;
     E.aiWantsRetreat = () => false; E.aiWantsSnap = () => false;
     if (W.FFTURN) { SAVED.ffs = W.FFTURN.start; W.FFTURN.start = () => {}; }
@@ -828,8 +828,8 @@
     else { ST.mode = "one"; ST.oneQ = id; skipCur(); }
     menu(false); prog(); loop();
   }
-  function skipCur() { /* thẻ đang diễn: chạm tua nhanh như người chơi, vòng lặp tự sang thẻ được chọn */
-    try { if (!idle()) D.body.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true })); } catch (e) {}
+  function skipCur() { /* thẻ đang diễn: tua phần đang diễn như nút "Bỏ qua" (gpu71: không còn chạm-màn-hình-để-tua), vòng lặp tự sang thẻ được chọn */
+    try { if (!idle() && W.FFTURN && W.FFTURN.skipNow) W.FFTURN.skipNow(); } catch (e) {}
   }
   function menu(on) {
     const dr = $id("vfxLabDrawer"); if (!dr) return;

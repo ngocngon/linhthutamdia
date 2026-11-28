@@ -9,7 +9,7 @@
    (D) nhân vật bay về, xoáy chui vào khung, khung sáng lại; heroDown hạ thẻ đúng ô + vòng bụi.
    Hiệu năng: chỉ transform/opacity trên DOM; ánh sáng/vệt/hạt/sóng vẽ ở lớp WebGL (GLFX, hoà trộn cộng) có trần hạt theo mức máy; thiếu WebGL -> lớp 2D FX.
    Mức máy "Đầy đủ / Vừa / Nhẹ": tự chọn theo khung hình đo đầu trận (08) hoặc chọn tay trong Cài đặt (localStorage "ltd_p6lv").
-   Chạm màn hình trong lúc chuỗi diễn: tua nhanh (mọi đòn còn lại trúng ngay, nhân vật chui về, thẻ hạ) — thoại vẫn nói tiếp. */
+   Nút "Bỏ qua" (chỉ hiện khi lượt diễn > 60 s, gpu71 — không còn chạm màn hình để tua): tua nhanh (mọi đòn còn lại trúng ngay, nhân vật chui về, thẻ hạ) — thoại vẫn nói tiếp. */
 /* ===== gpu68 (vis): LUẬT TRÌNH DIỄN MỘT THẺ — BẮT BUỘC, DO SEQ (dưới đây) CƯỠNG CHẾ =====
    [A] RA MẮT: phóng lớn + lật mặt + câu thoại ra mắt + chú thích kỹ năng (ultShow 05 / slotShow) — đọc trọn, không gì đè lên.
    [B] KỸ NĂNG: hồn/đạo cụ rời thẻ -> tới mục tiêu -> kết quả (số đổi theo ngôn ngữ đổi chỉ số P6.stat, nhãn nhỏ cạnh ô số).
@@ -20,7 +20,7 @@
    2. Thứ tự một bước có thẻ ra mắt: nhịp lật trên bàn (part 1) -> [A] (từng thẻ một) -> [B] (part 2). Bước chỉ có thẻ lật (Duy Trì) cũng vậy.
    3. Một kỹ năng nhiều mục tiêu: mọi mục tiêu trúng CÙNG LÚC (gom mốc trúng, HXG.shift/plan8 nhóm); đổi chỉ số so le ≤90 ms/lá.
    4. Chữ không chồng: bong bóng thoại [A] tắt trước khi [B] bắt đầu; bong bóng kỹ năng [B] đặt phía xa mục tiêu; không chữ to giữa màn khi đổi số.
-   5. Chạm màn hình: tua phần đang diễn ([A] thu về ngay -> [B] chạy; [B] trúng hết ngay, số cuối đặt đúng). Tua lượt máy (FFTURN) CHỈ khi phần diễn của lượt đã quá 60 s (06, FF_AFTER) — dưới 60 s mọi hiệu ứng + câu thoại diễn đủ:
+   5. gpu71: KHÔNG chạm-màn-hình-để-tua. Nút "Bỏ qua" chỉ hiện khi phần diễn của lượt đã quá 60 s (06, FF_AFTER); bấm -> tua phần đang diễn ([A] thu về ngay -> [B] chạy; [B] trúng hết ngay, số cuối đặt đúng) và phần còn lại của lượt chạy tốc độ tua (FFTURN.on). Dưới 60 s mọi hiệu ứng + câu thoại diễn đủ:
       [A]/[B] rút ngắn nhưng thứ tự giữ nguyên. Giảm chuyển động: không [A], kết quả hiện thẳng. */
 (function () {
   "use strict";
@@ -627,7 +627,7 @@
     holdFx(E - (performance.now() - ch.t0) / SPD + 80);
     pendOn(ch);
     if (stops.length) camera(ch, stops, D0, A0, R);
-    /* tua nhanh: chạm màn hình */
+    /* lưới an toàn: chuỗi không tự kết thúc */
     ch.wd = setTimeout(() => { if (CH === ch) end(ch, true); }, (E + 4000) * SPD);
     tap("plan", { stops: stops.map((s) => ({ t: s.t, n: s.list.length })), R, E, self: ch.selfT });
   };
@@ -832,14 +832,13 @@
       return r0(s);
     };
   }
-  /* chạm màn hình khi chuỗi đang diễn: tua nhanh sạch sẽ */
+  /* nút "Bỏ qua" khi chuỗi đang diễn: tua nhanh sạch sẽ */
   P6.skip = function () {
     const ch = CH;
     if (!ch || ch.dead || ch.pending || ch.skipped) return false;
     ch.skipped = 1;
     tap("S:skip", { uid: ch.uid });
     if (W.HXG) { try { HXG.skip(); } catch (e) {} }
-    try { noClick = Date.now() + 450; } catch (e) {}
     const P = W.PLAN8;
     if (P && P.tms) {
       for (const [s, tm] of P.tms) {
@@ -870,7 +869,8 @@
     try { FX_UNTIL = Math.min(FX_UNTIL, performance.now() + 520 * SPD); } catch (e) {}
     return true;
   };
-  document.addEventListener("pointerdown", () => { if (CH && !CH.pending && !CH.dead && !CH.dived) P6.skip(); }, true);
+  /* gpu71 (L1): bỏ chạm-màn-hình-để-tua; chỉ nút "Bỏ qua" (06 FFTURN.skipNow, hiện khi lượt diễn > 60 s) */
+  if (W.FFTURN && FFTURN.reg) FFTURN.reg(() => { if (CH && !CH.pending && !CH.dead && !CH.dived) P6.skip(); });
   /* gpu61: bộ công cụ dùng chung cho 16-hx.js (Hồn Xuất vòng 2) */
   P6.kit = { E6, kN, rnd, shake, soulUrl, TF, soulAnim, setPose, fly, after, scheduled, T6, gl, ch: () => CH };
 })();

@@ -71,8 +71,8 @@ try {
       const st = await page.evaluate(() => ({ ev: window.__p6.map(x => x.k), busy: TURN_BUSY, ph: G.phase, over: !!G.result || G.phase === "over" }));
       for (let i = seen; i < st.ev.length; i++) { const k = st.ev[i]; if (PH[k] && (cnt[PH[k]] || 0) < (MAXN[PH[k]] || 1)) { await page.waitForTimeout(DLY[k] || 0); await snap(PH[k], t); } }
       seen = st.ev.length;
-      /* tua nhanh: lượt 3 trở đi, chạm màn hình ngay sau khi nhân vật xuất hồn lần đầu */
-      if (t >= 3 && !tapped && st.ev.lastIndexOf("B:pop") >= 0 && st.ev.lastIndexOf("B:pop") > st.ev.lastIndexOf("D:land")) { tapped = 1; await page.waitForTimeout(250); await page.evaluate(() => document.body.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true }))); console.log("  chạm tua nhanh (lượt " + t + ")"); }
+      /* tua nhanh (gpu71: nút "Bỏ qua" = FFTURN.skipNow, không còn chạm màn hình): lượt 3 trở đi, ngay sau khi nhân vật xuất hồn lần đầu */
+      if (t >= 3 && !tapped && st.ev.lastIndexOf("B:pop") >= 0 && st.ev.lastIndexOf("B:pop") > st.ev.lastIndexOf("D:land")) { tapped = 1; await page.waitForTimeout(250); await page.evaluate(() => FFTURN.skipNow()); console.log("  chạm tua nhanh (lượt " + t + ")"); }
       if (st.over || (!st.busy && st.ph === "play" && Date.now() - t0 > 1500)) break;
       await page.waitForTimeout(40);
     }
@@ -112,7 +112,7 @@ try {
   const p95 = ch.length ? ch[Math.floor(ch.length * 0.95)] : 0, long = ch.filter(x => x > 50).length;
   console.log(`khung hình trong chuỗi: ${ch.length} khung, p50 ${ch[Math.floor(ch.length / 2)]?.toFixed(1)} ms, p95 ${p95.toFixed(1)} ms, >50 ms: ${long}; hạt tối đa ${r.st.max} (WebGL ${r.st.gl}, mức ${r.st.tier})`);
   ok(r.st.max <= 600, "trần hạt PA6 ≤ 600");
-  if (TURNS >= 3) ok(ks.includes("S:skip"), "chạm màn hình giữa chuỗi -> tua nhanh (S:skip), sau đó không sót DOM");
+  if (TURNS >= 3) ok(ks.includes("S:skip"), "Bỏ qua giữa chuỗi -> tua nhanh (S:skip), sau đó không sót DOM");
 } catch (e) { failed = true; console.error("THẤT BẠI: " + e.stack); }
 if (errors.length) { console.error([...new Set(errors)].slice(0, 10).join("\n")); failed = true; }
 await browser.close(); server.close();

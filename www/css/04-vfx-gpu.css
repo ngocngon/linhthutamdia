@@ -1398,11 +1398,14 @@ body.dragging .lane.ok .side.me,body.dragging .lane.okx .side.opp{box-shadow:non
   background:radial-gradient(ellipse 60% 55% at 50% 50%,rgba(90,190,255,.16),transparent 75%)!important}
 .lane.dhov .side.me,.lane.dhov.okx .side.opp,body.dragging .lane.dhov .side.me{box-shadow:none!important;transform:none!important;
   background:radial-gradient(ellipse 62% 58% at 50% 50%,rgba(110,225,255,.34),rgba(63,170,255,.10) 60%,transparent 82%)!important}
-/* gpu21: nhãn tua nhanh tự động */
-#ffChip{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 92px);transform:translate(-50%,-6px);z-index:60;pointer-events:none;opacity:0;
-  padding:5px 14px;border-radius:999px;font:800 13px/1.2 "Be Vietnam Pro",system-ui,sans-serif;letter-spacing:.3px;color:#fff3c4;
-  background:linear-gradient(180deg,rgba(40,30,90,.92),rgba(18,14,52,.92));box-shadow:0 0 0 1.5px rgba(255,214,90,.75),0 4px 14px rgba(0,0,0,.45);transition:opacity .2s,transform .2s}
-#ffChip.on{opacity:1;transform:translate(-50%,0)}
+/* gpu71 (L1): nút "Bỏ qua" — chỉ hiện khi hoạt ảnh của lượt đã chạy quá 60 s (06 FFTURN); nằm trên mọi lớp hiệu ứng (≤48) */
+.skipbtn{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 92px);transform:translate(-50%,-6px);z-index:51;opacity:0;pointer-events:none;
+  display:inline-flex;align-items:center;gap:6px;padding:8px 18px;min-height:40px;border:0;border-radius:999px;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation;
+  font:800 14px/1.2 "Be Vietnam Pro",system-ui,sans-serif;letter-spacing:.3px;color:#fff3c4;
+  background:linear-gradient(180deg,rgba(52,40,112,.95),rgba(20,16,58,.95));box-shadow:0 0 0 1.5px rgba(255,214,90,.8),0 4px 14px rgba(0,0,0,.5);transition:opacity .2s,transform .2s}
+.skipbtn.on{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+.skipbtn:active{transform:translate(-50%,1px) scale(.97)}
+.skipbtn[hidden]{display:none}
 
 /* ==================== gpu26: MÀN RA MẮT TUYỆT KỸ S5/S4 (.uc5) & THẺ NHÂN VẬT RA TAY (.hero5) ====================
    Chỉ transform/opacity được hoạt ảnh (WAAPI ở 05 ultShow/heroUp); bóng/quầng là nền tĩnh. */
@@ -1411,10 +1414,7 @@ body.dragging .lane.ok .side.me,body.dragging .lane.okx .side.opp{box-shadow:non
   inset: 0;
   z-index: 44;
   overflow: hidden;
-  pointer-events: auto;
-  cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
-  touch-action: none;
+  pointer-events: none; /* gpu71 (L1): không chặn chạm — chạm chiến địa / thẻ luôn mở thông tin; bỏ qua chỉ qua nút "Bỏ qua" */
   contain: layout paint;
 }
 .uc5 > * { position: absolute; pointer-events: none; }
@@ -1617,9 +1617,24 @@ body.rm .loc-sheen40 { display: none !important; }
 body.rm .l47 { display: none; }
 
 /* ===== gpu51: MỞ CHIẾN ĐỊA kiểu Marvel Snap (lá chiến địa lớn, 08 gpuLocOpen51) ===== */
-body[data-l51~="0"] #board [data-lane="0"] .locw .loc,
-body[data-l51~="1"] #board [data-lane="1"] .locw .loc,
-body[data-l51~="2"] #board [data-lane="2"] .locw .loc { opacity: 0; }
+/* gpu71 (L1): trước đây ẩn cả ô (.loc opacity 0) -> trong suốt nhịp lộ diện ô MẤT KHUNG. Nay giữ khung (nền viền của .loc) + ruột tối như ô đóng,
+   chỉ ẩn ảnh / chữ thật cho tới khi lá lớn bay về chạm ô (land() gỡ body[data-l51]). */
+body[data-l51~="0"] #board [data-lane="0"] .locw .loc .in,
+body[data-l51~="1"] #board [data-lane="1"] .locw .loc .in,
+body[data-l51~="2"] #board [data-lane="2"] .locw .loc .in {
+  --li: none;
+  background: repeating-linear-gradient(135deg, rgba(127, 210, 255, 0.06) 0 6px, rgba(8, 12, 38, 0.06) 6px 12px), radial-gradient(circle at 50% 45%, #1d2764 0%, #090d2a 85%) !important;
+  animation: none !important;
+}
+body[data-l51~="0"] #board [data-lane="0"] .locw .loc .in > *,
+body[data-l51~="1"] #board [data-lane="1"] .locw .loc .in > *,
+body[data-l51~="2"] #board [data-lane="2"] .locw .loc .in > *,
+body[data-l51~="0"] #board [data-lane="0"] .locw .loc .in::before,
+body[data-l51~="1"] #board [data-lane="1"] .locw .loc .in::before,
+body[data-l51~="2"] #board [data-lane="2"] .locw .loc .in::before,
+body[data-l51~="0"] #board [data-lane="0"] .locw .loc .in::after,
+body[data-l51~="1"] #board [data-lane="1"] .locw .loc .in::after,
+body[data-l51~="2"] #board [data-lane="2"] .locw .loc .in::after { opacity: 0 !important; }
 .l51-bg { position: fixed; inset: 0; z-index: 39; pointer-events: none; background: rgba(2, 4, 16, 0.2); opacity: 0; }
 .l51-k.locw, .l51-c, .l51-sw { position: fixed; z-index: 40; pointer-events: none; margin: 0; }
 .l51-c *, .l51-k *, .l51-sw * { pointer-events: none !important; }

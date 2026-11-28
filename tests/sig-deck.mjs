@@ -2,7 +2,7 @@
 //  - mỗi cảnh: màn diễn của đúng thẻ đó chạy (sig -> sig:hit -> sig:end, không tua), không màn diễn của thẻ khác ngoài danh sách
 //  - sau cảnh: không sót DOM (.sg*, .p6*, .hxsoul, .uc5, .fxg.hero5), luật ẩn lá (#sigHide) rỗng, không lá nào bị ẩn trên bàn / trên tay
 //  - kết quả thật hiện đúng: tổng điểm làn = E.locPower, năng lượng trên tay = E.cost, sức mạnh trên bàn = E.power
-//  - cảnh riêng: chạm màn hình giữa màn diễn (tua nhanh), mức Nhẹ, giảm chuyển động (không diễn, không lỗi)
+//  - cảnh riêng: nút Bỏ qua (FFTURN.skipNow, gpu71 thay chạm màn hình) giữa màn diễn (tua nhanh), mức Nhẹ, giảm chuyển động (không diễn, không lỗi)
 //  - ảnh đạo cụ img/sig: đủ 12 ảnh đã giải mã; chụp ảnh mốc trúng của từng thẻ vào SHOTS (mặc định /home/claude/shots-sig/test)
 // Chạy: CHROME_PATH=/usr/bin/google-chrome NODE_PATH=/opt/npm-tools/node_modules node tests/sig-deck.mjs
 import http from "node:http";
@@ -111,7 +111,7 @@ try {
       if (o.tapAt && !tapped && st.s.includes("sig:" + o.want)) {
         tapped = 1;
         await page.waitForTimeout(o.tapAt);
-        await page.evaluate(() => document.body.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true })));
+        await page.evaluate(() => FFTURN.skipNow());
       }
       if (!st.b && st.ph === "play" && Date.now() - t0 > 1500) break;
       await page.waitForTimeout(60);
@@ -134,7 +134,7 @@ try {
       ok(ks.includes("sig:" + o.want) && (o.tapAt || ks.includes("sig:hit:" + o.want)), `${tag}: màn diễn ${o.want} chạy${o.tapAt ? "" : " tới mốc trúng"}`);
       const endE = r.sig.find(x => x.k === "sig:end" && x.id === o.want);
       ok(!!endE && (o.tapAt ? true : !endE.fast), `${tag}: màn diễn kết thúc ${o.tapAt ? "(tua nhanh)" : "tự nhiên"}`);
-      if (o.tapAt) ok(ks.includes("sig:skip:undefined") || r.sig.some(x => x.k === "sig:skip"), `${tag}: chạm màn hình -> tua nhanh`);
+      if (o.tapAt) ok(ks.includes("sig:skip:undefined") || r.sig.some(x => x.k === "sig:skip"), `${tag}: Bỏ qua (FFTURN.skipNow) -> tua nhanh`);
       ok(ids.every(i => i === o.want || (o.also || []).includes(i)), `${tag}: chỉ thẻ trong cảnh diễn ấn ký (${ids.join(",")})`);
     } else ok(!ids.length, `${tag}: giảm chuyển động -> không diễn ấn ký`);
     ok(!r.dom.length && !r.hide.trim(), `${tag}: không sót DOM ${JSON.stringify(r.dom)}${r.hide.trim() ? " luật ẩn: " + r.hide : ""}`);

@@ -154,7 +154,7 @@ window.playV16=playV16;window.v16Html=v16Html;window.v16Activate=v16Activate;win
 /* ===== gpu26: TUYỆT KỸ BẬC 5 / BẬC 4 kiểu MARVEL SNAP =====
    (a) Màn ra mắt: chính LÁ THẺ đầy đủ (nền thẻ, khung bậc, năng lượng/sức mạnh, tên) bay từ ô trên bàn ra giữa màn hình,
        phóng to, quầng sáng màu hệ, dòng "Tuyệt kỹ" bên dưới rồi thu về đúng ô. S5: tia sáng xoay + rung nhẹ; S4 gọn hơn.
-       Diễn SAU nhịp lật trên bàn và TRƯỚC nhịp kỹ năng. Chạm màn hình để bỏ qua.
+       Diễn SAU nhịp lật trên bàn và TRƯỚC nhịp kỹ năng. Bỏ qua: chỉ nút "Bỏ qua" khi lượt diễn > 60 s (gpu71).
    (b) Thẻ "ra tay": khi bước kỹ năng có nguồn là thẻ S5/S4 trên bàn, bản sao cố định của chính lá thẻ nhấc lên ~1,6–1,75× tại chỗ,
        nghiêng/lao nhẹ về phía mục tiêu, viền sáng màu hệ; điểm phát đòn (tâm nguồn) dời theo lá thẻ đã nhấc; xong thì hạ về.
    Chỉ dùng transform/opacity trong hoạt ảnh. Thời lượng tính theo ms thật (đã nhân SPD) và có trần. */
@@ -214,12 +214,12 @@ function ultShow(inst,done,nth){
   const fr=has?{x:sr.left+sr.width/2,y:sr.top+sr.height/2,s:Math.max(.12,sr.width/W)}:{x:cx,y:mine?VH+H*.3:-H*.3,s:.4};
   const dx=(fr.x-cx).toFixed(1),dy=(fr.y-cy).toFixed(1),rz=mine?-3:3;
   const sk=String(d.x||"").replace(/^[^:]{2,16}:\s*/,""),dg=DANG[d.t]||"";
-  const z=document.createElement("div");z.className="uc5 "+(mini?"s4 uc3":s5?"s5":"s4")+(mine?"":" foe")+(p6?" p6":"");z.setAttribute("aria-label",`${mini?"Kỹ năng":"Tuyệt kỹ"} ${d.n}. Chạm để bỏ qua`);
+  const z=document.createElement("div");z.className="uc5 "+(mini?"s4 uc3":s5?"s5":"s4")+(mine?"":" foe")+(p6?" p6":"");z.setAttribute("aria-label",`${mini?"Kỹ năng":"Tuyệt kỹ"} ${d.n}`);
   z.style.setProperty("--c",c);z.style.setProperty("--c2",c2);
   z.innerHTML=`<i class="uc-dim"></i>${s5&&!lo5?`<i class="uc-rays" style="left:${cx}px;top:${cy}px;--hs:${Math.round(W*2.9/RK)}px"></i>`:""}<i class="uc-halo" style="left:${cx}px;top:${cy}px;--hs:${Math.round(W*(s5?2.4:mini?1.6:1.95))}px"></i>`
     +(mine?"":`<div class="uc-who" style="top:${Math.round(cy-H/2-34)}px"><b>Đối thủ</b></div>`)
     +`<div class="uc-card" style="left:${Math.round(cx-W/2)}px;top:${Math.round(cy-H/2)}px;width:${W}px;height:${H}px">${ucCard(inst)}${p6?`<span class="uc-bk" style="background:${P6.back(inst)}"></span>`:""}</div>`
-    +`<div class="uc-lb" style="top:${Math.round(cy+H/2+12)}px"><small>${mini?"Kỹ năng":"Tuyệt kỹ"}${dg?" · "+esc(dg):""}</small>${sk&&!mini?`<em>${esc(sk)}</em>`:""}</div>${mini?"":`<div class="uc-tap">Chạm để bỏ qua</div>`}`;
+    +`<div class="uc-lb" style="top:${Math.round(cy+H/2+12)}px"><small>${mini?"Kỹ năng":"Tuyệt kỹ"}${dg?" · "+esc(dg):""}</small>${sk&&!mini?`<em>${esc(sk)}</em>`:""}</div>`;
   document.body.appendChild(z);if(typeof spWatch==="function")spWatch(z);
   if(p6){try{P6.uncover(inst.uid,0);}catch(e){}}
   if(slot){slot.classList.add("hero-hid");hide9(slot,1);}
@@ -239,7 +239,7 @@ function ultShow(inst,done,nth){
   /* gộp gpu69 (P-2): tia xoay vẽ ở phần tử nhỏ hơn RK lần rồi phóng bằng transform (lớp GPU nhỏ ~RK² lần ở DPR cao; tia vốn mềm). Nhẹ: bỏ tia */an(z.querySelector(".uc-rays"),[{opacity:0,transform:`rotate(0deg) scale(${.5*RK})`},{opacity:.95,transform:`rotate(28deg) scale(${RK})`,offset:oi},{opacity:.8,transform:`rotate(82deg) scale(${1.04*RK})`,offset:oh},{opacity:0,transform:`rotate(100deg) scale(${.6*RK})`}],{duration:T});
   const tx=[{opacity:0,transform:"translateY(10px)"},{opacity:0,transform:"translateY(10px)",offset:oi*.6},{opacity:1,transform:"none",offset:oi},{opacity:1,transform:"none",offset:oh},{opacity:0,transform:"translateY(8px)",offset:Math.min(1,oh+.08)},{opacity:0,transform:"translateY(8px)"}];
   an(z.querySelector(".uc-lb"),tx,{duration:T});an(z.querySelector(".uc-who"),tx,{duration:T});
-  an(z.querySelector(".uc-tap"),[{opacity:0},{opacity:0,offset:oi},{opacity:.7,offset:Math.min(oh,oi+.1)},{opacity:.7,offset:oh},{opacity:0,offset:Math.min(1,oh+.05)},{opacity:0}],{duration:T});
+  if(z.querySelector(".uc-tap"))an(z.querySelector(".uc-tap"),[{opacity:0},{opacity:0,offset:oi},{opacity:.7,offset:Math.min(oh,oi+.1)},{opacity:.7,offset:oh},{opacity:0,offset:Math.min(1,oh+.05)},{opacity:0}],{duration:T});
   holdFx(R(T+90));
   try{SFX.launch(mini?3:s5?5:4,{el:elOf(id),uid:inst.uid,id:id,nth:nth|0,foe:!mine});}catch(e){}
   const t0=performance.now();let ended=false,sk1=false,tm=0;
@@ -251,10 +251,9 @@ function ultShow(inst,done,nth){
     fin1();};
   const skip=()=>{if(ended||sk1)return;sk1=true;const el=performance.now()-t0;if(el>=TIN+HOLD)return;if(sb){sb.remove();sb=null;}const q=Math.max(150,Math.min(TOUT,240));
     A.forEach(a=>{try{a.currentTime=TIN+HOLD;a.playbackRate=TOUT/q;}catch(e){}});clearTimeout(tm);tm=setTimeout(()=>end(false),q);
-    try{FX_UNTIL=Math.min(FX_UNTIL,performance.now()+q+60);}catch(e){}try{noClick=Date.now()+450;}catch(e){}};
+    try{FX_UNTIL=Math.min(FX_UNTIL,performance.now()+q+60);}catch(e){}};
   const ctl={end,skip};UC=ctl;
-  z.addEventListener("pointerdown",ev=>{ev.preventDefault();ev.stopPropagation();skip();});
-  z.addEventListener("click",ev=>{ev.preventDefault();ev.stopPropagation();});
+  /* gpu71 (L1): không còn chạm-màn-hình-để-tua — lớp phủ không nhận chạm (chạm xuyên xuống chiến địa / thẻ); tua chỉ qua nút "Bỏ qua" (06, FFTURN.skipNow) */
   tm=setTimeout(()=>end(false),T);
   }catch(e){console.error(e);fin1();}
 }
@@ -1090,7 +1089,6 @@ function discardBeat(list,hMap,srcUid){
   };
   const id=(DCB&&DCB.id||0)+1;
   DCB={id,skip:q=>fly(q)};
-  ov.addEventListener("pointerdown",()=>fly(true));
   tmr=setTimeout(()=>fly(false),(IN+HOLD)*S());
 }
 function burn7(r,html,dl){dl=+dl||0;if(reduced||!r)return;holdFx(dl+640);if(typeof window.playV16==="function")window.playV16("loai_bo",r.x,r.y-22,Math.max(104,(r.w||50)*1.95),560,dl);const w=r.w||46,h=r.h||64,g=ghost({x:r.x,y:r.y,w,h},html,"fxchip fx7b");
@@ -1136,7 +1134,7 @@ function fx7(evs,R0,P0){if(reduced||!G)return;const X=evs.x7||{};const R1=rects(
     if(s==="a"){cr.slice(0,3).forEach((u,i)=>fly7(sp||zpt("oppSub"),dst,BACK7(),null,i*130));}
     else if(!te&&sp)cr.slice(0,3).forEach((u,i)=>{const c=anyC(u),hp=hpt(u)||dst;if(c)fly7(sp,hp,liteId(c.id),null,i*130);});
     SFX.fam("create",{delay:.5,el:SRC0?elU(SRC0):null});say(dst.x,s==="p"?dst.y-(dst.h||60)*.6:dst.y+50,cr.length>1?"+"+cr.length+" THẺ":"+1 THẺ","#ffd65a",640);fxT(()=>{if(window.FXR&&src)FXR.trieu(dst,cr[0],src,{tao:1});FX.sparks(dst.x,dst.y,"#ffd65a",14,200);FX.glow(dst.x,dst.y,"#ffd65a",50,.4);},640);}
-  /* vứt bỏ: phóng to các lá bị vứt giữa màn hình (xoè quạt, một nhịp duy nhất, chạm để bỏ qua) rồi bay xuống nút Mộ */
+  /* vứt bỏ: phóng to các lá bị vứt giữa màn hình (xoè quạt, một nhịp duy nhất, nút Bỏ qua (gpu71)) rồi bay xuống nút Mộ */
   {const dl=evs.filter(e=>e.k==="discard");if(dl.length)discardBeat(dl,evs._hand0||HAND0,SRC0);}
   /* sao chép thẻ: nếu có CardChoreo (Gương Đồng Đông Sơn) thì để CardChoreo diễn tuần tự duy nhất */
   let nc=0;const cdst={};for(const e of evs)if(e.k==="clone"){const c=anyC(e.uid);if(!c)continue;const fp=where7(e.from,R0,R1),s=c.side;let tp=R1.get(e.uid)||hpt(e.uid);
@@ -1900,7 +1898,7 @@ function unmask29(s){if(s.vh29){const h=s.vh29;s.vh29=null;fxT(()=>{h.style.visi
   try{if(s.k==="cost"&&s.fb){const d=s.fb,up=s.d>0;anim(d,[{transform:"none"},{transform:"scale(1.22) translateY(-6px)",offset:.4},{transform:"none"}],{duration:480,fill:"none"});
     const b=document.createElement("b");b.className="c29b"+(up?" up":"");b.textContent=(up?"+":"−")+Math.abs(s.d);d.appendChild(b);}}catch(e){}return r;};}
 /* (8) lá trên cùng bộ bài: lật ra từ bộ bài, hiện mặt đủ lâu để đọc, trúng đòn rồi chịu đúng hành động */
-/* gpu35: rút gọn — lá hiện ≈0,45 s gốc (≈0,9 s thật ở SPD 2,0) từ lúc lật xong tới lúc thu về; tua nhanh (FFTURN) ×0,6; chạm để bỏ qua */
+/* gpu35: rút gọn — lá hiện ≈0,45 s gốc (≈0,9 s thật ở SPD 2,0) từ lúc lật xong tới lúc thu về; tua nhanh (FFTURN) ×0,6; nút Bỏ qua (gpu71) */
 const TOPT0={RISE:200,HOLD:210,OUT:200,PLACE:420,LIFT:40,FLY:200},TOPT={};for(const k in TOPT0)Object.defineProperty(TOPT,k,{get(){return Math.round(TOPT0[k]*((window.FFTURN&&FFTURN.on)?.6:1));}});
 const TOPLB={buff:"",steal:"",set:"",cost:"",fix6:"NĂNG LƯỢNG 6 ĐẾN LƯỢT 6",exile:"TRỤC XUẤT",destroy:"TIÊU HUỶ",discard:"VỨT BỎ",place:"LÊN CHIẾN ĐỊA",peek:"LỘ THẺ TRÊN CÙNG"};
 function topHit29(s){return TOPT.RISE+(s.sp2&&!s.ns?TOPT.LIFT+TOPT.FLY:100);}
@@ -1962,7 +1960,8 @@ function runTop29(s){const c=s.a==="exile"?"#c49bff":s.a==="steal"||s.a==="destr
       try{const left=topDur29(s)-(performance.now()-t0)/SPD,rest=STEPS12.some(x=>x!==s&&(x.t0||0)>(s.t0||0));if(!rest){hold29InfoRel();if(left>300)FX_UNTIL=Math.min(FX_UNTIL,performance.now()+300*SPD);}}catch(e){}};
     TOPSK.add(s);fxT(()=>TOPSK.delete(s),topDur29(s));}}
 const TOPSK=new Set();
-document.addEventListener("pointerdown",()=>{if(!TOPSK.size)return;const L=[...TOPSK];TOPSK.clear();for(const s of L)try{s.skip();}catch(e){console.error(e);}try{noClick=Date.now()+450;}catch(e){}},true);
+/* gpu71 (L1): bỏ chạm-màn-hình-để-tua; nút "Bỏ qua" (06 FFTURN.skipNow) gọi hàm này */
+function topSkipAll(){if(!TOPSK.size)return;const L=[...TOPSK];TOPSK.clear();for(const s of L)try{s.skip();}catch(e){console.error(e);}}
 /* chú thích ngay dưới lá thẻ (đi theo lá, không phải thông báo nửa trên sân) */
 /* gpu35: chú thích gắn vào lá nằm trên cùng (lá cuối) của nhóm, dịch về giữa nhóm (data-cdx) để không bị lá sau đè */
 function cap29(g,t,c){if(!g||!t)return;let d=g.querySelector(".t29cap");if(!d){d=document.createElement("div");d.className="t29cap";const dx=+(g.dataset.cdx||0);if(dx)d.style.left=`calc(50% + ${dx}px)`;g.appendChild(d);}d.textContent=t;d.style.color=c||"#fff";anim(d,[{opacity:.2,transform:"translateX(-50%) scale(.8)"},{opacity:1,transform:"translateX(-50%) scale(1)"}],{duration:200,fill:"none"});}

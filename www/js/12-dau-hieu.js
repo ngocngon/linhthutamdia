@@ -346,7 +346,8 @@ function init() {
       ev.stopPropagation(); ev.preventDefault();
       const k = chip.dataset.dhk; pop(k === "more" ? (chip.dataset.dhl === "g" ? "" : chip.dataset.dhl) : k); return;
     }
-    if (POP && POP.classList.contains("on") && !ev.target.closest("#dhPop")) { closePop(); ev.stopPropagation(); ev.preventDefault(); }
+    /* gpu71 (L1): chạm ra ngoài đóng bảng; chạm vào ô chiến địa / thẻ trên bàn thì đóng VÀ cho chạm đi tiếp (mở thông tin ngay, không nuốt chạm) */
+    if (POP && POP.classList.contains("on") && !ev.target.closest("#dhPop")) { closePop(); if (!ev.target.closest("#board [data-lane]")) { ev.stopPropagation(); ev.preventDefault(); } }
   }, true);
   document.addEventListener("keydown", ev => { if (ev.key === "Escape") closePop(); });
   /* vẽ lại khi bàn thay đổi (render/patchBoard) — gộp một lần mỗi khung hình */
@@ -679,7 +680,7 @@ document.addEventListener("click", ev => {
   const t = ev.target.closest && ev.target.closest("#ttDeckP .ttdk-zg");
   const P = document.getElementById("ttPop");
   if (t) { ev.stopPropagation(); ev.preventDefault(); if (P && P.classList.contains("on")) P.classList.remove("on"); else zgPop(t); return; }
-  if (P && P.classList.contains("on") && (!ev.target.closest("#ttPop") || ev.target.closest("#ttPop .dhx"))) { P.classList.remove("on"); ev.stopPropagation(); ev.preventDefault(); }
+  if (P && P.classList.contains("on") && (!ev.target.closest("#ttPop") || ev.target.closest("#ttPop .dhx"))) { P.classList.remove("on"); if (!ev.target.closest("#board [data-lane]")) { ev.stopPropagation(); ev.preventDefault(); } }
 }, true);
 
 function after() { try { HS.flush(); } catch (e) {} try { paintLanes(); } catch (e) {} try { paintDeck(); } catch (e) {} try { condSched(); } catch (e) {} }

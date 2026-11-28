@@ -166,7 +166,7 @@ try {
         for (const x of L) { const nm = x[0], key = nm + (o.tag || ""); if ((taken.get(key) || 0) >= (o.shotMax || 1)) continue; taken.set(key, (taken.get(key) || 0) + 1); if (x[1] && !NOSHOT) await page.waitForTimeout(wdl(x)); await snap(`${nm}${o.tag || ""}`); }
       }
       seen = st.ev.length;
-      if (o.skip && !tapped && st.ev.slice(n0).includes(o.skip)) { tapped = 1; await page.waitForTimeout(60 * SLOW); await page.evaluate(() => document.body.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true }))); console.log("  chạm tua nhanh"); }
+      if (o.skip && !tapped && st.ev.slice(n0).includes(o.skip)) { tapped = 1; await page.waitForTimeout(60 * SLOW); await page.evaluate(() => FFTURN.skipNow()); console.log("  chạm tua nhanh"); }
       if (st.over || (!st.busy && st.ph === "play" && Date.now() - t0 > 1500)) break;
       await page.waitForTimeout(25);
     }
@@ -222,7 +222,7 @@ try {
   if (r) { ok(cnt(r, "HX03") === 2, "HX-03: 2 mục tiêu"); }
   r = await scen("mức Nhẹ: HX-03 về CFX cũ, HX-06 không ló hồn", { tier: "lite", ab: { bachdich: "kill1", chienthan: "up3" }, foe: [["thachquai", 0]], own: [["thachnhan", 2]], hand: [["bachdich", 0], ["chienthan", 2]], tag: "_nhe" });
   if (r) { ok(!has(r, "HX03"), "Nhẹ: không vỡ hồn CPU (CFX.destroy cũ)"); ok(!has(r, "HX06:flex", o => o.peek), "Nhẹ: không ló hồn"); }
-  r = await scen("chạm tua nhanh giữa toả 3 mục tiêu", { ab: { tammanu: "down3" }, foe: F3, hand: [["tammanu", 1]], skip: "HXfan", tag: "_tua" });
+  r = await scen("Bỏ qua (FFTURN.skipNow) giữa toả 3 mục tiêu", { ab: { tammanu: "down3" }, foe: F3, hand: [["tammanu", 1]], skip: "HXfan", tag: "_tua" });
 
   /* ================= vòng 3 ================= */
   const S3 = await page.evaluate(() => window.__S3);
@@ -265,7 +265,7 @@ try {
   if (r) { const L = r.ev.filter(e => e.k === "HX20"); ok(L.length === 3, `HX-20: 3 thẻ loé hồn lần lượt (${L.length})`); if (L.length === 3) { const sp = await SPDg(), d = (L[2].t - L[0].t) / sp + 370; console.log(`  HX-20: 3 thẻ ${d.toFixed(0)} ms gốc (${(d * sp).toFixed(0)} ms thật ở SPD ${sp}); mốc ${L.map(e => ((e.t - L[0].t) / sp).toFixed(0)).join(" / ")}`); ok(NOSHOT ? d <= 1500 : true, "HX-20: 3 thẻ ≤ 1,5 s (gốc; đo khi NOSHOT=1)"); } }
   r = await scen("HX-20 đối chứng: Kim Thuật Sĩ không có ảnh tư thế", { ownEnd: [["kimthuatsi", 0]], foe: [["thachquai", 0]] });
   if (r) { ok(!has(r, "HX20"), "HX-20 không bật cho thẻ ngoài pose.json"); }
-  r = await scen("chạm tua nhanh giữa DT-B", { all: 1, own: [["thachquai", 0], ["thachquai", 2]], hand: [["aiquoc", 1]], skip: "DTB", tag: "_tua" });
+  r = await scen("Bỏ qua (FFTURN.skipNow) giữa DT-B", { all: 1, own: [["thachquai", 0], ["thachquai", 2]], hand: [["aiquoc", 1]], skip: "DTB", tag: "_tua" });
 
   const s = await page.evaluate(() => ({ fr: window.__fr, bad: window.__bad }));
   ok(!s.bad.length, `không khung rỗng / ảnh chưa giải mã trong lúc HX diễn (${s.bad.length} mẫu xấu${s.bad.length ? ": " + JSON.stringify(s.bad.slice(0, 3)) : ""})`);

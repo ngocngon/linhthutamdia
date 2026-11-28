@@ -122,46 +122,85 @@ function render0(){
 }
 
 let ddPlan=false;
-/* ==================== gpu21 -> gpu68: TỰ TUA NHANH CHỈ KHI HOẠT ẢNH CỦA MỘT LƯỢT KÉO DÀI QUÁ 60 GIÂY ====================
-   (Người chơi chốt: dưới 60 s mọi hiệu ứng và câu thoại diễn đủ.) Đếm từ lúc bấm Kết thúc lượt (lật bài, kỹ năng, cuối lượt, đầu lượt mới). Quá 60 giây thì phần còn lại
-   chạy ở tốc độ tua nhanh và hiện nhãn "⏩ Tua nhanh"; hết lượt trả về tốc độ người chơi đã chọn. */
+/* ==================== gpu71 (L1): NÚT "BỎ QUA" — CHỈ HIỆN KHI HOẠT ẢNH CỦA MỘT LƯỢT ĐÃ CHẠY QUÁ 60 GIÂY ====================
+   Người chơi chốt: KHÔNG còn chạm-màn-hình-để-tua và KHÔNG tự tua nhanh — dưới 60 s mọi hiệu ứng và câu thoại diễn đủ.
+   Đếm từ lúc bấm Kết thúc lượt (lật bài, kỹ năng, cuối lượt, đầu lượt mới). Quá 60 s thì hiện nút "Bỏ qua"; bấm nút -> tua phần đang diễn
+   (các mô-đun đăng ký bằng FFTURN.reg: 05 màn ra mắt/lá hiện, 15 chuỗi PA6, 16 HX vòng 3, 17 màn riêng, 18 hoạt cảnh) và phần còn lại
+   của lượt chạy tốc độ tua (FFTURN.on -> các mô-đun đi đường ngắn); số liệu luôn lấy từ engine nên trạng thái cuối không đổi.
+   Hết lượt: trả về tốc độ người chơi đã chọn, ẩn nút. FFTURN.skipNow(): tua phần đang diễn (móc cho test / Bảng Test VFX). */
 (function () {
   "use strict";
-  const FF_AFTER = 60000, FF_SPD = 0.45;
-  const FF = { iv: 0, t0: 0, on: false };
-  let chip = null;
-  function showChip(on) {
+  const FF_SPD = 0.3;
+  const FF = { iv: 0, sk: 0, t0: 0, on: false, busy: false, after: 60000 };
+  const REG = [];
+  let btn = null;
+  function showBtn(on) {
     if (on) {
-      if (!chip) { chip = document.createElement("div"); chip.id = "ffChip"; chip.setAttribute("aria-live", "polite"); chip.textContent = "⏩ Tua nhanh"; }
-      if (!chip.isConnected) document.body.appendChild(chip);
-      chip.classList.add("on");
-    } else if (chip) chip.classList.remove("on");
+      if (!btn) {
+        btn = document.createElement("button"); btn.type = "button"; btn.id = "skipBtn"; btn.className = "skipbtn";
+        btn.innerHTML = '<span aria-hidden="true">⏭</span> Bỏ qua'; btn.setAttribute("aria-label", "Bỏ qua hoạt ảnh còn lại của lượt này");
+        btn.addEventListener("click", (ev) => { ev.preventDefault(); ev.stopPropagation(); skipTurn(); });
+      }
+      if (!btn.isConnected) document.body.appendChild(btn);
+      btn.classList.add("on"); btn.hidden = false;
+    } else if (btn) { btn.classList.remove("on"); btn.hidden = true; }
+  }
+  /* tua phần đang diễn — đúng thứ tự cũ của các trình nghe chạm: lá hiện (05) -> chuỗi PA6 -> HX vòng 3 -> màn riêng -> hoạt cảnh -> màn ra mắt */
+  function skipNow() {
+    try { if (typeof topSkipAll === "function") topSkipAll(); } catch (e) { console.error(e); }
+    for (const f of REG) { try { f(); } catch (e) { console.error(e); } }
+    try { if (typeof DCB !== "undefined" && DCB) DCB.skip(true); } catch (e) {}
+    try { if (typeof UC !== "undefined" && UC && UC.skip) UC.skip(); } catch (e) {}
+    /* chuỗi kết thúc trận (showEnd): bước hiện tại có s.skip -> nút "Bỏ qua" cũng tua (chuỗi nên bọc bằng FFTURN.start/stop để có mốc 60 s) */
+    try { if (typeof ES !== "undefined" && ES && ES.skip && ES.g0 === G) ES.skip(); } catch (e) {}
   }
   function engage() {
     if (FF.on) return;
     const old = SPD;
-    if (old <= FF_SPD) return;
     FF.on = true;
+    if (old <= FF_SPD) return;
     SPD = FF_SPD;
-    /* các hoạt ảnh đang chạy dở cũng tăng tốc theo (chỉ hoạt ảnh có hồi kết, không đụng hào quang lặp vô hạn) */
+    /* hoạt ảnh đang chạy dở cũng tăng tốc theo (chỉ hoạt ảnh có hồi kết, không đụng hào quang lặp vô hạn) */
     try {
       for (const a of document.getAnimations()) {
         const t = a.effect && a.effect.getTiming && a.effect.getTiming();
         if (t && isFinite(t.iterations) && a.playState === "running") a.playbackRate = a.playbackRate * (old / FF_SPD);
       }
     } catch (e) {}
-    showChip(true);
+  }
+  function skipTurn() {
+    if (!FF.busy) return false;
+    showBtn(false);
+    engage();
+    skipNow();
+    try { SFX.play("tap"); } catch (e) {}
+    /* các màn bắt đầu sau khi bấm (bước sau của lượt) cũng tua luôn */
+    clearInterval(FF.sk); FF.sk = setInterval(skipNow, 250);
+    return true;
   }
   function start() {
-    FF.t0 = performance.now(); FF.on = false; clearInterval(FF.iv);
-    FF.iv = setInterval(() => { if (!document.hidden && performance.now() - FF.t0 > FF_AFTER) engage(); }, 200);
+    FF.t0 = performance.now(); FF.on = false; FF.busy = true; clearInterval(FF.iv); clearInterval(FF.sk); FF.sk = 0; showBtn(false);
+    let hid = 0, h0 = 0;
+    FF.iv = setInterval(() => {
+      /* thời gian ẩn tab không tính */
+      if (document.hidden) { if (!h0) h0 = performance.now(); return; }
+      if (h0) { hid += performance.now() - h0; h0 = 0; }
+      if (!FF.on && performance.now() - FF.t0 - hid > FF.after && !(btn && btn.classList.contains("on"))) showBtn(true);
+    }, 200);
   }
   function stop() {
-    clearInterval(FF.iv); FF.iv = 0;
+    clearInterval(FF.iv); FF.iv = 0; clearInterval(FF.sk); FF.sk = 0; FF.busy = false;
     if (FF.on) { FF.on = false; try { SPD = SPDV[store.spd] || 1; } catch (e) { SPD = 1; } }
-    showChip(false);
+    showBtn(false);
   }
-  window.FFTURN = { start, stop, get on() { return FF.on; } }; /* endTurnUI (06) và onlineResolve (05) bọc phần diễn của lượt bằng start/stop */
+  /* endTurnUI (06) và onlineResolve (05) bọc phần diễn của lượt bằng start/stop */
+  window.FFTURN = {
+    start, stop, skipNow, skip: skipTurn,
+    reg(f) { if (typeof f === "function") REG.push(f); },
+    get on() { return FF.on; }, get busy() { return FF.busy; },
+    get btnOn() { return !!(btn && btn.classList.contains("on")); },
+    get after() { return FF.after; }, set after(v) { FF.after = Math.max(0, +v || 0); } /* chỉ cho test */
+  };
 })();
 
 /* fix55: một lượt chỉ được diễn một lần — bấm lại khi đang diễn (TURN_BUSY) thì bỏ qua; nút hiện "ĐANG DIỄN…", tay bài khoá, đồng hồ đứng tới hết băng "LƯỢT n" */
@@ -359,9 +398,8 @@ function showEnd(){
   };
   go(0);
 }
-/* chạm để tua: trên lớp chuỗi kết thúc (bước 1–2) và trên màn tổng kết đang hiện dần (bước 3) */
-document.addEventListener("pointerdown",ev=>{const s=ES;if(!s||!s.skip)return;if(G!==s.g0){endSeqKill();return;}
-  if(s.ph<3?ev.target.closest&&ev.target.closest("#endSeq"):ev.target.closest&&ev.target.closest("#ovEnd")){if(s.ph<3){ev.preventDefault();ev.stopPropagation();}s.skip();}},true);
+/* gpu71 (L1): bỏ chạm-màn-hình-để-tua chuỗi kết thúc (người chơi chốt: không chạm để bỏ qua hoạt ảnh); chỉ còn phím Enter/Space/Esc */
+document.addEventListener("pointerdown",()=>{const s=ES;if(s&&s.skip&&G!==s.g0)endSeqKill();},true);
 document.addEventListener("keydown",ev=>{const s=ES;if(!s||!s.skip||G!==s.g0||s.ph>=3)return;if(ev.key==="Enter"||ev.key===" "||ev.key==="Escape"){ev.preventDefault();s.skip();}},true);
 /* chạm nhanh để tua không vô tình đóng màn tổng kết (chạm nền ngoài bảng = Xem bàn) */
 $("ovEnd").addEventListener("click",ev=>{const s=ES;if(s&&ev.target===ev.currentTarget&&(s.ph===3||(s.guard&&performance.now()<s.guard)))ev.stopPropagation();});

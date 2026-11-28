@@ -3,7 +3,7 @@
 //   - hiệu ứng chạy đúng thẻ (đúng uid mục tiêu), đúng thứ tự (vứt bỏ: vào Mộ rồi mới phản ứng)
 //   - sau cảnh: không sót DOM, không lá bị ẩn (#actHide/#sigHide rỗng), số trên màn hình = kết quả thật
 //   - riêng: Thiện Xạ 2 mũi tên KHÁC nhau; Chiến Thần không hiện mặt thẻ lá trên cùng; Quyền Sư Máu chỉ hiện mặt lưng chồng bài
-//   - chạm màn hình giữa nhịp vứt bỏ: tua nhanh sạch
+//   - Bỏ qua (FFTURN.skipNow, gpu71 thay chạm màn hình) giữa nhịp vứt bỏ: tua nhanh sạch
 // Chạy: CHROME_PATH=/usr/bin/google-chrome NODE_PATH=/opt/npm-tools/node_modules node tests/action44.mjs
 import http from "node:http";
 import { readFile } from "node:fs/promises";
@@ -132,7 +132,7 @@ try {
     let tapped = 0;
     while (Date.now() - t0 < 90000) {
       const st = await page.evaluate(() => ({ b: TURN_BUSY, ph: G.phase, d: window.__t.some(x => x.k === "disc") }));
-      if (o.tapAt && !tapped && st.d) { tapped = 1; await page.waitForTimeout(o.tapAt); await page.evaluate(() => document.body.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true }))); }
+      if (o.tapAt && !tapped && st.d) { tapped = 1; await page.waitForTimeout(o.tapAt); await page.evaluate(() => FFTURN.skipNow()); }
       if (!st.b && st.ph === "play" && Date.now() - t0 > 1500) break;
       await page.waitForTimeout(60);
     }

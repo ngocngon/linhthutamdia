@@ -10,7 +10,7 @@
    - Phản ứng khi bị tiêu huỷ / vứt bỏ (20): hồn thẻ ở lại chỗ cũ (hoặc nổi từ Mộ), đạo cụ riêng bay tới từng thẻ được tăng/giảm (trên bàn và trên tay).
    - Đặt thẻ từ tay lên bàn (15): lá rời đúng chỗ trên tay, bay vòng cung, đáp ô; bản sao: lá trên tay nhân đôi, bản sao bay đi, lá gốc ở lại.
    - Vứt bỏ (4): lá nhấc khỏi tay -> cháy từ dưới lên, hồn bay vào Mộ -> phản ứng: lá từ Mộ bay về tay / tới chiến địa / bản sao vào tay.
-   Chạm màn hình: tua nhanh (kết quả hiện ngay, lớp phủ dọn sạch). Giảm chuyển động / tua lượt máy: đường cũ. */
+   Nút "Bỏ qua" (gpu71, thay chạm màn hình): tua nhanh (kết quả hiện ngay, lớp phủ dọn sạch). Giảm chuyển động / tua lượt máy: đường cũ. */
 (function () {
   "use strict";
   const W = window;
@@ -977,11 +977,11 @@
   AC.discardBeat = discardBeat2;
 
   /* ---------- tua nhanh / dọn sạch ---------- */
-  document.addEventListener("pointerdown", () => {
+  /* gpu71 (L1): bỏ chạm-màn-hình-để-tua; chỉ nút "Bỏ qua" (06 FFTURN.skipNow) */
+  if (W.FFTURN && FFTURN.reg) FFTURN.reg(() => {
     if (!DS.jobs.size) return;
     for (const j of [...DS.jobs]) j.fin(true);
-    try { noClick = Date.now() + 450; } catch (e) {}
-  }, true);
+  });
   AC.clean = () => { for (const j of [...DS.jobs]) j.fin(true); unhideAll(); DS.P = null; document.querySelectorAll(".acp,.acf,.actag,.acpile,.acvs,.acnum,.fxg.acd,.fxg.acgh").forEach((e) => e.remove()); };
   AC.busy = () => DS.jobs.size;
   /* an toàn: ván mới / thoát trận -> không để lá bị ẩn */
