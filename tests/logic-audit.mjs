@@ -435,7 +435,9 @@ async function browserPart() {
         G.hand.a = []; G.energy.p = 40; G.energy.a = 0;
         G.hand.p = (o.hand || []).map(([k, id]) => { const c = E.mk(G, id, "p"); U[k] = c.uid; return c; });
         if (o.decka) G.deck.a = o.decka.map(([k, id]) => { const c = E.mk(G, id, "a"); U[k] = c.uid; return c; });
-        render(); (o.hand || []).forEach(([k, id, li]) => E.queuePlay(G, "p", U[k], li)); render();
+        if (o.deckp) G.deck.p = o.deckp.map(([k, id]) => { const c = E.mk(G, id, "p"); U[k] = c.uid; return c; });
+        for (const k of o.mark || []) { const c = G.hand.p.find(x => x.uid === U[k]) || G.deck.p.find(x => x.uid === U[k]); if (c) c.zg = 1; }
+        render(); (o.hand || []).forEach(([k, id, li]) => { if (li != null) E.queuePlay(G, "p", U[k], li); }); render();
         window.__ct.length = 0; window.__des = []; window.__an = new Set(); window.__ev = [];
         return U;
       }, o);
@@ -483,6 +485,24 @@ async function browserPart() {
       const r = await stage({ own: [["so", "soinu", 0], ["x", "tunguyennu", 1]], hand: [["k", "kychu", 0]] });
       ok(r.an.includes(r.U.so), "lá Sói Nữ được diễn hoạt " + JSON.stringify(r.an));
       ok(await page.evaluate(u => !!document.querySelector(`#board [data-lane="1"] [data-mc="${u}"]`), r.U.so), "Sói Nữ ở chiến địa giữa");
+    });
+    /* b44 (làn E): sự kiện mới (zgx/ritual/hbuff x3/absorb) không làm vỡ giao diện, trạng thái đúng sau màn diễn */
+    await btest("[6] Cương Thi Nuốt Sao lật: lá đánh dấu trên tay biến thành bản sao, không lỗi trang", async () => {
+      const r = await stage({ hand: [["z", "bayxacnuotsao", 0], ["m", "da"], ["n", "chanthu"]], deckp: [["d", "thachquai"]], mark: ["m", "d"] });
+      const st = await page.evaluate((U) => { const f = u => G.hand.p.concat(G.deck.p).find(c => c.uid === u); return { m: f(U.m), n: f(U.n), d: f(U.d) }; }, r.U);
+      ok(st.m && st.m.id === "bayxacnuotsao" && st.d && st.d.id === "bayxacnuotsao", "lá đánh dấu (tay + bộ bài) đã biến: " + JSON.stringify([st.m && st.m.id, st.d && st.d.id]));
+      ok(st.n && st.n.id === "chanthu", "lá không đánh dấu giữ nguyên");
+      ok(await page.evaluate(u => !!document.querySelector(`#hand [data-hc="${u}"]`), r.U.m), "lá đã biến vẫn hiện trên tay");
+    });
+    await btest("[5] Nghi Thức III triệu hồi Hắc Diệm Đế từ bộ bài lên đúng chiến địa (DOM), 2 thẻ bị huỷ", async () => {
+      const r = await stage({ own: [["a", "da", 1], ["b", "da", 1]], hand: [["r", "nghithuctrieuhoiiii", 1]], deckp: [["dm", "hacdiemchua"]] });
+      ok(await page.evaluate((U) => !G.locs.some(L => L.cards.p.some(c => c.uid === U.a || c.uid === U.b)), r.U), "2 thẻ hiến tế bị huỷ (Đá là thẻ phụ nên không vào Mộ)");
+      ok(await page.evaluate(u => !!document.querySelector(`#board [data-lane="1"] [data-mc="${u}"]`), r.U.dm), "Hắc Diệm Đế ở chiến địa 2");
+    });
+    await btest("[42] Hồng Nữ Tinh Quái: 3 lần +2 vào lá trên tay (tổng +6), không lỗi trang", async () => {
+      const r = await stage({ hand: [["h", "hongnutinhquai", 0], ["x", "da"], ["y", "chanthu"]] });
+      const t = await page.evaluate((U) => G.hand.p.filter(c => c.uid === U.x || c.uid === U.y).reduce((a, c) => a + c.bonus, 0), r.U);
+      eq(t, 6, "tổng +6 trên tay");
     });
   } catch (e) { fails.push("browser"); console.error("THẤT BẠI: " + e.stack); }
   if (errors.length) { fails.push("lỗi trang"); console.error([...new Set(errors)].slice(0, 8).join("\n")); }
