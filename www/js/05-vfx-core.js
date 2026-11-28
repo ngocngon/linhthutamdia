@@ -22,7 +22,7 @@ const FX=(()=>{
   function add(o){if(reduced)return;if((o.k==="dot"||o.k==="spark"||o.k==="shard"||o.k==="orb"||o.k==="smoke"||o.k==="sq")&&Math.random()>FXQ*(window.FXLV===0?.6:1))return;if(ps.length>=FXMAX)ps.shift();ps.push(o);if(!raf){last=performance.now();cv.style.visibility="";raf=requestAnimationFrame(tick);}}
   function tick(t){
     const dt=Math.min(.05,(t-last)/1000)/SPD;last=t;
-    cx.setTransform(dpr,0,0,dpr,0,0);cx.globalCompositeOperation="source-over";cx.clearRect(0,0,innerWidth,innerHeight);cx.globalCompositeOperation="lighter";
+    cx.setTransform(dpr,0,0,dpr,0,0);cx.globalCompositeOperation="source-over";cx.clearRect(0,0,cv.width/dpr+1,cv.height/dpr+1);/* b44-P: không đọc innerWidth/innerHeight mỗi khung (buộc tính bố cục) */cx.globalCompositeOperation="lighter";
     ps=ps.filter(p=>(p.life-=dt/p.dur)>0);
     for(const p of ps){try{
       if(p.delay>0){p.delay-=dt;p.life+=dt/p.dur;continue;}
@@ -343,6 +343,10 @@ function playFx(evs,R0,P0){
     const d=us.filter(i=>ef.has(i.uid)&&arr.has(i.uid)&&!evs.some(e=>flip1(e)&&e.uid===i.uid));if(d.length){evs._ultD=d;us=us.filter(i=>!d.includes(i));}}catch(e){}
   if(!us.length)return playFxSeq(evs,R0,P0);
   try{if(window.P6)P6.pre(us,evs);}catch(e){console.error(e);}
+  /* b44-P: giải mã lại (luồng phụ) ảnh đầy đủ @f + ảnh tư thế của thẻ sắp phóng lớn ngay lúc nhịp lật bắt đầu (~0,6 s trước màn ra mắt):
+     bộ đệm ảnh giải mã có thể đã xả từ lúc làm nóng đầu trận -> khung đầu của màn phóng lớn / hồn xuất phải chờ giải mã */
+  try{for(const i of us){const L=[SP.c[i.id+"@f"]];if(window.P6&&P6.hasPose&&P6.kit&&P6.kit.soulUrl&&P6.hasPose(i.id))L.push(P6.kit.soulUrl(i.id));
+    for(const u of L)if(u){const im=new Image();im.decoding="async";im.src=u;if(im.decode)im.decode().catch(()=>{});}}}catch(e){}
   /* gpu34: máy yếu (FXLV 0) vẫn hiện màn ra mắt (bản nhẹ: không tia xoay, không hạt, không rung) */
   const mid=go=>{let i=0;const nx=()=>{if(i>=us.length){go();return;}ultShow(us[i++],nx,ucNth());};nx();};
   if(!evs.some(flip1)){holdFx(200);mid(()=>{try{playFxSeq(evs,R0,P0);}catch(e){console.error(e);}});return 0;}
@@ -351,15 +355,19 @@ function playFx(evs,R0,P0){
 /* Tách chuẩn 2 nhịp không chồng chéo: Nhịp 1 lật thẻ + v16 lat_the (420ms) hoàn tất rồi mới sang Nhịp 2 tung kỹ năng.
    gpu26: thẻ S5/S4 -> chen màn ra mắt (mid) giữa Nhịp 1 và Nhịp 2.
    Luật kéo thẻ: thẻ được ĐƯA vào chiến địa bằng hiệu ứng có flip mang eff:1 -> diễn ở Nhịp 2, đúng thứ tự sau khi nó bay xuống (summon/revive) */
+/* b44-P: giữ lượt (FX_UNTIL) tới đúng lúc màn ra mắt bắt đầu. Trước đây chỉ holdFx(520) cho hẹn giờ fxT(…,500) -> hở 20×SPD ms; máy bận
+   (nhịp lật) làm hẹn giờ trễ hơn thế là vòng lượt (06 endTurnRun) chạy tiếp ngay giữa màn phóng lớn (rects0 buộc tính bố cục, render() vẽ lại
+   bàn, pha cuối lượt / đầu lượt mới) -> giật. Nay đánh dấu FXPEND (03 sleep chờ thêm, trần 4 s) tới khi hẹn giờ chạy; ultShow tự giữ tiếp. */
+function holdMid(){holdFx(520);FXPEND++;FXPEND_T=performance.now();let k=1;return ()=>{if(k){k=0;FXPEND=Math.max(0,FXPEND-1);}};}
 function playFxSeq(evs,R0,P0,mid){
   const run=part=>{const hPrev=HAND0,sPrev=SNX;if(evs._hand0)HAND0=evs._hand0;if(evs._snx)SNX=evs._snx;try{return playFxCore(evs,R0,P0,part);}finally{HAND0=hPrev;SNX=sPrev;}};
   if(reduced||!evs.some(flip1)||!evs.some(e=>!flip1(e))){if(!mid)return run();
     /* gpu68 (vis): bước chỉ có thẻ lật (Duy Trì…) có màn ra mắt -> cùng luật [lật] -> [A ra mắt] -> [B kỹ năng] (15-pa6.js), không diễn kỹ năng trước/khi đang phóng lớn */
-    if(evs.some(flip1)){playFxCore(evs,R0,P0,1);holdFx(520);fxT(()=>{const go=()=>{try{run(2);}catch(e){console.error(e);}};try{mid(go);}catch(e){console.error(e);go();}},500);return 0;}
-    run();holdFx(520);fxT(()=>{try{mid(()=>{});}catch(e){console.error(e);}},500);return 0;}
+    if(evs.some(flip1)){playFxCore(evs,R0,P0,1);const rl=holdMid();fxT(()=>{rl();const go=()=>{try{run(2);}catch(e){console.error(e);}};try{mid(go);}catch(e){console.error(e);go();}},500);return 0;}
+    run();const rl=holdMid();fxT(()=>{rl();try{mid(()=>{});}catch(e){console.error(e);}},500);return 0;}
   /* gpu40: thẻ lật trên bàn chậm hơn một nhịp (lật 0,34 s gốc, nhịp lật 0,5 s gốc) để kịp nhìn mặt thẻ */
-  playFxCore(evs,R0,P0,1);holdFx(520);
-  fxT(()=>{const go=()=>{try{run(2);}catch(e){console.error(e);}};if(mid){try{mid(go);}catch(e){console.error(e);go();}}else go();},500);return 0;}
+  playFxCore(evs,R0,P0,1);const rl=mid?holdMid():(holdFx(520),()=>{});
+  fxT(()=>{rl();const go=()=>{try{run(2);}catch(e){console.error(e);}};if(mid){try{mid(go);}catch(e){console.error(e);go();}}else go();},500);return 0;}
 /* ===== gpu29: KẾT QUẢ CHỈ HIỆN KHI ĐÒN TRÚNG =====
    Thứ tự mọi bước: (a) thẻ lật trên bàn -> (b) màn ra mắt S4/S5 -> (c) đòn/hiệu ứng bay tới -> (d) đòn trúng mới đổi bàn.
    Trước E.doStep chụp trạng thái (pvSnap = E.clone). Sau bước, bàn được vẽ theo "khung trước bước" GV: thẻ vừa lật ngửa ra
@@ -1542,7 +1550,11 @@ function aura(inst){const id=(E.ab(inst)&&C[E.ab(inst)])?E.ab(inst):inst.id;if(A
     +`<span class="au9r au10r" style="--c1:${c1};--rs:${sp}s" aria-hidden="true"><i></i></span><span class="au9r au10r au10b" style="--c1:${c2};--rs:${sp}s" aria-hidden="true"><i></i></span>`+badgeHTML9(id,"ak10");}
 /* tốc độ hoạt ảnh: mọi WAAPI và CSS animation trong trận nhân SPD */
 (function(){const A=Element.prototype.animate;Element.prototype.animate=function(k,o){if(SPD!==1&&o!=null){if(typeof o==="number")o=o*SPD;else if(typeof o==="object"){o=Object.assign({},o);if(isFinite(o.duration))o.duration*=SPD;if(o.delay)o.delay*=SPD;if(o.endDelay)o.endDelay*=SPD;}}return A.call(this,k,o);};
-  document.addEventListener("animationstart",e=>{if(SPD===1)return;const t=e.target;if(!t||!t.getAnimations)return;const lb=$("lobby");if(lb&&lb.classList.contains("on"))return;try{for(const a of t.getAnimations())if(a.animationName===e.animationName&&!a.sp10){a.sp10=1;a.playbackRate=1/SPD;}}catch(x){}},true);})();
+  /* b44-P: gom mọi animationstart của cùng một lượt phát sự kiện vào MỘT lần document.getAnimations() (trước: mỗi sự kiện gọi
+     t.getAnimations() -> buộc tính lại kiểu/bố cục từng lần, hàng chục lần lúc màn phóng lớn bật lên). Sự kiện cùng một lượt cập nhật hoạt ảnh có
+     timeStamp gần như trùng nhau (<4 ms) -> chỉ sự kiện đầu xử lý. Chỉ chỉnh hoạt ảnh CSS đã qua delay (như cũ). */
+  let spT=-1e9;document.addEventListener("animationstart",e=>{if(SPD===1)return;const ts=e.timeStamp||performance.now();if(Math.abs(ts-spT)<4)return;const lb=$("lobby");if(lb&&lb.classList.contains("on"))return;spT=ts;
+    try{for(const a of document.getAnimations()){if(!a.animationName||a.sp10)continue;const ct=a.currentTime==null?0:a.currentTime,dl=(a.effect&&a.effect.getTiming().delay)||0;if(ct+1<dl)continue;a.sp10=1;a.playbackRate=1/SPD;}}catch(x){}},true);})();
 function setSpd10(v){store.spd=SPDV[v]?v:"vua";SPD=SPDV[store.spd];try{save();}catch(e){}}
 
 /* ===== v11: chiêu nhiều mục tiêu diễn đồng loạt; ảnh vẽ (sprite) cho vật thể/ấn ký/vụ nổ ===== */
