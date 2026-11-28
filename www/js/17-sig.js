@@ -70,6 +70,8 @@
       clearTimeout(j.wd);
       for (const f of j.fins) { try { f(!!fast); } catch (e) { console.error(e); } }
       for (const e of j.els) e.remove();
+      /* gpu69: hết màn diễn -> không còn nét mực nào được sống (gốc lỗi sót .sgcv khi máy tải nặng) */
+      if (!ACT.size) CV.L.length = 0;
       cvGC();
     };
     j.wd = setTimeout(() => j.fin(true), (ms + 2500) * SPD);
@@ -113,6 +115,8 @@
     if (reduced) return null;
     cvOn();
     p.t = 0; p.dead = 0;
+    /* gpu69: hạn chót theo đồng hồ thật — máy chậm (khung hình > 50 ms) không làm nét mực sống quá màn diễn */
+    p.until = performance.now() + ((p.life || 1) * (SPD || 1) * 1000) + 400;
     CV.L.push(p);
     if (!CV.raf) { CV.last = performance.now(); CV.raf = requestAnimationFrame(cvTick); }
     return p;
@@ -128,7 +132,7 @@
       p.t += dt;
       const u = Math.min(1, p.t / p.life);
       try { p.draw(x, p, u); } catch (e) { p.dead = 1; }
-      if (u >= 1) p.dead = 1;
+      if (u >= 1 || now > p.until) p.dead = 1;
     }
     CV.L = CV.L.filter((p) => !p.dead);
     if (CV.L.length) CV.raf = requestAnimationFrame(cvTick);

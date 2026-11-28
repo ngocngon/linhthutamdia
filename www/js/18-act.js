@@ -65,6 +65,7 @@
     plan8 = function (evA, R0, R1, P0, P1) {
       CUR = { evs: evA, R0, R1, P0, P1, t: performance.now() };
       try { DS.plan(CUR); } catch (e) { console.error(e); }
+      try { handCover(evA); } catch (e) { console.error(e); }
       const r = p0.apply(this, arguments);
       /* lá do phần diễn vứt bỏ đưa lên bàn: không lật/ra mắt trước khi bay tới; không giữ nhịp tay bài chờ chúng */
       try {
@@ -81,6 +82,28 @@
     };
   }
   AC.cur = () => CUR;
+  /* kỹ năng chạy khi thẻ đang nằm TRÊN TAY (Cuối Lượt từ tay, phản ứng khi về tay, kỹ năng tay bài…): khung sáng theo hệ phủ trọn lá,
+     ảnh nhân vật nảy nhẹ, nhãn nhỏ tên kỹ năng trên lá — trước khi kết quả bay đi */
+  function handCover(evs) {
+    if (!on()) return;
+    const seen = new Set();
+    for (const e of evs) {
+      if (!(e.k === "skill" || e.k === "act") || !(e.uid > 0) || seen.has(e.uid)) continue;
+      if (E.find(G, e.uid) || HH.has(e.uid) || (CUR && CUR.R0 && CUR.R0.has(e.uid)) || (DS.P && DS.P.own.has(e.uid))) continue;
+      const el = hcOf(e.uid), q = rc(el);
+      if (!el || !q) continue;
+      seen.add(e.uid);
+      const c = anyC(e.uid), id = c ? c.id : null, c1 = (id && cols(id).c1) || "#ffd65a";
+      const t = e.t === "end" ? "CUỐI LƯỢT" : e.t === "react" ? (e.w === "x" || e.z === "disc" ? "KHI BỊ VỨT BỎ" : "PHẢN ỨNG") : "KỸ NĂNG TRÊN TAY";
+      try { el.animate([{ transform: "none", filter: "none" }, { transform: "translateY(-16px) scale(1.1)", filter: `brightness(1.6) drop-shadow(0 0 10px ${c1})`, offset: 0.3 }, { transform: "translateY(-12px) scale(1.08)", filter: `brightness(1.3) drop-shadow(0 0 8px ${c1})`, offset: 0.75 }, { transform: "none", filter: "none" }], { duration: 760, easing: "ease-out", composite: "add" }); } catch (x) {}
+      ring(q.x, q.y, c1, q.w * 1.25, 0.45, 0.95, 1.3);
+      glow(q.x, q.y, c1, q.w * 1.9, 0.5, 0.6);
+      converge(q.x, q.y, [c1, "#ffffff"], 12, q.w * 0.9, 0.3);
+      try { say(q.x, q.t - 12, t, c1); } catch (x) {}
+      try { holdFx(420); } catch (x) {}
+      tap("handCover", { uid: e.uid, t: e.t });
+    }
+  }
 
   /* ---------- ẩn tạm lá trên tay / trên bàn bằng luật CSS (bền với vẽ lại) ---------- */
   const HS = document.createElement("style");
@@ -335,6 +358,64 @@
     },
   });
 
+  /* --- mẫu chung "HÚT SỨC MẠNH" (Lật / Kích Hoạt): thẻ nguồn tăng đúng bằng phần các thẻ trên bàn bị giảm (Rồng Trăng, Băng Đế, Huyết Phi…)
+     đạo cụ riêng của thẻ (img/v) chạm từng mục tiêu, số "−n" nhấc khỏi ô số mục tiêu và chảy thành dòng hạt về thẻ nguồn --- */
+  SG.addX("drain", {
+    T: (P) => 760 + Math.min(4, P.tgs.length) * 70, dur: (P) => 1250 + Math.min(4, P.tgs.length) * 70,
+    match(evs, R0, P0) {
+      if (!P0) return null;
+      let e = evs.find((x) => x.k === "skill" && (x.t === "rev" || x.t === "act") || x.k === "act"), f = e ? E.find(G, e.uid) : null;
+      if (!e && evs.some((x) => x.k === "move")) {
+        /* bị động khi di chuyển (Quỷ Khiếu, Loạn Ca Tử…) / Nhiệm Vụ: thẻ tăng nhiều nhất trên bàn là nguồn */
+        let best = null, bg = 0;
+        for (let i = 0; i < 3; i++) for (const sd of E.SIDES) for (const c of G.locs[i].cards[sd]) { if (!c.rev || !P0.has(c.uid)) continue; const d = E.power(G, c, i) - P0.get(c.uid); if (d > bg) { bg = d; best = { inst: c, li: i }; } }
+        if (best && /lấy \d+ sức mạnh/i.test((C[E.ab(best.inst)] || {}).x || "")) { f = best; e = { uid: best.inst.uid }; }
+      }
+      if (!e || !f || !f.inst.rev || f.inst.sil || XREG_has(f.inst.id)) return null;
+      if (!realRev(E.ab(f.inst)) && E.REV[E.ab(f.inst)]) return null;
+      if (evs.some((x) => x.k === "borrow" || x.k === "top" || x.k === "discard" || x.k === "destroy")) return null;
+      const me = f.inst, g = P0.has(me.uid) ? E.power(G, me, f.li) - P0.get(me.uid) : 0;
+      if (!(g > 0)) return null;
+      const tgs = [];
+      let lost = 0;
+      for (let i = 0; i < 3; i++) for (const sd of E.SIDES) for (const c of G.locs[i].cards[sd]) { if (c === me || !c.rev || !P0.has(c.uid)) continue; const d = E.power(G, c, i) - P0.get(c.uid); if (d < 0) { tgs.push([c.uid, -d]); lost -= d; } }
+      const hb = SNX && SNX.hb;
+      if (hb) for (const sd of E.SIDES) for (const c of G.hand[sd]) if (hb.has(c.uid) && (c.bonus || 0) < hb.get(c.uid)) { const d = hb.get(c.uid) - (c.bonus || 0); tgs.push([c.uid, d, 1]); lost += d; }
+      if (!tgs.length || lost < g * 0.5 || lost > g * 2) return null;
+      return { inst: me, li: f.li, ev: e, extra: { tgs: tgs.slice(0, 6), gain: g } };
+    },
+    own: (s, P) => (s.k === "up" || s.k === "down") && !s.ong && (s.dst === P.uid || P.tgs.some((x) => x[0] === s.dst)),
+    run(P, j, total) {
+      const a = K.srcPt(P), me0 = rc(mcOf(P.uid)) || P.q0 || a, pk = projOf(P.id), cc = P.c1 || "#ff8a2b";
+      const sz = clamp(((P.q0 && P.q0.w) || 60) * 1.3, 64, innerWidth * 0.3);
+      const foeHand = rc(document.getElementById("avFoe"));
+      const tqOf = (u, h) => rc(mcOf(u)) || rc(hcOf(u)) || (h ? foeHand : null);
+      P.tgs.forEach(([u, d, h], i) => {
+        const tq = tqOf(u, h);
+        if (!tq) return;
+        const t0 = 260 + i * 70;
+        j.at(t0, () => {
+          const pr = pk ? pic(j, pk, a.x, a.y, sz, sz, cc, "face") : null;
+          if (pr) tl(pr, [{ t: 0, x: a.x, y: a.y, s: 0.4, o: 0 }, { t: 80, x: a.x, y: a.y - 8, s: 1, o: 1 }, ...arc({ x: a.x, y: a.y - 8 }, tq, 60, 80, 300, { face: 1, s0: 1, s1: 1, n: 10 }), { t: 380, x: tq.x, y: tq.y, s: 1.2, o: 0 }], 380);
+          trail(a, tq, 60, 80, 300, [cc, "#ffffff"], 7);
+        });
+        j.at(t0 + 300, () => {
+          const q = tqOf(u, h) || tq, el = mcOf(u) || hcOf(u), b = el && el.querySelector(".pwh"), bq = b ? b.getBoundingClientRect() : null;
+          if (h && el && !mcOf(u)) { try { const v1 = parseInt(b.textContent, 10); P6.stat({ el, k: "pow", v0: v1 + d, v1, uid: u }); } catch (x) {} }
+          const bp = bq && bq.width ? { x: bq.left + bq.width / 2, y: bq.top + bq.height / 2 } : { x: q.x + q.w * 0.3, y: q.t + 10 };
+          ring(q.x, q.y, "#ff6b86", q.w * 1.2, 0.4, 0.95); glow(q.x, q.y, cc, q.w * 1.6, 0.4, 0.6);
+          const st = P.owned.find((s) => s.dst === u); if (st) P.hit(st);
+          const me = rc(mcOf(P.uid)) || me0, n = j.add(el0("sgx acnum", bp.x, bp.y, 70, 36, "#ffd27a", `<b style="font-size:24px">+${d}</b>`)), T2 = P.T - (t0 + 300);
+          tl(n, [{ t: 0, x: bp.x, y: bp.y, s: 0.5, o: 0 }, { t: 100, x: bp.x, y: bp.y - 18, s: 1.1, o: 1 }, ...arc({ x: bp.x, y: bp.y - 18 }, topOf(me), 60, 140, T2, { s0: 1.1, s1: 0.7 }), { t: T2 + 60, x: me.x, y: me.y, s: 0.4, o: 0 }], T2 + 60);
+          trail(q, me, 80, 60, T2, [cc, "#ffd27a", "#ffffff"], 10);
+          tap("drain:hit", { uid: u, src: P.uid });
+        });
+      });
+      j.at(P.T - 60, () => { const me = rc(mcOf(P.uid)) || me0; converge(me.x, me.y, [cc, "#ffd27a", "#ffffff"], 14, me.w, 0.3, 1); });
+      j.at(P.T, () => { hitAll(P); const me = rc(mcOf(P.uid)) || me0; ring(me.x, me.y, "#ffd27a", me.w * 1.35, 0.45, 0.95); streaks(me.x, me.y, [cc, "#ffd27a", "#ffffff"], 14, 260, 0, 6.283, 0.45, 5); tap("drain", { uid: P.uid, n: P.tgs.length }); });
+    },
+  });
+
   /* ============ MỤC 12: CUỐI LƯỢT theo loại hiệu ứng ============ */
   /* ấn trăng dưới chân thẻ nguồn + nhãn loại; dùng chung cho mọi thẻ Cuối Lượt */
   function eotMark(P, j, lab, c) {
@@ -395,7 +476,7 @@
       if (o.up.length) L.push(grp(o.up));
       if (o.dn.length) L.push(grp(o.dn));
       if (o.cost.length) L.push(sgn(o.cost[0][1]) + " NĂNG LƯỢNG");
-      if (o.hand.length) L.push("TAY BÀI " + sgn(o.hand[0][1]));
+      if (o.hand.length) L.push(o.hand.length === 1 && o.hand[0][0] === P.uid ? sgn(o.hand[0][1]) + " SỨC MẠNH (TRÊN TAY)" : "TAY BÀI " + sgn(o.hand[0][1]) + (o.hand.length > 1 ? " ×" + o.hand.length : ""));
       if (o.mx) L.push(sgn(o.mx) + " NĂNG LƯỢNG TỐI ĐA");
       if (o.ab.length) L.push("ĐỔI KỸ NĂNG");
       if (o.tf.length) L.push("BIẾN HÌNH");
@@ -548,7 +629,7 @@
     run(P, j, total) {
       const all = new Map(P.owned.map((s) => [s.hc || s.dst, s]));
       P.rx.forEach((e, k) => {
-        const t0 = k * 820, id = e.id || (anyC(e.uid) || {}).id, cc = cols(id).c1 || "#ffd65a", disc = e.w === "x";
+        const t0 = k * 820, id = e.id || (anyC(e.uid) || {}).id, cc = cols(id).c1 || "#ffd65a", disc = e.w === "x" || e.z === "disc";
         const r0 = P.R0 && P.R0.get(e.uid), pile = PILEPT();
         const o = disc ? { x: pile.x, y: pile.y - 40, w: 60, h: 82 } : r0 ? { x: r0.x, y: r0.y, w: r0.w, h: r0.h } : (posOf(e.uid) || { x: innerWidth / 2, y: innerHeight / 2, w: 60, h: 82 });
         const fw = clamp((o.w || 60), 56, 84);
@@ -658,7 +739,7 @@
     let curU = 0;
     for (const e of evs) {
       if (e.k === "discard") { curU = e.uid; if (!P.seg.has(curU)) P.seg.set(curU, { e, rx: null, evs: [] }); continue; }
-      if (e.k === "skill" && e.t === "react" && e.w === "x") { curU = e.uid; const g = P.seg.get(curU); if (g) g.rx = e; continue; }
+      if (e.k === "skill" && e.t === "react" && (e.w === "x" || e.z === "disc")) { curU = e.uid; const g = P.seg.get(curU); if (g) g.rx = e; continue; }
       if (e.k === "skill") { curU = 0; continue; }
       if (curU && P.seg.has(curU)) P.seg.get(curU).evs.push(e);
     }
@@ -722,7 +803,7 @@
     const hand = rc(document.getElementById("hand")) || { x: innerWidth / 2, y: innerHeight - 90, t: innerHeight - 150, w: innerWidth, h: 120 };
     const rowY = clamp(hand.t - Hc * 0.62, Hc / 2 + 90, innerHeight - Hc), foeY = clamp((rc(document.getElementById("avFoe")) || { y: 80 }).y + Hc * 0.9, Hc / 2 + 70, innerHeight * 0.4);
     const pile = PILEPT(), src = srcUid ? where7(srcUid, null, null) : null, sc = srcUid ? (window.FXR ? FXR.c1(srcUid, "#ff9a4d") : "#ff9a4d") : "#ff9a4d";
-    const j = job(DT.LIFT + DT.READ + show.length * gap + DT.BURN + DT.SOUL + 2600);
+    const j = job(DT.LIFT + DT.READ + show.length * gap + DT.BURN + DT.SOUL + 6000);
     DS.jobs.add(j);
     j.onEnd((fast) => { DS.jobs.delete(j); if (fast) dsFinish(P); });
     if (src) { try { lit7(src, sc, srcUid); } catch (e) {} }
@@ -848,7 +929,7 @@
   function runRet(P) {
     P.ran = 1; P.tb = performance.now();
     const pile = PILEPT(), L = P.ret.slice(0, 8);
-    const j = job(600 + L.length * 120 + DT.BACK + 400);
+    const j = job(600 + L.length * 120 + DT.BACK + 4000);
     DS.jobs.add(j);
     j.onEnd((fast) => { DS.jobs.delete(j); if (fast) dsFinish(P); });
     const s0 = L[0] && L[0].src ? where7(L[0].src, null, null) : null;

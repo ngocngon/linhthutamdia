@@ -81,6 +81,10 @@ const SC = [
     } },
   { name: "Ma Tốc đưa lá vứt bỏ lên bàn (4)", turn: 4, disc: ["kiemsu"], hand: [["matoc", 1]],
     chk: (r) => { ok(r.t.some(x => x.k === "disc:ret") && r.t.some(x => x.k === "disc:land" && x.to === "board"), "Ma Tốc: lá bay từ Mộ ra chiến địa"); } },
+  { name: "Băng Đế hút sức mạnh (mẫu chung)", turn: 4, own: [["tinhquyennu", 1]], foe: [["thachquai", 1], ["thachquai", 1]], hand: [["bangvuong", 1]],
+    chk: (r, u) => { const hs = r.t.filter(x => x.k === "drain:hit").map(x => x.uid); ok([u.own[0], ...u.foe].every(x => hs.includes(x)) && r.t.some(x => x.k === "drain" && x.uid === u.hand[0]), "Băng Đế: hút từ đúng 3 thẻ khác tại đây về thẻ nguồn (" + hs.join(",") + ")"); } },
+  { name: "Nộ Diện Cự Nhân Cuối Lượt trên tay (12/32)", turn: 4, hand: [["tinhquyennu", 1]], extraHand: ["cuongnhando"], js: "G.energy.a = 3;",
+    chk: (r, u) => { ok(r.t.some(x => x.k === "handCover" && x.uid === u.extra[0]), "Nộ Diện: khung phủ lá trên tay khi kỹ năng chạy"); ok(r.t.some(x => x.k === "eot:hit" && x.uid === u.extra[0]), "Nộ Diện: +3 diễn trên chính lá trên tay"); } },
   { name: "Quái Đầu To + chạm tua nhanh", tapAt: 1400, turn: 4, hand: [["dauto", 1]], extraHand: ["matthevuong", "bayong", "kiemsu"],
     chk: (r) => { ok(r.t.some(x => x.k === "disc:end"), "chạm: phần diễn vứt bỏ kết thúc ngay"); } },
 ];
@@ -118,6 +122,7 @@ try {
       U.hand = G.hand.p.slice(0, (o.hand || []).length).map(c => c.uid);
       (o.hand || []).forEach(([id, li], k) => E.queuePlay(G, "p", U.hand[k], li));
       if (o.rs != null) G.rs = o.rs;
+      if (o.js) eval(o.js);
       render(); window.__t.length = 0; window.__t29.length = 0;
       return U;
     }, { o: oo });

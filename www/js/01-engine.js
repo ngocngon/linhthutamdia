@@ -2475,9 +2475,9 @@ function stepEndTurn(G, st) {
       empScan(G); if (questScan(G)) empScan(G);
       return true;
     }
-    if (is(G, c, "cuongnhantienhoa") && G.unspent[s] > 0) { c.bonus += 2; if (s === "p") log(G, C[c.id].n + " trên tay +2 sức mạnh"); empScan(G); return true; }
-    if (is(G, c, "cuongnhando") && G.unspent[other(s)] > 0) { c.bonus += 3; log(G, C[c.id].n + " trên tay +3 sức mạnh"); empScan(G); return true; }
-    if (c.her && is(G, c, "kenuotsaosokhai")) { const hf = find(G, c.her); if (hf && hf.inst.rev && hf.inst.side === s && lead(G, hf.li) === s) { c.bonus += 2; if (s === "p") log(G, C[c.id].n + " trên tay +2 sức mạnh"); empScan(G); return true; } }
+    if (is(G, c, "cuongnhantienhoa") && G.unspent[s] > 0) { ev(G, "skill", { uid: c.uid, t: "end", hand: 1 }); c.bonus += 2; if (s === "p") log(G, C[c.id].n + " trên tay +2 sức mạnh"); empScan(G); return true; }
+    if (is(G, c, "cuongnhando") && G.unspent[other(s)] > 0) { ev(G, "skill", { uid: c.uid, t: "end", hand: 1 }); c.bonus += 3; log(G, C[c.id].n + " trên tay +3 sức mạnh"); empScan(G); return true; }
+    if (c.her && is(G, c, "kenuotsaosokhai")) { const hf = find(G, c.her); if (hf && hf.inst.rev && hf.inst.side === s && lead(G, hf.li) === s) { ev(G, "skill", { uid: c.uid, t: "end", hand: 1 }); c.bonus += 2; if (s === "p") log(G, C[c.id].n + " trên tay +2 sức mạnh"); empScan(G); return true; } }
     return false;
   }
   if (st.t === "end_streak") {
