@@ -32,12 +32,13 @@ const IGN = /ERR_TUNNEL|ERR_PROXY|Failed to load resource/;
 page.on("pageerror", e => errors.push("pageerror: " + e.message));
 page.on("console", m => { if (m.type() === "error" && !IGN.test(m.text())) errors.push("console: " + m.text()); });
 let failed = false;
+const eq1 = (a, b, m) => ok(a === b, m + " (" + a + ")");
 const ok = (c, m) => { console.log((c ? "  ok   " : "  LỖI  ") + m); if (!c) failed = true; };
 await page.addInitScript(() => {
   localStorage.setItem("ltd_p6lv", "full"); localStorage.removeItem("ltd_hx_all");
   window.__t = [];
   const T = (src) => (k, o) => window.__t.push(Object.assign({ k, src, t: performance.now() }, o || {}));
-  window.ACT_TAP = T("a"); window.SIG_TAP = T("s"); window.HX_TAP = T("h");
+  window.ACT_TAP = T("a"); window.SIG_TAP = T("s"); window.HX_TAP = T("h"); window.PA6_TAP = T("p");
   /* ghi lại mọi lá "lá trên cùng bộ bài" (.t29) được dựng: có mặt thẻ (.fxface) hay chỉ mặt lưng (.dkp) */
   window.__t29 = [];
   const mo = () => new MutationObserver(ms => { for (const m of ms) for (const n of m.addedNodes) if (n.nodeType === 1 && n.classList && n.classList.contains("t29")) window.__t29.push(n.querySelector(".dkp") ? "back" : n.querySelector(".fxface") ? "face" : "other"); }).observe(document.body, { childList: true, subtree: true });
@@ -51,7 +52,7 @@ const SC = [
   { name: "Tiểu Long Cuối Lượt (35)", turn: 4, own: [["tieulong", 1]], eot: ["tieulong"], foe: [["thachquai", 1, 3]], hand: [["tinhquyennu", 0]],
     chk: (r, u) => { ok(r.t.some(x => x.k === "tieulong:hit" && x.uid === u.foe[0]), "Tiểu Long: cầu lửa trúng đúng thẻ địch"); ok(r.t.some(x => x.k === "eot" && x.uid === u.own[0]), "Tiểu Long: ấn Cuối Lượt trên chính thẻ"); } },
   { name: "Chiến Thần (41)", turn: 4, foe: [["thachquai", 1]], hand: [["chienthan", 1]],
-    chk: (r) => { ok(r.t.some(x => x.k === "chienthan:cmp"), "Chiến Thần: bảng so 3 số hiện + so sánh"); ok(!r.t29.includes("face"), "Chiến Thần: không hiện mặt thẻ lá trên cùng (" + r.t29.join(",") + ")"); } },
+    chk: (r) => { ok(r.t.some(x => x.k === "chienthan:cmp"), "Chiến Thần: bảng so 3 số hiện + so sánh"); { const c = r.t.find(x => x.k === "chienthan:cmp"); ok(c.pw <= 260 && c.ph <= 110, "gpu70 (mục 8): bảng Chiến Thần nhỏ gọn (" + c.pw + "×" + c.ph + ")"); ok(Math.abs(c.cx) <= 2, "gpu70: bảng ở giữa màn theo chiều ngang"); ok(c.top >= c.ob - 2, "gpu70: bảng không che hàng thẻ đối thủ phía trên (đỉnh bảng " + c.top + " < đáy hàng trên " + c.ob + ")"); } ok(!r.t29.includes("face"), "Chiến Thần: không hiện mặt thẻ lá trên cùng (" + r.t29.join(",") + ")"); } },
   { name: "Quyền Sư Máu (2)", turn: 4, own: [["thachquai", 0], ["thachquai", 2]], hand: [["huyettinhquyen", 1]],
     chk: (r) => { ok(r.t.some(x => x.k === "deck" && x.a === "steal" && x.side === "a"), "Quyền Sư Máu: lấy sức mạnh từ chồng bài đối thủ"); ok(r.t29.length > 0 && !r.t29.includes("face"), "Quyền Sư Máu: chỉ mặt lưng chồng bài (" + r.t29.join(",") + ")"); } },
   { name: "Nàng Tấm (2, bộ bài mình)", turn: 4, hand: [["tinhquyennu", 1]],
@@ -85,6 +86,12 @@ const SC = [
     chk: (r, u) => { const hs = r.t.filter(x => x.k === "drain:hit").map(x => x.uid); ok([u.own[0], ...u.foe].every(x => hs.includes(x)) && r.t.some(x => x.k === "drain" && x.uid === u.hand[0]), "Băng Đế: hút từ đúng 3 thẻ khác tại đây về thẻ nguồn (" + hs.join(",") + ")"); } },
   { name: "Nộ Diện Cự Nhân Cuối Lượt trên tay (12/32)", turn: 4, hand: [["tinhquyennu", 1]], extraHand: ["cuongnhando"], js: "G.energy.a = 3;",
     chk: (r, u) => { ok(r.t.some(x => x.k === "handCover" && x.uid === u.extra[0]), "Nộ Diện: khung phủ lá trên tay khi kỹ năng chạy"); ok(r.t.some(x => x.k === "eot:hit" && x.uid === u.extra[0]), "Nộ Diện: +3 diễn trên chính lá trên tay"); } },
+  { name: "gpu70 (mục 6): Trương Chi đạt điều kiện -> vòng vàng sau khi lật", turn: 4, foe: [["thachquai", 1]], hand: [["tinhchua", 1]], js: "G.locs[1].cards.a[0].turn = G.turn;",
+    chk: (r, u) => { const ci = r.t.findIndex(x => x.k === "cond" && x.uid === u.hand[0]), fi = r.t.findIndex(x => x.k === "Q:B"); ok(ci >= 0, "Trương Chi: vòng vàng điều kiện đạt"); ok(fi >= 0 && ci > fi, "vòng vàng chỉ trong phần kỹ năng [B] (sau khi lật)"); eq1(r.t.filter(x => x.k === "cond").length, 1, "loé đúng một lần"); } },
+  { name: "gpu70 (mục 6): Trương Chi KHÔNG đạt điều kiện -> không vòng vàng", turn: 4, foe: [["thachquai", 1]], hand: [["tinhchua", 1]],
+    chk: (r) => { ok(!r.t.some(x => x.k === "cond"), "không loé khi đối thủ không đặt thẻ tại đây lượt này"); } },
+  { name: "gpu70 (mục 7): Thư Sinh Hoá Cuồng 33% -> nhịp quay TRÚNG/TRƯỢT", turn: 4, own: [["tiensigamma", 0]], eot: ["tiensigamma"], hand: [["tinhquyennu", 2]],
+    chk: (r) => { const a = r.t.findIndex(x => x.k === "spin" && x.roll >= 1), b = r.t.findIndex(x => x.k === "spin/"); ok(a >= 0 && b > a, "nhịp quay xác suất chạy rồi kết thúc trước kết quả"); } },
   { name: "Quái Đầu To + chạm tua nhanh", tapAt: 1400, turn: 4, hand: [["dauto", 1]], extraHand: ["matthevuong", "bayong", "kiemsu"],
     chk: (r) => { ok(r.t.some(x => x.k === "disc:end"), "chạm: phần diễn vứt bỏ kết thúc ngay"); } },
 ];

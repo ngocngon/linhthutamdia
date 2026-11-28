@@ -871,6 +871,79 @@
     return true;
   };
   document.addEventListener("pointerdown", () => { if (CH && !CH.pending && !CH.dead && !CH.dived) P6.skip(); }, true);
+  /* ---------- gpu70 (mục 6): thẻ "nếu đối thủ đã đặt thẻ tại đây lượt này" ĐẠT điều kiện -> vòng vàng loé MỘT lần trên thẻ ----------
+     Engine chỉ phát "cond" lúc kỹ năng chạy (sau khi lật) -> không lộ thông tin trước khi lật. Chạy trong [B] (srcFx 05, phần 2). */
+  const mcOf6 = (u) => document.querySelector(`#board [data-mc="${u}"]`);
+  P6.cond = function (ev) {
+    if (reduced || !ev || !ev.uid) return;
+    const el = mcOf6(ev.uid); if (!el) return;
+    tap("cond", { uid: ev.uid });
+    fxT(() => {
+      const b = el.getBoundingClientRect(); if (!b.width) return;
+      const x = b.left + b.width / 2, y = b.top + b.height / 2, w = Math.max(b.width, b.height * 0.72);
+      const d = document.createElement("div"); d.className = "cond70";
+      d.style.cssText = `left:${(b.left - 4).toFixed(1)}px;top:${(b.top - 4).toFixed(1)}px;width:${(b.width + 8).toFixed(1)}px;height:${(b.height + 8).toFixed(1)}px`;
+      document.body.appendChild(d);
+      const a = d.animate([{ opacity: 0, transform: "scale(.86)" }, { opacity: 1, transform: "scale(1.06)", offset: 0.3 }, { opacity: 1, transform: "scale(1)", offset: 0.6 }, { opacity: 0, transform: "scale(1.02)" }], { duration: 760 * SPD, easing: "ease-out", fill: "forwards" });
+      a.onfinish = () => d.remove(); setTimeout(() => d.remove(), 1200 * SPD);
+      ring(x, y, "#ffd65a", w * 1.25, 0.5, 0.95);
+      if (tier() !== "lite") star(x, b.top + 6, "#fff3c0", w * 0.7, 0.3);
+    }, 120);
+    try { holdFx(900); } catch (e) {}
+  };
+
+  /* ---------- gpu70 (mục 7): NHỊP "QUAY CHỌN" cho hiệu ứng ngẫu nhiên ----------
+     Sự kiện engine "rpick" (chọn ngẫu nhiên thẻ trên bàn trong ≥2 ứng viên: Bạch Cốt Yêu chia −7, dời/tiêu huỷ/buff ngẫu nhiên…)
+     và "roll" (xác suất: Thư Sinh Hoá Cuồng 33%). Trước phần [B] của bước: một khung vàng nhảy qua các ứng viên rồi dừng ở lá trúng
+     (~0,5 s ở tốc độ 1×, nhân SPD; mức Nhẹ ~0,26 s); "roll" quay nhãn TRÚNG/TRƯỢT trên thẻ. Chạm màn hình = bỏ qua ngay.
+     Không có khi giảm chuyển động / tua lượt máy. Gọi từ cổng SEQ (17-sig) -> luôn sau [A] (luật 1), [B] chạy ngay khi quay xong. */
+  let SPIN = null;
+  P6.spinGate = function (evs, cont) {
+    if (SPIN) SPIN.fin();
+    if (reduced || ff() || document.hidden || !evs) return cont();
+    const rp = evs.filter((e) => e.k === "rpick" && e.cand), ro = evs.filter((e) => e.k === "roll" && mcOf6(e.uid));
+    const cand = [], hits = new Map();
+    for (const e of rp) { for (const u of e.cand) if (cand.indexOf(u) < 0 && mcOf6(u)) cand.push(u); if (mcOf6(e.uid)) hits.set(e.uid, (hits.get(e.uid) || 0) + 1); }
+    const doPick = cand.length > 1 && hits.size > 0;
+    if (!doPick && !ro.length) return cont();
+    const lite = tier() === "lite", D = (lite ? 260 : 520) * SPD, tms = [];
+    const at = (f, ms) => tms.push(setTimeout(() => { try { f(); } catch (e) { console.error(e); } }, ms));
+    const nodes = [];
+    let done = 0;
+    const fin = () => {
+      if (done) return; done = 1; SPIN = null;
+      for (const t of tms) clearTimeout(t);
+      for (const n of nodes) n.remove();
+      for (const [u, n] of hits) { const el = mcOf6(u); if (!el) continue; const b = el.getBoundingClientRect(); ring(b.left + b.width / 2, b.top + b.height / 2, "#ffd65a", Math.max(b.width, 40) * 1.1, 0.35, 0.9); if (n > 1) chipAt(b, "×" + n); }
+      tap("spin/", { n: hits.size });
+      cont();
+    };
+    const chipAt = (b, txt) => { const d = document.createElement("div"); d.className = "stchip up spin70c"; d.textContent = txt; document.body.appendChild(d); d.style.left = (b.left + b.width / 2 - d.offsetWidth / 2).toFixed(1) + "px"; d.style.top = (b.top - d.offsetHeight - 2).toFixed(1) + "px"; const a = d.animate([{ opacity: 0 }, { opacity: 1, offset: 0.2 }, { opacity: 1, offset: 0.7 }, { opacity: 0 }], { duration: 700 * SPD, fill: "forwards" }); a.onfinish = () => d.remove(); setTimeout(() => d.remove(), 1000 * SPD); };
+    SPIN = { fin };
+    tap("spin", { n: cand.length, roll: ro.length });
+    try { holdFx(D / SPD + 260); } catch (e) {}
+    if (doPick) {
+      const fr = document.createElement("div"); fr.className = "spin70"; document.body.appendChild(fr); nodes.push(fr);
+      const R = cand.map((u) => mcOf6(u).getBoundingClientRect());
+      const put = (k) => { const b = R[k]; fr.style.width = b.width + 8 + "px"; fr.style.height = b.height + 8 + "px"; fr.style.transform = `translate3d(${(b.left - 4).toFixed(1)}px,${(b.top - 4).toFixed(1)}px,0)`; };
+      const last = cand.indexOf([...hits.keys()][hits.size - 1]);
+      /* số bước nhảy: nhanh dần chậm lại, dừng đúng lá trúng (lá trúng cuối nếu nhiều lá) */
+      const nH = Math.max(cand.length + 1, lite ? 4 : 7), start = ((last - nH + 1) % cand.length + cand.length * 8) % cand.length;
+      let t = 0; for (let k = 0; k < nH; k++) { const ix = (start + k) % cand.length, f = k / Math.max(1, nH - 1); at(() => { put(ix); try { if (k % 2 === 0) SFX.play("tap"); } catch (e) {} }, t); t += D / nH * (0.55 + f * 0.9); }
+      put(start);
+    }
+    for (const e of ro) {
+      const el = mcOf6(e.uid), b = el.getBoundingClientRect();
+      const d = document.createElement("div"); d.className = "roll70"; d.textContent = (e.p || 33) + "%"; document.body.appendChild(d); nodes.push(d);
+      d.style.left = (b.left + b.width / 2 - d.offsetWidth / 2).toFixed(1) + "px"; d.style.top = (b.top + b.height * 0.3).toFixed(1) + "px";
+      const seq = ["?", (e.p || 33) + "%", "?", "…"]; let t = 0, k = 0;
+      for (; t < D * 0.8; k++) { const tx = seq[k % seq.length]; at(() => { d.textContent = tx; }, t); t += D / 7; }
+      at(() => { d.textContent = e.ok ? "TRÚNG!" : "TRƯỢT"; d.classList.add(e.ok ? "ok" : "no"); d.style.left = (b.left + b.width / 2 - d.offsetWidth / 2).toFixed(1) + "px"; }, D * 0.82);
+    }
+    at(fin, D);
+    return 0;
+  };
+  document.addEventListener("pointerdown", () => { if (SPIN) SPIN.fin(); }, true);
   /* gpu61: bộ công cụ dùng chung cho 16-hx.js (Hồn Xuất vòng 2) */
   P6.kit = { E6, kN, rnd, shake, soulUrl, TF, soulAnim, setPose, fly, after, scheduled, T6, gl, ch: () => CH };
 })();

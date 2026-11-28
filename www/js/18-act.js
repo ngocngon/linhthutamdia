@@ -316,8 +316,11 @@
     own: (s, P) => (s.k === "top" && s.src === P.uid) || selfStep(P)(s),
     run(P, j, total) {
       const a = K.srcPt(P), bd = rc(document.getElementById("board")) || { x: innerWidth / 2, y: innerHeight * 0.45, w: innerWidth, h: 400, t: 120 };
-      const PW = Math.min(innerWidth - 24, 360), PH = 196, cx = innerWidth / 2, cy = clamp(bd.t + 120, PH / 2 + 60, innerHeight * 0.42);
-      const pn = j.add(el0("acvs", cx, cy, PW, PH, "#ff6a3a", `<div class="acvs-in">
+      /* gpu70 (mục 8): bảng nhỏ gọn (số xếp ngang), đặt GIỮA màn — tâm hàng chiến địa giữa — không che hàng thẻ trên cùng (đối thủ) */
+      const lw = rc(document.querySelector('#board [data-lane="1"] .locw')), PW = Math.min(innerWidth - 40, 250), PH = 96, cx = innerWidth / 2;
+      let ob0 = 0; document.querySelectorAll("#board .side.opp").forEach((e) => { const r = e.getBoundingClientRect(); if (r.height) ob0 = Math.max(ob0, r.bottom); });
+      const cy = clamp(lw ? lw.y : (bd.y || innerHeight / 2), Math.max(PH / 2 + 8, ob0 + PH / 2 + 2), innerHeight - PH / 2 - 8);
+      const pn = j.add(el0("acvs sm70", cx, cy, PW, PH, "#ff6a3a", `<div class="acvs-in">
         <div class="col me"><h6>BẠN</h6><div class="nums">${[0, 1, 2].map((i) => `<i data-i="${i}">${P.me[i] != null ? "?" : "–"}</i>`).join("")}</div><b class="sum">0</b></div>
         <div class="mid"><span class="cmp">VS</span><small>3 lá trên cùng</small></div>
         <div class="col op"><h6>ĐỐI THỦ</h6><div class="nums">${[0, 1, 2].map((i) => `<i data-i="${i}">${P.op[i] != null ? "?" : "–"}</i>`).join("")}</div><b class="sum">0</b></div></div>`));
@@ -344,7 +347,7 @@
         const w = P.win ? cMe : cOp, q = rc(w.querySelector(".sum"));
         if (q) { ring(q.x, q.y, P.win ? "#5dffa8" : "#ff6b86", 60, 0.45, 0.95); glow(q.x, q.y, P.win ? "#5dffa8" : "#ff6b86", 90, 0.45, 0.7); }
         try { SFX.play(P.win ? "chime" : "place"); } catch (e) {}
-        tap("chienthan:cmp", { uid: P.uid, win: P.win ? 1 : 0 });
+        { let ob = 0; document.querySelectorAll("#board .side.opp").forEach((e) => { const r = e.getBoundingClientRect(); if (r.height) ob = Math.max(ob, r.bottom); }); tap("chienthan:cmp", { uid: P.uid, win: P.win ? 1 : 0, pw: PW, ph: PH, top: Math.round(cy - PH / 2), cx: Math.round(cx - innerWidth / 2), ob: Math.round(ob) }); }
       });
       if (P.win) {
         j.at(1420, () => {

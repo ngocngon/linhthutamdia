@@ -238,6 +238,22 @@ if (process.env.UI44 !== "0") {
       const q = await page.evaluate(() => G.q.p.filter(a => a.t === "move").map(a => a.uid + ">" + a.to).join());
       eq(q, ids.dh + ">0");
     });
+    await test("gpu70 (mục 5): kéo thẻ 'khi di chuyển' (Chuỳ Ánh Sáng) hiện số sẽ nhận ở từng chiến địa đích (mô phỏng trên bản sao)", async () => {
+      const u = await page.evaluate(() => { G.q = { p: [], a: [] }; for (const s of ["p", "a"]) G.locs.forEach(L => { L.cards[s] = []; });
+        const ob = (id, s, li) => { const c = E.mk(G, id, s); c.rev = true; c.turn = 1; c.played = true; G.locs[li].cards[s].push(c); return c; };
+        G.locs.forEach(L => { L.id = "meadow"; }); const q = ob("quangchuy", "p", 0); q.turn = 0; q.free = G.turn; ob("da", "a", 1); ob("da", "a", 1); look = null; sel = null; render();
+        window.__snap70 = JSON.stringify(G.locs.map(L => [L.cards.p.map(c => c.uid + ":" + c.bonus), L.cards.a.length])); return q.uid; });
+      await page.waitForTimeout(600);
+      const from = await page.evaluate(u => { const r = document.querySelector(`#board [data-mc="${u}"]`).getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; }, u);
+      await page.mouse.move(from.x, from.y); await page.mouse.down(); await page.mouse.move(from.x + 12, from.y - 12, { steps: 3 });
+      await page.waitForFunction(() => document.querySelectorAll("#board .mvgain").length > 0, null, { timeout: 3000 }).catch(() => {});
+      const g = await page.evaluate(() => [...document.querySelectorAll("#board .mvgain")].map(e => e.dataset.mvg + "=" + e.textContent).join());
+      const same = await page.evaluate(() => window.__snap70 === JSON.stringify(G.locs.map(L => [L.cards.p.map(c => c.uid + ":" + c.bonus), L.cards.a.length])));
+      await page.mouse.move(from.x, from.y + 400, { steps: 4 }); await page.mouse.up(); await page.waitForTimeout(150);
+      eq(g, "1=+4,2=+0", "số sẽ nhận theo chiến địa");
+      ok(same, "mô phỏng không được đổi trạng thái ván thật");
+      eq(await page.evaluate(() => document.querySelectorAll("#board .mvgain").length), 0, "nhãn tắt sau khi thả");
+    });
     ok(!errors.length, errors.join("\n"));
   } catch (e) { fails.push("ui: " + e.message); console.error(e); }
   finally { await browser.close(); server.close(); }

@@ -281,5 +281,13 @@ test("(gpu70-3c) Khuyển Dịch Chuyển + thẻ úp: đổi với bộ bài l�
   LT.endGame(G); ok(d.rev);
 });
 
+test("(gpu70-7) chọn ngẫu nhiên thẻ trên bàn phát 'rpick' (Bạch Cốt Yêu chia −7: 7 lần, ứng viên = thẻ địch); không đổi kết quả", () => {
+  const run = (evs) => { const G = setup(null, 11); const b = onBoard(G, "p", "cotnu", 0); const f = [onBoard(G, "a", "da", 0), onBoard(G, "a", "ho", 1), onBoard(G, "a", "da", 2)]; G.evs = evs; LT.destroy(G, b, 0); return { G, f }; };
+  const A = run([]), B = run(null);
+  const rp = A.G.evs.filter(e => e.k === "rpick"); eq(rp.length, 7, "7 lần chọn");
+  ok(rp.every(e => e.cand.length === 3 && e.cand.includes(e.uid)), "ứng viên đủ 3 thẻ địch, lá trúng nằm trong ứng viên");
+  eq(A.f.map(c => c.bonus).join(), B.f.map(c => c.bonus).join(), "ghi sự kiện không đổi kết quả ngẫu nhiên");
+});
+
 console.log(`\n${pass} đạt, ${fails.length} lỗi`);
 if (fails.length) process.exit(1);
