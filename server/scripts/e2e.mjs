@@ -46,7 +46,8 @@ async function mkPage(name, u) {
   const page = await ctx.newPage();
   page.on("pageerror", (e) => errors.push(name + " pageerror: " + e.message));
   page.on("console", (m) => { if (m.type() === "error" && !/status of 401/.test(m.text())) errors.push(name + " console: " + m.text()); });
-  await page.goto(`http://localhost:${GAME_PORT}/index.html` + (BASE ? "" : `?server=${encodeURIComponent(SERVER)}`));
+  /* lockstep cũ (dự phòng): client mới mặc định đấu trận máy chủ giữ trạng thái -> ép lockstep bằng ?lockstep=1 (xem scripts/e2e-auth.mjs cho chế độ mới) */
+  await page.goto(`http://localhost:${GAME_PORT}/index.html` + (BASE ? "" : `?server=${encodeURIComponent(SERVER)}&lockstep=1`));
   await page.waitForFunction(() => typeof G !== "undefined" && G, null, { timeout: 30000 });
   if (BASE) return page;
   // đăng nhập bằng giao diện thật

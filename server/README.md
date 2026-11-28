@@ -8,7 +8,8 @@ Cloudflare Worker + Durable Objects + D1. Không cần máy chủ riêng, không
 - **Tài khoản**: người chơi tự đăng ký (tên đăng nhập + mật khẩu, tối đa 5 tài khoản mới/IP/giờ; quản trị tắt/bật ở `/admin`), đăng nhập bằng Google (khi đã đặt `GOOGLE_CLIENT_ID`), hoặc do quản trị tạo. Mật khẩu băm PBKDF2-SHA256 (WebCrypto). Đăng nhập trả về mã phiên ký HMAC (`SESSION_SECRET (không bắt buộc — để trống thì máy chủ tự sinh và lưu trong D1)`), hạn 30 ngày; khoá tài khoản hoặc đổi mật khẩu sẽ thu hồi các phiên cũ. Sai quá 6 lần/10 phút thì tạm khoá.
 - **D1** (`migrations/`): `users`, `ratings` (Elo theo chế độ), `scores` (điểm theo ngày/tháng/tuần mỗi chế độ), `matches` (lịch sử), `saves` (tiến trình người chơi, đồng bộ nhiều máy), `activity` (hoạt động theo ngày), `mail`/`mail_claim`, `giftcodes`/`giftcode_redeem`, `announcements`, `admin_log`.
 - **Durable Object `Matchmaker`**: hàng chờ ghép trận theo chế độ + mã riêng + độ gần Elo (chờ càng lâu càng nới rộng).
-- **Durable Object `Match`** (một DO mỗi trận, WebSocket Hibernation): chuyển tiếp trạng thái "presence" của game (giữ nguyên giao thức lockstep của client: hạt giống, thao tác từng lượt, khoá, băm trạng thái), giới hạn kích thước/tốc độ tin, và nắm các hạn chót phía máy chủ:
+- **Trận do máy chủ giữ trạng thái** (mặc định từ o70, `src/authgame.js` + `src/authmatch.js`): DO `Match` chạy chính bộ luật game (`src/engine.gen.js`, sinh từ `www/js/01-engine.js` bằng `node scripts/gen-engine.mjs` — chạy lại MỖI KHI sửa engine), giữ toàn bộ trạng thái, nhận hành động từng lượt (`sub`/`unsub`), tự giải lượt và gửi mỗi bên chỉ phần được thấy (`state` khi vào/kết nối lại, `turn` = chuỗi khung hình để client diễn hoạt ảnh). Tay/bộ bài đối thủ chỉ là mặt lưng, bộ bài mình chỉ số lượng, thẻ úp và chiến địa chưa lộ bị che, không gửi hạt giống/danh sách bộ bài đối thủ. Máy chủ tự chấm thắng thua, giữ đồng hồ lượt 90 s (+8 s bù trễ) và luật bỏ 3 lượt liên tiếp = thua. Biến `ONLINE_MODE`: `auth` (mặc định; client cũ vẫn ghép lockstep), `auth-only` (chặn client cũ), `lockstep` (tắt chế độ mới).
+- **Durable Object `Match`** — đường lockstep cũ (dự phòng, client cũ hoặc `?lockstep=1`; một DO mỗi trận, WebSocket Hibernation): chuyển tiếp trạng thái "presence" của game (giữ nguyên giao thức lockstep của client: hạt giống, thao tác từng lượt, khoá, băm trạng thái), giới hạn kích thước/tốc độ tin, và nắm các hạn chót phía máy chủ:
   - mất kết nối quá 3 phút thì xử thua;
   - đối thủ đã ra bài mà mình không ra bài quá 3 phút thì xử thua;
   - ghi kết quả khi hai bên báo khớp nhau (hoặc một bên rút lui/hết giờ); lệch nhau thì trận không tính điểm.
@@ -86,11 +87,14 @@ printf 'ADMIN_TOKEN=dev-admin-token-123456\nSESSION_SECRET=dev-session-secret-ab
 npm test                      # vitest trong runtime workerd (API, ghép trận, Durable Object, hạn chót)
 npm run migrate:local && npm run dev    # Worker cục bộ ở http://localhost:8787
 npm run smoke                 # kiểm tra nhanh bằng WebSocket thật (cần npm run dev đang chạy)
-PW_PATH=<đường dẫn playwright> node scripts/e2e.mjs   # hai trình duyệt Chrome chơi trọn một ván online qua máy chủ
+PW_PATH=<đường dẫn playwright> node scripts/e2e-auth.mjs   # hai Chrome chơi trọn một ván (máy chủ giữ trạng thái), cắt mạng + tải lại trang giữa trận, quét rò rỉ
+PW_PATH=<đường dẫn playwright> node scripts/e2e.mjs        # như trên nhưng lockstep cũ (dự phòng)
+node ../tests/online-auth.mjs # không cần Cloudflare: so khớp engine cục bộ, quét rò rỉ, kết nối lại, đồng hồ lượt
 ```
 
 ## Giới hạn đã biết
 
 - Điểm các chế độ chơi với máy (Hành Trình, Biến Động...) do client tự báo lên, chỉ giới hạn tần suất, không xác minh được. Chế độ **Online** thì máy chủ tự tính từ kết quả hai bên báo khớp.
-- Máy chủ chuyển tiếp lockstep chứ chưa chạy lại engine game để chấm thắng thua. Muốn chống gian lận chặt hơn, bước tiếp theo là chạy engine trong Worker và phát lại các lượt.
+- Trận lockstep cũ (dự phòng) vẫn để hai máy giữ toàn bộ trạng thái; đặt `ONLINE_MODE=auth-only` khi mọi người đã lên bản mới.
+- Giải một lượt tốn ~5 ms CPU (p95 ~13 ms, đo trên Node); gói Workers Free giới hạn 10 ms CPU mỗi lần gọi — nên dùng gói Paid hoặc theo dõi lỗi vượt CPU.
 - Chưa triển khai thật trong môi trường phát triển này (không truy cập được mạng Cloudflare); mọi thứ đã chạy được bằng workerd cục bộ.

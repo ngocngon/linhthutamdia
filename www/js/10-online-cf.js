@@ -109,23 +109,30 @@ function makeRoom(kind,mid){
   function selfPeer(id,p){return {peer:id,by:null,isMe:true,sameTab:true,kind:"viewer",guest:false,presence:p,updatedAt:Date.now()};}
   function sendSeek(){
     var keys={};try{if(typeof lbKeys==="function"){var k=lbKeys("online");keys={d:k.d,s:k.s};}}catch(e){}
-    conn.send({type:"seek",mode:"online",code:CF.code,keys:keys,pres:{nm:pres.nm,av:pres.av,rk:pres.rk,dk:pres.dk}});}
+    /* trận máy chủ giữ trạng thái: ảnh đại diện chỉ là ảnh người chơi tự chọn (không lấy thẻ đầu bộ bài thay thế -> không lộ bộ bài) */
+    var cap=AUTH_CAP(),av=cap?((typeof store==="object"&&store&&C[store.avatar])?store.avatar:""):pres.av;
+    conn.send({type:"seek",mode:"online",code:CF.code,keys:keys,cap:cap,pres:{nm:pres.nm,av:av,rk:pres.rk,dk:pres.dk}});}
   conn=new Conn(kind==="lobby"?"":"?room="+encodeURIComponent(mid),{
     onMsg:function(m){
       if(m.type==="hello"){me=m.me;if(kind==="lobby"){peers=[selfPeer(me,pres)];fire();}}
       else if(m.type==="peers"&&kind==="match"){
         peers=m.peers.map(function(p){return {peer:p.peer,by:null,isMe:p.peer===me,sameTab:p.peer===me,kind:"viewer",guest:false,presence:p.presence||{},updatedAt:p.updatedAt||Date.now()};});fire();}
+      else if(m.type==="found"&&kind==="lobby"&&m.auth&&typeof window.olAuthFound==="function"){seeking=false;window.olAuthFound(m);}
       else if(m.type==="found"&&kind==="lobby"){
         seeking=false;
         var mine=Object.assign({},pres,{t0:m.me.t0,mm:"seek"}),opp=Object.assign({},m.opp.pres,{mm:"seek",t0:m.opp.t0});
         peers=[selfPeer(m.me.peer,mine),{peer:m.opp.peer,by:null,isMe:false,sameTab:false,kind:"viewer",guest:false,presence:opp,updatedAt:Date.now()}];fire();}
       else if(m.type==="ended"&&kind==="match")cfEnded(m.result);
-      else if(m.type==="error"&&kind==="lobby")say("Máy chủ ghép trận báo lỗi, thử lại",2600);
+      else if(kind==="match"&&(m.type==="state"||m.type==="turn"||m.type==="subr"||m.type==="osub")){if(R._auth)try{R._auth(m);}catch(e){console.error(e);}}
+      else if(m.type==="error"&&kind==="lobby"){
+        if(m.error==="update_required")say("Hãy cập nhật game lên bản mới để chơi online",3200);
+        else if(m.error==="bad_deck")say("Bộ bài không hợp lệ để đấu online",3000);
+        else say("Máy chủ ghép trận báo lỗi, thử lại",2600);}
     },
     onState:function(up,first){
       cfns.forEach(function(f){try{f(up);}catch(e){}});
       if(up&&!first){
-        if(kind==="match"){conn.send({type:"pres",patch:Object.assign({},pres)});if(pendingResult)conn.send(pendingResult);}
+        if(kind==="match"){conn.send({type:"pres",patch:Object.assign({},pres)});if(pendingResult&&!R._auth)conn.send(pendingResult);}
         else if(seeking)sendSeek();}
     },
     onDead:function(){efns.forEach(function(f){try{f(new Error("mất kết nối"));}catch(e){}});},
@@ -152,6 +159,9 @@ function makeRoom(kind,mid){
     var w=res&&(res.winner==="p"||res.winner==="a")?res.winner:null;
     pendingResult={type:"result",w:w,kind:String(res&&res.kind||"").slice(0,20)};conn.send(pendingResult);};
   R._cf=true;
+  /* trận do máy chủ giữ trạng thái: nhận state/turn/subr/osub, gửi sub/unsub/ready/sync/retreat */
+  R.onAuth=function(fn){R._auth=fn;};
+  R.send=function(o){return conn.send(o);};
   return R;
 }
 function lobby(){if(!CF.lobby)CF.lobby=makeRoom("lobby");return CF.lobby;}
@@ -161,7 +171,10 @@ function cfEnded(r){
   try{
     if(!r||!CF.user)return;
     var d=r.deltas&&r.deltas[CF.user.id];
-    if(typeof G!=="undefined"&&G&&G.online&&G.phase!=="over"&&typeof OL!=="undefined"&&OL.mid===r.mid&&(r.reason==="disconnect"||r.reason==="turn_timeout")){
+    if(typeof G!=="undefined"&&G&&G.online&&G.phase!=="over"&&typeof OL!=="undefined"&&OL.mid===r.mid&&OL.auth&&r.reason==="retreat"){
+      if(r.winner===CF.user.id){OL.note="Đối thủ đã rút lui.";E.finish(G,"retreatA");showEnd();}
+    }
+    else if(typeof G!=="undefined"&&G&&G.online&&G.phase!=="over"&&typeof OL!=="undefined"&&OL.mid===r.mid&&(r.reason==="disconnect"||r.reason==="turn_timeout")){
       if(r.winner===CF.user.id){OL.note=r.reason==="disconnect"?"Đối thủ mất kết nối quá 3 phút.":"Đối thủ không ra bài quá 3 phút.";E.finish(G,"retreatA");showEnd();}
       else{OL.note=r.reason==="disconnect"?"Bạn mất kết nối quá 3 phút nên bị xử thua.":"Bạn không ra bài quá 3 phút nên bị xử thua.";E.finish(G,"timeoutP");showEnd();}
     }
@@ -208,8 +221,154 @@ if(_of)onlineFind=function(){
   return _of.apply(this,arguments);};
 var _oo=typeof onlineOver==="function"?onlineOver:null;
 if(_oo)onlineOver=function(r){
-  var room=typeof OL!=="undefined"&&OL.mr;_oo.apply(this,arguments);
+  var room=typeof OL!=="undefined"&&OL.mr;if(typeof OL!=="undefined"&&OL.auth)auClear();_oo.apply(this,arguments);
   try{if(room&&room._cf)room.sendResult(r);}catch(e){}};
+
+/* ---------- trận online do MÁY CHỦ giữ trạng thái (b44 o70) ----------
+   Máy chủ chạy luật, giữ toàn bộ trạng thái; máy này chỉ nhận bản nhìn của mình (tay/bộ bài đối thủ là mặt lưng, bộ bài mình chỉ số lượng)
+   và chuỗi khung hình từng lượt để diễn hoạt ảnh y như trước (stepFx/HX/PA6/SIG/ACT chạy trên G = bản nhìn).
+   Lockstep cũ (05-vfx-core.js) chỉ còn là dự phòng: khi đối thủ dùng bản cũ, hoặc đặt localStorage "ltd.ol.lockstep"="1" / ?lockstep=1. */
+try{var plk=new URL(location.href).searchParams.get("lockstep");if(plk!=null)lsSet("ltd.ol.lockstep",plk==="0"?null:"1");}catch(e){}
+function AUTH_CAP(){return lsGet("ltd.ol.lockstep")==="1"?0:1;}
+var HAS_OL=typeof OL==="object"&&typeof startOnlineGame==="function"&&typeof E==="object";
+var AU={q:[],busy:false};
+function auReg(){/* thẻ / chiến địa giữ chỗ cho phần bị che (không thuộc COLLECT, không ảnh hưởng luật các chế độ khác) */
+  if(!C.__an)C.__an={id:"__an",n:"Thẻ ẩn",e:"",c:0,p:0,t:"none",h:"PH",x:"",tok:true};
+  if(!LOC.__loc)LOC.__loc={id:"__loc",n:"?",s:"",x:""};}
+function auHyd(v){v.mode={k:"online",diff:"thuong",lbl:"Đấu online"};v.online=1;if(!Array.isArray(v.msgs))v.msgs=[];if(!Array.isArray(v.evs))v.evs=[];if(v.msg==null)v.msg="";return v;}
+function auVisReset(){BC=null;TN0=0;LOCID=[];seenRev.clear();prevPow.clear();seenLoc.clear();seenStg.clear();prevLd=[];PWV={};sel=look=moveSel=null;armRetreat=0;}
+function auFoe(){var op=OL.oppPr||{};foeAv=C[op.av]&&op.av!=="__an"?op.av:E.COLLECT[0];$("avFoe").innerHTML=artFace(foeAv);$("avMe").innerHTML=meAv();$("foeName").textContent=olName(op.nm);}
+function auPres(){return {v:2,nm:olName(store.name||"Người chơi"),av:C[store.avatar]?store.avatar:"",rk:store.gems|0,mid:OL.mid,role:OL.role};}
+var AUK="linhthu.olm.auth";/* khoá riêng: olResume cũ (05, hẹn giờ 1,6 s lúc nạp trang) không đụng tới */
+function auClear(){try{localStorage.removeItem(AUK);}catch(e){}}
+function auSave(){if(!OL.auth||OL.st!=="play"||!OL.mid)return;try{localStorage.setItem(AUK,JSON.stringify({auth:1,mid:OL.mid,role:OL.role,oppPeer:OL.oppPeer,oppPid:OL.oppPid||"",op:{nm:OL.oppPr&&OL.oppPr.nm,av:OL.oppPr&&OL.oppPr.av,rk:OL.oppPr&&OL.oppPr.rk},ts:Date.now(),fb:foeBack}));}catch(e){}}
+/* vào phòng trận (lần đầu / kết nối lại / mở lại trang) */
+function auJoin(){
+  var lob=OL.room||lobby();
+  return lob.join(OL.mid).then(function(r){
+    if(!OL.auth||(OL.st!=="found"&&OL.st!=="play"&&OL.st!=="resume")){try{r.leave();}catch(e){}return null;}
+    try{OL.unM&&OL.unM();}catch(e){}
+    OL.mr=r;r.onAuth(auMsg);r.presence(auPres());
+    OL.unM=r.onPeers(function(ch){auPeers(ch.peers);},olRoomErr);olConn(r);
+    return r;});
+}
+window.olAuthFound=function(m){
+  if(!HAS_OL||OL.st!=="seek")return;auReg();
+  OL.auth=true;OL.role=m.role;OL.mid=m.mid;OL.oppPeer=m.opp.peer;OL.oppPr=m.opp.pres||{};OL.oppPid=(m.opp.pres&&m.opp.pres.pid)||m.opp.peer;OL.st="found";
+  mmFound(OL.oppPr,false);
+  try{OL.room.presence({mm:"busy"});}catch(e){}
+  clearTimeout(OL.linkT);OL.linkT=setTimeout(function(){if(OL.st==="found")mmRetry("Máy chủ trận không phản hồi");},15000);
+  auJoin().catch(function(){if(OL.st==="found")mmRetry("Không vào được phòng trận");});
+};
+function auMsg(m){
+  if(!OL.auth)return;
+  if(m.type==="state"){
+    if(OL.st==="found"){clearTimeout(OL.linkT);OL.st="starting";var n=3;$("mmBig").textContent="Trận đấu bắt đầu sau "+n;
+      var iv=setInterval(function(){n--;if(OL.st!=="starting"){clearInterval(iv);return;}if(n>0){$("mmBig").textContent="Trận đấu bắt đầu sau "+n;SFX.play("tick");}else{clearInterval(iv);auStart(m);}},reduced?150:800);return;}
+    if(OL.st==="resume"){auHard(m,true);return;}
+    if(OL.st!=="play")return;
+    /* kết nối lại giữa trận */
+    if(m.n===OL.an+1&&m.last&&!AU.busy){AU.q.push(m.last);auPump();return;}
+    if(m.n!==OL.an&&!AU.busy&&!AU.q.length){auHard(m,false);return;}
+    if(m.n===OL.an){OL.oppSub=!!m.osub;
+      if(OL.sub&&!m.sub&&G&&G.phase==="play"){OL.mr.send({type:"sub",t:G.turn,acts:OL.acts||[],snap:OL.sn?1:0});}
+      if(m.over&&G&&G.phase!=="over")auOverForce(m.over);}
+    return;}
+  if(m.type==="turn"){AU.q.push(m);auPump();return;}
+  if(m.type==="osub"){if(G&&m.t===G.turn){OL.oppSub=!!m.sub;OL.locked=!!(OL.sub&&OL.oppSub);render();}return;}
+  if(m.type==="subr"){if(!m.ok&&OL.sub&&!AU.busy&&m.n===OL.an){OL.sub=false;document.body.classList.remove("olwait");OL.mr.send({type:"sync"});}return;}
+}
+function auStart(m){
+  auVisReset();
+  G=auHyd(m.v);OL.an=m.n;OL.CG=null;OL.dk=null;OL.log=[];OL.la=null;OL.goneAt=0;OL.offAt=0;OL.seedUsed=0;
+  OL.st="play";OL.sub=OL.locked=OL.resolving=false;OL.oppSub=false;OL.myH=null;OL.note="";AU.q=[];AU.busy=false;
+  auFoe();foeBack=Object.keys(BACKS)[Math.floor(Math.random()*Object.keys(BACKS).length)];
+  gameDeck=store.deck.join();missNote="";resetTimer(false);tArmed=true;tLast=0;
+  G.msg="<b>Đấu online.</b>";try{endSeqKill();$("ovEnd").classList.remove("on");}catch(e){}mmHide();closeAll();$("lobby").classList.remove("on");if(window.BGM)BGM.syncGame(G);render();runMatchIntro("LƯỢT 1","Đấu online",true);
+  try{OL.mr.send({type:"ready",n:m.n});}catch(e){}
+  auSave();
+}
+/* đặt thẳng bản nhìn (kết nối lại / mở lại trang), không diễn */
+function auHard(m,resume){
+  if(resume&&(m.over||m.v.phase==="over")){try{OL.mr.leave();}catch(e){}OL.st="idle";OL.auth=false;mmHide();auClear();toast("Trận online trước đã kết thúc");return;}
+  auVisReset();G=auHyd(m.v);OL.an=m.n;OL.st="play";OL.resolving=false;AU.q=[];AU.busy=false;OL.oppSub=!!m.osub;OL.goneAt=0;OL.offAt=0;OL.note="";
+  OL.sub=!!m.sub;OL.acts=m.sub?m.sub.acts:[];OL.sn=m.sub?m.sub.snap:0;
+  if(m.sub){for(var i=0;i<m.sub.acts.length;i++){var a=m.sub.acts[i];try{a.t==="p"?E.queuePlay(G,"p",a.u,a.l):a.t==="m"?E.queueMove(G,"p",a.u,a.l):E.queueAct(G,"p",a.u);}catch(e){}}if(m.sub.snap&&!G.snap.p){G.snap.p=true;G.pendingDouble++;}}
+  OL.locked=!!(OL.sub&&OL.oppSub);document.body.classList.toggle("olwait",OL.sub);
+  auFoe();if(resume)foeBack=OL.fb&&BACKS[OL.fb]?OL.fb:"b0";
+  gameDeck=store.deck.join();missNote="";resetTimer(true);tLeft=Math.max(1,Math.min(TURN_SEC,(m.left||0)/1000));tArmed=true;tLast=0;G.msg="<b>Đã kết nối lại trận online.</b>";
+  try{endSeqKill();$("ovEnd").classList.remove("on");}catch(e){}mmHide();closeAll();$("lobby").classList.remove("on");render();banner("ĐÃ KẾT NỐI LẠI","Lượt "+G.turn);
+  try{OL.mr.send({type:"ready",n:m.n});}catch(e){}
+  if(m.over)auOverForce(m.over);
+  auSave();
+}
+/* máy chủ báo trận đã kết thúc nhưng bản nhìn chưa "over" (xử thua do rút lui / hết giờ / mất kết nối) */
+function auOverForce(o){if(!G||G.phase==="over")return;if(o.w==="p"){if(!OL.note)OL.note="Đối thủ đã rời trận.";E.finish(G,"retreatA");}else{if(!OL.note)OL.note="Bạn đã bị xử thua.";E.finish(G,"timeoutP");}showEnd();}
+function auPump(){if(AU.busy)return;var p=AU.q.shift();if(!p)return;AU.busy=true;
+  var run=typeof FFTURN==="object"?function(){FFTURN.start();return auPlay(p).then(function(){FFTURN.stop();},function(e){FFTURN.stop();throw e;});}:function(){return auPlay(p);};
+  run().catch(function(e){console.error("[online] diễn lượt lỗi",e);try{G=auHyd(p.frames[p.frames.length-1].v);render();}catch(x){}OL.an=p.n;OL.resolving=false;})
+    .then(function(){AU.busy=false;auPump();});}
+function auSet(v){G=auHyd(v);}
+async function auPlay(p){
+  if(p.n<=OL.an)return;
+  if(p.n!==OL.an+1){/* hụt gói: xin lại trạng thái */OL.mr&&OL.mr.send({type:"sync"});return;}
+  OL.resolving=true;clearTimeout(OL.waitT);
+  for(var i=0;i<p.frames.length;i++){var f=p.frames[i];
+    if(f.k==="rev0"){auSet(f.v);G.msg="Hai bên đã đặt bài. Đang lật…";render();SFX.play("place");await sleep(reduced?45:220);continue;}
+    if(f.k==="st"||f.k==="eot"||f.k==="er"){var R0=rects0(),P0=powers(),G0=pvSnap();auSet(f.v);var evs=G.evs.slice();await artReady12(evs);
+      if(f.k==="eot"&&G.msgs&&G.msgs.length)G.msg="<b>Cuối lượt:</b> "+G.msgs.slice(0,4).join(" · ");
+      if(f.k==="er"&&G.msgs&&G.msgs.length&&typeof fmt==="function")G.msg=fmt(G.msgs);
+      stepFx(G0,evs,R0,P0);
+      await sleep(f.k==="st"?(reduced?65:evs.some(function(e){return e.k==="flip";})?440:480):f.k==="eot"?(reduced?65:(window.HXG&&HXG.eotFast&&HXG.eotFast(evs))?300:460):(reduced?250:900));continue;}
+    if(f.k==="fin"){pvApply();auSet(f.v);OL.sub=false;OL.locked=false;OL.oppSub=false;document.body.classList.remove("olwait");continue;}
+    if(f.k==="er0"){auSet(f.v);G.msg="<b>Cuối ván:</b> lật các thẻ đang úp (bên đang thắng lật trước, mỗi bên lật theo thứ tự đã đặt)…";render();await sleep(reduced?150:900);continue;}
+    if(f.k==="over"){pvApply();auSet(f.v);OL.an=p.n;OL.resolving=false;showEnd();return;}
+    if(f.k==="start"){var R1=rects0(),P1=powers();auSet(f.v);var ev2=G.evs.slice(),locEvs=ev2.filter(function(e){return e.k==="loc";}),drawEvs=ev2.filter(function(e){return e.k!=="loc";});
+      resetTimer(true);tArmed=true;tLast=0;G.msg="";render();var H40=new Map(HAND0),nh40=hideNewHand40(H40);
+      OL.an=p.n;OL.resolving=false;try{OL.mr.send({type:"ready",n:p.n});}catch(e){}
+      if(locEvs.length){playFx(locEvs,R1,P1);await sleep(reduced?80:locWait51(locEvs.length));}
+      if(drawEvs.length){playFx(drawEvs,R1,P1);await sleep(reduced?60:520);}else if(nh40){drawNew40(H40);await sleep(reduced?40:320);}
+      banner("LƯỢT "+G.turn,G.turn===E.turns(G)?"Lượt cuối":"");pulse("#orb",[{transform:"scale(1.45)",filter:"brightness(2.2)"},{transform:"scale(1)",filter:"brightness(1)"}],460);await sleep(reduced?50:780);}
+  }
+  OL.an=p.n;OL.resolving=false;auSave();
+}
+function auPeers(peers){
+  if(!OL.auth||OL.st!=="play"||!G||!G.online)return;
+  var o=oppOf(peers);
+  if(!o){if(!OL.goneAt&&G.phase!=="over"){OL.goneAt=Date.now();olNet();}return;}
+  if(OL.goneAt){OL.goneAt=0;olNet();toast("Đối thủ đã kết nối lại");}
+  var op=o.presence;OL.oppPr=Object.assign({},OL.oppPr,{nm:op.nm||OL.oppPr.nm,av:op.av||OL.oppPr.av});
+  if(op.rt&&G.phase!=="over"){OL.note="Đối thủ đã rút lui.";E.finish(G,"retreatA");showEnd();return;}
+  if(op.emo&&op.emo.ts&&op.emo.ts!==OL.lastEmo){OL.lastEmo=op.emo.ts;showEmote("a",op.emo.k);}
+}
+if(HAS_OL){
+  var _onlineEnd=onlineEnd;
+  onlineEnd=function(){
+    if(!OL.auth)return _onlineEnd.apply(this,arguments);
+    if(!G||G.phase!=="play"||OL.resolving||AU.busy)return;
+    if(OL.sub){if(!OL.locked){OL.sub=false;document.body.classList.remove("olwait");try{OL.mr.send({type:"unsub",t:G.turn});}catch(e){}SFX.play("tap");render();}return;}
+    sel=look=moveSel=null;OL.sub=true;OL.acts=myActs();OL.sn=G.snap.p?1:0;OL.waitAt=Date.now();OL.locked=!!OL.oppSub;document.body.classList.add("olwait");
+    try{OL.mr.send({type:"sub",t:G.turn,acts:OL.acts,snap:OL.sn,auto:tLeft<=0?1:0});}catch(e){}
+    SFX.play("place");render();};
+  var _olSave=olSave;olSave=function(){if(OL.auth)return auSave();return _olSave.apply(this,arguments);};
+  var _onlineReset=onlineReset;onlineReset=function(){var r=_onlineReset.apply(this,arguments);OL.auth=false;AU.q=[];AU.busy=false;return r;};
+  var _olRejoin=olRejoin;olRejoin=function(){
+    if(!OL.auth)return _olRejoin.apply(this,arguments);
+    if(!OL.offAt||!G||!G.online||G.phase==="over"||!OL.room)return Promise.resolve();
+    return auJoin().then(function(r){if(r){OL.offAt=0;olNet();toast("Đã kết nối lại");}},function(){setTimeout(olRejoin,5000);});};
+  var auResume=function(){
+    var sv=null;try{sv=JSON.parse(localStorage.getItem(AUK)||"null");}catch(e){}
+    if(!sv||!sv.auth||!sv.mid||!CF.token)return;
+    if(Date.now()-(sv.ts||0)>OL_WAIT){auClear();return;}
+    if(G&&G.online&&G.phase==="play")return;
+    mmShow(true);$("mmBig").textContent="Đang kết nối lại trận đấu…";$("mmSt").textContent="Bạn có một trận online chưa kết thúc";
+    return getRoom().then(function(room){
+      if(!room){mmHide();auClear();toast("Không kết nối lại được trận online");return;}
+      auReg();OL.room=room;OL.auth=true;OL.mid=sv.mid;OL.role=sv.role;OL.oppPeer=sv.oppPeer;OL.oppPid=sv.oppPid||"";OL.oppPr=sv.op||{};OL.fb=sv.fb;OL.an=-1;OL.st="resume";
+      return auJoin().then(function(r){if(!r){mmHide();auClear();}},function(){OL.st="idle";OL.auth=false;mmHide();auClear();toast("Không vào lại được trận online");});
+    });};
+  setTimeout(auResume,1800);
+}
 
 /* điểm các chế độ khác: báo lên máy chủ; chế độ online do máy chủ tự chấm */
 var _lbAdd=typeof lbAdd==="function"?lbAdd:null;
