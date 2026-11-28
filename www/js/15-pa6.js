@@ -49,7 +49,21 @@
     tap("Q:A/", { uid, open: SEQ.open });
     if (!SEQ.open) { clearTimeout(SEQ.wd); SEQ.flush(); }
   };
-  SEQ.flush = function () { const L = SEQ.q.splice(0); for (const f of L) { try { f(); } catch (e) { console.error(e); } } };
+  /* gộp gpu69 (P-1): [A] vừa đóng -> phần [B] chạy ở KHUNG SAU (khung 1: vẽ lại bàn pvApply; khung 2: heroUp/plan8/P6.start) thay vì
+     cùng một tác vụ dài với lúc đóng màn phóng lớn. Lượt vẫn được giữ (holdFx) suốt 2 khung; nếu [A] khác mở lại thì xếp hàng tiếp (luật 1). */
+  SEQ.flush = function () {
+    const L = SEQ.q.splice(0);
+    if (!L.length) return;
+    const run = () => { if (SEQ.open) { SEQ.q.push(...L); return; } for (const f of L) { try { f(); } catch (e) { console.error(e); } } };
+    if (reduced || ff() || document.hidden || !W.requestAnimationFrame) return run();
+    try { holdFx(400); } catch (e) {}
+    requestAnimationFrame(() => { try { if (typeof pvApply === "function") pvApply(); } catch (e) { console.error(e); } requestAnimationFrame(run); });
+  };
+  /* gộp gpu69 (P-3): giữ lượt tới khi hồn chui về VÀ thẻ đáp ô (D:land) — không chỉ theo hẹn giờ holdFx (máy tải nặng làm hẹn giờ trễ
+     -> vòng lượt chạy tiếp giữa lúc hồn đang lao về). Dùng FXPEND (03 sleep chờ thêm), trần an toàn = mốc kết thúc dự kiến + 4 s. */
+  const PEND = new Map();
+  function pendOn(ch) { if (ch.pd) return; ch.pd = 1; PEND.set(ch.uid, ch); try { FXPEND++; FXPEND_T = Math.max(FXPEND_T, ch.endR || performance.now()); } catch (e) {} }
+  function pendOff(ch) { if (!ch || ch.pd !== 1) return; ch.pd = 2; if (PEND.get(ch.uid) === ch) PEND.delete(ch.uid); try { FXPEND = Math.max(0, FXPEND - 1); } catch (e) {} }
   /* chạy phần kỹ năng ngay nếu không có [A] đang mở; nếu có: xếp hàng, giữ lượt chờ */
   SEQ.skill = function (f) {
     if (!SEQ.open) { tap("Q:B", {}); return f(); }
@@ -611,6 +625,7 @@
     scheduled(ch, () => dive(ch), R + T6.RET);
     ch.endR = ch.t0 + E * SPD;
     holdFx(E - (performance.now() - ch.t0) / SPD + 80);
+    pendOn(ch);
     if (stops.length) camera(ch, stops, D0, A0, R);
     /* tua nhanh: chạm màn hình */
     ch.wd = setTimeout(() => { if (CH === ch) end(ch, true); }, (E + 4000) * SPD);
@@ -755,6 +770,8 @@
     if (CH === ch) CH = null;
     if (ch.pending) OFF0 = 0;
     document.querySelectorAll(".p6ai").forEach((e) => e.remove());
+    /* tua / dọn: thả ngay; kết thúc thường: chờ D:land (P6.land), dự phòng khi thẻ không hạ được (heroDown 220 ms + 200 ms) */
+    if (fast) pendOff(ch); else if (ch.pd === 1) setTimeout(() => pendOff(ch), 700 * SPD);
   }
   /* heroDown (05): bảo đảm nhân vật đã chui về trước khi hạ thẻ */
   P6.down = function (H, fast) {
@@ -771,6 +788,8 @@
   };
   /* heroDown xong: thẻ đáp đúng ô — vòng bụi + rung nhẹ */
   P6.land = function (uid, c) {
+    const pc = PEND.get(uid);
+    if (pc) setTimeout(() => pendOff(pc), 0); /* sau tap("D:land") bên dưới */
     if (reduced) return;
     const el = document.querySelector(`#board [data-mc="${uid}"]`), r = el && el.getBoundingClientRect();
     if (!r || !r.width) return;
@@ -785,6 +804,7 @@
     try { P6.statEnd(); } catch (e) {}
     if (W.HXG) { try { HXG.clean(); } catch (e) {} }
     if (CH) end(CH, true);
+    for (const pc of [...PEND.values()]) pendOff(pc);
     for (const k of [...COVER.keys()]) P6.uncover(k, 1);
     document.querySelectorAll(".p6soul,.p6ai,.p6say").forEach((e) => e.remove());
   };

@@ -205,7 +205,7 @@ function ultShow(inst,done,nth){
   if(UC)UC.end(true);
   /* gpu60 (PA6): chỉ thẻ S5 ĐẦU TIÊN của lượt phóng lớn ra giữa màn; S4, S5 sau, S1–S3: nảy tại ô (15-pa6.js) */
   const p6=!!(window.P6&&P6.on());if(p6&&!P6.full(inst)){P6.slotShow(inst,fin1,nth|0);return;}
-  const id=inst.id,d=C[id],mini=!!inst.mini,lo5=window.FXLV===0||mini,s5=!mini&&isUlt(d),mine=inst.own!=="a",[c,c2]=ucCol(id);
+  const p6t=(()=>{try{return window.P6&&P6.tier?P6.tier():"full";}catch(e){return "full";}})(),id=inst.id,d=C[id],mini=!!inst.mini,lo5=window.FXLV===0||mini||p6t==="lite",RK=p6t==="mid"?3:2,s5=!mini&&isUlt(d),mine=inst.own!=="a",[c,c2]=ucCol(id);
   if(typeof spLoad==="function"){spLoad(id);spLoad(id+"@f");}
   const tt=ucT(s5,nth|0,mini,id),TIN=tt.TIN,HOLD=tt.HOLD,TOUT=tt.TOUT,T=TIN+HOLD+TOUT,oi=TIN/T,oh=(TIN+HOLD)/T;
   const VW=innerWidth,VH=innerHeight,W=Math.round(mini?Math.min(VW*.47,200,(VH-170)/1.28):Math.min(VW*.6,250,(VH-170)/1.28)),H=Math.round(W*1.28);
@@ -216,7 +216,7 @@ function ultShow(inst,done,nth){
   const sk=String(d.x||"").replace(/^[^:]{2,16}:\s*/,""),dg=DANG[d.t]||"";
   const z=document.createElement("div");z.className="uc5 "+(mini?"s4 uc3":s5?"s5":"s4")+(mine?"":" foe")+(p6?" p6":"");z.setAttribute("aria-label",`${mini?"Kỹ năng":"Tuyệt kỹ"} ${d.n}. Chạm để bỏ qua`);
   z.style.setProperty("--c",c);z.style.setProperty("--c2",c2);
-  z.innerHTML=`<i class="uc-dim"></i>${s5&&!lo5?`<i class="uc-rays" style="left:${cx}px;top:${cy}px;--hs:${Math.round(W*2.9)}px"></i>`:""}<i class="uc-halo" style="left:${cx}px;top:${cy}px;--hs:${Math.round(W*(s5?2.4:mini?1.6:1.95))}px"></i>`
+  z.innerHTML=`<i class="uc-dim"></i>${s5&&!lo5?`<i class="uc-rays" style="left:${cx}px;top:${cy}px;--hs:${Math.round(W*2.9/RK)}px"></i>`:""}<i class="uc-halo" style="left:${cx}px;top:${cy}px;--hs:${Math.round(W*(s5?2.4:mini?1.6:1.95))}px"></i>`
     +(mine?"":`<div class="uc-who" style="top:${Math.round(cy-H/2-34)}px"><b>Đối thủ</b></div>`)
     +`<div class="uc-card" style="left:${Math.round(cx-W/2)}px;top:${Math.round(cy-H/2)}px;width:${W}px;height:${H}px">${ucCard(inst)}${p6?`<span class="uc-bk" style="background:${P6.back(inst)}"></span>`:""}</div>`
     +`<div class="uc-lb" style="top:${Math.round(cy+H/2+12)}px"><small>${mini?"Kỹ năng":"Tuyệt kỹ"}${dg?" · "+esc(dg):""}</small>${sk&&!mini?`<em>${esc(sk)}</em>`:""}</div>${mini?"":`<div class="uc-tap">Chạm để bỏ qua</div>`}`;
@@ -236,7 +236,7 @@ function ultShow(inst,done,nth){
     try{P6.zoomFx(inst,cx,cy,W,R(TIN));sb=P6.say(id,"rm",cx,cy-H/2-(mine?16:40),R(HOLD)-60,false,c,R(TIN*.7));}catch(e){console.error(e);}}
   an(z.querySelector(".uc-dim"),[{opacity:0},{opacity:mini?.55:1,offset:oi*.6},{opacity:mini?.55:1,offset:oh},{opacity:0}],{duration:T});
   an(z.querySelector(".uc-halo"),[{opacity:0,transform:"scale(.3)"},{opacity:1,transform:"scale(1.08)",offset:oi,easing:"ease-out"},{opacity:.85,transform:"scale(1)",offset:oh},{opacity:0,transform:"scale(.45)"}],{duration:T});
-  an(z.querySelector(".uc-rays"),[{opacity:0,transform:"rotate(0deg) scale(.5)"},{opacity:.95,transform:"rotate(28deg) scale(1)",offset:oi},{opacity:.8,transform:"rotate(82deg) scale(1.04)",offset:oh},{opacity:0,transform:"rotate(100deg) scale(.6)"}],{duration:T});
+  /* gộp gpu69 (P-2): tia xoay vẽ ở phần tử nhỏ hơn RK lần rồi phóng bằng transform (lớp GPU nhỏ ~RK² lần ở DPR cao; tia vốn mềm). Nhẹ: bỏ tia */an(z.querySelector(".uc-rays"),[{opacity:0,transform:`rotate(0deg) scale(${.5*RK})`},{opacity:.95,transform:`rotate(28deg) scale(${RK})`,offset:oi},{opacity:.8,transform:`rotate(82deg) scale(${1.04*RK})`,offset:oh},{opacity:0,transform:`rotate(100deg) scale(${.6*RK})`}],{duration:T});
   const tx=[{opacity:0,transform:"translateY(10px)"},{opacity:0,transform:"translateY(10px)",offset:oi*.6},{opacity:1,transform:"none",offset:oi},{opacity:1,transform:"none",offset:oh},{opacity:0,transform:"translateY(8px)",offset:Math.min(1,oh+.08)},{opacity:0,transform:"translateY(8px)"}];
   an(z.querySelector(".uc-lb"),tx,{duration:T});an(z.querySelector(".uc-who"),tx,{duration:T});
   an(z.querySelector(".uc-tap"),[{opacity:0},{opacity:0,offset:oi},{opacity:.7,offset:Math.min(oh,oi+.1)},{opacity:.7,offset:oh},{opacity:0,offset:Math.min(1,oh+.05)},{opacity:0}],{duration:T});

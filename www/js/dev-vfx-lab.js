@@ -775,7 +775,8 @@
     if (lo.hid.length) { row.warn.push("thẻ bị ẩn " + lo.hid.join(",")); row.bad = true; }
     if (lo.sh) { row.warn.push("luật ẩn lá còn: " + lo.sh.slice(0, 60)); row.bad = true; }
     if (lo.pw.length) { row.warn.push("tổng điểm hiển thị lệch " + lo.pw.join(",")); row.bad = true; }
-    const hits = keys.filter((k) => HIT_RE.test(k.replace(/^(HX|PA6|SIG) /, "")));
+    /* gộp gpu69: chỉ tính mốc trúng của CHÍNH thẻ đang thử (mốc gắn @id của thẻ khác — vd. Cuối Lượt của thẻ dựng sẵn, 18-act — không tính) */
+    const hits = [...new Set(rec.taps.filter((t) => { const m = /@(.*)$/.exec(t); return !m || m[1] === row.id; }).map((t) => t.replace(/@.*/, "")))].filter((k) => HIT_RE.test(k.replace(/^(HX|PA6|SIG) /, "")));
     if (p.effect && p.others === 0 && !p.area && hits.length) row.warn.push("diễn đánh trúng (" + hits.slice(0, 3).join(",") + ") nhưng kỹ năng chỉ tác động chính nó/không nhắm thẻ khác");
     const skillEv = rec.ev.some((e) => /^(skill|act|destroy|discard|summon|revive|move|morph|abcopy|tohand|sil|surge|egain|loc|locfx|clone|blocked|top|draw|lock|hbuff|hide|pbuff|eblock|absorb|lockswap)$/.test(e.k) && e.k !== "flip");
     const endOnly = !!(p.spec && p.spec.endGame) || !!p.block;
