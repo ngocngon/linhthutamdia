@@ -2172,9 +2172,9 @@ function beginReveal(G) {
     if ((pass === 1) !== cross) continue;
     const inst = a.inst; inst.turn = G.turn; inst.played = true; inst.ps = (G.pseq = (G.pseq || 0) + 1);
     if (G.locs[a.li].cards[a.row].length < cap(G, a.li)) { inst.side = a.row; G.locs[a.li].cards[a.row].push(inst); a.ok = true; G.ph[s][a.li]++; }
-    else { a.ok = false; inst.side = s; inst.played = false; G.energy[s] += a.c || 0; G.unspent[s] = G.energy[s]; if (G.hand[s].length < HAND_MAX) G.hand[s].push(inst); }
+    else { a.ok = false; inst.side = s; inst.played = false; /* b44: KHÔNG hoàn năng lượng (người dùng duyệt 28/11) — chỉ không tính là đã đặt */ if (G.hand[s].length < HAND_MAX) G.hand[s].push(inst); }
   }
-  /* b44 (mục 13/16): chỉ đếm thẻ THỰC SỰ được đặt (lá bị trả về tay vì hết chỗ không tính, năng lượng được hoàn -> tính là chưa dùng) */
+  /* b44 (mục 13/16): chỉ đếm thẻ THỰC SỰ được đặt (lá bị trả về tay vì hết chỗ không tính; năng lượng KHÔNG hoàn) */
   for (const s of SIDES) G.cnt.playedNow[s] = G.q[s].filter(a => a.t === "play" && a.ok).length;
   const steps = [];
   for (const s of order) for (const a of G.q[s]) steps.push({ s, t: a.t, uid: a.uid, to: a.to, ok: a.ok, grant: a.grant });

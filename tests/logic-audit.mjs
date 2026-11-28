@@ -309,7 +309,7 @@ test("[13] Rồng Bất Tử: đếm mọi lượt đặt >=2 thẻ GỒM lượ
   const pb = evsOf(G, "pbuff").find(e => e.why === "longbattu"); ok(pb && pb.uid === a.uid && pb.src === r.uid && pb.turns === 3, JSON.stringify(pb));
   endT(G); eq(G.cnt.two.p, 3, "cuối lượt đếm lượt này đúng 1 lần"); eq(LT.counter(G, r).txt, "(+6)");
 });
-test("[16] Chúa Mặt Trời: đếm lượt kết thúc còn dư năng lượng (cả lá bị trả về được hoàn năng lượng) + egain", () => {
+test("[16] Chúa Mặt Trời: đếm lượt kết thúc còn dư năng lượng + egain", () => {
   const G = setup(); G.energy.p = 2; runSteps(G); endT(G); eq(G.cnt.unspentTurns.p, 1);
   G.turn++; G.energy.p = 1; const x = inHand(G, "p", "da"); LT.queuePlay(G, "p", x.uid, 0); runSteps(G); endT(G); eq(G.cnt.unspentTurns.p, 1, "dùng hết -> không tính");
   G.turn++; G.energy.p = 9; const t = inHand(G, "p", "tinhchuathaiduong"); LT.queuePlay(G, "p", t.uid, 0); runSteps(G);
