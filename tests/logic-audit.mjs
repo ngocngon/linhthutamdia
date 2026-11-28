@@ -219,6 +219,14 @@ test("Linh Môi Sư (tamlinhtu): Kích Hoạt rồi đặt thẻ -> thẻ đó b
   nextTurn(G2); G2.energy.p = 30; const c3 = inHand(G2, "p", "docnhan"); play(G2, "p", c3, 2);
   ok(LT.locOf(G2, c3) === 2 && pw(G2, t2) === 1, "lượt sau: không còn nuốt (trước đây nuốt nhầm sang lượt sau)");
 });
+test("[gộp] Lính Đơn Độc (linhdondoc): Kích Hoạt -> thẻ tiếp theo ĐẶT sức mạnh = sức mạnh Lính Đơn Độc (không cộng); Lão Gậy vẫn cộng", () => {
+  const G = setup(); G.energy.p = 30; const l = onBoard(G, "p", "linhdondoc", 0, 3); const v = pw(G, l); const c = inHand(G, "p", "cuongnhan");
+  ok(LT.queueAct(G, "p", l.uid)); for (const st of LT.beginReveal(G)) LT.doStep(G, st);
+  ok(LT.queuePlay(G, "p", c.uid, 1)); for (const st of LT.beginReveal(G)) LT.doStep(G, st);
+  ok(LT.C.cuongnhan.p !== v, "đối chứng: sức mạnh gốc khác"); eq(pw(G, c), v, "thẻ kế có sức mạnh = Lính Đơn Độc (" + v + ")");
+  const c2 = inHand(G, "p", "chanthu"); play(G, "p", c2, 2); eq(pw(G, c2), LT.C.chanthu.p, "chỉ áp cho 1 thẻ");
+  const G2 = setup(); G2.energy.p = 30; const lg = onBoard(G2, "p", "laogay", 0, 2); G2.forge.p = pw(G2, lg); const c3 = inHand(G2, "p", "chanthu"); play(G2, "p", c3, 1); eq(pw(G2, c3), LT.C.chanthu.p + pw(G2, lg), "Lão Gậy cộng");
+});
 test("Lôi Quang Tiên (diennu): đỉnh bộ bài -1 năng lượng +1 sức mạnh + dấu surge; đặt lá đó -> lặp lại lên lá đỉnh mới (chuỗi), sự kiện surge.src = lá vừa đặt", () => {
   const G = setup(); const b2 = inDeck(G, "p", "docnhan"), b1 = inDeck(G, "p", "chanthu");
   play(G, "p", inHand(G, "p", "diennu"), 0);

@@ -1776,7 +1776,7 @@ function regen(G, i) {
   effReveal(G, i);
 }
 const ACT = {
-  linhdondoc(G, i, li) { G.forge[i.side] += Math.max(0, power(G, i, li)); },
+  linhdondoc(G, i, li) { /* gộp b44: chữ kỹ năng "sức mạnh BẰNG sức mạnh của thẻ này" -> ĐẶT sức mạnh (không cộng như Lão Gậy) */ (G.ldd = G.ldd || { p: null, a: null })[i.side] = { v: Math.max(0, power(G, i, li)), u: i.uid }; },
   nhendotham(G, i, li) { const ol = otherLocs(G, li, i.side).filter(l => !profX(G, l)); if (ol.length && !stardust(G)) { const c = clone1(G, i, i.side); c.act = true; place(G, c, pick(G, ol), i.side); } },
   chomay(G, i) { const m = G.lastMove[i.side], f = m && find(G, m.u); if (!f || f.inst.side !== i.side) return; f.inst.bonus += 2; moveCard(G, f.inst, f.li, m.f); },
   nhenhacdich(G, i, li) { const t = lowHigh(G, shown(G, li, i.side).filter(c => c !== i), -1); if (!t) return; const a = ab(t), v = power(G, t, li), arr = G.locs[li].cards[i.side]; arr.splice(arr.indexOf(t), 1); i.bonus += v; nb(G, i, v, t, "nuot"); if (!t.sil && C[a].t !== "none") { i.ab = a; abNote(G, i, t, "chep"); ev(G, "abcopy", { uid: i.uid, from: t.uid }); ev(G, "morph", { uid: i.uid }); if (C[a].t === "rev" && REV[a] && G.depth < 6) { G.depth++; REV[a](G, i, li); } } },
@@ -2220,6 +2220,7 @@ function revealCard(G, inst, li, by, ef) {
   inst.rev = true;
   if (inst.id === "tamtudo" && !inst.xab && !inst.ab) inst.xab = roAbs(G);
   log(G, (by === "p" ? "Bạn" : "Máy") + " lật " + d.n + (ef ? " (được đưa vào chiến địa)" : "")); ev(G, "flip", ef ? { uid: inst.uid, id: inst.id, own: inst.own, eff: 1 } : { uid: inst.uid, id: inst.id, own: inst.own });
+  if (pl && G.ldd && G.ldd[s] && !SKILLS.includes(inst.id)) { const q = G.ldd[s]; G.ldd[s] = null; const lc = anyInst(G, q.u); if (lc) via(G, lc, () => { inst.bp = q.v; inst.bonus = 0; }); else { inst.bp = q.v; inst.bonus = 0; } log(G, C.linhdondoc.n + ": " + d.n + " có sức mạnh " + q.v); }
   if (pl && L.bless[s]) { inst.bonus += L.bless[s]; L.bless[s] = 0; }
   if (G.mods && MD(G, s).firstrev && inst.played && !(G.fr && G.fr[s] === G.turn)) { G.fr = G.fr || {}; G.fr[s] = G.turn; inst.bonus += MD(G, s).firstrev; log(G, "Bánh Chưng: " + d.n + " +" + MD(G, s).firstrev + " sức mạnh"); }
   if (inst.ug_ch && !inst.sil) { for (const k of L.cards[s]) if (k !== inst) k.bonus += inst.ug_ch; log(G, d.n + " cổ vũ: +" + inst.ug_ch + " sức mạnh cho các thẻ khác của bạn tại đây"); }
