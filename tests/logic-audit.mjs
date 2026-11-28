@@ -242,6 +242,155 @@ test("Bảng Test VFX (kiểm nhanh engine): MỌI thẻ có kỹ năng đều c
   eq(bad.join(", "), "", "thẻ không tác dụng, không giải thích");
 });
 
+/* ---------------- A3. b44 (làn E): luật thẻ theo 44 nhận xét ---------------- */
+console.log("A3. b44 — luật thẻ (làn E):");
+const runSteps = (G) => { for (const st of LT.beginReveal(G)) LT.doStep(G, st); };
+const endT = (G) => { G.q = { p: [], a: [] }; const all = []; for (const st of LT.beginEndTurn(G)) { LT.stepEndTurn(G, st); if (G.evs) all.push(...G.evs); } LT.finishEndTurn(G); if (G.evs) { G.evs.length = 0; G.evs.push(...all); } };
+test("[6] Cương Thi Nuốt Sao: đánh dấu 6 lá lúc Đầu Ván (startFx.mk/priv, G.zgm), CHƯA biến trước khi lật", () => {
+  const d = LT.randomDeck(() => 0.5); d[0] = "bayxacnuotsao";
+  const G = LT.newGame(d, LT.randomDeck(() => 0.3), { seed: 5 });
+  const mk = G.hand.p.concat(G.deck.p).filter(c => c.zg);
+  eq(mk.length, 6, "6 lá đánh dấu"); ok(mk.every(c => c.id !== "bayxacnuotsao" && !LT.SKILLS.includes(c.id)), "không đánh dấu chính nó / thẻ phép");
+  const sf = G.startFx.find(x => x.id === "bayxacnuotsao"); ok(sf && sf.mk.length === 6 && sf.priv === "p", "startFx.mk/priv");
+  eq(G.zgm.p.length, 6, "G.zgm"); ok(mk.every(c => c.id === C[c.id].id), "chưa biến");
+});
+test("[6] Cương Thi lật: biến MỌI lá đánh dấu (tay, bộ bài, sân kể cả lá úp) thành bản sao mang sức mạnh hiện tại; sự kiện zgx + morph(z)", () => {
+  const G = setup(); const z = inHand(G, "p", "bayxacnuotsao"); z.bonus = 3;
+  const h = inHand(G, "p", "da"), dk = inDeck(G, "p", "thachquai"), b = onBoard(G, "p", "chanthu", 1), hid = onBoard(G, "p", "taymaynu", 2), nm = inHand(G, "p", "cuongnhan");
+  hid.rev = false; hid.hid = true;
+  for (const c of [h, dk, b, hid]) c.zg = z.uid;
+  play(G, "p", z, 0);
+  for (const c of [h, dk, b, hid]) { eq(c.id, "bayxacnuotsao", "lá " + c.uid + " phải biến"); eq(LT.basePow(c) + c.bonus, 8, "sức mạnh = Cương Thi lúc lật (5+3)"); ok(!c.zg, "hết dấu"); }
+  eq(nm.id, "cuongnhan", "lá không đánh dấu giữ nguyên");
+  const zx = evsOf(G, "zgx")[0]; ok(zx && zx.uid === z.uid && zx.us.length === 4 && zx.v === 8, "zgx: " + JSON.stringify(zx));
+  ok(evsOf(G, "morph").some(e => e.uid === h.uid && e.z === "hand" && e.src === z.uid), "morph trên tay có z/src");
+});
+test("[5] Hắc Diệm Đế: bước 1 thất bại -> trả lại bước 1 (thẻ tạo); bước 2 tôn trọng Thép Nhân; bước 3 triệu hồi; sự kiện ritual", () => {
+  const G = setup(); const dm = inDeck(G, "p", "hacdiemchua");
+  play(G, "p", inHand(G, "p", "nghithuctrieuhoii"), 0);
+  let r = evsOf(G, "ritual")[0]; ok(r && r.step === 1 && !r.ok && r.dm === dm.uid && r.why, "ritual 1 thất bại: " + JSON.stringify(r));
+  const s1 = G.hand.p.find(c => c.id === "nghithuctrieuhoii"); ok(s1 && s1.cr, "bước 1 trở lại tay (thẻ tạo)");
+  const dead = onBoard(G, "p", "cuongnhan", 1); LT.destroy(G, dead, 1);
+  G.evs = []; play(G, "p", s1, 0); eq(dm.bonus, 14, "nuốt thẻ mạnh nhất đã bị huỷ");
+  ok(evsOf(G, "absorb").some(e => e.uid === dm.uid && e.from === dead.uid), "absorb bước 1");
+  const s2 = G.hand.p.find(c => c.id === "nghithuctrieuhoiii"); ok(s2 && s2.cr && s2.by === "nghithuctrieuhoii", "bước 2 là thẻ tạo bởi bước 1");
+  onBoard(G, "a", "da", 2); onBoard(G, "a", "thepnhan", 2); G.evs = []; play(G, "p", s2, 2);
+  eq(dm.bonus, 15, "chỉ lấy được từ thẻ không được bảo vệ"); r = evsOf(G, "ritual")[0]; eq(r.v, 1, "ritual.v");
+  const s3 = G.hand.p.find(c => c.id === "nghithuctrieuhoiiii"); onBoard(G, "p", "da", 1); onBoard(G, "p", "da", 1);
+  G.evs = []; play(G, "p", s3, 1); eq(LT.locOf(G, dm), 1, "Hắc Diệm Đế ra sân"); eq(pw(G, dm), 28, "13 + 14 + 1");
+  r = evsOf(G, "ritual")[0]; ok(r.ok && r.step === 3 && r.from.length === 2 && r.dz === "deck", "ritual 3: " + JSON.stringify(r));
+});
+test("[10] Thẻ được tạo: Càn Khôn Khai Quang (cr + tf), Pháp Sư Già, Hắc Kỵ Sĩ, Mười Kiếp Nữ, Chợ Đen mang đúng nguồn", () => {
+  const d = LT.randomDeck(() => 0.5); d[0] = "quyensuthaphoan";
+  const G = LT.newGame(d, LT.randomDeck(() => 0.3), { seed: 3 }); G.evs = [];
+  const q = G.hand.p.find(c => c.id === "thaphoan"); ok(q && q.cr && q.by === "quyensuthaphoan", "Càn Khôn Quyển là thẻ tạo");
+  const v = LT.mk(G, "quyensuthaphoan", "p"); G.hand.p.push(v); G.energy.p = 10; G.turn = 3; G.locs.forEach(L => { L.rvl = true; });
+  ok(LT.queuePlay(G, "p", v.uid, 0)); runSteps(G);
+  eq(q.id, "thaphoankhaimo"); ok(q.cr && q.by === "quyensuthaphoan" && q.tf && q.tf.o === "thaphoan", "Khai Quang vẫn là thẻ tạo + có tf");
+  ok(evsOf(G, "morph").some(e => e.uid === q.uid && e.z === "hand"), "morph trên tay");
+  const G2 = setup(); const ps = onBoard(G2, "p", "phapsugia", 0); endT(G2); G2.evs = []; LT.startTurn(G2);
+  const sp = G2.hand.p.find(c => c.cr); ok(sp && sp.by === "phapsugia" && sp.bu === ps.uid, "Pháp Sư Già: " + JSON.stringify(sp && [sp.by, sp.bu]));
+  const G3 = setup(); const hk = onBoard(G3, "p", "hackysi", 0); inHand(G3, "p", "da"); LT.discard(G3, "p", G3.hand.p[0]);
+  const hb = G3.hand.p.find(c => c.id === "hackiem"); ok(hb && hb.cr && hb.by === "hackysi" && hb.bu === hk.uid, "Hắc Kỵ Sĩ");
+  const G4 = setup(); G4.open = { p: ["da"], a: [] }; const mm = onBoard(G4, "p", "muoikiepnu", 0); const kx = onBoard(G4, "a", "da", 0); G4.srcU = kx.uid; LT.destroy(G4, mm, 0); G4.srcU = 0;
+  const mc = G4.hand.p.find(c => c.cr); ok(mc && mc.by === "muoikiepnu", "Mười Kiếp Nữ: nguồn là chính nó, không phải thẻ huỷ nó: " + (mc && mc.by));
+});
+test("[11] Thẻ đưa vào sân bằng hiệu ứng: summon/revive luôn có li/ix/side/id/src (Phân Thân, Thiên Dực, tự hồi sinh)", () => {
+  const G = setup(); const pt = onBoard(G, "p", "phanthan", 0); LT.moveCard(G, pt, 0, 1);
+  const s = evsOf(G, "summon")[0]; ok(s && s.li === 0 && s.ix >= 0 && s.side === "p" && s.id === "phanthan" && s.clone === pt.uid, JSON.stringify(s));
+  const G2 = setup(); const td = inHand(G2, "p", "thienduc"); const v = onBoard(G2, "p", "da", 2); LT.destroy(G2, v, 2);
+  const s2 = evsOf(G2, "summon").find(e => e.uid === td.uid); ok(s2 && s2.li === 2 && s2.from === "hand", JSON.stringify(s2));
+  ok(evsOf(G2, "flip").some(e => e.uid === td.uid && e.eff), "Thiên Dực lật như thẻ được đưa vào");
+});
+test("[13] Rồng Bất Tử: đếm mọi lượt đặt >=2 thẻ GỒM lượt hiện tại; buff nhân vật cuối (bỏ qua thẻ phép); lá bị trả về không tính", () => {
+  const G = setup(); G.cnt.two.p = 2; const a = inHand(G, "p", "da"), sp = inHand(G, "p", "daodo"), r = inHand(G, "p", "longbattu");
+  LT.queuePlay(G, "p", a.uid, 0); LT.queuePlay(G, "p", sp.uid, 1); LT.queuePlay(G, "p", r.uid, 1); runSteps(G);
+  eq(a.bonus, 6, "3 lượt x2 (2 cũ + lượt này) cho nhân vật cuối (Đá), không mất vào thẻ phép");
+  const pb = evsOf(G, "pbuff").find(e => e.why === "longbattu"); ok(pb && pb.uid === a.uid && pb.src === r.uid && pb.turns === 3, JSON.stringify(pb));
+  endT(G); eq(G.cnt.two.p, 3, "cuối lượt đếm lượt này đúng 1 lần"); eq(LT.counter(G, r).txt, "(+6)");
+});
+test("[16] Chúa Mặt Trời: đếm lượt kết thúc còn dư năng lượng (cả lá bị trả về được hoàn năng lượng) + egain", () => {
+  const G = setup(); G.energy.p = 2; runSteps(G); endT(G); eq(G.cnt.unspentTurns.p, 1);
+  G.turn++; G.energy.p = 1; const x = inHand(G, "p", "da"); LT.queuePlay(G, "p", x.uid, 0); runSteps(G); endT(G); eq(G.cnt.unspentTurns.p, 1, "dùng hết -> không tính");
+  G.turn++; G.energy.p = 9; const t = inHand(G, "p", "tinhchuathaiduong"); LT.queuePlay(G, "p", t.uid, 0); runSteps(G);
+  eq(G.nextBonus.p, 1); const e = evsOf(G, "egain").find(x => x.uid === t.uid); ok(e && e.n === 1 && e.next, JSON.stringify(e)); eq(LT.counter(G, t).v, 1);
+});
+test("[22] Nhện Non: Kích Hoạt -> thẻ NHÂN VẬT kế tiếp (lượt sau) +1 & dời phải; bỏ qua thẻ phép; 2 lần kích hoạt cộng dồn", () => {
+  const G = setup(); const n = onBoard(G, "p", "nhennon", 0), n2 = onBoard(G, "p", "nhennon", 2); act(G, "p", n); act(G, "p", n2); endT(G); G.turn++; G.energy.p = 30;
+  const sp = inHand(G, "p", "daodo"), c = inHand(G, "p", "chanthu"); LT.queuePlay(G, "p", sp.uid, 0); LT.queuePlay(G, "p", c.uid, 0); G.evs = []; runSteps(G);
+  eq(c.bonus, 2, "+1 mỗi lần kích hoạt"); eq(LT.locOf(G, c), 2, "dời sang phải 2 lần"); eq(evsOf(G, "pbuff").filter(e => e.why === "nhennon").length, 2);
+  ok(!G.arana.p, "đã dùng hết");
+});
+function act(G, s, c) { ok(LT.queueAct(G, s, c.uid), "không kích hoạt được " + c.id); runSteps(G); }
+test("[25] Thẻ phép không mang tăng/giảm sức mạnh (Huyễn Cơ Nữ/Ngã Ba Sông cả tay), vẫn được đổi năng lượng", () => {
+  const G = setup(); const sp = inHand(G, "p", "daodo"), ch = inHand(G, "p", "da"); onBoard(G, "p", "huyenconu", 0); onBoard(G, "p", "thachquai", 0);
+  sp.cm = -1; endT(G); LT.startTurn(G); eq(sp.bonus, 0, "thẻ phép không +"); eq(ch.bonus, 1, "nhân vật +1"); eq(sp.cm, -1, "giữ giảm năng lượng");
+  const G2 = setup(); const s2 = inHand(G2, "p", "daodo"); for (let k = 0; k < 20; k++) { const G3 = setup(k + 1); const a = inHand(G3, "p", "daodo"), b = inHand(G3, "p", "da"); play(G3, "p", inHand(G3, "p", "hongnutinhquai"), 0); eq(a.bonus, 0); eq(b.bonus, 6); }
+});
+test("[26] Nụ Hôn Độc tự huỷ khi phía nó đầy vì TRIỆU HỒI / DI CHUYỂN (không chỉ khi đặt)", () => {
+  const G = setup(); const n = onBoard(G, "a", "nuhondoc", 1); onBoard(G, "a", "da", 1); onBoard(G, "a", "da", 1); const mv = onBoard(G, "a", "da", 0);
+  ok(LT.queueAct(G, "p", onBoard(G, "p", "da", 2).uid) === false); G.q = { p: [], a: [] };
+  G.q.a.push({ t: "move", uid: mv.uid, to: 1, from: 0 }); mv.fly = true; mv.turn = 1; runSteps(G);
+  eq(LT.locOf(G, n), -1, "đầy do dời thẻ -> tự huỷ");
+  const G2 = setup(); onBoard(G2, "a", "da", 0); onBoard(G2, "a", "da", 0); onBoard(G2, "a", "da", 0); play(G2, "p", inHand(G2, "p", "docnutrang"), 0);
+  ok(!G2.locs[0].cards.a.some(c => c.id === "nuhondoc"), "Nụ Hôn Độc lấp ô cuối -> tự huỷ ngay");
+  ok(evsOf(G2, "destroy").some(e => e.id === "nuhondoc"), "có sự kiện destroy");
+});
+test("[27] Cậu Thợ Khéo: Bát Túc Giáp hợp thể vào thẻ khác -> lượt sau +1 năng lượng; sự kiện absorb + egain", () => {
+  const G = setup(); const pk = onBoard(G, "p", "nhencogiap", 1); const t = onBoard(G, "p", "chanthu", 0);
+  const sp = LT.mk(G, "cogiapnhen", "p"); sp.cr = true; sp.by = "nhencogiap"; sp.bu = pk.uid; G.hand.p.push(sp); play(G, "p", sp, 0);
+  eq(t.bonus, 5, "hợp thể +5"); eq(G.nextBonus.p, 1, "+1 năng lượng lượt sau");
+  ok(evsOf(G, "absorb").some(e => e.uid === t.uid && e.from === sp.uid && e.merge), "absorb"); ok(evsOf(G, "egain").some(e => e.uid === pk.uid && e.next), "egain");
+});
+test("[28] Đồng Trảo: 7 thẻ bị huỷ -> +1+1+1+2+2+2+3 = 12; mỗi lần 1 pbuff, bộ đếm hiển thị", () => {
+  const G = setup(); const w = onBoard(G, "p", "vukhix", 0); for (let k = 0; k < 7; k++) LT.destroy(G, onBoard(G, "p", "da", 1), 1);
+  eq(w.bonus, 12); eq(evsOf(G, "pbuff").filter(e => e.why === "vukhix").length, 7); eq(LT.counter(G, w).txt, "(1/3)");
+});
+test("[34] Thư Sinh Hoá Cuồng: dư năng lượng -> ~33% hoá cuồng (giữ sức mạnh cộng thêm); không dư -> 0%", () => {
+  let n = 0, n0 = 0; for (let s = 1; s <= 600; s++) { for (const un of [2, 0]) { const G = setup(s); const z = onBoard(G, "p", "tiensigamma", 0, 2); G.unspent.p = un; G.cnt.playedNow.p = 0; for (const st of LT.beginEndTurn(G)) LT.stepEndTurn(G, st); if (z.id !== "tiensigamma") { if (un) { n++; eq(z.bonus, 2); } else n0++; } } }
+  ok(n / 600 > 0.27 && n / 600 < 0.4, "tỉ lệ " + n / 600); eq(n0, 0);
+});
+test("[37] Ngọn Đuốc Sống: phía đầy -> nhân đôi TOÀN BỘ sức mạnh (gốc+cộng) 1 lần/ván, còn lại +1", () => {
+  const G = setup(); const x = onBoard(G, "p", "hoanhansokhai", 0, 3); for (let k = 0; k < 3; k++) onBoard(G, "p", "da", 0);
+  endT(G); eq(pw(G, x), 10, "(2+3) x2"); const e = evsOf(G, "pbuff").find(e => e.uid === x.uid); ok(e && e.why === "x2" && e.n === 5, JSON.stringify(e));
+  G.turn++; G.evs = []; endT(G); eq(pw(G, x), 11, "lần sau chỉ +1");
+});
+test("[39] Thần Đồng: hàng sau LUÔN ghi lại thẻ phía trước (kể cả không kỹ năng); học được Lật -> chạy ngay", () => {
+  const G = setup(); onBoard(G, "p", "da", 0); onBoard(G, "p", "da", 0); const t = inHand(G, "p", "thandong"); play(G, "p", t, 0);
+  ok(t.tdg && t.tdg.why === "none" && t.tdg.id === "da" && !t.ab, "ghi 'không có kỹ năng': " + JSON.stringify(t.tdg));
+  const G2 = setup(); const f = onBoard(G2, "p", "tinhquyennu", 0); onBoard(G2, "p", "da", 0); const top = inDeck(G2, "p", "da"); const t2 = inHand(G2, "p", "thandong"); play(G2, "p", t2, 0);
+  eq(t2.ab, "tinhquyennu"); eq(t2.tdg.f, f.uid); eq(top.bonus, 3, "Lật học được chạy ngay");
+  const G3 = setup(); const t3 = inHand(G3, "p", "thandong"); play(G3, "p", t3, 0); eq(t3.tdg.why, "front", "hàng trước");
+});
+test("[14] Ly Gián Ma Nữ: cướp kỹ năng thẻ mạnh nhất (năng lượng cao nhất, hoà -> sức mạnh) trên tay đối thủ; Lật cướp được chạy ngay", () => {
+  const G = setup(); const lo = inHand(G, "a", "tinhquyennu"), hi = inHand(G, "a", "tinhquyennu"); hi.cm = 3; inHand(G, "a", "cuongnhan"); const top = inDeck(G, "p", "da");
+  const h = inHand(G, "p", "haplucchiare"); play(G, "p", h, 0);
+  eq(h.ab, "tinhquyennu"); ok(hi.sil && !lo.sil, "đúng lá mạnh nhất bị mất kỹ năng"); eq(top.bonus, 3, "Lật cướp được chạy");
+  ok(evsOf(G, "abcopy").some(e => e.uid === h.uid && e.from === hi.uid && e.hand), "abcopy");
+});
+test("[42] Hồng Nữ Tinh Quái: 3 lần chọn ngẫu nhiên, mỗi lần 1 sự kiện hbuff (+2)", () => {
+  const G = setup(); const a = inHand(G, "p", "da"), b = inHand(G, "p", "chanthu"); play(G, "p", inHand(G, "p", "hongnutinhquai"), 0);
+  const hb = evsOf(G, "hbuff"); eq(hb.length, 3); eq(a.bonus + b.bonus, 6); ok(hb.every(e => e.n === 2 && e.us.length === 1), JSON.stringify(hb));
+});
+test("[44] Sầu Lão: chỉ lặp + tiêu huỷ thẻ có Lật; thẻ không Lật / bị xoá kỹ năng giữ nguyên", () => {
+  const G = setup(); const r = onBoard(G, "p", "tinhquyennu", 0), n = onBoard(G, "p", "da", 0), s = onBoard(G, "p", "tinhquyennu", 0); s.sil = true; const top = inDeck(G, "p", "da");
+  play(G, "p", inHand(G, "p", "sautham"), 0);
+  eq(LT.locOf(G, r), -1, "thẻ Lật bị huỷ"); ok(LT.locOf(G, n) === 0 && LT.locOf(G, s) === 0, "thẻ không Lật / bị xoá kỹ năng còn"); eq(top.bonus, 3, "Lật được lặp");
+  ok(evsOf(G, "skill").some(e => e.uid === r.uid && e.rep), "skill rep cho thẻ được lặp");
+});
+test("[19] Thây Ma Ánh Sao: tiêu huỷ đúng thẻ ở chiến địa nó đang đứng khi kích hoạt, rồi mới dời", () => {
+  const G = setup(); const x = onBoard(G, "p", "xactinhquang", 0); const a = onBoard(G, "p", "da", 0), b = onBoard(G, "p", "da", 1); onBoard(G, "a", "cuongnhan", 2);
+  act(G, "p", x); eq(LT.locOf(G, a), -1); eq(LT.locOf(G, b), 1); eq(x.bonus, 3); ok(evsOf(G, "destroy").every(e => e.li === 0)); eq(LT.locOf(G, x), 2, "dời tới nơi đang thua");
+});
+test("[40] Ảo Thuật Sư: Kích Hoạt được từ lượt sau khi lật (nút Kích Hoạt = canActivate)", () => {
+  const G = setup(); const x = inHand(G, "p", "aosi"); play(G, "p", x, 0); ok(!LT.canActivate(G, "p", x), "lượt vừa lật: chưa"); endT(G); LT.startTurn(G); ok(LT.canActivate(G, "p", x), "lượt sau: được");
+});
+test("[3] Máy không biết thứ tự bộ bài người chơi: aiPlan không đổi G nhưng mô phỏng xáo bộ bài đối thủ", () => {
+  const d = LT.randomDeck(() => 0.5); d[0] = "phanquanthiengioi"; const G = LT.newGame(d, LT.randomDeck(() => 0.3), { seed: 9 });
+  const o = G.deck.p.map(c => c.uid).join(); LT.aiPlan(G, "a", 6); eq(G.deck.p.map(c => c.uid).join(), o, "bộ bài thật không đổi");
+  const sf = G.startFx.find(x => x.id === "phanquanthiengioi"); ok(sf && sf.s === "p", "Đầu Ván Phán Quan chỉ thuộc phe chủ");
+});
+
 /* ---------------- B. trình duyệt ---------------- */
 async function browserPart() {
   console.log("B. Diễn hoạt — nhắm đúng lá / đúng ô:");
