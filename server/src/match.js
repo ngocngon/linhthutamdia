@@ -1,6 +1,7 @@
 import { DurableObject } from "cloudflare:workers";
 import { cleanName } from "./util.js";
 import { eloDelta, START_RATING, PTS_WIN, PTS_DRAW } from "./elo.js";
+import { AuthMatch } from "./authmatch.js";
 
 export const LIMITS = {
   msg: 12 * 1024,        // kích thước một tin
@@ -12,6 +13,8 @@ export const LIMITS = {
   keepMs: 10 * 60 * 1000 // giữ trận đã xong để người chơi xem kết quả
 };
 const PRES_KEYS = new Set(["v", "nm", "av", "rk", "dk", "mid", "role", "seed", "t", "sub", "acts", "lock", "snap", "rt", "emo", "h", "mm", "la"]);
+/* trận do máy chủ giữ trạng thái: presence chỉ còn phần hiển thị công khai (không bộ bài, không hạt giống, không hành động) */
+const PRES_KEYS_AUTH = new Set(["v", "nm", "av", "rk", "mid", "role", "rt", "emo"]);
 
 export class Match extends DurableObject {
   constructor(ctx, env) {
@@ -24,11 +27,13 @@ export class Match extends DurableObject {
       this.rep = (await ctx.storage.get("rep")) || {};
       this.disc = (await ctx.storage.get("disc")) || {};
       this.subAt = (await ctx.storage.get("subAt")) || {};
+      const am = await ctx.storage.get("am");
+      this.am = am ? new AuthMatch(am) : null;
     });
   }
 
   save(...keys) {
-    const all = { meta: this.meta, pres: this.pres, rep: this.rep, disc: this.disc, subAt: this.subAt };
+    const all = { meta: this.meta, pres: this.pres, rep: this.rep, disc: this.disc, subAt: this.subAt, am: this.am ? this.am.toJSON() : null };
     const o = {};
     for (const k of keys) o[k] = all[k];
     return this.ctx.storage.put(o);
@@ -41,7 +46,9 @@ export class Match extends DurableObject {
       if (this.meta) return new Response("exists", { status: 409 });
       const b = await request.json();
       this.meta = { mid: b.mid, mode: b.mode, startedAt: Date.now(), ended: null, players: b.players.map((p) => ({ uid: p.uid, name: p.name, rating: p.rating, peer: p.peer, keys: p.keys || {} })) };
-      await this.save("meta");
+      /* trận do máy chủ giữ trạng thái: players[0] (chủ phòng) là "p", players[1] là "a" */
+      if (b.auth) { this.meta.auth = 1; this.am = AuthMatch.create(b.auth.seed, b.auth.decks, Date.now()); await this.save("meta", "am"); }
+      else await this.save("meta");
       await this.ctx.storage.setAlarm(Date.now() + 5 * 60 * 1000); // phòng bỏ hoang
       return new Response("ok");
     }
@@ -54,7 +61,8 @@ export class Match extends DurableObject {
     this.ctx.acceptWebSocket(pair[1], ["u" + uid]);
     pair[1].serializeAttachment({ uid });
     if (this.disc[uid]) { delete this.disc[uid]; await this.save("disc"); }
-    pair[1].send(JSON.stringify({ type: "hello", me: "u" + uid, ended: this.meta.ended }));
+    pair[1].send(JSON.stringify({ type: "hello", me: "u" + uid, ended: this.meta.ended, auth: this.meta.auth ? 1 : 0 }));
+    if (this.meta.auth && this.am) { try { pair[1].send(JSON.stringify(this.am.stateMsg(this.sideOf(uid), Date.now()))); } catch {} }
     this.broadcastPeers();
     await this.schedule();
     return new Response(null, { status: 101, webSocket: pair[0], headers: { "sec-websocket-protocol": "ltd1" } });
@@ -92,6 +100,7 @@ export class Match extends DurableObject {
     if (!m || typeof m !== "object") return;
     if (m.type === "ping") { ws.send('{"type":"pong"}'); return; }
     if (this.meta.ended) return;
+    if (this.meta.auth) { await this.onAuthMsg(uid, m); return; }
     if (m.type === "pres") { await this.onPres(uid, m.patch); return; }
     if (m.type === "result") { await this.onResult(uid, m); return; }
   }
@@ -166,6 +175,7 @@ export class Match extends DurableObject {
 
   async forfeit(loserUid, reason) {
     if (this.meta.ended) return;
+    if (this.meta.auth && this.am) { this.am.forfeit(this.sideOf(loserUid), reason); await this.save("am"); }
     const winner = this.meta.players.find((p) => p.uid !== loserUid).uid;
     await this.finish({ winner, outcome: "forfeit", reason, verified: true, rate: true });
   }
@@ -228,6 +238,7 @@ export class Match extends DurableObject {
   nextDeadline() {
     const ds = [];
     for (const u of Object.keys(this.disc)) ds.push(this.disc[u] + LIMITS.waitMs);
+    if (this.meta.auth) { const d = this.am && this.am.nextDeadline(); if (d) ds.push(d); return ds.length ? Math.min(...ds) : 0; }
     for (const p of this.meta.players) { const s = this.stalledSince(p); if (s) ds.push(s.at + LIMITS.waitMs); }
     const reps = Object.values(this.rep).map((r) => r.at);
     if (reps.length && reps.length < this.meta.players.length) ds.push(Math.min(...reps) + LIMITS.reportMs);
@@ -247,7 +258,9 @@ export class Match extends DurableObject {
     for (const p of this.meta.players) {
       if (this.disc[p.uid] && now - this.disc[p.uid] >= LIMITS.waitMs && !this.rep[p.uid]) { await this.forfeit(p.uid, "disconnect"); return; }
     }
-    for (const p of this.meta.players) {
+    if (this.meta.auth) {
+      if (this.am) { const r = this.am.tick(now); await this.authOut(r); if (this.meta.ended) return; }
+    } else for (const p of this.meta.players) {
       const s = this.stalledSince(p);
       if (s && now - s.at >= LIMITS.waitMs) { await this.forfeit(p.uid, "turn_timeout"); return; }
     }
@@ -260,6 +273,53 @@ export class Match extends DurableObject {
     await this.schedule();
   }
 }
+
+/* ---------- trận do máy chủ giữ trạng thái ---------- */
+Match.prototype.sideOf = function (uid) { return this.meta.players[0].uid === uid ? "p" : "a"; };
+Match.prototype.uidOf = function (side) { return this.meta.players[side === "p" ? 0 : 1].uid; };
+Match.prototype.onAuthMsg = async function (uid, m) {
+  if (!this.am) return;
+  const side = this.sideOf(uid);
+  if (m.type === "pres") { await this.onPresAuth(uid, m.patch); return; }
+  if (m.type === "retreat") { await this.forfeit(uid, m.kind === "timeoutP" ? "turn_timeout" : "retreat"); return; }
+  if (m.type === "sub" || m.type === "unsub" || m.type === "ready" || m.type === "sync") await this.authOut(this.am.onMsg(side, m, Date.now()));
+};
+/* gửi tin bộ điều khiển trả về (mỗi bên chỉ nhận tin của mình), lưu, kết thúc trận nếu có */
+Match.prototype.authOut = async function (r) {
+  if (!r) return;
+  for (const x of r.out) {
+    const s = JSON.stringify(x.msg);
+    for (const ws of this.ctx.getWebSockets("u" + this.uidOf(x.to))) { try { ws.send(s); } catch {} }
+  }
+  if (r.out.length || r.end) await this.save("am");
+  if (r.end) {
+    const winner = r.end.w === null ? null : this.uidOf(r.end.w);
+    const outcome = r.end.reason === "end" ? (winner === null ? "draw" : "win") : winner === null ? "void" : "forfeit";
+    await this.finish({ winner, outcome, reason: r.end.reason === "end" ? "server" : r.end.reason, verified: true, rate: outcome !== "void" });
+    return;
+  }
+  await this.schedule();
+};
+Match.prototype.onPresAuth = async function (uid, patch) {
+  if (!patch || typeof patch !== "object" || Array.isArray(patch)) return;
+  const cur = { ...(this.pres[uid] || {}) };
+  for (const k of Object.keys(patch)) {
+    if (!PRES_KEYS_AUTH.has(k)) continue;
+    const v = patch[k];
+    if (v === null) delete cur[k];
+    else if (k === "nm") cur.nm = cleanName(v);
+    else if (k === "emo") { if (v && typeof v === "object" && Number.isInteger(v.k) && typeof v.ts === "number") cur.emo = { k: v.k, ts: v.ts }; }
+    else if (k === "av" || k === "mid" || k === "role") { if (typeof v === "string") cur[k] = v.slice(0, 40); }
+    else if (typeof v === "number") cur[k] = v;
+  }
+  const me = this.meta.players.find((p) => p.uid === uid);
+  cur.pid = me.peer; cur._at = Date.now();
+  if (JSON.stringify(cur).length > LIMITS.pres) return;
+  this.pres[uid] = cur;
+  await this.save("pres");
+  this.broadcastPeers();
+  if (cur.rt) await this.forfeit(uid, "retreat");
+};
 
 function stripInternal(p) {
   const o = { ...p }; delete o._at; return o;

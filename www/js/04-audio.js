@@ -324,8 +324,8 @@ const SFX = (() => {
   }
   function loadSprite(name, optional) {
     return Promise.all([
-      fetch("sfx/" + name + ".json?v=gpu69").then((r) => { if (!r.ok) throw new Error(name); return r.json(); }),
-      fetch("sfx/" + name + ".mp3?v=gpu69").then((r) => { if (!r.ok) throw new Error(name); return r.arrayBuffer(); })
+      fetch("sfx/" + name + ".json?v=gpu70").then((r) => { if (!r.ok) throw new Error(name); return r.json(); }),
+      fetch("sfx/" + name + ".mp3?v=gpu70").then((r) => { if (!r.ok) throw new Error(name); return r.arrayBuffer(); })
     ])
       .then(([idx, ab]) => new Promise((res, rej) => {
         const p = ac.decodeAudioData(ab, (b) => res([idx, b]), rej);
@@ -360,14 +360,14 @@ const SFX = (() => {
   function loadCardIndex() {
     if (cardIdxState) return;
     cardIdxState = 1;
-    fetch("sfx/the.json?v=gpu69").then((r) => { if (!r.ok) throw new Error("the.json"); return r.json(); })
+    fetch("sfx/the.json?v=gpu70").then((r) => { if (!r.ok) throw new Error("the.json"); return r.json(); })
       .then((j) => { cardIdx = j; cardIdxState = 2; const w = spWait.splice(0); w.forEach((f) => { try { f(); } catch (e) {} }); })
       .catch(() => { cardIdxState = 3; spWait.length = 0; });
   }
   function loadCardSprite(n) {
     if (spState[n] || !ac || !cardIdx) return Promise.resolve();
     spState[n] = 1;
-    return fetch("sfx/the-" + n + ".mp3?v=gpu69").then((r) => { if (!r.ok) throw new Error("the-" + n); return r.arrayBuffer(); })
+    return fetch("sfx/the-" + n + ".mp3?v=gpu70").then((r) => { if (!r.ok) throw new Error("the-" + n); return r.arrayBuffer(); })
       .then((ab) => new Promise((res, rej) => { const p = ac.decodeAudioData(ab, res, rej); if (p && p.catch) p.catch(rej); }))
       .then((big) => {
         const sr = big.sampleRate, src = big.getChannelData(0);
@@ -444,14 +444,14 @@ const SFX = (() => {
   function loadVoiceIndex() {
     if (voiceIdxState) return;
     voiceIdxState = 1;
-    fetch("sfx/thoai.json?v=gpu69").then((r) => { if (!r.ok) throw new Error("thoai.json"); return r.json(); })
+    fetch("sfx/thoai.json?v=gpu70").then((r) => { if (!r.ok) throw new Error("thoai.json"); return r.json(); })
       .then((j) => { voiceIdx = j; voiceIdxState = 2; voiceWait.splice(0).forEach((f) => { try { f(); } catch (e) {} }); })
       .catch(() => { voiceIdxState = 3; voiceWait.length = 0; });
   }
   function loadVoiceSprite(n) {
     if (voiceSp[n] || !ac || !voiceIdx) return Promise.resolve();
     voiceSp[n] = 1;
-    return fetch("sfx/thoai-" + n + ".mp3?v=gpu69").then((r) => { if (!r.ok) throw new Error("thoai-" + n); return r.arrayBuffer(); })
+    return fetch("sfx/thoai-" + n + ".mp3?v=gpu70").then((r) => { if (!r.ok) throw new Error("thoai-" + n); return r.arrayBuffer(); })
       .then((ab) => new Promise((res, rej) => { const p = ac.decodeAudioData(ab, res, rej); if (p && p.catch) p.catch(rej); }))
       .then((big) => {
         const sr = big.sampleRate, src = big.getChannelData(0);

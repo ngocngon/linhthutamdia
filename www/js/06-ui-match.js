@@ -69,7 +69,7 @@ function render0(){
         <div class="loc"><div class="in"${L.rvl&&IMGL.has(L.id)?` style="--li:url(${IMGS.l[L.id]})"`:""}><div class="ln">${L.gone?"Đã bị huỷ":L.rvl?def.n:ua43?def.n:"?"}</div><div class="lt">${L.gone?"Không còn tính điểm.":L.rvl?def.s:(ua43?def.s+" · ":"")+"Lộ diện ở lượt "+(li+1)}</div>${lk}</div></div>
         <span class="pw p${ld==="p"?" lead":""}${lchP?" lchg":""}${dg(pp)}">${pp}</span>${mxb("p",pp)}
       </div>
-      <div class="side me">${[0,1,2,3].map(i=>`<div class="slot${offBot(i)}">${mine[i]||""}</div>`).join("")}</div>
+      <div class="side me">${[0,1,2,3].map(i=>`<div class="slot${offBot(i)}">${mine[i]||""}</div>`).join("")}${mvGainHTML(li)}</div>
     </section>`;
   });
   patchBoard(html);tickPw();try{syncAmb();if(typeof syncBoardFieldVfx==="function")syncBoardFieldVfx();landDust();}catch(e){}
@@ -853,13 +853,24 @@ $("board").addEventListener("click",ev=>{
   look=look&&look.kind==="loc"&&look.li===li?null:{kind:"loc",li};render();
 });
 let drag=null,noClick=0,mvDrag=null;
+/* gpu70 (mục 5): khi kéo dời thẻ, mỗi chiến địa đích hợp lệ hiện số sức mạnh thẻ sẽ được/mất ở đó ("+4"), tính bằng cách MÔ PHỎNG dời trên BẢN SAO
+   trạng thái (E.clone, không đụng ván thật, không sự kiện). Màu theo ngôn ngữ P6.stat (xanh có lợi / đỏ bất lợi). Thẻ có kỹ năng "khi di chuyển" luôn hiện (kể cả +0). */
+function mvGains(uid,T){const o={};try{const f0=E.find(G,uid);if(!f0)return o;const hasMv=!f0.inst.sil&&!!(E.MOVED&&E.MOVED[E.ab(f0.inst)]);
+  for(const to of T){const S=E.clone(G);S.evs=null;S.msgs=null;S.q={p:[],a:[]};const f=E.find(S,uid);if(!f)continue;const p0=E.power(S,f.inst,f.li);
+    if(!E.moveCard(S,f.inst,f.li,to))continue;const nl=E.locOf(S,f.inst);const d=(nl>=0?E.power(S,f.inst,nl):p0)-p0;if(d||hasMv)o[to]=d;}}catch(e){console.error(e);}return o;}
+let mvSelG=null;/* bộ đệm số sẽ nhận cho cách "chạm thẻ -> Dời thẻ -> chạm chiến địa" */
+function mvGainOf(li){if(mvDrag&&mvDrag.g)return mvDrag.T.includes(li)?mvDrag.g[li]:null;if(moveSel&&playing()){const T=E.moveTargets(G,"p",moveSel);if(!mvSelG||mvSelG.u!==moveSel||mvSelG.k!==G.q.p.length+":"+G.turn)mvSelG={u:moveSel,k:G.q.p.length+":"+G.turn,g:mvGains(moveSel,T)};return T.includes(li)?mvSelG.g[li]:null;}return null;}
+function mvGainHTML(li){const d=mvGainOf(li);if(d==null)return "";
+  return `<i class="mvgain ${d<0?"dn":"up"}" data-mvg="${li}">${d<0?"−"+Math.abs(d):"+"+d}</i>`;}
 /* ===== i44 (mục 24): KÉO-THẢ DỜI THẺ TRÊN BÀN — thẻ đã lật của bạn có quyền dời (Dạ Hành, Huyền Cơ, Bà Tơ cho thẻ khác, Áo Choàng Tối, Cú Đu Tơ...)
    kéo tới đúng chiến địa muốn dời. Đích hợp lệ lấy từ E.moveTargets (khớp queueMove + chỗ trống); thẻ dời ngẫu nhiên/bị động vẫn ngẫu nhiên. ===== */
 $("board").addEventListener("pointerdown",ev=>{if(drag)return;const mc=ev.target.closest(".mc[data-mc]:not(.staged):not(.back)");if(!mc||!G||!playing()||(G.online&&OL.sub))return;
   const uid=+mc.dataset.mc,f=E.find(G,uid);if(!f||f.inst.side!=="p"||!f.inst.rev||E.queued(G,"p",uid,"move"))return;const T=E.moveTargets(G,"p",uid);if(!T.length)return;
-  const r=mc.getBoundingClientRect();drag={mv:true,uid,T,x:ev.clientX,y:ev.clientY,on:false,html:mc.outerHTML,w:r.width,h:r.height,el:mc,pid:ev.pointerId};});
+  const r=mc.getBoundingClientRect();drag={mv:true,uid,T,x:ev.clientX,y:ev.clientY,on:false,html:mc.outerHTML,w:r.width,h:r.height,el:mc,pid:ev.pointerId};
+  /* gpu70: cảm ứng — giữ con trỏ trên thẻ (setPointerCapture) để pointermove/up tới đủ khi ngón tay rời thẻ; thẻ có .mvable (touch-action:none) nên trang không cuộn/phóng */
+  try{mc.setPointerCapture(ev.pointerId);}catch(e){}});
 function mvMove(ev){const d=drag,dx=ev.clientX-d.x,dy=ev.clientY-d.y;
-  if(!d.on){if(dx*dx+dy*dy<64)return;d.on=true;moveSel=null;sel=null;look=null;mvDrag={uid:d.uid,T:d.T};SFX.play("pick");render();
+  if(!d.on){if(dx*dx+dy*dy<64)return;d.on=true;moveSel=null;sel=null;look=null;mvDrag={uid:d.uid,T:d.T,g:mvGains(d.uid,d.T)};SFX.play("pick");render();
     const el=document.querySelector(`#board [data-mc="${d.uid}"]`)||d.el;el.classList.add("mvsrc");const g=document.createElement("div");g.id="ghost";g.innerHTML=d.html;g.style.width=d.w+"px";g.style.height=d.h+"px";document.body.appendChild(g);d.g=g;document.body.classList.add("dragging");}
   d.g.style.transform=`translate3d(${(ev.clientX-d.w/2).toFixed(1)}px,${(ev.clientY-d.h*.6).toFixed(1)}px,0) scale(1.15)`;
   const el=document.elementFromPoint(ev.clientX,ev.clientY),ln=el&&el.closest("[data-lane]");
@@ -973,7 +984,7 @@ $("infoAct").addEventListener("click",ev=>{
   else if(act==="act")E.queueAct(G,"p",uid);
   else if(act==="unact"){if(!tryUnqueue(uid,"act"))return;}
   else if(act==="unmove"){if(!tryUnqueue(uid,"move"))return;}
-  else if(act==="move"){moveSel=uid;sel=null;}
+  else if(act==="move"){moveSel=uid;sel=null;look=null;}/* gpu70: đóng bảng thông tin (#zoom phủ cả bàn) để chạm được chiến địa đích */
   SFX.play("tap");render();
 });
 /* fix55: quả cầu năng lượng nhấp nháy (pulse "#orb" ở 05/06/08) phóng tối đa 1.16 — trước 1.42–1.5 tràn khỏi đáy màn và chồng nút RÚT LUI */

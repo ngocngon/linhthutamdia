@@ -51,3 +51,12 @@
 .fxg.acgh { z-index: 34; will-change: transform, opacity; }
 body.rm .acf, body.rm .actag, body.rm .acpile, body.rm .acvs, body.rm .acp, body.rm .fxg.acd, body.rm .fxg.acgh { display: none !important; }
 .sga.own > img { object-fit: contain; filter: drop-shadow(0 0 2px #fff) drop-shadow(0 0 9px var(--c, #ffd65a)); }
+/* gpu70 (mục 8): bảng so sánh Chiến Thần thu nhỏ, số xếp ngang */
+.acvs.sm70 > .acvs-in { padding: 6px 8px; gap: 6px; border-radius: 12px; }
+.acvs.sm70 .col { gap: 3px; }
+.acvs.sm70 h6 { font-size: 10px; letter-spacing: .08em; }
+.acvs.sm70 .nums { flex-direction: row; gap: 3px; }
+.acvs.sm70 .nums > i { font-size: 14px; width: 26px; height: 22px; border-radius: 6px; }
+.acvs.sm70 .sum { font-size: 20px; min-width: 40px; }
+.acvs.sm70 .cmp { font-size: 22px; }
+.acvs.sm70 .mid small { font-size: 8px; }

@@ -247,5 +247,47 @@ test("(10) thẻ tác động lá trên cùng bộ bài phát sự kiện 'top' 
     const es = G.evs.filter(x => x.k === "top"); eq(es.length, 2, "Thuỷ Thân tác động lá trên cùng của CẢ HAI bộ bài"); eq(LT.cost(G, tp), 1); eq(LT.cost(G, ta), 1); }
 });
 
+console.log("gpu70: nhóm ngẫu nhiên chỉ nhân vật + thẻ úp nhận 'thẻ tiếp theo' lúc đặt:");
+test("(gpu70-1) Ác Mộng chỉ thay bằng kỹ năng NHÂN VẬT (không lấy kỹ năng thẻ phép)", () => {
+  for (let sd = 1; sd <= 60; sd++) { const G = setup(null, sd); const hs = ["cuvocanhhungvi", "cunemthantoc", "honxuatkhieu", "dichcuongcot", "giacquannhen", "da", "ho"].map(id => inHand(G, "p", id));
+    const am = inHand(G, "p", "acmong"); play(G, "p", am, 0);
+    for (const c of hs) ok(!c.ab || !LT.SKILLS.includes(c.ab), "seed " + sd + ": " + c.id + " nhận kỹ năng thẻ phép " + c.ab); }
+});
+test("(gpu70-2) Bà Chúa Kho / Tiểu Khổng Lồ / Kẻ Chinh Phạt: thẻ/kỹ năng ngẫu nhiên là NHÂN VẬT", () => {
+  for (let sd = 1; sd <= 60; sd++) { const G = setup(null, sd); const b = inHand(G, "p", "nubatuoc"); play(G, "p", b, 0);
+    const n = G.hand.p[G.hand.p.length - 1]; ok(n && n !== b && !LT.SKILLS.includes(n.id) && C[n.id].c === 6, "seed " + sd + ": thẻ 6 năng lượng phải là nhân vật, nhận " + (n && n.id));
+    eq(n.bonus, -2, "−2 sức mạnh phải có tác dụng"); eq(n.cm, -2); }
+});
+function hidSetup(seed) { const G = setup(null, seed); onBoard(G, "p", "annu", 0); G.evs = []; return G; }
+test("(gpu70-3a) Nhện Non + thẻ úp dưới Ẩn Nữ: +1 và dời phải NGAY lúc đặt; lật cuối ván không dời lần 2", () => {
+  const G = hidSetup(); G.arana.p = 1; G.aranaU = { p: [], a: [] };
+  const c = inHand(G, "p", "ho"); play(G, "p", c, 0);
+  ok(c.hid && !c.rev, "thẻ phải đang úp"); eq(LT.locOf(G, c), 1, "dời sang phải ngay khi đặt"); eq(c.bonus, 1); ok(!G.arana.p, "Nhện Non đã tiêu");
+  const n = inHand(G, "p", "da"); play(G, "p", n, 2); eq(n.bonus, 0, "thẻ đặt sau không nhận Nhện Non");
+  LT.endGame(G); ok(c.rev, "lật cuối ván"); eq(LT.locOf(G, c), 1, "không dời thêm khi lật"); eq(c.bonus, 1);
+});
+test("(gpu70-3b) Lính Đơn Độc / Thợ Rèn / Số Không áp lên thẻ úp lúc đặt (Siêu Sao Khổng Lồ)", () => {
+  const G = setup(); G.hideT = G.turn; G.ldd = { p: { v: 5, u: 0 }, a: null }; G.forge.p = 2; G.zero.p = true;
+  const c = inHand(G, "p", "soinu"); play(G, "p", c, 1);
+  ok(c.hid && !c.rev); eq(c.bp, 5, "Lính Đơn Độc đặt sức mạnh ngay"); eq(c.bonus, 2, "Thợ Rèn +2 ngay"); ok(c.sil, "Số Không xoá kỹ năng ngay");
+  ok(!G.ldd.p && !G.forge.p && !G.zero.p, "đã tiêu hết");
+  const n = inHand(G, "p", "da"); G.hideT = 0; play(G, "p", n, 2); eq(n.bonus, 0); ok(!n.sil);
+  LT.endGame(G); eq(LT.power(G, c, 1), 7);
+});
+test("(gpu70-3c) Khuyển Dịch Chuyển + thẻ úp: đổi với bộ bài lúc đặt, lá mới vẫn úp", () => {
+  const G = hidSetup(); G.lockjaw.p = 1; const d = inDeckTop(G, "p", "ho");
+  const c = inHand(G, "p", "da"); play(G, "p", c, 0);
+  ok(G.deck.p.includes(c), "lá đặt về bộ bài"); eq(LT.locOf(G, d), 0); ok(d.hid && !d.rev, "lá mới úp"); ok(!G.lockjaw.p);
+  LT.endGame(G); ok(d.rev);
+});
+
+test("(gpu70-7) chọn ngẫu nhiên thẻ trên bàn phát 'rpick' (Bạch Cốt Yêu chia −7: 7 lần, ứng viên = thẻ địch); không đổi kết quả", () => {
+  const run = (evs) => { const G = setup(null, 11); const b = onBoard(G, "p", "cotnu", 0); const f = [onBoard(G, "a", "da", 0), onBoard(G, "a", "ho", 1), onBoard(G, "a", "da", 2)]; G.evs = evs; LT.destroy(G, b, 0); return { G, f }; };
+  const A = run([]), B = run(null);
+  const rp = A.G.evs.filter(e => e.k === "rpick"); eq(rp.length, 7, "7 lần chọn");
+  ok(rp.every(e => e.cand.length === 3 && e.cand.includes(e.uid)), "ứng viên đủ 3 thẻ địch, lá trúng nằm trong ứng viên");
+  eq(A.f.map(c => c.bonus).join(), B.f.map(c => c.bonus).join(), "ghi sự kiện không đổi kết quả ngẫu nhiên");
+});
+
 console.log(`\n${pass} đạt, ${fails.length} lỗi`);
 if (fails.length) process.exit(1);
