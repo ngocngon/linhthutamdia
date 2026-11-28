@@ -197,6 +197,7 @@ if (process.env.UI44 !== "0") {
     await page.waitForTimeout(1500);
     /* dựng thế cờ: Hải Kỵ trên bàn, đặt 1 thẻ 4 năng lượng -> mở thông tin thẻ đó */
     const setupJs = () => {
+      try { resetTimer(false); } catch (e) {} /* gpu70: đồng hồ lượt không tự kết thúc lượt giữa các test kéo */
       for (const s of ["p", "a"]) { G.hand[s] = []; G.locs.forEach(L => { L.cards[s] = []; }); }
       G.locs.forEach(L => { L.rvl = true; }); G.energy.p = 20; G.energy.a = 0; G.q = { p: [], a: [] };
       const mk = (id, s) => E.mk(G, id, s), ob = (id, s, li) => { const c = mk(id, s); c.rev = true; c.turn = 1; c.played = true; G.locs[li].cards[s].push(c); return c; };
@@ -226,7 +227,7 @@ if (process.env.UI44 !== "0") {
       ok(n >= 1, "không có dòng kỹ năng đã dùng");
     });
     await test("Kéo Dạ Hành sang chiến địa khác = xếp lệnh dời đúng chiến địa thả (mục 24)", async () => {
-      await page.evaluate(() => { look = null; sel = null; render(); });
+      await page.evaluate(() => { try { resetTimer(false); } catch (e) {} look = null; sel = null; render(); });
       await page.waitForTimeout(300);
       const from = await page.evaluate(u => { const r = document.querySelector(`#board [data-mc="${u}"]`).getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; }, ids.dh);
       const to = await page.evaluate(() => { const r = document.querySelector('#board [data-lane="0"] .side.me').getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; });
@@ -239,11 +240,12 @@ if (process.env.UI44 !== "0") {
       eq(q, ids.dh + ">0");
     });
     await test("gpu70 (mục 5): kéo thẻ 'khi di chuyển' (Chuỳ Ánh Sáng) hiện số sẽ nhận ở từng chiến địa đích (mô phỏng trên bản sao)", async () => {
-      const u = await page.evaluate(() => { G.q = { p: [], a: [] }; for (const s of ["p", "a"]) G.locs.forEach(L => { L.cards[s] = []; });
+      const u = await page.evaluate(() => { try { resetTimer(false); } catch (e) {} /* đồng hồ lượt (bật từ lần chạm trước) không được tự kết thúc lượt giữa test */ G.q = { p: [], a: [] }; for (const s of ["p", "a"]) G.locs.forEach(L => { L.cards[s] = []; });
         const ob = (id, s, li) => { const c = E.mk(G, id, s); c.rev = true; c.turn = 1; c.played = true; G.locs[li].cards[s].push(c); return c; };
         G.locs.forEach(L => { L.id = "meadow"; }); const q = ob("quangchuy", "p", 0); q.turn = 0; q.free = G.turn; ob("da", "a", 1); ob("da", "a", 1); look = null; sel = null; render();
         window.__snap70 = JSON.stringify(G.locs.map(L => [L.cards.p.map(c => c.uid + ":" + c.bonus), L.cards.a.length])); return q.uid; });
-      await page.waitForTimeout(600);
+      await page.waitForFunction(() => !document.querySelector("#board .mc.flip,#board .mc.land") && (typeof GV === "undefined" || !GV), null, { timeout: 5000 }).catch(() => {});
+      await page.waitForTimeout(400); /* bàn đứng yên (hết hoạt ảnh lật) trước khi đo vị trí thẻ */
       const from = await page.evaluate(u => { const r = document.querySelector(`#board [data-mc="${u}"]`).getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; }, u);
       await page.mouse.move(from.x, from.y); await page.mouse.down(); await page.mouse.move(from.x + 12, from.y - 12, { steps: 3 });
       await page.waitForFunction(() => document.querySelectorAll("#board .mvgain").length > 0, null, { timeout: 3000 }).catch(() => {});

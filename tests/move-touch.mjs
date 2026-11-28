@@ -51,7 +51,7 @@ try {
   await page.waitForTimeout(1500);
   /* dựng bàn: lượt 3, cả 3 chiến địa trơn, thẻ đặt từ lượt trước */
   const scene = (spec) => page.evaluate((spec) => {
-    G.turn = 3; G.q = { p: [], a: [] }; G.phase = "play"; look = null; sel = null; moveSel = null;
+    try { resetTimer(false); } catch (e) {} G.turn = 3; G.q = { p: [], a: [] }; G.phase = "play"; look = null; sel = null; moveSel = null;
     for (const L of G.locs) { L.rvl = true; L.id = "meadow"; L.gone = false; L.cards.p.length = 0; L.cards.a.length = 0; L.grant.p = 0; }
     const U = {};
     for (const [k, id, li, side] of spec) { const c = E.mk(G, id, side || "p"); c.rev = true; c.played = true; c.turn = 1; G.locs[li].cards[side || "p"].push(c); U[k] = c.uid; }
