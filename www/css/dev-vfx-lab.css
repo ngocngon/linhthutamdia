@@ -113,3 +113,52 @@ body.vlmenu #vlDet { display: none; }
 #vlDet .vd-x { grid-column: 1 / -1; opacity: .7; }
 @media (max-width: 480px) { #vlDet .vd-b { grid-template-columns: 1fr; } }
 @media (min-width: 900px) { #vlDet { left: 10px; right: auto; bottom: 10px; width: min(560px, 46vw); border-radius: 12px; border: 1px solid rgba(112, 214, 255, .45); max-height: 44vh; } }
+/* ===== gpu68-lab3: dễ thao tác — chữ kỹ năng to + tô từ khoá; thanh dưới cho ngón cái; bàn chơi không bị che ===== */
+body.vlab #app { height: calc(100% - var(--vlT, 0px) - var(--vlB, 0px)); margin-top: var(--vlT, 0px); }
+#vlBar .vl-row { gap: 6px; }
+#vlBar .vl-prog { flex: 1; text-align: left; }
+#vlBar .vl-cap { max-height: 30vh; }
+#vlBar .vl-cap.mini { max-height: 52px; }
+#vlBar .vl-nm b { font-size: 15px; }
+#vlBar .vl-x1 { font-size: 15px; line-height: 1.38; margin: 2px 0 1px; color: #fff; }
+#vlBar .vl-cap.mini .vl-x1 { font-size: 13.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#vlBar .vl-x2 { font-size: 11.5px; line-height: 1.3; }
+.kw-t { color: #ffd65a; font-weight: 700; }
+.kw-c { color: #9fe6ff; text-decoration: underline dotted 1px; text-underline-offset: 2px; }
+.kw-n { color: #7dffb0; font-weight: 700; }
+.kw-ok { color: #7dffb0; } .kw-bad { color: #ff8a96; } .kw-info { color: #ffd59a; font-weight: 600; }
+#vlBar .vl-cd { color: #cfe9ff; }
+#vlBar .vl-tc { color: #8fb3d8; }
+/* thanh dưới */
+#vlDet { padding: 0 6px calc(env(safe-area-inset-bottom, 0px) + 4px); max-height: none; }
+#vlDet .vd-hd { gap: 6px; min-height: 30px; cursor: default; }
+#vlDet .vd-v { max-width: 34%; flex: none; font-size: 12px; }
+#vlDet .vd-tabs { flex: 1; display: flex; gap: 3px; overflow-x: auto; scrollbar-width: none; }
+#vlDet .vd-tabs::-webkit-scrollbar { display: none; }
+#vlDet .vd-tabs button, #vlDet .vd-t { flex: none; font: 600 11.5px/1 system-ui, sans-serif; color: #cfe9ff; background: rgba(40, 60, 110, .6); border: 1px solid rgba(140, 220, 255, .3); border-radius: 14px; height: 26px; padding: 0 9px; }
+#vlDet .vd-tabs button.on { background: #2a7fd6; color: #fff; border-color: #8ceeff; }
+#vlDet .vd-t { width: 30px; padding: 0; transition: transform .15s; }
+#vlDet.shut .vd-t { transform: rotate(180deg); }
+#vlDet .vd-b { display: block; max-height: 22vh; overflow-y: auto; padding: 2px 2px 4px; font-size: 12.5px; }
+#vlDet .vd-p h4 { margin: 2px 0; font: 700 11px system-ui, sans-serif; color: #8ceeff; text-transform: none; }
+#vlDet .vd-sk { font-size: 15px; line-height: 1.4; color: #fff; }
+#vlDet .vd-leg { font-size: 10.5px; opacity: .8; margin-top: 3px; }
+#vlDet .vd-cd { margin-top: 3px; }
+#vlDet .vd-mk { margin-top: 5px; }
+#vlDet .vd-ctl { display: grid; grid-template-columns: repeat(8, 1fr); gap: 4px; padding-top: 4px; }
+#vlDet .vd-ctl button { height: 44px; font: 700 18px/1 system-ui, sans-serif; color: #e9f6ff; background: rgba(40, 60, 110, .85); border: 1px solid rgba(140, 220, 255, .45); border-radius: 10px; min-width: 0; padding: 0; }
+#vlDet .vd-ctl button:active { transform: scale(.94); }
+#vlDet .vd-ctl .vd-nb { color: #ffd59a; font-size: 15px; }
+#vlDet .vd-ctl .vd-ok.on { background: rgba(30, 140, 80, .95); }
+#vlDet .vd-ctl .vd-bad.on { background: rgba(160, 40, 60, .95); }
+@media (max-width: 480px) { #vlDet .vd-b { grid-template-columns: none; } }
+/* máy tính: bảng kiểm thành cột bên phải, bàn chơi dời sang trái — không chồng nhau */
+@media (min-width: 900px) {
+  body.vlab #app { margin-right: 372px; margin-left: auto; }
+  #vlDet { left: auto; right: 8px; bottom: 8px; top: calc(var(--vlT, 0px) + 8px); width: 356px; max-height: none; border-radius: 12px; border: 1px solid rgba(112, 214, 255, .45); display: none; }
+  #vlDet.on { display: flex; }
+  #vlDet .vd-b { max-height: none; flex: 1; }
+  #vlDet .vd-tabs { flex-wrap: wrap; }
+}
+@media (max-width: 899px) { body.vlab .hand { --hh: 104px; padding-top: 8px; } } /* bảng test: tay bài thấp hơn để bàn chơi (nơi diễn) đủ lớn */
+@media (max-width: 899px) { body.vlab #app > .sub, body.vlab #app > .info { display: none !important; } } /* thanh công cụ + dòng thông báo trận trùng với bảng test -> nhường chỗ cho bàn */

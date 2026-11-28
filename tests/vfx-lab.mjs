@@ -93,6 +93,15 @@ try {
     console.log(`đã lưu ${OUT}: ${s.n} thẻ, ${s.bad} lỗi, ${s.warn} cảnh báo`);
     console.log("nhóm cảnh báo:", JSON.stringify(s.cat));
     for (const r of rows.filter(r => r.bad).slice(0, 60)) console.log("  LỖI", r.id, r.h, r.t, "|", r.warn.join(" | ").slice(0, 220));
+    /* gpu68-lab3: MỌI thẻ có kỹ năng: điều kiện của chính nó được đáp ứng trên thế cờ (mô phỏng) VÀ tác dụng xuất hiện trong lượt thật; nếu không — phải có lý do */
+    const withSkill = rows.filter(r => r.t !== "none");
+    const met = withSkill.filter(r => r.cond && r.cond.met && r.cond.live !== false);
+    const why = withSkill.filter(r => r.cond && !r.cond.met && r.cond.why && r.cond.why !== "chưa dựng được điều kiện");
+    const fail = withSkill.filter(r => !met.includes(r) && !why.includes(r));
+    console.log(`điều kiện: đáp ứng ${met.length} · không dựng được giữa ván (có lý do) ${why.length} · CHƯA ĐÁP ỨNG ${fail.length}`);
+    for (const r of why) console.log("  lý do", r.id, "|", r.cond.why);
+    for (const r of fail.slice(0, 40)) console.log("  ✗ điều kiện", r.id, "|", r.cond ? (r.cond.met ? "lượt thật không thấy tác dụng" : r.cond.why) : "thiếu cond", "|", (r.simDiff || [])[0] || "");
+    ok(!fail.length, `mọi thẻ có kỹ năng: điều kiện đáp ứng hoặc có lý do (${fail.length} chưa)`);
   } else {
     /* --- một bậc chạy đủ qua giao diện --- */
     console.log(`\n== bậc ${TIER}: chạy đủ qua giao diện`);
@@ -105,10 +114,10 @@ try {
     ok(/Thế cờ:/.test(cap), "chú thích có tên thẻ + kỹ năng + thế cờ: " + cap.replace(/\s+/g, " ").slice(0, 110));
     if (SHOTS) { await page.waitForTimeout(1200); await page.screenshot({ path: path.join(SHOTS, "lab_play_390.png"), type: "jpeg", quality: 55 }); }
     /* tạm dừng / tiếp */
-    await page.click("#vlBar [data-a=pause]");
+    await page.click("#vlDet [data-a=pause]");
     ok(await page.evaluate(() => VFXLAB.state.paused), "⏸ tạm dừng");
     await page.waitForTimeout(600);
-    await page.click("#vlBar [data-a=pause]");
+    await page.click("#vlDet [data-a=pause]");
     const done = await waitDone(page, 40 * 60e3, TIER);
     ok(done, `kiểm tra bậc ${TIER} chạy xong`);
     let rows = await page.evaluate(() => VFXLAB.rows());
@@ -123,10 +132,10 @@ try {
     await page.evaluate((ids) => VFXLAB.startAudit(ids), ids);
     await page.waitForTimeout(2500);
     /* ▶ thẻ sau giữa chừng rồi ◀ quay lại */
-    await page.click("#vlBar [data-a=next]");
+    await page.click("#vlDet [data-a=next]");
     await page.waitForTimeout(400);
     const iN = await page.evaluate(() => VFXLAB.state.i);
-    await page.click("#vlBar [data-a=prev]");
+    await page.click("#vlDet [data-a=prev]");
     ok(iN >= 1 && await page.evaluate(() => VFXLAB.state.i) === iN - 1, "▶ sang thẻ sau, ◀ về thẻ trước");
     ok(await waitDone(page, 20 * 60e3, "mẫu"), "mẫu chạy xong");
     /* nhảy tới thẻ bằng ô tìm */
@@ -165,7 +174,8 @@ try {
       ok(capVis, "chữ kỹ năng vẫn hiện sau khi chạm chú thích / bấm Aa (Aa chỉ đổi gọn ↔ đầy đủ)");
       const det = await page.evaluate(() => { const d = document.getElementById("vlDet"); return { on: d.classList.contains("on"), v: d.querySelector(".vd-v").textContent, b: d.querySelector(".vd-b").textContent }; });
       ok(det.on && /✓|⚠|✗/.test(det.v) && /Engine đổi/.test(det.b) && /Kết luận/.test(det.b), "bảng kiểm: kết luận + engine đổi + hiệu ứng (" + det.v + ")");
-      await page.click("#vlDet [data-a=mbad]");
+      await page.click("#vlDet .vd-ctl [data-a=mbad]");
+      await page.click("#vlDet [data-a=note]");
       await page.fill("#vlNote", "thử ghi chú"); await page.press("#vlNote", "Tab");
       const cur = await page.evaluate(() => VFXLAB.state.cur);
       const mk = await page.evaluate(() => ({ ls: localStorage.getItem("ltd_vlab_marks"), ex: JSON.parse(VFXLAB.exportJSON()).rows.find(r => r.id === VFXLAB.state.cur) }));
@@ -183,6 +193,23 @@ try {
       await page.waitForTimeout(800);
       ok(await page.evaluate((b) => VFXLAB.state.cur !== b, before), "phím → sang thẻ kế");
       ok(await waitDone(page, 60e3, "phím"), "diễn thẻ kế xong");
+      rows = await page.evaluate(() => VFXLAB.rows());
+      /* gpu68-lab3: dễ thao tác — thẻ mục nhớ được, nút ⚠→, điều kiện + "đã đáp ứng", bàn chơi không bị che */
+      await page.click("#vlDet [data-tab=en]");
+      const tabOk = await page.evaluate(() => localStorage.getItem("ltd_vlab_tab") === "en" && !document.querySelector("#vlDet .vd-p[data-p=en]").hidden && document.querySelector("#vlDet .vd-p[data-p=sk]").hidden);
+      ok(tabOk, "thẻ mục Engine đổi mở + nhớ lựa chọn");
+      await page.click("#vlDet [data-tab=sk]");
+      const cap = await page.evaluate(() => document.getElementById("vlCap").innerText);
+      ok(/Điều kiện \(/.test(cap) && /đã đáp ứng ✓|không dựng được giữa ván/.test(cap) && /Thế cờ:/.test(cap), "chú thích có Điều kiện → đã đáp ứng ✓ + Thế cờ: " + cap.replace(/\s+/g, " ").slice(0, 120));
+      ok(await page.evaluate(() => document.querySelectorAll("#vlCap .kw-t, #vlCap .kw-c, #vlCap .kw-n").length > 0), "chữ kỹ năng có tô từ khoá");
+      const lay = await page.evaluate(() => { const b = document.getElementById("board").getBoundingClientRect(), h = document.getElementById("hand").getBoundingClientRect(), t = document.getElementById("vlBar").getBoundingClientRect(), d = document.getElementById("vlDet").getBoundingClientRect(); return { bt: Math.round(b.top), tb: Math.round(t.bottom), hb: Math.round(h.bottom), dt: Math.round(d.top), btn: Math.round(document.querySelector("#vlDet .vd-ctl button").getBoundingClientRect().height) }; });
+      ok(lay.bt >= lay.tb - 2 && lay.hb <= lay.dt + 2 && lay.btn >= 40, `bàn + tay không bị thanh trên/dưới che (bàn ${lay.bt} ≥ ${lay.tb}, tay ${lay.hb} ≤ ${lay.dt}; nút ${lay.btn}px)`);
+      await page.evaluate(() => VFXLAB.setMark("aiquoc", "bad"));
+      await page.click("#vlDet [data-a=nextbad]");
+      await page.waitForTimeout(600);
+      ok(await page.evaluate(() => { const c = VFXLAB.state.cur, r = VFXLAB.rows().find((x) => x.id === c), m = VFXLAB.marks()[c]; return (r && r.verdict !== "ok") || (m && m.m === "bad"); }), "⚠→ nhảy tới thẻ ⚠/✗/bạn đánh Lỗi kế tiếp");
+      await page.evaluate(() => VFXLAB.setMark("aiquoc", null));
+      ok(await waitDone(page, 60e3, "nextbad"), "diễn thẻ ⚠→ xong");
       rows = await page.evaluate(() => VFXLAB.rows());
     }
     /* xuất JSON */
