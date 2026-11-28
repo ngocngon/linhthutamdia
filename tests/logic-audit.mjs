@@ -391,6 +391,31 @@ test("[3] Máy không biết thứ tự bộ bài người chơi: aiPlan không 
   const sf = G.startFx.find(x => x.id === "phanquanthiengioi"); ok(sf && sf.s === "p", "Đầu Ván Phán Quan chỉ thuộc phe chủ");
 });
 
+test("[audit45] bất biến 80 ván ngẫu nhiên: thẻ tạo luôn có cr+by; không thẻ phép nào còn trên sân / mang sức mạnh; mọi summon/revive có li/ix và lá lật như thẻ được đưa vào", () => {
+  function mulberry(a) { return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+  const R0 = Math.random, bad = new Set(); let nc = 0;
+  const FORCE = ["bienhinhthuat", "hoavatnu", "nuchuarung", "phapsugia", "nuhoanghonmang", "lanvuong", "hoathuatnu", "loithan", "madienloi", "giacquannhen", "docnutrang", "bayxacnuotsao", "hacdiemchua", "quyensuthaphoan", "vuotsoi", "tuthanmienvien", "minhhau", "thantocnu", "nghichtuvuong", "chimcanhdo"];
+  try {
+    for (let g = 0; g < 80; g++) {
+      const seed = 90000 + g, r = mulberry(seed); Math.random = mulberry(seed ^ 77);
+      const dp = LT.randomDeck(r); dp[0] = FORCE[g % FORCE.length]; const G = LT.newGame(dp, LT.randomDeck(r), { seed });
+      const u0 = G.uid;
+      for (let t = 0; t < 20 && G.phase !== "over"; t++) {
+        LT.startTurn(G); for (const s of ["p", "a"]) LT.aiPlan(G, s, 6);
+        for (const st of LT.beginReveal(G)) {
+          G.evs = []; LT.doStep(G, st);
+          for (const e of G.evs) if (e.k === "summon" || e.k === "revive") { if (e.li == null || e.li < 0 || e.ix == null) bad.add("thiếu li/ix " + e.k); const c = LT.anyInst(G, e.uid); if (c && !c.hid && LT.locOf(G, c) >= 0 && C[c.id].t !== "none" && !G.evs.some(f => f.k === "flip" && f.uid === e.uid)) bad.add("không lật " + c.id); }
+          for (const s of ["p", "a"]) { const all = []; for (const k of ["hand", "deck", "disc", "dead"]) all.push(...G[k][s]); for (let l = 0; l < 3; l++) all.push(...G.locs[l].cards[s]);
+            for (const c of all) { if (c.uid > u0 || c.cr) { nc++; if (!c.cr || !c.by) bad.add("thẻ tạo thiếu cr/by " + c.id); } if (LT.SKILLS.includes(c.id) && c.bonus) bad.add("thẻ phép có sức mạnh " + c.id); } }
+          for (let l = 0; l < 3; l++) for (const s of ["p", "a"]) for (const c of G.locs[l].cards[s]) if (c.rev && LT.SKILLS.includes(c.id)) bad.add("thẻ phép kẹt trên sân " + c.id);
+        }
+        G.evs = []; LT.endTurn(G); if (G.phase !== "over" && G.turn >= LT.turns(G)) LT.finish(G, "end");
+      }
+    }
+  } finally { Math.random = R0; }
+  eq([...bad].join(" | "), ""); ok(nc > 100, "quá ít thẻ tạo để kiểm: " + nc);
+});
+
 /* ---------------- B. trình duyệt ---------------- */
 async function browserPart() {
   console.log("B. Diễn hoạt — nhắm đúng lá / đúng ô:");

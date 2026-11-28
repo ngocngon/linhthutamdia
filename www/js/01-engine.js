@@ -1263,6 +1263,9 @@ function toHand(G, s, c, created) {
 }
 /* b44: "nhân vật" = thẻ không phải thẻ phép */
 const isChar = id => !SKILLS.includes(id);
+/* b44 (mục 3): xáo 1 lá vào bộ bài (vị trí ngẫu nhiên). Sự kiện "deckadd" { side, uid, id, src, priv: side } — CHỈ phe priv được thấy danh tính lá;
+   phe kia chỉ được diễn mặt lưng bộ bài (giao diện: if (e.priv !== "p") không hiện mặt lá). */
+function deckAdd(G, s, c) { const d = G.deck[s]; c.side = s; d.splice(Math.floor(rnd(G) * (d.length + 1)), 0, c); ev(G, "deckadd", { side: s, uid: c.uid, id: c.id, src: G.srcU || 0, priv: s }); return c; }
 function addRand(G, s, pred) { const pool = COLLECT.filter(pred); if (pool.length) toHand(G, s, mk(G, pick(G, pool), s), true); }
 function bounce(G, c, li) {
   const s = c.side; if (G.hand[s].length >= HAND_MAX) return false;
@@ -1355,7 +1358,7 @@ const REV = {
   kerinh(G, i) { for (let k = 0; k < 2; k++) { const c = mk(G, pick(G, TOOLS), i.side); if (G.cnt.movedPrev) c.cm = -C[c.id].c; toHand(G, i.side, c, true); } },
   luahacdiem(G, i, li) { const t = pick(G, shown(G, li, other(i.side))); if (t) hurt(G, t, li, 3); },
   hienthanvangioi(G, i, li) { newLoc(G, li); for (const [k] of boardCards(G, i.side)) if (!k.sil && is(G, k, "phapsugia")) { k.bonus += 1; nb(G, k, 1, k, "thuong"); } },
-  vuongtrieutailai(G, i, li) { const s = i.side, t = lowPow(G, shown(G, li, s).filter(c => c !== i)); if (!t) return; const a = G.locs[li].cards[s]; a.splice(a.indexOf(t), 1); t.rev = false; t.played = false; t.sum = false; t.turn = 0; G.deck[s].push(t); G.deck[s] = shuffle(G, G.deck[s]); G.nextBonus[s] += 2; },
+  vuongtrieutailai(G, i, li) { const s = i.side, t = lowPow(G, shown(G, li, s).filter(c => c !== i)); if (!t) return; const a = G.locs[li].cards[s]; a.splice(a.indexOf(t), 1); t.rev = false; t.played = false; t.sum = false; t.turn = 0; G.deck[s].push(t); G.deck[s] = shuffle(G, G.deck[s]); ev(G, "deckadd", { side: s, uid: t.uid, id: t.id, src: i.uid, priv: s, from: li, back: 1 }); G.nextBonus[s] += 2; G.vtt = G.vtt || { p: 0, a: 0 }; G.vtt[s] = G.turn + 1; },
   bienhinhthuat(G, i, li) { const t = lowPow(G, shown(G, li, i.side).filter(c => c !== i)); if (!t) return; const pool = COLLECT.filter(id => isChar(id) && C[id].c === C[t.id].c + 1); if (pool.length) transform(G, t, pick(G, pool)); },
   daibay(G, i, li) { const t = strongest(G, shown(G, li, i.side).filter(c => c !== i), li); if (!t) return; t.bonus += 1; if (li < 2) moveCard(G, t, li, li + 1); },
   mintuxa(G, i, li) { const e = shown(G, li, other(i.side)).map(c => [c, power(G, c, li)]).sort((a, b) => b[1] - a[1]).slice(0, 2); for (const [c] of e) hurt(G, c, li, 2); },
@@ -1553,7 +1556,7 @@ const REV = {
   ongnutienhoa(G, i, li) { hurtN(G, shown(G, li, other(i.side)).map(c => [c, li]), 1, 1); },
   trungvuong(G, i) { for (const [c, l] of boardCards(G, i.side)) if (c !== i && power(G, c, l) < 0 && !sw(G, c, l)) destroy(G, c, l); },
   honxuatkhieu(G, i, li) { const t = pick(G, G.hand[i.side].filter(c => !c.sil && C[ab(c)].t === "rev" && REV[ab(c)] && !SKILLS.includes(c.id))); if (t && G.depth < 6) { G.depth++; i.abUse = { f: t.id, a: ab(t), t: G.turn }; log(G, "Chép kỹ năng của " + C[t.id].n); REV[ab(t)](G, i, li); } },
-  madienloi(G, i) { const d = G.deck[i.side]; d.splice(Math.floor(rnd(G) * (d.length + 1)), 0, mk(G, "riubao", i.side)); },
+  madienloi(G, i) { deckAdd(G, i.side, mk(G, "riubao", i.side)); },
   riubao(G, i) { for (const [c, l] of boardCards(G, i.side)) if (c.id === "madienloi") c.bonus += power(G, c, l); },
   khoithit(G, i) { const d = G.deck[i.side]; let g = 0; while (g < 13 && d.length) { const c = d.pop(), v = pw0(c); i.bonus += v; nb(G, i, v, c, "nuot"); g += v; if (v <= 0 && !d.some(x => pw0(x) > 0)) break; } },
   dannguoi(G, i, li) { const o = other(i.side), t = strongest(G, shown(G, li, o), li); if (!t) return; const ol = otherLocs(G, li, o); if (!(ol.length && moveCard(G, t, li, pick(G, ol))) && destroy(G, t, li)) summon(G, o, "da", li); },
@@ -1686,7 +1689,7 @@ const REV = {
   baonu(G, i, li) { G.locs[li].flood = G.turn + 1; ev(G, "lock", { li, t: "flood" }); log(G, "Chiến địa bị ngập: lượt sau là lượt cuối đặt được thẻ tại đây"); },
   suphunhai(G, i) { const f = find(G, G.prevPlay[i.side]); if (f) i.bp = power(G, f.inst, f.li); },
   trummu(G, i) { toHand(G, i.side, mk(G, "quy", i.side), true); },
-  loithan(G, i) { const d = G.deck[i.side]; d.splice(Math.floor(rnd(G) * (d.length + 1)), 0, mk(G, "buasam", i.side)); },
+  loithan(G, i) { deckAdd(G, i.side, mk(G, "buasam", i.side)); },
   buasam(G, i) { for (const [c] of boardCards(G, i.side)) if (is(G, c, "loithan")) c.bonus += 7; },
   cohoang(G, i, li) { for (const l of [0, 1, 2]) if (l !== li) for (let k = 0; k < 4; k++) summon(G, i.side, "maybaycon", l); },
   nuthanchienma(G, i, li) { for (const s of SIDES) for (const c of shown(G, li, s)) { c.bp = 3; c.bonus = 0; } },
