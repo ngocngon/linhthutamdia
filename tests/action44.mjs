@@ -38,7 +38,7 @@ await page.addInitScript(() => {
   localStorage.setItem("ltd_p6lv", "full"); localStorage.removeItem("ltd_hx_all");
   window.__t = [];
   const T = (src) => (k, o) => window.__t.push(Object.assign({ k, src, t: performance.now() }, o || {}));
-  window.ACT_TAP = T("a"); window.SIG_TAP = T("s"); window.HX_TAP = T("h"); window.PA6_TAP = T("p");
+  window.ACT_TAP = T("a"); window.SIG_TAP = T("s"); window.HX_TAP = T("h"); window.PA6_TAP = T("p"); window.MASS_TAP = T("m");
   /* ghi lại mọi lá "lá trên cùng bộ bài" (.t29) được dựng: có mặt thẻ (.fxface) hay chỉ mặt lưng (.dkp) */
   window.__t29 = [];
   const mo = () => new MutationObserver(ms => { for (const m of ms) for (const n of m.addedNodes) if (n.nodeType === 1 && n.classList && n.classList.contains("t29")) window.__t29.push(n.querySelector(".dkp") ? "back" : n.querySelector(".fxface") ? "face" : "other"); }).observe(document.body, { childList: true, subtree: true });
@@ -58,7 +58,7 @@ const SC = [
   { name: "Nàng Tấm (2, bộ bài mình)", turn: 4, hand: [["tinhquyennu", 1]],
     chk: (r) => { ok(r.t.some(x => x.k === "deck" && x.a === "buff" && x.side === "p"), "Nàng Tấm: +3 cho lá trên cùng bộ bài mình"); ok(r.t29.length > 0 && !r.t29.includes("face"), "Nàng Tấm: chỉ mặt lưng (" + r.t29.join(",") + ")"); } },
   { name: "Tâm Ma (2, cả bộ bài đối thủ)", turn: 4, hand: [["tammanu", 1]],
-    chk: (r) => { ok(r.t.some(x => x.k === "tammanu:hit" && x.n > 0), "Tâm Ma: hút từ chồng bài đối thủ"); } },
+    chk: (r) => { ok(r.t.some(x => (x.k === "tammanu:hit" && x.n > 0) || (x.k === "mass" && x.id === "tammanu" && x.n > 0)), "Tâm Ma: hút từ chồng bài đối thủ (gpu71: tuyệt kỹ diện rộng 19-mass)"); } },
   { name: "Thiện Xạ (33)", turn: 4, own: [["tunguyennu", 1]], hand: [["nuthantien", 1]],
     chk: (r) => { const a = r.t.filter(x => x.k === "sig:arrow").map(x => x.a); ok(a.length === 2 && a[0] && a[1] && a[0] !== a[1], "Thiện Xạ: 2 mũi tên khác nhau bay vào tay (" + a.join(",") + ")"); const hs = r.hand.filter(id => /^ten/.test(id)); ok(hs.length === 2 && hs[0] !== hs[1], "Thiện Xạ: tay có 2 Mũi Tên khác loại (" + hs.join(",") + ")"); } },
   { name: "Vua Thời Gian (17)", rs: 777, turn: 4, own: [["tunguyennu", 1], ["thachquai", 0]], foe: [["thachquai", 1], ["thachquai", 2]], hand: [["vuathoigian", 1]], extraHand: ["kiemsu"],
