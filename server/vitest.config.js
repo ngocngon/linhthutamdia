@@ -8,7 +8,7 @@ export default defineConfig({
     cloudflareTest({
       wrangler: { configPath: "./wrangler.toml" },
       miniflare: {
-        bindings: { ADMIN_TOKEN: "test-admin-token-123456", SESSION_SECRET: "test-session-secret-abcdefghijkl", TEST_MIGRATIONS: migrations },
+        bindings: { ONLINE_MODE: "auth", ADMIN_TOKEN: "test-admin-token-123456", SESSION_SECRET: "test-session-secret-abcdefghijkl", TEST_MIGRATIONS: migrations },
       },
     }),
   ],

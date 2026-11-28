@@ -137,3 +137,12 @@ body.rm .stchip { display: none; }
 
 /* gpu68 (vis): bỏ dải chữ Duy Trì toàn bàn ngay dưới ô cược (giữa nửa trên màn) — thừa; thông tin vẫn xem khi chạm thẻ */
 #dhGlob { display: none !important; }
+
+/* gpu70 (mục 6): điều kiện "đối thủ đã đặt thẻ tại đây" đạt -> viền vàng loé một lần */
+.cond70 { position: fixed; z-index: 46; pointer-events: none; border-radius: 12px; box-shadow: 0 0 0 3px #ffd65a, 0 0 18px 4px rgba(255, 214, 90, 0.85), inset 0 0 14px rgba(255, 214, 90, 0.55); opacity: 0; will-change: transform, opacity; }
+/* gpu70 (mục 7): nhịp quay chọn ngẫu nhiên — khung vàng nhảy qua ứng viên; nhãn xác suất trên thẻ */
+.spin70 { position: fixed; left: 0; top: 0; z-index: 46; pointer-events: none; border-radius: 12px; box-shadow: 0 0 0 3px #ffe48a, 0 0 16px 3px rgba(255, 214, 90, 0.8); will-change: transform; }
+.roll70 { position: fixed; z-index: 47; pointer-events: none; padding: 2px 8px 3px; border-radius: 10px; font: 900 15px/1.1 var(--f-body, system-ui), sans-serif; color: #fff; background: linear-gradient(180deg, #6a4cff, #2a1a8a); box-shadow: 0 0 0 1.5px #d8ccff, 0 0 10px rgba(140, 110, 255, 0.8); white-space: nowrap; text-shadow: 0 1px 0 rgba(0, 0, 0, 0.7); }
+.roll70.ok { background: linear-gradient(180deg, #2fd07a, #0a7a3a); box-shadow: 0 0 0 1.5px #c8ffe0, 0 0 12px rgba(93, 255, 168, 0.9); }
+.roll70.no { background: linear-gradient(180deg, #8a8aa0, #3a3a4a); box-shadow: 0 0 0 1.5px #d0d0e0; }
+body.rm .cond70, body.rm .spin70, body.rm .roll70 { display: none; }

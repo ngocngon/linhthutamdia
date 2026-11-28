@@ -1066,7 +1066,7 @@
     playFxCore = function (evs, R0, P0, part) {
       const self = this, args = arguments;
       if (part === 1 || !P6.seq) return pcG.apply(self, args);
-      return P6.seq.skill(() => pcG.apply(self, args));
+      return P6.seq.skill(() => (P6.spinGate ? P6.spinGate(evs, () => pcG.apply(self, args)) : pcG.apply(self, args))); /* gpu70: nhịp quay chọn ngẫu nhiên trước [B] */
     };
   }
 

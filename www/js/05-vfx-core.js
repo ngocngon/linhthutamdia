@@ -881,6 +881,7 @@ function srcFx(evs,R0){
     else if(ev.k==="egain"&&ev.uid){try{CFX.egain(ev,R0);}catch(e){console.error(e);}}
     else if(ev.k==="hbuff"){try{CFX.hbuff(ev,R0);}catch(e){console.error(e);}}
     else if(ev.k==="hide"){try{CFX.hide(ev);}catch(e){console.error(e);}}
+    else if(ev.k==="cond"){try{if(window.P6&&P6.cond)P6.cond(ev);}catch(e){console.error(e);}}
     else if(ev.k==="pbuff"){try{CFX.pbuff(ev,R0);}catch(e){console.error(e);}}
     else if(ev.k==="eblock"){try{CFX.eblock(ev,R0);}catch(e){console.error(e);}}
     else if(ev.k==="absorb"){try{CFX.absorb(ev,R0);}catch(e){console.error(e);}}
@@ -1695,6 +1696,7 @@ function mcHTML(inst,li,staged){
     else if(E.ACT[E.ab(inst)]&&!inst.act&&!inst.sil)tags.push(`<i>KH</i>`);
     const mv=E.queued(G,"p",inst.uid,"move");
     if(mv){cls+=" qmove";tags.push(`<i class="go">➜ ${mv.to+1}</i>`);}
+    else if(G.phase==="play"&&!(G.online&&typeof OL!=="undefined"&&OL.sub)&&E.moveTargets(G,"p",inst.uid).length)cls+=" mvable";/* gpu70: thẻ được dời chủ động -> touch-action:none để kéo bằng ngón tay */
   }else if(live&&E.ACT[E.ab(inst)]&&!inst.act&&!inst.sil)tags.push(`<i>KH</i>`);
   if(inst.sil)tags.push(`<i class="x">✕</i>`);
   const pc=pw>d.p?"up":pw<d.p?"down":"";
