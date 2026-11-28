@@ -1,0 +1,421 @@
+{
+ "_ghi_chu": "gpu71 (làn D): tiếng VỨT BỎ / TIÊU HUỶ theo THẺ BỊ ẢNH HƯỞNG — d_<hệ> tiêu huỷ, v_<hệ> vứt bỏ, c_<id> tiếng riêng thẻ (dùng cho cả hai). Tạo: node tools/tao_sfx_elevenlabs.mjs <thô> --ds=sfx_mo_ds.json ; ghép: python3 tools/sfx_mo_build.py <thô> www/sfx",
+ "list": [
+  {
+   "k": "d_lua",
+   "n": 1,
+   "d": 1.0,
+   "c": "lon",
+   "dung": "thẻ hệ Lửa BỊ TIÊU HUỶ (theo hệ của chính thẻ bị huỷ)",
+   "t": "fantasy card game sound effect: a magical card cracks, then violently shatters and is destroyed, made of fire: roaring flames consuming it with crackling embers. Heavy, dramatic, punchy, clean mid-range, no music, no voice, no harsh high frequencies"
+  },
+  {
+   "k": "d_bang",
+   "n": 1,
+   "d": 1.0,
+   "c": "lon",
+   "dung": "thẻ hệ Băng BỊ TIÊU HUỶ (theo hệ của chính thẻ bị huỷ)",
+   "t": "fantasy card game sound effect: a magical card cracks, then violently shatters and is destroyed, made of ice: freezing over then bursting into crystalline frost shards with a glassy ring. Heavy, dramatic, punchy, clean mid-range, no music, no voice, no harsh high frequencies"
+  },
+  {
+   "k": "d_sam",
+   "n": 1,
+   "d": 1.0,
+   "c": "lon",
+   "dung": "thẻ hệ Sấm BỊ TIÊU HUỶ (theo hệ của chính thẻ bị huỷ)",
+   "t": "fantasy card game sound effect: a magical card cracks, then violently shatters and is destroyed, made of lightning: an electric overload crackle ending in a sharp thunder snap. Heavy, dramatic, punchy, clean mid-range, no music, no voice, no harsh high frequencies"
+  },
+  {
+   "k": "d_doc",
+   "n": 1,
+   "d": 1.0,
+   "c": "lon",
+   "dung": "thẻ hệ Độc BỊ TIÊU HUỶ (theo hệ của chính thẻ bị huỷ)",
+   "t": "fantasy card game sound effect: a magical card cracks, then violently shatters and is destroyed, made of poison: corroding with an acidic bubbling hiss and toxic gurgle. Heavy, dramatic, punchy, clean mid-range, no music, no voice, no harsh high frequencies"
+  },
+  {
+   "k": "d_toi",
+   "n": 1,
+   "d": 1.0,
+   "c": "lon",
+   "dung": "thẻ hệ Bóng tối BỊ TIÊU HUỶ (theo hệ của chính thẻ bị huỷ)",
+   "t": "fantasy card game sound effect: a magical card cracks, then violently shatters and is destroyed, made of darkness: collapsing into a deep shadow void with an ominous low rumble. Heavy, dramatic, punchy, clean mid-range, no music, no voice, no harsh high frequencies"
+  },
+  {
+   "k": "d_sang",
+   "n": 1,
+   "d": 1.0,
+   "c": "lon",
+   "dung": "thẻ hệ Ánh sáng BỊ TIÊU HUỶ (theo hệ của chính thẻ bị huỷ)",
+   "t": "fantasy card game sound effect: a magical card cracks, then violently shatters and is destroyed, made of holy light: breaking into radiant light with a bright angelic shimmer. Heavy, dramatic, punchy, clean mid-range, no music, no voice, no harsh high frequencies"
+  },
+  {
+   "k": "d_gio",
+   "n": 1,
+   "d": 1.0,
+   "c": "lon",
+   "dung": "thẻ hệ Gió BỊ TIÊU HUỶ (theo hệ của chính thẻ bị huỷ)",
+   "t": "fantasy card game sound effect: a magical card cracks, then violently shatters and is destroyed, made of wind: torn apart by a swirling gust with an airy whoosh. Heavy, dramatic, punchy, clean mid-range, no music, no voice, no harsh high frequencies"
+  },
+  {
+   "k": "d_dat",
+   "n": 1,
+   "d": 1.0,
+   "c": "lon",
+   "dung": "thẻ hệ Đất BỊ TIÊU HUỶ (theo hệ của chính thẻ bị huỷ)",
+   "t": "fantasy card game sound effect: a magical card cracks, then violently shatters and is destroyed, made of earth: crumbling like heavy stone with a deep rock crunch. Heavy, dramatic, punchy, clean mid-range, no music, no voice, no harsh high frequencies"
+  },
+  {
+   "k": "d_nuoc",
+   "n": 1,
+   "d": 1.0,
+   "c": "lon",
+   "dung": "thẻ hệ Nước BỊ TIÊU HUỶ (theo hệ của chính thẻ bị huỷ)",
+   "t": "fantasy card game sound effect: a magical card cracks, then violently shatters and is destroyed, made of water: bursting into a liquid splash and draining swirl. Heavy, dramatic, punchy, clean mid-range, no music, no voice, no harsh high frequencies"
+  },
+  {
+   "k": "d_mau",
+   "n": 1,
+   "d": 1.0,
+   "c": "lon",
+   "dung": "thẻ hệ Huyết BỊ TIÊU HUỶ (theo hệ của chính thẻ bị huỷ)",
+   "t": "fantasy card game sound effect: a magical card cracks, then violently shatters and is destroyed, made of blood magic: a wet visceral burst with a dark pulsing throb. Heavy, dramatic, punchy, clean mid-range, no music, no voice, no harsh high frequencies"
+  },
+  {
+   "k": "d_cokhi",
+   "n": 1,
+   "d": 1.0,
+   "c": "lon",
+   "dung": "thẻ hệ Cơ khí BỊ TIÊU HUỶ (theo hệ của chính thẻ bị huỷ)",
+   "t": "fantasy card game sound effect: a magical card cracks, then violently shatters and is destroyed, made of machinery: gears and metal plates breaking apart with a clank and steam hiss. Heavy, dramatic, punchy, clean mid-range, no music, no voice, no harsh high frequencies"
+  },
+  {
+   "k": "d_hon",
+   "n": 1,
+   "d": 1.0,
+   "c": "lon",
+   "dung": "thẻ hệ Hồn BỊ TIÊU HUỶ (theo hệ của chính thẻ bị huỷ)",
+   "t": "fantasy card game sound effect: a magical card cracks, then violently shatters and is destroyed, made of spirits: a ghostly soul escaping with an ethereal wail and spectral echo. Heavy, dramatic, punchy, clean mid-range, no music, no voice, no harsh high frequencies"
+  },
+  {
+   "k": "d_moc",
+   "n": 1,
+   "d": 1.0,
+   "c": "lon",
+   "dung": "thẻ hệ Mộc BỊ TIÊU HUỶ (theo hệ của chính thẻ bị huỷ)",
+   "t": "fantasy card game sound effect: a magical card cracks, then violently shatters and is destroyed, made of wood and plants: splintering wood snap with rustling leaves scattering. Heavy, dramatic, punchy, clean mid-range, no music, no voice, no harsh high frequencies"
+  },
+  {
+   "k": "v_lua",
+   "n": 1,
+   "d": 0.8,
+   "c": "vua",
+   "dung": "thẻ hệ Lửa BỊ VỨT BỎ (theo hệ của chính thẻ bị vứt)",
+   "t": "fantasy card game sound effect: a card is thrown away and burns up quickly as it flies into a graveyard pile, flavoured with fire: roaring flames consuming it with crackling embers. Light whoosh then soft fading tail, clean, no music, no voice, no harsh high frequencies"
+  },
+  {
+   "k": "v_bang",
+   "n": 1,
+   "d": 0.8,
+   "c": "vua",
+   "dung": "thẻ hệ Băng BỊ VỨT BỎ (theo hệ của chính thẻ bị vứt)",
+   "t": "fantasy card game sound effect: a card is thrown away and burns up quickly as it flies into a graveyard pile, flavoured with ice: freezing over then bursting into crystalline frost shards with a glassy ring. Light whoosh then soft fading tail, clean, no music, no voice, no harsh high frequencies"
+  },
+  {
+   "k": "v_sam",
+   "n": 1,
+   "d": 0.8,
+   "c": "vua",
+   "dung": "thẻ hệ Sấm BỊ VỨT BỎ (theo hệ của chính thẻ bị vứt)",
+   "t": "fantasy card game sound effect: a card is thrown away and burns up quickly as it flies into a graveyard pile, flavoured with lightning: an electric overload crackle ending in a sharp thunder snap. Light whoosh then soft fading tail, clean, no music, no voice, no harsh high frequencies"
+  },
+  {
+   "k": "v_doc",
+   "n": 1,
+   "d": 0.8,
+   "c": "vua",
+   "dung": "thẻ hệ Độc BỊ VỨT BỎ (theo hệ của chính thẻ bị vứt)",
+   "t": "fantasy card game sound effect: a card is thrown away and burns up quickly as it flies into a graveyard pile, flavoured with poison: corroding with an acidic bubbling hiss and toxic gurgle. Light whoosh then soft fading tail, clean, no music, no voice, no harsh high frequencies"
+  },
+  {
+   "k": "v_toi",
+   "n": 1,
+   "d": 0.8,
+   "c": "vua",
+   "dung": "thẻ hệ Bóng tối BỊ VỨT BỎ (theo hệ của chính thẻ bị vứt)",
+   "t": "fantasy card game sound effect: a card is thrown away and burns up quickly as it flies into a graveyard pile, flavoured with darkness: collapsing into a deep shadow void with an ominous low rumble. Light whoosh then soft fading tail, clean, no music, no voice, no harsh high frequencies"
+  },
+  {
+   "k": "v_sang",
+   "n": 1,
+   "d": 0.8,
+   "c": "vua",
+   "dung": "thẻ hệ Ánh sáng BỊ VỨT BỎ (theo hệ của chính thẻ bị vứt)",
+   "t": "fantasy card game sound effect: a card is thrown away and burns up quickly as it flies into a graveyard pile, flavoured with holy light: breaking into radiant light with a bright angelic shimmer. Light whoosh then soft fading tail, clean, no music, no voice, no harsh high frequencies"
+  },
+  {
+   "k": "v_gio",
+   "n": 1,
+   "d": 0.8,
+   "c": "vua",
+   "dung": "thẻ hệ Gió BỊ VỨT BỎ (theo hệ của chính thẻ bị vứt)",
+   "t": "fantasy card game sound effect: a card is thrown away and burns up quickly as it flies into a graveyard pile, flavoured with wind: torn apart by a swirling gust with an airy whoosh. Light whoosh then soft fading tail, clean, no music, no voice, no harsh high frequencies"
+  },
+  {
+   "k": "v_dat",
+   "n": 1,
+   "d": 0.8,
+   "c": "vua",
+   "dung": "thẻ hệ Đất BỊ VỨT BỎ (theo hệ của chính thẻ bị vứt)",
+   "t": "fantasy card game sound effect: a card is thrown away and burns up quickly as it flies into a graveyard pile, flavoured with earth: crumbling like heavy stone with a deep rock crunch. Light whoosh then soft fading tail, clean, no music, no voice, no harsh high frequencies"
+  },
+  {
+   "k": "v_nuoc",
+   "n": 1,
+   "d": 0.8,
+   "c": "vua",
+   "dung": "thẻ hệ Nước BỊ VỨT BỎ (theo hệ của chính thẻ bị vứt)",
+   "t": "fantasy card game sound effect: a card is thrown away and burns up quickly as it flies into a graveyard pile, flavoured with water: bursting into a liquid splash and draining swirl. Light whoosh then soft fading tail, clean, no music, no voice, no harsh high frequencies"
+  },
+  {
+   "k": "v_mau",
+   "n": 1,
+   "d": 0.8,
+   "c": "vua",
+   "dung": "thẻ hệ Huyết BỊ VỨT BỎ (theo hệ của chính thẻ bị vứt)",
+   "t": "fantasy card game sound effect: a card is thrown away and burns up quickly as it flies into a graveyard pile, flavoured with blood magic: a wet visceral burst with a dark pulsing throb. Light whoosh then soft fading tail, clean, no music, no voice, no harsh high frequencies"
+  },
+  {
+   "k": "v_cokhi",
+   "n": 1,
+   "d": 0.8,
+   "c": "vua",
+   "dung": "thẻ hệ Cơ khí BỊ VỨT BỎ (theo hệ của chính thẻ bị vứt)",
+   "t": "fantasy card game sound effect: a card is thrown away and burns up quickly as it flies into a graveyard pile, flavoured with machinery: gears and metal plates breaking apart with a clank and steam hiss. Light whoosh then soft fading tail, clean, no music, no voice, no harsh high frequencies"
+  },
+  {
+   "k": "v_hon",
+   "n": 1,
+   "d": 0.8,
+   "c": "vua",
+   "dung": "thẻ hệ Hồn BỊ VỨT BỎ (theo hệ của chính thẻ bị vứt)",
+   "t": "fantasy card game sound effect: a card is thrown away and burns up quickly as it flies into a graveyard pile, flavoured with spirits: a ghostly soul escaping with an ethereal wail and spectral echo. Light whoosh then soft fading tail, clean, no music, no voice, no harsh high frequencies"
+  },
+  {
+   "k": "v_moc",
+   "n": 1,
+   "d": 0.8,
+   "c": "vua",
+   "dung": "thẻ hệ Mộc BỊ VỨT BỎ (theo hệ của chính thẻ bị vứt)",
+   "t": "fantasy card game sound effect: a card is thrown away and burns up quickly as it flies into a graveyard pile, flavoured with wood and plants: splintering wood snap with rustling leaves scattering. Light whoosh then soft fading tail, clean, no music, no voice, no harsh high frequencies"
+  },
+  {
+   "k": "c_cotnu",
+   "n": 1,
+   "d": 1.2,
+   "c": "lon",
+   "dung": "tiếng riêng Bạch Cốt Yêu (bị vứt bỏ / bị tiêu huỷ / gọi từ Mộ)",
+   "t": "fantasy card game sound effect: a skeleton demon's bones rattling and cracking apart with an eerie hiss and a bloody splash. Short, distinctive, punchy, clean mid-range, no music, no speech, no harsh high frequencies"
+  },
+  {
+   "k": "c_manhkiemquy",
+   "n": 1,
+   "d": 1.2,
+   "c": "lon",
+   "dung": "tiếng riêng Mảnh Kiếm Quỷ (bị vứt bỏ / bị tiêu huỷ / gọi từ Mộ)",
+   "t": "fantasy card game sound effect: a cursed demon sword shard snapping with a ringing dark metallic scrape and demonic hum. Short, distinctive, punchy, clean mid-range, no music, no speech, no harsh high frequencies"
+  },
+  {
+   "k": "c_vuotsoi",
+   "n": 1,
+   "d": 1.2,
+   "c": "lon",
+   "dung": "tiếng riêng Phượng Lửa (bị vứt bỏ / bị tiêu huỷ / gọi từ Mộ)",
+   "t": "fantasy card game sound effect: a fire phoenix bursting into flames with a short shrill bird cry and rising fire whoosh. Short, distinctive, punchy, clean mid-range, no music, no speech, no harsh high frequencies"
+  },
+  {
+   "k": "c_vuotnu",
+   "n": 1,
+   "d": 1.2,
+   "c": "lon",
+   "dung": "tiếng riêng Linh Miêu (bị vứt bỏ / bị tiêu huỷ / gọi từ Mộ)",
+   "t": "fantasy card game sound effect: a spirit lynx's short growl fading into a magical twinkling chime as it vanishes. Short, distinctive, punchy, clean mid-range, no music, no speech, no harsh high frequencies"
+  },
+  {
+   "k": "c_daubay",
+   "n": 1,
+   "d": 1.2,
+   "c": "lon",
+   "dung": "tiếng riêng Đầu Bay (bị vứt bỏ / bị tiêu huỷ / gọi từ Mộ)",
+   "t": "fantasy card game sound effect: a ghostly flying head whooshing away with a hollow eerie wail and fluttering. Short, distinctive, punchy, clean mid-range, no music, no speech, no harsh high frequencies"
+  },
+  {
+   "k": "c_minhhau",
+   "n": 1,
+   "d": 1.2,
+   "c": "lon",
+   "dung": "tiếng riêng U Minh Hậu (bị vứt bỏ / bị tiêu huỷ / gọi từ Mộ)",
+   "t": "fantasy card game sound effect: an underworld queen calling souls up from the grave: rising ghostly choir swell and dark chime. Short, distinctive, punchy, clean mid-range, no music, no speech, no harsh high frequencies"
+  },
+  {
+   "k": "c_matthevuong",
+   "n": 1,
+   "d": 1.2,
+   "c": "lon",
+   "dung": "tiếng riêng Thuỷ Tinh (bị vứt bỏ / bị tiêu huỷ / gọi từ Mộ)",
+   "t": "fantasy card game sound effect: a water god's card dissolving into a big magical water splash and rippling wave. Short, distinctive, punchy, clean mid-range, no music, no speech, no harsh high frequencies"
+  },
+  {
+   "k": "c_bayong",
+   "n": 1,
+   "d": 1.2,
+   "c": "lon",
+   "dung": "tiếng riêng Đàn Ong Vàng (bị vứt bỏ / bị tiêu huỷ / gọi từ Mộ)",
+   "t": "fantasy card game sound effect: a swarm of golden bees bursting out with a sudden buzzing whoosh. Short, distinctive, punchy, clean mid-range, no music, no speech, no harsh high frequencies"
+  },
+  {
+   "k": "c_mauhambay",
+   "n": 1,
+   "d": 1.2,
+   "c": "lon",
+   "dung": "tiếng riêng Thuyền Mây (bị vứt bỏ / bị tiêu huỷ / gọi từ Mộ)",
+   "t": "fantasy card game sound effect: a cloud ship drifting away: soft airy cloud whoosh with gentle wind chimes. Short, distinctive, punchy, clean mid-range, no music, no speech, no harsh high frequencies"
+  },
+  {
+   "k": "c_nguyetthan",
+   "n": 1,
+   "d": 1.2,
+   "c": "lon",
+   "dung": "tiếng riêng Nguyệt Thần (bị vứt bỏ / bị tiêu huỷ / gọi từ Mộ)",
+   "t": "fantasy card game sound effect: moonlight fading: a soft celestial bell shimmer with a cool airy swell. Short, distinctive, punchy, clean mid-range, no music, no speech, no harsh high frequencies"
+  },
+  {
+   "k": "c_dathuongnu",
+   "n": 1,
+   "d": 1.2,
+   "c": "lon",
+   "dung": "tiếng riêng Dạ Thương (bị vứt bỏ / bị tiêu huỷ / gọi từ Mộ)",
+   "t": "fantasy card game sound effect: a dark spear flash: shadowy blade whoosh with a sharp metallic swish. Short, distinctive, punchy, clean mid-range, no music, no speech, no harsh high frequencies"
+  },
+  {
+   "k": "c_khinhdich",
+   "n": 1,
+   "d": 1.2,
+   "c": "lon",
+   "dung": "tiếng riêng Tiểu Nhuyễn (bị vứt bỏ / bị tiêu huỷ / gọi từ Mộ)",
+   "t": "fantasy card game sound effect: a small slime creature squishing and bouncing with a cute wet plop. Short, distinctive, punchy, clean mid-range, no music, no speech, no harsh high frequencies"
+  },
+  {
+   "k": "c_vukhih",
+   "n": 1,
+   "d": 1.2,
+   "c": "lon",
+   "dung": "tiếng riêng Huyền Thiết Binh (bị vứt bỏ / bị tiêu huỷ / gọi từ Mộ)",
+   "t": "fantasy card game sound effect: a black iron weapon clanging and a red-hot forge sizzle. Short, distinctive, punchy, clean mid-range, no music, no speech, no harsh high frequencies"
+  },
+  {
+   "k": "c_xachacmieu",
+   "n": 1,
+   "d": 1.2,
+   "c": "lon",
+   "dung": "tiếng riêng Xác Mèo Đen (bị vứt bỏ / bị tiêu huỷ / gọi từ Mộ)",
+   "t": "fantasy card game sound effect: an undead black cat's short hiss with bone rattle and shadow puff. Short, distinctive, punchy, clean mid-range, no music, no speech, no harsh high frequencies"
+  },
+  {
+   "k": "c_linhbattu",
+   "n": 1,
+   "d": 1.2,
+   "c": "lon",
+   "dung": "tiếng riêng Lính Bất Tử (bị vứt bỏ / bị tiêu huỷ / gọi từ Mộ)",
+   "t": "fantasy card game sound effect: an undying ice soldier's armor clanking down with frost crackle. Short, distinctive, punchy, clean mid-range, no music, no speech, no harsh high frequencies"
+  },
+  {
+   "k": "c_nanhkiem",
+   "n": 1,
+   "d": 1.2,
+   "c": "lon",
+   "dung": "tiếng riêng Mèo Chín Mạng (bị vứt bỏ / bị tiêu huỷ / gọi từ Mộ)",
+   "t": "fantasy card game sound effect: a magical cat's hiss and a mystical poof as it slips away. Short, distinctive, punchy, clean mid-range, no music, no speech, no harsh high frequencies"
+  },
+  {
+   "k": "c_tantinh",
+   "n": 1,
+   "d": 1.2,
+   "c": "lon",
+   "dung": "tiếng riêng Huỳnh Hoả (bị vứt bỏ / bị tiêu huỷ / gọi từ Mộ)",
+   "t": "fantasy card game sound effect: a cloud of fireflies scattering with tiny twinkling sparkles. Short, distinctive, punchy, clean mid-range, no music, no speech, no harsh high frequencies"
+  },
+  {
+   "k": "c_taythep",
+   "n": 1,
+   "d": 1.2,
+   "c": "lon",
+   "dung": "tiếng riêng Lính Tay Sắt (bị vứt bỏ / bị tiêu huỷ / gọi từ Mộ)",
+   "t": "fantasy card game sound effect: an iron-armed soldier collapsing: heavy iron clank and metal clatter. Short, distinctive, punchy, clean mid-range, no music, no speech, no harsh high frequencies"
+  },
+  {
+   "k": "c_thosanmay",
+   "n": 1,
+   "d": 1.2,
+   "c": "lon",
+   "dung": "tiếng riêng Thiết Liệp (bị vứt bỏ / bị tiêu huỷ / gọi từ Mộ)",
+   "t": "fantasy card game sound effect: a mechanical hunter breaking: gears grinding, spring snap and steam burst. Short, distinctive, punchy, clean mid-range, no music, no speech, no harsh high frequencies"
+  },
+  {
+   "k": "c_lukhachtroi",
+   "n": 1,
+   "d": 1.2,
+   "c": "lon",
+   "dung": "tiếng riêng Lữ Khách Trời (bị vứt bỏ / bị tiêu huỷ / gọi từ Mộ)",
+   "t": "fantasy card game sound effect: a sky wanderer vanishing in a sweeping wind gust with a soft chime. Short, distinctive, punchy, clean mid-range, no music, no speech, no harsh high frequencies"
+  },
+  {
+   "k": "c_chuhien",
+   "n": 1,
+   "d": 1.2,
+   "c": "lon",
+   "dung": "tiếng riêng Chú Hiền (bị vứt bỏ / bị tiêu huỷ / gọi từ Mộ)",
+   "t": "fantasy card game sound effect: a comic puff of smoke pop with a cartoon spring boing. Short, distinctive, punchy, clean mid-range, no music, no speech, no harsh high frequencies"
+  },
+  {
+   "k": "c_linhthuelammom",
+   "n": 1,
+   "d": 1.2,
+   "c": "lon",
+   "dung": "tiếng riêng Thằng Bờm (bị vứt bỏ / bị tiêu huỷ / gọi từ Mộ)",
+   "t": "fantasy card game sound effect: a palm-leaf fan fluttering and a playful wooden clack. Short, distinctive, punchy, clean mid-range, no music, no speech, no harsh high frequencies"
+  },
+  {
+   "k": "c_muoikiepnu",
+   "n": 1,
+   "d": 1.2,
+   "c": "lon",
+   "dung": "tiếng riêng Luân Hồi Nương (bị vứt bỏ / bị tiêu huỷ / gọi từ Mộ)",
+   "t": "fantasy card game sound effect: a karmic reincarnation: time rewinding reverse whoosh and a deep temple bell. Short, distinctive, punchy, clean mid-range, no music, no speech, no harsh high frequencies"
+  },
+  {
+   "k": "c_xactantinh",
+   "n": 1,
+   "d": 1.2,
+   "c": "lon",
+   "dung": "tiếng riêng Xác Sao Băng (bị vứt bỏ / bị tiêu huỷ / gọi từ Mộ)",
+   "t": "fantasy card game sound effect: an icy meteor corpse crashing with a frosty boom and crystal shatter. Short, distinctive, punchy, clean mid-range, no music, no speech, no harsh high frequencies"
+  },
+  {
+   "k": "c_thienduc",
+   "n": 1,
+   "d": 1.2,
+   "c": "lon",
+   "dung": "tiếng riêng Chim Lạc (bị vứt bỏ / bị tiêu huỷ / gọi từ Mộ)",
+   "t": "fantasy card game sound effect: a bronze sacred bird taking off with wing flaps and a short metallic bird call. Short, distinctive, punchy, clean mid-range, no music, no speech, no harsh high frequencies"
+  },
+  {
+   "k": "c_tuthanmienvien",
+   "n": 1,
+   "d": 1.2,
+   "c": "lon",
+   "dung": "tiếng riêng Vô Thường (bị vứt bỏ / bị tiêu huỷ / gọi từ Mộ)",
+   "t": "fantasy card game sound effect: a death spirit's chain rattle with a ghostly hollow wind. Short, distinctive, punchy, clean mid-range, no music, no speech, no harsh high frequencies"
+  }
+ ]
+}
