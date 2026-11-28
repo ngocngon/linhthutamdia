@@ -160,6 +160,10 @@ function compute() {
     if (G0.zero && G0.zero[s]) g("zero", { i: "mu", v: "Mất", g: "Kế mất KN", h: "Thẻ kế tiếp mất kỹ năng", t: "Vô Diện: xoá kỹ năng của thẻ tiếp theo " + (s === "p" ? "bạn" : "đối thủ") + " đặt.", srcName: nx(["sokhong"], "") });
     if (G0.nico && G0.nico[s]) { const f = E.find(G0, G0.nico[s]); g("nico", { i: "mg", v: "Phép", g: "Kế có phép", h: "Thẻ kế tiếp được niệm phép", t: "Tiểu Phù Sư: sau khi đặt thẻ tiếp theo, niệm một phép lên thẻ đó.", srcName: f ? nm(f.inst) : "" }); }
     if (G0.omega && G0.omega[s]) { const f = E.find(G0, G0.omega[s]); g("omega", { i: "sk", v: "Nuốt", g: "Kế bị nuốt", h: "Thẻ kế tiếp bị tiêu huỷ lấy sức mạnh", t: "Linh Môi Sư: tiêu huỷ thẻ tiếp theo bạn đặt trong lượt này để nhận sức mạnh của nó.", srcName: f ? nm(f.inst) : "" }); }
+    /* m44: Gã Hái Sao (trên tay mình / trên bàn) chưa có Sứ Giả -> nhân vật kế tiếp đặt sẽ thành Sứ Giả */
+    { const pool = (s === "p" ? G0.hand.p : []).concat([0, 1, 2].flatMap(l => G0.locs[l].cards[s].filter(k => k.rev)));
+      const hw = pool.find(k => !k.sil && !k.her && E.is(G0, k, "kenuotsaosokhai"));
+      if (hw) g("herWait", { i: "st", v: "Sứ Giả", g: "Kế = Sứ Giả", h: "Nhân vật kế tiếp bạn đặt thành Sứ Giả", t: nm(hw) + ": nhân vật tiếp theo " + (s === "p" ? "bạn" : "đối thủ") + " đặt sẽ thành Sứ Giả; Cuối Lượt +2 sức mạnh nếu đang thắng ở chiến địa của Sứ Giả.", srcName: nm(hw) }); }
     if (G0.arana && G0.arana[s]) g("arana", { i: "mr", v: "+1→", g: "Kế +1 →", h: "Thẻ kế tiếp +1 và dời sang phải", t: "Nhện Non: sau khi đặt thẻ tiếp theo, cho nó +1 sức mạnh và dời sang phải.", srcName: nx(["nhennon"], "") });
     if (G0.lockjaw && G0.lockjaw[s]) g("lockjaw", { i: "sw", v: "Đổi", g: "Kế bị đổi", h: "Thẻ kế tiếp đổi với thẻ từ bộ bài", t: "Linh Khuyển: sau khi đặt nhân vật tiếp theo, đổi nó với một thẻ từ bộ bài.", srcName: nx(["khuyendichchuyen"], "") });
     if (G0.swan && G0.swan[s] >= T) g("swan", { i: "bo", v: "0", g: "1NL = 0", h: "Thẻ 1 năng lượng của bạn thành 0 đến hết lượt sau", t: "Thiên Nga Đen: đến hết lượt sau, các thẻ 1 năng lượng của " + (s === "p" ? "bạn" : "đối thủ") + " có năng lượng 0.", when: G0.swan[s] > T ? "Lượt sau" : "Lượt này", srcName: nx(["thienngaden"], "") });
@@ -355,6 +359,341 @@ function init() {
   const r0 = window.render; if (typeof r0 === "function" && !r0.__dh) { const r1 = function () { const r = r0.apply(this, arguments); sched(); return r; }; r1.__dh = 1; window.render = r1; }
   sched();
   window.DauHieu = { compute, paint, pop, measure, cache: () => CACHE };
+}
+if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init); else init();
+})();
+
+/* ===== m44: HỆ DẤU HIỆU TRẠNG THÁI (window.TT) — một danh mục cho mọi trạng thái thẻ / chiến địa / bộ bài =====
+   Thẻ (trên tay, trên bàn): một VÒNG hào quang của trạng thái ưu tiên cao nhất + tối đa 2 HUY HIỆU tròn (ảnh vẽ sẵn img/v) ở mép phải giữa thẻ,
+   không đè ô năng lượng (trái trên), sức mạnh (phải trên), tên (dưới).
+     zg      Cương Thi Nuốt Sao đánh dấu (sẽ hoá bản sao)         · surge  Lôi Quang Tiên truyền điện (đặt -> lặp lại)
+     infect  bị Vi-rút Cơ Giới lây nhiễm                          · shield Phá Sơn (thẻ 1 & 6 NL) / Giáp Hộ Thân (chiến địa) không thể bị tiêu huỷ
+     herald  Sứ Giả của Gã Hái Sao (và chính Gã Hái Sao đã chọn)   · link   ảo ảnh đang nối với Ảo Thuật Gia
+     act-ready / act-queued / act-used / act-wait  thẻ Kích Hoạt  · quick  Rút Nhanh đang bật trên tay · evil thẻ ÁC (Lục Ác)
+   Tay: lớp .ttc-on = kỹ năng Lật có điều kiện đang thoả (tính bằng chạy lật thật trên bản sao, ngoài khung hình, có bộ nhớ đệm);
+        lớp phủ .tth nháy khi một hiệu ứng chạm vào thẻ đang trên tay (năng lượng / sức mạnh / biến đổi).
+   Chiến địa (.ttl trong .locw): cờ Giáp Trừng Phạt, sao Sứ Giả, mắt canh (thẻ chờ lượt sau), ×2 Tiên Dung, móc Tên Móc.
+   Bộ bài (#ttDeckP / #ttDeckA cạnh "Bài N"): số thẻ zg còn trong bộ bài, đỉnh bộ bài mang điện.
+   Chỉ ĐỌC trạng thái; hoạt ảnh chỉ transform/opacity (CSS 08-dau-hieu.css); body.rm: tĩnh. */
+(function () {
+"use strict";
+if (typeof document === "undefined" || typeof E === "undefined") return;
+const C = E.C;
+const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, m => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[m]));
+const NM = id => (C[id] && C[id].n) || id;
+const cur = () => (typeof G !== "undefined" ? G : null); /* render() tạm đặt G = GV (khung trước bước) nên đọc G là đúng khung đang vẽ */
+const isA = (g, c, id) => { try { return E.is(g, c, id); } catch (e) { return c.id === id; } };
+const abOf = c => { try { return E.ab(c); } catch (e) { return c.ab || c.id; } };
+const IMG = { lockd: "v_an_xich", zg: "v_kenuotsao", infect: "v_tt_virut", shield: "v_an_khien", herald: "v_sao_tang", link: "v_an_vong", mark: "v_an_co", watch: "v_an_mat", hook: "v_an_xich", x2: "v_an_ngoc" };
+
+/* ---------- ngữ cảnh mỗi lần vẽ (tính một lần cho cả bàn, xoá ở vi tác vụ kế tiếp) ---------- */
+let CTX = null;
+function ctx() {
+  const g = cur(); if (!g || !g.locs) return null;
+  if (CTX && CTX.g === g) return CTX;
+  const x = { g, her: new Map(), herSrc: new Map(), shieldOn: { p: false, a: false }, giap: [false, false, false], ill: new Map(), lanes: [] };
+  const vis = (c, s, where) => where === "board" ? c.rev : s === "p"; /* thẻ trên tay / bộ bài của đối thủ là thông tin ẩn */
+  for (const s of E.SIDES) {
+    const pools = [["hand", g.hand[s] || []], ["deck", g.deck[s] || []]];
+    for (let li = 0; li < 3; li++) pools.push(["board", g.locs[li].cards[s]]);
+    for (const [where, arr] of pools) for (const c of arr) {
+      if (!c || c.sil || !vis(c, s, where)) continue;
+      if (c.her && isA(g, c, "kenuotsaosokhai")) {
+        const f = E.find(g, c.her);
+        if (f && f.inst.rev && f.inst.side === s) { x.her.set(f.inst.uid, c); x.herSrc.set(c.uid, f); if (!x.lanes.some(m => m.tt === "herald" && m.lane === f.li && m.side === s)) x.lanes.push({ tt: "herald", lane: f.li, side: s, src: c.id, t: `${NM(c.id)}: Sứ Giả là ${NM(f.inst.id)} — Cuối Lượt +2 sức mạnh nếu bạn đang thắng ở chiến địa này.` }); }
+      }
+      if (c.mk != null && !c.done && isA(g, c, "trungphatcogiap") && !(g.locs[c.mk] && g.locs[c.mk].gone))
+        x.lanes.push({ tt: "mark", lane: c.mk, side: s, src: c.id, t: `${NM(c.id)} đánh dấu chiến địa ${c.mk + 1}: thắng ở đây cuối lượt -> +1 năng lượng tối đa.` });
+      if (where === "board" && c.rev) {
+        if (isA(g, c, "thachlucnu")) x.shieldOn[s] = true;
+        if (isA(g, c, "giaphon")) x.giap[g.locs.findIndex(L => L.cards[s].includes(c))] = true;
+        if (c.ill && isA(g, c, "aothuatgia")) x.ill.set(c.ill, c);
+        const li = g.locs.findIndex(L => L.cards[s].includes(c)), T = g.turn;
+        if (c.wait > 0 && c.wait >= T && ["thantien", "giapcuuho", "thamtunu", "tenthuong"].some(i => isA(g, c, i)))
+          x.lanes.push({ tt: "watch", lane: li, side: s, src: c.id, t: `${NM(c.id)} đang canh chiến địa này (${c.wait > T ? "lượt sau" : "lượt này"}).` });
+        else if ((c.w2 && c.w2.t >= T) || (c.ip && c.ip.t >= T)) x.lanes.push({ tt: "watch", lane: li, side: s, src: c.id, t: `${NM(c.id)} đang canh chiến địa này.` });
+      }
+    }
+    if (g.shuri && g.shuri[s]) x.lanes.push({ tt: "x2", lane: g.shuri[s] - 1, side: s, src: "congchuacongnghe", t: `${NM("congchuacongnghe")}: thẻ kế tiếp đặt ở đây được nhân đôi sức mạnh.` });
+    if (g.grapple && g.grapple[s]) x.lanes.push({ tt: "hook", lane: g.grapple[s] - 1, side: s, src: "tenmoc", t: `${NM("tenmoc")}: thẻ kế tiếp sẽ bị kéo về chiến địa này.` });
+  }
+  CTX = x; queueMicrotask(() => { if (CTX === x) CTX = null; });
+  return x;
+}
+
+/* ---------- danh mục trạng thái thẻ: [khoá, vòng?, kiểm tra(c, where, x) -> chữ giải thích | ""] (thứ tự = ưu tiên) ---------- */
+const own = c => (c.side || c.own || "p");
+function actState(c, where, x) {
+  if (where !== "board" || !c.rev || c.sil || !E.ACT[abOf(c)]) return "";
+  const g = x.g, s = own(c);
+  if (c.act) return "used";
+  if (s === "p" && E.queued(g, "p", c.uid, "act")) return "queued";
+  if (c.turn >= g.turn) return "wait";
+  return "ready";
+}
+const ST = [
+  ["zg", 1, (c, w, x) => c.zg && (c.zgo || own(c)) === "p" ? `Bị ${NM("bayxacnuotsao")} đánh dấu: khi ${NM("bayxacnuotsao")} lật, thẻ này (trên tay, trên bàn hoặc trong bộ bài) hoá thành bản sao của nó.` : ""],
+  ["surge", 1, c => c.surge ? `Được ${NM("diennu")} truyền điện: khi đặt thẻ này, kỹ năng lặp lại lên thẻ trên cùng bộ bài.` : ""],
+  ["infect", 1, c => !c.sil && c.ab === "virutcosinh" && c.id !== "virutcosinh" ? `Bị ${NM("virutcosinh")} lây nhiễm: kỹ năng bị thay bằng kỹ năng vi-rút.` : ""],
+  ["herald", 1, (c, w, x) => x.her.has(c.uid) ? `Sứ Giả của ${NM("kenuotsaosokhai")}: thắng ở chiến địa này cuối lượt -> ${NM("kenuotsaosokhai")} +2 sức mạnh.`
+    : x.herSrc.has(c.uid) ? `Đã chọn Sứ Giả: ${NM(x.herSrc.get(c.uid).inst.id)} ở chiến địa ${x.herSrc.get(c.uid).li + 1}.` : ""],
+  ["act", 1, (c, w, x) => { const a = actState(c, w, x); return a ? "act-" + a : ""; }],
+  ["quick", 1, (c, w, x) => w === "hand" && !c.sil && c.dr === x.g.turn && (/Rút Nhanh/i.test((C[abOf(c)] || {}).x || "") || (x.g.tff && x.g.tff[own(c)])) ? "Rút Nhanh đang bật: thẻ vừa rút lượt này." : ""],
+  ["shield", 0, (c, w, x) => { if (w !== "board" || !c.rev) return ""; const s = own(c), cc = (C[c.id] || {}).c;
+    if (x.shieldOn[s] && (cc === 1 || cc === 6)) return `${NM("thachlucnu")}: thẻ ${cc} năng lượng của bạn không thể bị tiêu huỷ.`;
+    const li = x.g.locs.findIndex(L => L.cards[s].includes(c)); return li >= 0 && x.giap[li] ? `${NM("giaphon")}: thẻ ở chiến địa này không thể bị tiêu huỷ.` : ""; }],
+  ["lockd", 1, (c, w, x) => w === "hand" && c.noPlay && c.noPlay >= x.g.turn ? `Bị ${NM("chodoc")} trói: không thể đặt ở ${c.noPlay > x.g.turn ? "lượt sau" : "lượt này"}.` : ""],
+  ["free", 0, (c, w, x) => w === "board" && c.rev && c.free && c.free >= x.g.turn ? `Dời được ${c.free > x.g.turn ? "ở lượt sau" : "trong lượt này"}.` : ""],
+  ["tcm", 0, (c, w, x) => w === "hand" && c.tcm && c.tcm.t > x.g.turn ? `Lượt sau thẻ này ${c.tcm.a < 0 ? "giảm " + -c.tcm.a : "tăng " + c.tcm.a} năng lượng.` : ""],
+  ["link", 0, (c, w, x) => x.ill.has(c.uid) ? `Ảo ảnh nối với ${NM(x.ill.get(c.uid).id)}: cuối lượt hai thẻ đổi sức mạnh.` : ""],
+  ["evil", 1, c => c.evil && !c.evp ? "Thẻ ÁC của Lục Ác: đặt đủ 6 thẻ ÁC để hợp thể." : ""],
+];
+const ACT_TX = { "act-ready": "Kích Hoạt: SẴN SÀNG — chạm thẻ để kích hoạt.", "act-queued": "Kích Hoạt: đã chọn, chạy khi lật bài.", "act-used": "Kích Hoạt: đã dùng.", "act-wait": "Kích Hoạt: dùng được từ lượt sau." };
+function card(c, where) {
+  const x = ctx(); if (!x || !c) return [];
+  const out = [];
+  for (const [k, ring, f] of ST) { let t = ""; try { t = f(c, where, x); } catch (e) {} if (!t) continue;
+    if (k === "act") out.push({ k: t, ring: t === "act-ready" || t === "act-queued", t: ACT_TX[t] }); else out.push({ k, ring: !!ring, t }); }
+  return out;
+}
+const GLY = { "act-ready": '<svg viewBox="0 0 24 24"><path d="M13 2L5 13h6l-1 9 8-11h-6z"/></svg>', "act-queued": '<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7"/></svg>',
+  "act-used": '<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7"/></svg>', "act-wait": '<svg viewBox="0 0 24 24"><path d="M6 3h12M6 21h12M7 3c0 5 5 6 5 9s-5 4-5 9M17 3c0 5-5 6-5 9s5 4 5 9"/></svg>',
+  free: '<svg viewBox="0 0 24 24"><path d="M4 8h14M14 4l4 4-4 4M20 16H6M10 12l-4 4 4 4"/></svg>', tcm: '<svg viewBox="0 0 24 24"><path d="M12 4v15M5 13l7 7 7-7"/></svg>',
+  surge: '<svg viewBox="0 0 24 24"><path d="M13 2L5 13h6l-1 9 8-11h-6z"/></svg>', quick: '<svg viewBox="0 0 24 24"><path d="M13 2L5 13h6l-1 9 8-11h-6z"/></svg>', evil: '<svg viewBox="0 0 24 24"><circle cx="12" cy="10" r="7"/><path d="M9 21v-4M15 21v-4M9 10h.01M15 10h.01"/></svg>' };
+/* ---------- BỘ ĐẾM: thẻ có hiệu ứng "cho mỗi …" hiện số đếm hiện tại (ô tròn vàng mép trái dưới, trên tên thẻ) ----------
+   [id] -> (g, c, li, s, where) => [số, chữ giải thích] | null. li = chiến địa (trên bàn / thẻ đang chờ lật), -1 trên tay.
+   Số theo đúng công thức engine; thông tin ẩn (năng lượng / tay đối thủ khi chưa lộ, thẻ đối thủ vừa đặt úp) không hiện. */
+const sh = (g, li, s) => li >= 0 && g.locs[li] ? g.locs[li].cards[s].filter(k => k.rev) : [];
+const bc = (g, s) => { const r = []; for (let l = 0; l < 3; l++) for (const k of g.locs[l].cards[s]) if (k.rev) r.push([k, l]); return r; };
+const pw = (g, k, l) => { try { return E.power(g, k, l); } catch (e) { return E.basePow(k) + (k.bonus || 0); } };
+const cnt = (g, k, s) => (g.cnt && g.cnt[k] ? g.cnt[k][s] || 0 : 0);
+const left = (g, s) => s === "p" ? Math.max(0, g.energy.p) : null; /* năng lượng còn lại: chỉ của mình */
+const queuedPlays = (g, s, c) => (g.q[s] || []).filter(a => a.t === "play" && a.uid !== c.uid).length;
+const CNT = {
+  longdo: (g, c, li, s) => [g.hand[s].length, "thẻ trên tay bạn (+2 mỗi thẻ)"],
+  phanquanbua: (g, c, li, s) => [g.hand[E.other(s)].length, "thẻ trên tay đối thủ (+2 mỗi thẻ)"],
+  ungtoi: (g, c, li, s) => [g.deck[E.other(s)].length, "thẻ trong bộ bài đối thủ (+2 mỗi thẻ)"],
+  huyetbacsi: (g, c, li, s) => [cnt(g, "disc", s), "lần bạn đã vứt bỏ (+2 mỗi lần)"],
+  daitaxacsong: (g, c, li, s) => [cnt(g, "discTurns", s), "lượt bạn đã vứt bỏ (+1 cho thẻ khác tại đây)"],
+  giapdam: (g, c, li, s) => [cnt(g, "moves", s), "lần thẻ của bạn đã di chuyển"],
+  hoasat: (g, c, li, s) => [g.destLoc && g.destLoc[s] ? g.destLoc[s].reduce((a, b) => a + (b ? 1 : 0), 0) : 0, "chiến địa có thẻ của bạn đã bị tiêu huỷ (+3 mỗi nơi)"],
+  toctu: (g, c, li, s) => [cnt(g, "allSpent", s), "lượt bạn đã dùng hết năng lượng"],
+  kevocam: g => [E.SIDES.reduce((n, sd) => n + bc(g, sd).filter(([k]) => k.bonus < 0).length, 0), "thẻ trên bàn đang bị trừ sức mạnh"],
+  cunhan: (g, c, li, s) => [bc(g, s).filter(([k]) => k !== c && !k.sil && (C[abOf(k)] || {}).t === "on").length, "thẻ Duy Trì khác của bạn trên bàn"],
+  tuthan: (g, c) => [g.cnt ? g.cnt.dest || 0 : 0, "thẻ đã bị tiêu huỷ trong ván (−1 năng lượng mỗi thẻ)"],
+  nucuongnhan: (g, c, li, s) => s === "p" ? [g.unspentPrev ? g.unspentPrev[s] || 0 : 0, "năng lượng chưa dùng ở lượt trước"] : null,
+  nguoituyet: (g, c, li, s) => [cnt(g, "playedLast", s), "thẻ bạn đã đặt lượt trước"],
+  cuongtu: (g, c, li, s) => [bc(g, s).filter(([k, l]) => pw(g, k, l) >= 10).length, "thẻ của bạn có từ 10 sức mạnh (−2 năng lượng mỗi thẻ)"],
+  giacquannhen: (g, c, li, s) => [cnt(g, "mvPlayed", s), "thẻ dời được bạn đã đặt"],
+  chimnhai: (g, c, li, s) => [bc(g, s).filter(([k]) => k.sum || k.cr).length, "thẻ được tạo ra của bạn trên bàn"],
+  daidoan: (g, c, li, s) => [cnt(g, "crPlayed", s), "thẻ được tạo ra bạn đã đặt"],
+  quaituongtienhoa: (g, c, li, s) => [bc(g, E.other(s)).filter(([k]) => k.bonus < 0).length, "thẻ địch đang bị trừ sức mạnh"],
+  khisatthu: (g, c, li, s, w) => [w === "board" ? Math.max(0, cnt(g, "playedNow", s) - 1) : queuedPlays(g, s, c), "thẻ khác bạn đặt lượt này (+2 mỗi thẻ)"],
+  vuongbathu: (g, c, li, s) => [bc(g, s).filter(([k]) => k !== c && k.bonus > 0).length, "thẻ khác của bạn đã được tăng sức mạnh"],
+  horangkiem: (g, c, li, s) => [g.deck[s].filter(k => (C[k.id] || {}).c === 4).length, "thẻ 4 năng lượng trong bộ bài bạn"],
+  thantho: (g, c, li, s) => [g.deck[s].length, "thẻ trong bộ bài bạn"],
+  soidomienvien: (g, c, li, s, w) => [g.hand[s].filter(k => k !== c).length, "thẻ trên tay bạn"],
+  cosinhthe: (g, c, li, s) => left(g, s) == null ? null : [left(g, s), "năng lượng chưa dùng (giảm năng lượng bấy nhiêu thẻ trên tay)"],
+  nuhongtam: (g, c, li, s) => left(g, s) == null ? null : [1 + left(g, s), "lần trừ 2 sức mạnh (1 + năng lượng chưa dùng)"],
+  vetmattroi: (g, c, li, s) => left(g, s) == null ? null : [left(g, s), "năng lượng chưa dùng (+1 mỗi năng lượng, Cuối Lượt)"],
+  docnhantienhoa: (g, c, li, s) => left(g, s) == null ? null : [left(g, s), "năng lượng chưa dùng (>0 thì Cuối Lượt kích hoạt)"],
+  cuongnhantienhoa: (g, c, li, s) => left(g, s) == null ? null : [left(g, s), "năng lượng chưa dùng (>0 thì Cuối Lượt +2)"],
+  taymaynutienhoa: (g, c, li, s) => left(g, s) == null ? null : [left(g, s), "năng lượng chưa dùng (>0 thì Cuối Lượt kích hoạt)"],
+  nguyetlongnu: (g, c, li, s) => left(g, s) == null ? null : [left(g, s), "năng lượng chưa dùng (cần 0 và đặt đúng 1 thẻ)"],
+  quangca: (g, c, li, s) => [[0, 1, 2].filter(k => !g.locs[k].gone && g.locs[k].cards[s].length >= E.cap(g, k)).length, "chiến địa đã đầy phía bạn (+2 mỗi nơi)"],
+  longuclua: (g, c, li, s) => li < 0 ? null : [sh(g, li, s).filter(k => (C[k.id] || {}).c >= 5).length + g.hand[s].filter(k => (C[k.id] || {}).c >= 5).length, "thẻ từ 5 năng lượng tại đây và trên tay (+2 mỗi thẻ)"],
+  cuongnhanxam: (g, c, li, s) => [new Set(bc(g, s).map(([k]) => (C[k.id] || {}).c)).size, "mức năng lượng khác nhau trên bàn của bạn"],
+  thukydungcam: (g, c, li, s) => [[1, 2, 3].filter(n => bc(g, s).some(([k]) => (C[k.id] || {}).c === n)).length, "loại thẻ 1/2/3 năng lượng bạn có trên bàn"],
+  nhenbongdem: (g, c, li, s) => [bc(g, s).filter(([k]) => k !== c).reduce((a, [k]) => a + ((C[k.id] || {}).c || 0), 0), "tổng năng lượng các thẻ khác của bạn trên bàn"],
+  nangtocdo: (g, c, li, s) => [bc(g, s).filter(([k]) => k.mt === g.turn).length, "thẻ của bạn đã di chuyển lượt này"],
+  xackimve: (g, c, li, s) => [sh(g, 2, s).length, "thẻ của bạn ở chiến địa bên phải"],
+  huyetdich: (g, c, li, s) => li < 0 ? null : [sh(g, li, s).filter(k => k !== c).length, "thẻ khác của bạn tại đây (+2 mỗi thẻ bị huỷ)"],
+  soinu: (g, c, li, s) => li < 0 ? null : [sh(g, li, s).filter(k => k !== c).length, "thẻ khác của bạn tại đây (+2 mỗi thẻ)"],
+  docdich: (g, c, li, s) => li < 0 ? null : [sh(g, li, s).filter(k => k !== c).length, "thẻ khác của bạn tại đây (+2 mỗi thẻ trả về)"],
+  huyetdichhangxom: (g, c, li, s) => li < 0 ? null : [li >= 2 ? 0 : sh(g, li, s).filter(k => k !== c).length, "thẻ khác của bạn tại đây (+2 mỗi thẻ dời sang phải)"],
+  ketrungphat: (g, c, li, s) => li < 0 ? null : [sh(g, li, E.other(s)).length, "thẻ địch tại đây (+1 mỗi thẻ)"],
+  cuongdomienvien: (g, c, li, s) => li < 0 ? null : [sh(g, li, E.other(s)).length, "thẻ địch tại đây (−1 mỗi thẻ; Rút Nhanh: +1)"],
+  trinu: (g, c, li, s) => li < 0 ? null : [new Set(E.SIDES.flatMap(sd => sh(g, li, sd).filter(k => k !== c).map(k => pw(g, k, li)))).size, "mức sức mạnh khác nhau tại đây (+2 mỗi mức)"],
+  thuyhau: (g, c, li, s) => li < 0 ? null : [[0, 1, 2].filter(l => l !== li && g.locs[l].cards[s].length === 1 && g.locs[l].cards[s][0].rev).length, "thẻ đứng một mình ở chiến địa khác (+5 mỗi thẻ)"],
+  phankysi: (g, c, li, s) => li < 0 ? null : [E.SIDES.reduce((n, sd) => n + sh(g, li, sd).filter(k => (C[k.id] || {}).c > (C[c.id] || {}).c).length, 0), "thẻ năng lượng cao hơn tại đây (+2 mỗi thẻ)"],
+};
+function counter(c, where) {
+  const x = ctx(); if (!x || !c || c.sil) return null;
+  const f = CNT[abOf(c)]; if (!f) return null;
+  const g = x.g, s = own(c); if (where === "hand" && s !== "p") return null;
+  let li = -1;
+  if (where === "board") li = g.locs.findIndex(L => L.cards[s].includes(c));
+  else if (where === "staged") { const a = (g.q[s] || []).find(a => a.t === "play" && a.uid === c.uid); li = a ? a.li : -1; }
+  try { return f(g, c, li, s, where); } catch (e) { return null; }
+}
+/* HTML gắn vào thẻ: vòng + huy hiệu (gọi từ markBadges trong 06 khi vẽ tay / bàn) */
+function aura(c, where) {
+  if (!c) return "";
+  const ss = card(c, where); if (where === "hand" || where === "board") HS.note(c, where);
+  const cn = counter(c, where);
+  const ch = cn ? `<i class="ttn" data-tt="count" data-n="${cn[0]}" title="${esc(cn[0] + " " + cn[1])}" aria-label="${esc("Đếm: " + cn[0] + " " + cn[1])}">${cn[0]}</i>` : "";
+  if (!ss.length) return ch;
+  const r = ss.find(s => s.ring);
+  let h = r ? `<i class="aur aur-${r.k}" aria-hidden="true"><i></i></i>` : "";
+  let n = 0;
+  for (const s of ss) { if (n >= 2) break; const im = IMG[s.k], gl = GLY[s.k];
+    if (!im && !gl) continue;
+    if (s.k === "surge" || s.k === "evil" || s.k === "quick") continue; /* đã có biểu tượng trong cột huy hiệu */
+    h += `<i class="tts tts-${s.k} n${n}" data-tt="${s.k}" title="${esc(s.t)}" aria-hidden="true">${im ? `<b style="background-image:url(img/v/${im}.webp)"></b>` : gl}</i>`; n++; }
+  /* mọi trạng thái còn lại vẫn có dấu đọc được (kiểm thử / trình đọc màn hình) */
+  for (const s of ss) if (!h.includes(`data-tt="${s.k}"`)) h += `<i class="tts tts-x" data-tt="${s.k}" hidden></i>`;
+  return h + ch;
+}
+
+/* ---------- tay: nháy phủ khi hiệu ứng chạm vào thẻ trên tay ---------- */
+const HS = { prev: new Map(), now: new Map(),
+  note(c, where) { if (where !== "hand" || own(c) !== "p") return; let cs = 0; try { cs = E.cost(cur(), c); } catch (e) {} this.now.set(c.uid, [c.id, c.ab || "", cs, E.basePow(c) + (c.bonus || 0), c.sil ? 1 : 0, c.surge ? 1 : 0]); },
+  flush() {
+    const now = this.now; this.now = new Map(); if (!now.size && !this.prev.size) return;
+    const hit = [];
+    for (const [u, v] of now) { const o = this.prev.get(u); if (!o) continue;
+      const k = o[0] !== v[0] || o[1] !== v[1] || o[4] !== v[4] ? "mo" : v[5] && !o[5] ? "sg" : v[3] > o[3] ? "up" : v[3] < o[3] ? "dn" : v[2] < o[2] ? "cd" : v[2] > o[2] ? "cu" : "";
+      if (k) hit.push([u, k]); }
+    /* thẻ không còn được vẽ trong lần này (đang kéo / đã đặt) -> giữ dấu cũ để lần sau không nháy nhầm */
+    for (const [u, v] of this.prev) if (!now.has(u) && cur() && cur().hand.p.some(c => c.uid === u)) now.set(u, v);
+    this.prev = now;
+    if (!hit.length || document.body.classList.contains("rm")) return;
+    for (const [u, k] of hit) { const el = document.querySelector(`#hand [data-hc="${u}"]`); if (!el) continue;
+      el.querySelectorAll(".tth").forEach(e => e.remove());
+      const f = document.createElement("i"); f.className = "tth tth-" + k; f.setAttribute("aria-hidden", "true"); f.innerHTML = "<i></i>"; el.appendChild(f);
+      setTimeout(() => f.remove(), 1500); }
+  } };
+
+/* ---------- tay: kỹ năng Lật có điều kiện đang thoả (Phù Thuỷ Trẻ & mọi thẻ "Lật: Nếu …") ----------
+   Loại: điều kiện ở lượt sau (đặt tiếp ở đây…), điều kiện là lá đối thủ vừa đặt úp (chưa lộ), và thẻ chỉ có một phần phụ thuộc điều kiện. */
+const NOGATE = new Set(["thantien", "giapcuuho", "thamtunu", "tenthuong", "congchuacongnghe", "lucsatnu", "mocnhan", "xucgiacnu", "chonphao", "tinhchua", "phatuong"]);
+const COND = new Set(Object.keys(C).filter(k => C[k].t === "rev" && /^Lật: Nếu /.test(C[k].x || "") && !NOGATE.has(k)));
+const SKIP = { hist: 1, _b: 1, _bp: 1, _m: 1, _nb: 1, abBy: 1, tf: 1, silBy: 1, lostTo: 1, msgs: 1, evs: 1 };
+function clone(g) { const S = JSON.parse(JSON.stringify(g, (k, v) => (SKIP[k] === 1 ? undefined : v))); S.msgs = null; S.evs = null; return S; }
+/* thử đặt uid vào li trên bản sao, chạy lật tới hết thẻ đó; so với bản kỹ năng bị xoá. true = kỹ năng tạo khác biệt (điều kiện thoả) */
+function trial(g, uid, li) {
+  const run = sil => {
+    const S = clone(g); S.q.a = [];
+    const h = S.hand.p.find(c => c.uid === uid); if (!h) return null;
+    try { S.energy.p = Math.max(S.energy.p, E.cost(S, h, li)); } catch (e) { S.energy.p = 99; }
+    if (!E.queuePlay(S, "p", uid, li)) return null;
+    if (sil) h.sil = true;
+    for (const st of E.beginReveal(S)) { E.doStep(S, st); if (st.uid === uid && st.t === "play") break; }
+    let sc = 0; for (let k = 0; k < 3; k++) sc += E.locPower(S, k, "p") - E.locPower(S, k, "a");
+    const cc = c => [c.uid, c.id, c.bonus, c.bp, c.cm, c.rev, c === h ? 0 : c.sil, c.ab || ""].join(",");
+    return { sc, fp: JSON.stringify([S.locs.map(L => [L.cards.p.map(cc), L.cards.a.map(cc)]), S.hand.p.map(cc), S.deck.p.length, S.maxE, S.energy, S.nextBonus]) };
+  };
+  const A = run(false); if (!A) return false;
+  const B = run(true); return !!B && (A.fp !== B.fp || A.sc > B.sc);
+}
+const CD = { key: "", res: new Map(), busy: 0 };
+function condKey(g) {
+  const cc = c => c.uid + ":" + c.id + ":" + (c.ab || "") + ":" + c.bonus + ":" + c.cm + ":" + (c.rev ? 1 : 0) + ":" + (c.sil ? 1 : 0);
+  return [g.turn, g.phase, g.energy.p, g.maxE && g.maxE.p, JSON.stringify(g.cnt && g.cnt.allSpent), g.q.p.map(a => a.t + a.uid + ":" + a.li).join(","),
+    g.hand.p.map(cc).join(","), g.locs.map(L => (L.gone ? "x" : L.id) + "|" + L.cards.p.map(cc).join(",") + "|" + L.cards.a.map(cc).join(",")).join(";")].join("#");
+}
+function condApply() {
+  for (const el of document.querySelectorAll("#hand .hc[data-hc]")) { const on = CD.res.get(+el.dataset.hc) === true; if (el.classList.contains("ttc-on") !== on) el.classList.toggle("ttc-on", on);
+    const gl = el.querySelector(":scope>.ttcg"); if (on && !gl) { const i = document.createElement("i"); i.className = "ttcg"; i.setAttribute("aria-hidden", "true"); el.appendChild(i); } else if (!on && gl) gl.remove();
+    const c = COND.size && cur() && cur().hand.p.find(x => x.uid === +el.dataset.hc), cd = !!(c && !c.sil && COND.has(abOf(c)));
+    if (el.classList.contains("ttc") !== cd) el.classList.toggle("ttc", cd); }
+}
+function condSched() {
+  const g = cur(); if (!g || !g.hand || g.phase !== "play" || g.online && g.online.spect) { if (CD.res.size) { CD.res = new Map(); CD.key = ""; condApply(); } return; }
+  const cands = g.hand.p.filter(c => !c.sil && COND.has(abOf(c)));
+  if (!cands.length) { if (CD.res.size) { CD.res = new Map(); CD.key = ""; } condApply(); return; }
+  const key = condKey(g); condApply();
+  if (key === CD.key || CD.busy) return;
+  CD.busy = 1;
+  const ric = window.requestIdleCallback || (f => setTimeout(() => f({ timeRemaining: () => 8 }), 30));
+  ric(() => {
+    CD.busy = 0; const g2 = cur(); if (!g2 || g2 !== g || condKey(g2) !== key) { condSched(); return; }
+    const res = new Map();
+    for (const c of cands) { let ok = false;
+      for (let li = 0; li < 3 && !ok; li++) { let can = false; try { can = E.canPlay(g, "p", c, li); } catch (e) {} if (!can) continue; try { ok = trial(g, c.uid, li); } catch (e) {} }
+      res.set(c.uid, ok); }
+    CD.key = key; CD.res = res; condApply();
+  }, { timeout: 400 });
+}
+
+/* ---------- chiến địa: dấu lớn trên ô chiến địa ---------- */
+const LPRIO = { mark: 0, herald: 1, x2: 2, hook: 3, watch: 4 };
+function lanes() { const x = ctx(); return x ? x.lanes.slice().sort((a, b) => LPRIO[a.tt] - LPRIO[b.tt]) : []; }
+function paintLanes() {
+  const board = document.getElementById("board"); if (!board) return;
+  const ms = lanes();
+  board.querySelectorAll(".lane").forEach((lane, li) => {
+    const locw = lane.querySelector(".locw"); if (!locw) return;
+    const mine = ms.filter(m => m.lane === li);
+    const key = mine.map(m => m.tt + m.side + m.src).join(",");
+    if (locw.dataset.tts === key && (!key || locw.querySelector(".ttl"))) return;
+    locw.querySelectorAll(".ttl").forEach(e => e.remove());
+    locw.dataset.tts = key;
+    const per = { p: 0, a: 0 };
+    for (const m of mine) { if (per[m.side] >= 2) continue;
+      const k = per[m.side]++, sideEl = lane.querySelector(m.side === "p" ? ".side.me" : ".side.opp");
+      const d = document.createElement("div");
+      d.className = `ttl ttl-${m.tt} s${m.side} k${k}`; d.dataset.tt = m.tt; d.dataset.side = m.side; d.title = m.t; d.setAttribute("aria-label", m.t);
+      if (sideEl) d.style.setProperty("--th", Math.round(sideEl.offsetHeight || 140) + "px");
+      d.innerHTML = (k === 0 ? '<i class="ttl-fr"></i><i class="ttl-fl"></i>' : "") + `<i class="ttl-em" style="background-image:url(img/v/${IMG[m.tt]}.webp)"></i>`;
+      locw.appendChild(d); }
+  });
+}
+
+/* ---------- bộ bài: dấu cạnh "Bài N" ---------- */
+function paintDeck() {
+  const g = cur(); if (!g || !g.deck) return;
+  for (const s of E.SIDES) {
+    const sub = document.getElementById(s === "p" ? "meSub" : "oppSub"), ban = sub && sub.parentElement; if (!ban) continue;
+    let el = document.getElementById(s === "p" ? "ttDeckP" : "ttDeckA");
+    const d = g.deck[s] || [], top = d[d.length - 1], parts = [];
+    if (s === "p") { const n = d.filter(c => c.zg && (c.zgo || "p") === "p").length; if (n) parts.push(["zg", `<b style="background-image:url(img/v/${IMG.zg}.webp)"></b>${n}`, `${n} thẻ trong bộ bài bị ${NM("bayxacnuotsao")} đánh dấu`]); }
+    if (top && top.surge) parts.push(["surge", GLY.surge, `Thẻ trên cùng bộ bài đang mang điện của ${NM("diennu")} (−1 năng lượng, +1 sức mạnh).`]);
+    const html = parts.map(([k, h, t]) => `<i class="ttdk-i ttdk-${k}" data-tt="${k}" title="${esc(t)}">${h}</i>`).join("");
+    if (!el) { if (!html) continue; el = document.createElement("span"); el.id = s === "p" ? "ttDeckP" : "ttDeckA"; el.className = "ttdk " + s; el.setAttribute("aria-live", "polite"); ban.appendChild(el); }
+    if (el._h !== html) { el._h = html; el.innerHTML = html; el.hidden = !html; }
+  }
+}
+
+/* chạm dấu ♾ ở bộ bài -> xem đúng 6 thẻ bị Cương Thi đánh dấu (chỉ phe mình) và chúng đang ở đâu */
+function zgList() {
+  const g = cur(); if (!g) return [];
+  const all = []; for (const z of ["deck", "hand"]) for (const c of g[z].p || []) all.push([c, z]);
+  for (let li = 0; li < 3; li++) for (const s of E.SIDES) for (const c of g.locs[li].cards[s]) all.push([c, "board"]);
+  const ids = g.zgm && Array.isArray(g.zgm.p) && g.zgm.p.length ? new Set(g.zgm.p) : null;
+  return all.filter(([c]) => ids ? ids.has(c.uid) && c.zg : c.zg && (c.zgo || own(c)) === "p");
+}
+function zgPop(anchor) {
+  let P = document.getElementById("ttPop");
+  if (!P) { P = document.createElement("div"); P.id = "ttPop"; P.setAttribute("role", "dialog"); document.body.appendChild(P); }
+  const L = zgList(), ZN = { deck: "Trong bộ bài", hand: "Trên tay", board: "Trên bàn" };
+  const face = id => typeof faceHTML === "function" ? faceHTML(id) : `<b>${esc(NM(id))}</b>`;
+  P.innerHTML = `<button type="button" class="dhx" aria-label="Đóng">✕</button><h4>${esc(NM("bayxacnuotsao"))} đã đánh dấu ${L.length} thẻ</h4>` +
+    `<div class="ttpg">${L.map(([c, z]) => `<div class="ttpc z-${z}"><div class="ttpf">${face(c.id)}<i class="aur aur-zg"><i></i></i></div><small>${ZN[z]}</small></div>`).join("")}</div>` +
+    `<p>Khi ${esc(NM("bayxacnuotsao"))} được đặt và lật, các thẻ này (trong bộ bài, trên tay và trên bàn) hoá thành bản sao của nó, mang sức mạnh hiện tại của nó.</p>`;
+  P.classList.add("on");
+  const r = anchor.getBoundingClientRect(); P.style.top = Math.round(r.bottom + 6) + "px";
+}
+document.addEventListener("click", ev => {
+  const t = ev.target.closest && ev.target.closest("#ttDeckP .ttdk-zg");
+  const P = document.getElementById("ttPop");
+  if (t) { ev.stopPropagation(); ev.preventDefault(); if (P && P.classList.contains("on")) P.classList.remove("on"); else zgPop(t); return; }
+  if (P && P.classList.contains("on") && (!ev.target.closest("#ttPop") || ev.target.closest("#ttPop .dhx"))) { P.classList.remove("on"); ev.stopPropagation(); ev.preventDefault(); }
+}, true);
+
+function after() { try { HS.flush(); } catch (e) {} try { paintLanes(); } catch (e) {} try { paintDeck(); } catch (e) {} try { condSched(); } catch (e) {} }
+function init() {
+  /* vẽ lại sau render(); lớp .ttl nằm trong .locw (patchBoard thay .locw khi đổi -> MutationObserver gọi lại) */
+  const r0 = window.render;
+  if (typeof r0 === "function" && !r0.__tt) {
+    const r1 = function () { const g = typeof GV !== "undefined" && GV && GV !== G ? GV : G; const sv = typeof G !== "undefined" ? G : null; const res = r0.apply(this, arguments);
+      try { if (g && g !== sv) { G = g; try { after(); } finally { G = sv; } } else after(); } catch (e) {} return res; };
+    r1.__tt = 1; r1.__dh = r0.__dh; window.render = r1;
+  }
+  const b = document.getElementById("board");
+  let q = 0;
+  if (b) new MutationObserver(ms => { for (const m of ms) for (const n of m.removedNodes) if (n.nodeType === 1 && (n.classList.contains("locw") || n.classList.contains("lane"))) { if (!q) q = requestAnimationFrame(() => { q = 0; try { paintLanes(); } catch (e) {} }); return; } }).observe(b, { childList: true, subtree: true });
+  window.TT = { card, counter, CNT, aura, lanes, paintLanes, paintDeck, condSched, COND, trial, zgList, zgPop, ST: ST.map(s => s[0]) };
 }
 if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init); else init();
 })();

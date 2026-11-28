@@ -662,9 +662,10 @@ function markList(c,where,zoom){
    surge (Lôi Quang Tiên truyền điện: đặt thẻ này -> lặp lại kỹ năng), zg (Bầy Xác Nuốt Sao: sẽ hoá bản sao), evil (Lục Ác: thẻ ÁC chờ hợp thể),
    her (Kẻ Nuốt Sao Sơ Khai: thẻ được đánh dấu thừa hưởng). Chỉ CSS (opacity/transform), không JS mỗi khung. */
 const AURA=[["surge","surge"],["zg","zg"],["evil","evil"]];
-function auraHtml(c){if(!c||c.sil&&!c.surge)return "";for(const [k,cl] of AURA)if(c[k]&&!(k==="evil"&&c.evp))return `<i class="aur aur-${cl}" aria-hidden="true"><i></i></i>`;return "";}
+function auraHtml(c,where){if(window.TT&&TT.aura)return TT.aura(c,where); /* m44: hệ dấu hiệu trạng thái chung (12-dau-hieu.js) */
+  if(!c||c.sil&&!c.surge)return "";for(const [k,cl] of AURA)if(c[k]&&!(k==="evil"&&c.evp))return `<i class="aur aur-${cl}" aria-hidden="true"><i></i></i>`;return "";}
 function markBadges(c,where){
-  return auraHtml(c)+markBadges0(c,where);
+  return auraHtml(c,where)+markBadges0(c,where);
 }
 function markBadges0(c,where){
   const m=markList(c,where);
