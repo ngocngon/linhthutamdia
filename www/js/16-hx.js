@@ -1092,6 +1092,8 @@
     };
   }
   /* bước Cuối Lượt đã loé hồn -> nghỉ ngắn hơn giữa các thẻ (3 thẻ ≤ 1,5 s) */
+  /* gpu69 (làn A): bộ công cụ cho 18-act.js (cháy thẻ, hồn rời thẻ, lớp 2D) */
+  HXG.kit = { cardBmp, frameBmp, dissolve, soulFrom, peek, PK };
   HXG.eotFast = function (evs) { const r = (evs || []).some((e) => e.k === "skill" && e.t === "end" && EOT.has(e.uid)); EOT.clear(); return r; };
 
   /* ================= HX-15 SAO CHÉP KỸ NĂNG ================= */

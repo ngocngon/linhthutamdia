@@ -229,13 +229,10 @@
   } catch (e) {}
 
   /* ---------- tài nguyên: câu thoại (chữ), ảnh tư thế, tờ va chạm theo hệ ---------- */
-  let CAPS = null, capSt = 0;
-  function capLoad() {
-    if (capSt) return;
-    capSt = 1;
-    fetch("sfx/thoai_chu.json?v=" + VER).then((r) => { if (!r.ok) throw 0; return r.json(); }).then((j) => { CAPS = j; capSt = 2; }).catch(() => { capSt = 3; });
-  }
-  P6.cap = (id, ph) => { if (!CAPS) { capLoad(); return ""; } return CAPS[id + "@" + ph] || (ph === "rm" ? CAPS[id] || "" : ""); };
+  /* gpu69: người dùng bỏ chữ câu thoại khi thẻ phóng to / xuất hồn — không tải sfx/thoai_chu.json, không bong bóng chữ.
+     Giọng đọc và nhịp giữ (theo độ dài giọng) giữ nguyên. */
+  function capLoad() {}
+  P6.cap = () => "";
   const POSE = new Set(), HX = new Set(), KEEP = [];
   let manSt = 0;
   function manLoad() {
