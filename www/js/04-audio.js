@@ -536,8 +536,26 @@ const SFX = (() => {
   }
 
   /* nạp trước (nhẹ, 4 giây/lần) sprite của các thẻ S4/S5 đang cầm trên tay */
+  /* ===== gpu71 (làn D): tiếng VỨT BỎ / TIÊU HUỶ theo THẺ BỊ ẢNH HƯỞNG (sprite www/sfx/mo.mp3 + mo.json, tools/sfx_mo_ds.json) =====
+     c_<id> tiếng riêng thẻ (Bạch Cốt Yêu, Mảnh Kiếm Quỷ, Phượng Lửa…) > d_<hệ> (tiêu huỷ) / v_<hệ> (vứt bỏ) theo hệ của chính lá bị huỷ/vứt.
+     Nạp LƯỜI: lần đầu trong trận (autoPre) hoặc lần đầu cần phát; chưa nạp xong -> tiếng nhóm cũ (destroy/discard). */
+  let moState = 0; /* 0 chưa nạp, 1 đang nạp, 2 xong, 3 lỗi */
+  function moLoad() {
+    if (moState || !ac) return;
+    moState = 1;
+    loadSprite("mo", false).then(() => { moState = 2; }).catch(() => { moState = 3; setTimeout(() => { if (moState === 3) moState = 0; }, 20000); });
+  }
+  function moKey(kind, id, el) {
+    if (id && bufs["c_" + id]) return "c_" + id;
+    const tw = id && MOTWIN[id]; if (tw && bufs["c_" + tw]) return "c_" + tw;
+    if (kind === "r") return null;
+    const k = (kind === "v" ? "v_" : "d_") + (el || "");
+    return el && bufs[k] ? k : null;
+  }
+  const MOTWIN = { nguyetthanbannguyet: "nguyetthan", nguyetthantrangram: "nguyetthan" };
   function autoPre() {
     const t = performance.now();
+    if (!moState && ac) { try { if (typeof G !== "undefined" && G && G.phase) moLoad(); } catch (e) {} } /* gpu71: sprite tiếng vứt bỏ/tiêu huỷ nạp lười khi đang trong trận */
     if (t - autoT < 4000 || !cardIdx) return;
     autoT = t;
     try {
@@ -782,6 +800,23 @@ const SFX = (() => {
       } catch (e) { return false; }
     },
     hint(h) { hintO = h || null; },
+    /* gpu71: tiếng riêng của LÁ bị vứt bỏ (kind "v") / tiêu huỷ ("d"): id thẻ, el hệ; o.delay (giây), o.vol. Trả tên mẫu đã phát hoặc null.
+       window.MO_SND(kind, id, key) — móc kiểm thử. */
+    mo(kind, id, el, o) {
+      o = o || {};
+      let key = null;
+      try { if (!ctx()) return null; if (loadState === 0) loadSamples(); if (moState !== 2) moLoad(); key = moKey(kind, id, el); } catch (e) {}
+      try { if (window.MO_SND) window.MO_SND(kind, id, key || (kind === "v" ? "discard" : "destroy")); } catch (e) {}
+      if (store.mute) return key;
+      try {
+        if (!key) { if (kind !== "r") fam(kind === "v" ? "discard" : "destroy", { el, delay: o.delay, vol: o.vol }); return null; } /* "r": chỉ tiếng riêng của thẻ gọi từ Mộ (U Minh Hậu…) */
+        if (VIB.destroy && kind === "d" && store.vib !== false && navigator.vibrate) { try { navigator.vibrate(VIB.destroy); } catch (e) {} }
+        playSample(key, o.vol == null ? 1 : o.vol, { delay: o.delay, pri: 1 });
+      } catch (e) {}
+      return key;
+    },
+    moReady() { return moState === 2; },
+    moLoad() { try { if (ctx()) moLoad(); } catch (e) {} },
     hasFx() { return !!bufs.x_tang; },
     preloadCards,
     voiceLine,

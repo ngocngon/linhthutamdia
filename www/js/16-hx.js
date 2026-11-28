@@ -490,6 +490,7 @@
     }
   };
   HXG.ownRev = (ev) => REV.has(ev.uid) || (typeof R14 !== "undefined" && R14.has(ev.uid));
+  HXG.revPA6 = (uid) => REV.has(uid); /* gpu71: hồi sinh do hồn PA6 toả tới (giữ nhịp PA6); còn lại 19-mo.js cho lá mọc lên tại ô */
   /* HX-09: hồn ở lại cạnh thẻ nguồn (không bay tới mục tiêu), chỉ nghiêng về phía mục tiêu rồi vươn tay */
   HXG.goStop = function (ch, st, dur) {
     if (st.hx !== "arm") return false;
@@ -609,7 +610,7 @@
   {
     const h0 = hit8;
     hit8 = function (s) {
-      if (s && s.k === "kill" && okU(s.src) && !isLite() && !ff() && s.r0) {
+      if (s && s.k === "kill" && !W.MO && okU(s.src) && !isLite() && !ff() && s.r0) { /* gpu71: có 19-mo.js -> màn tiêu huỷ chung MO.destroy (rõ, theo hệ lá bị huỷ) */
         const ph = s.ph, dx = CFX.destroy;
         s.ph = null;
         CFX.destroy = (r) => { try { if (!rip(s, r, ph)) { if (ph) ph.remove(); dx.call(CFX, r); } } catch (e) { console.error(e); if (ph) ph.remove(); dx.call(CFX, r); } };
@@ -1096,7 +1097,7 @@
   }
   /* bước Cuối Lượt đã loé hồn -> nghỉ ngắn hơn giữa các thẻ (3 thẻ ≤ 1,5 s) */
   /* gpu69 (làn A): bộ công cụ cho 18-act.js (cháy thẻ, hồn rời thẻ, lớp 2D) */
-  HXG.kit = { cardBmp, frameBmp, dissolve, soulFrom, peek, PK };
+  HXG.kit = { cardBmp, frameBmp, dissolve, soulFrom, peek, PK, shatter }; /* gpu71 (làn D): shatter cho màn tiêu huỷ theo hệ (19-mo.js) */
   HXG.eotFast = function (evs) { const r = (evs || []).some((e) => e.k === "skill" && e.t === "end" && EOT.has(e.uid)); EOT.clear(); return r; };
 
   /* ================= HX-15 SAO CHÉP KỸ NĂNG ================= */

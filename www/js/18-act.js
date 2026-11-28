@@ -9,7 +9,8 @@
    - Mượn kỹ năng (17): Vua Thời Gian, Tướng Loạn Trí, chép kỹ năng… diễn TỪNG kỹ năng mượn: mặt thẻ gốc hiện cạnh thẻ nguồn, đạo cụ riêng của thẻ gốc bay tới mục tiêu.
    - Phản ứng khi bị tiêu huỷ / vứt bỏ (20): hồn thẻ ở lại chỗ cũ (hoặc nổi từ Mộ), đạo cụ riêng bay tới từng thẻ được tăng/giảm (trên bàn và trên tay).
    - Đặt thẻ từ tay lên bàn (15): lá rời đúng chỗ trên tay, bay vòng cung, đáp ô; bản sao: lá trên tay nhân đôi, bản sao bay đi, lá gốc ở lại.
-   - Vứt bỏ (4): lá nhấc khỏi tay -> cháy từ dưới lên, hồn bay vào Mộ -> phản ứng: lá từ Mộ bay về tay / tới chiến địa / bản sao vào tay.
+   - Vứt bỏ (4): lá nhấc khỏi tay -> bay ra GIỮA MÀN PHÓNG LỚN (gpu71: hàng/quạt gọn, nền tối nhẹ, đọc được) -> từng lá cháy, hồn bay vào Mộ
+     -> phản ứng: lá từ Mộ bay về tay / tới chiến địa / bản sao vào tay. Tiếng riêng theo lá bị vứt (19-mo.js MO.snd).
    Nút "Bỏ qua" (gpu71, thay chạm màn hình): tua nhanh (kết quả hiện ngay, lớp phủ dọn sạch). Giảm chuyển động / tua lượt máy: đường cũ. */
 (function () {
   "use strict";
@@ -627,6 +628,14 @@
       /* vứt bỏ: chờ lá bay vào Mộ (mục 4); tiêu huỷ: chờ nhát huỷ trúng (P.delay do lịch dời) */
       const la = Math.max(0, ...P.rx.map((e) => DS.landIn(e.uid)));
       if (la > 0) P.delay = Math.max(P.delay || 0, la + 80);
+      /* gpu71: tiêu huỷ -> phản ứng chỉ hiện SAU khi lá đã vỡ (màn huỷ 19-mo: nứt -> vỡ) */
+      try {
+        for (const e of P.rx) {
+          if (e.w === "x" || e.z === "disc" || !window.MO) continue;
+          const k = STEPS12.find((s) => s.k === "kill" && s.dst === e.uid);
+          P.delay = Math.max(P.delay || 0, (k ? (k.t0 || 0) + T8.LIFT + T8.FLY : 0) + MO.T.END);
+        }
+      } catch (x) {}
     },
     own: (s, P) => (s.k === "up" || s.k === "down" || s.k === "cost") && !s.ong && P.rx.some((e) => e._tg.has(s.hc || s.dst)),
     run(P, j, total) {
@@ -760,9 +769,11 @@
       if (e.k === "tohand") { P.ret.push({ uid: e.uid, to: "hand", src: e.src }); P.own.add(e.uid); }
       else if (e.k === "revive" || e.k === "summon") { P.ret.push({ uid: e.uid, to: "board", src: e.src }); P.own.add(e.uid); }
     }
+    /* gpu71: mốc đáp của lá từ Mộ ra bàn (runRet) -> MO.gate (19-mo.js) dời kỹ năng của chính lá đó tới sau khi lá đáp */
+    P.ret.slice(0, 8).forEach((r, k) => { if (r.to === "board") P.land.set(r.uid, 300 + k * 120 + DT.BACK); });
     if (!P.own.size && !ds.some((e) => P.seg.get(e.uid) && P.seg.get(e.uid).rx)) return;
     DS.P = P;
-    { const gap = ds.length > 4 ? 60 : DT.GAP; ds.slice(0, 7).forEach((e, i) => P.land.set(e.uid, DT.LIFT + DT.READ + i * gap + DT.BURN + DT.SOUL)); }
+    { const gap = ds.length > 4 ? Math.round(DT.GAP * 0.7) : DT.GAP; ds.slice(0, 7).forEach((e, i) => P.land.set(e.uid, DT.LIFT + DT.READ + i * gap + DT.BURN + DT.SOUL)); }
     /* lá trên tay sẽ xuất hiện khi lá từ Mộ bay tới: ẩn ngay; lá trên bàn: ẩn tới lúc đáp */
     for (const u of P.own) { const c = anyC(u); if (!c) continue; if (G.hand[c.side || c.own] && G.hand[c.side || c.own].includes(c)) hideHand(u); else if (E.find(G, u)) hideBoard(u); }
     P.t0 = performance.now();
@@ -796,47 +807,74 @@
     };
   }
   /* --- nhịp chính --- */
-  const DT = { LIFT: 260, READ: 380, GAP: 90, BURN: 300, SOUL: 460, BACK: 520 };
+  /* gpu71 (làn D): lá bị vứt bay ra GIỮA MÀN, PHÓNG LỚN (mặt thẻ nguyên vẹn, đọc được) trên nền tối nhẹ; nhiều lá -> một hàng/quạt gọn ở giữa
+     (cả hai phe: hàng đối thủ phía trên, hàng mình phía dưới). Đứng yên READ để đọc, rồi TỪNG LÁ một cháy (GAP giữa hai lá) -> hồn vào Mộ -> phản ứng.
+     Mỗi lá có tiếng riêng theo lá (SFX.mo "v": tiếng riêng thẻ > hệ của lá). */
+  const DT = { LIFT: 380, READ: 900, GAP: 300, BURN: 320, SOUL: 460, BACK: 520 };
+  AC.DT = DT;
+  /* bố cục hàng giữa màn: trả { Wc, Hc, pos(side,k,cnt) -> {x,y,rot} } */
+  function discLay(ns, nf) {
+    const VW = innerWidth, VH = innerHeight, two = ns > 0 && nf > 0, m = Math.max(ns, nf, 1);
+    const maxH = two ? VH * 0.27 : VH * 0.4, room = VW - 20;
+    /* hàng thẳng không chồng nếu mỗi lá vẫn rộng >= 92 px (tới 4 lá trên máy 430 px); nhiều hơn -> quạt chồng mép */
+    const row = room / (m * 0.98);
+    let Wc = m <= 1 ? Math.min(VW * 0.52, 230) : row >= 92 ? row : room / (1 + (m - 1) * 0.6);
+    Wc = Math.round(clamp(Math.min(Wc, maxH / 1.36, 230), two ? 84 : 92, 230));
+    const Hc = Math.round(Wc * 1.36), cy = clamp(VH * 0.46, Hc / 2 + 70, VH - Hc / 2 - 40);
+    const yOf = (side) => (two ? (side === "p" ? cy + Hc * 0.55 : cy - Hc * 0.55) : cy);
+    const pos = (side, k, cnt) => {
+      const step = cnt > 1 ? Math.min(Wc * 1.02, (room - Wc) / (cnt - 1)) : 0, span = step * (cnt - 1), mid = (cnt - 1) / 2, fan = step < Wc * 0.9;
+      const x = clamp(VW / 2 - span / 2 + step * k, Wc / 2 + 6, VW - Wc / 2 - 6);
+      const rot = fan ? (k - mid) * Math.min(6, 24 / cnt) : 0;
+      return { x, y: yOf(side) + (fan ? Math.pow(k - mid, 2) * 2.2 : 0), rot };
+    };
+    return { Wc, Hc, pos, yOf, two };
+  }
+  AC.discLay = discLay;
   function discardBeat2(list, hMap, srcUid) {
     if (reduced || !list.length || !on()) return DB0.apply(this, arguments);
     const P = DS.P && DS.P.list.includes(list[0]) ? DS.P : { list, own: new Set(), seg: new Map(), land: new Map(), steps: new Map(), ret: [] };
     P.ran = 1; P.tb = performance.now();
-    const n = list.length, show = list.slice(0, 7), gap = n > 4 ? 60 : DT.GAP;
-    const Wc = Math.round(clamp(innerWidth * (n > 4 ? 0.17 : 0.2), 62, 88)), Hc = Math.round(Wc * 1.36);
-    const hand = rc(document.getElementById("hand")) || { x: innerWidth / 2, y: innerHeight - 90, t: innerHeight - 150, w: innerWidth, h: 120 };
-    const rowY = clamp(hand.t - Hc * 0.62, Hc / 2 + 90, innerHeight - Hc), foeY = clamp((rc(document.getElementById("avFoe")) || { y: 80 }).y + Hc * 0.9, Hc / 2 + 70, innerHeight * 0.4);
+    const n = list.length, show = list.slice(0, 7), gap = n > 4 ? Math.round(DT.GAP * 0.7) : DT.GAP;
+    const ns = show.filter((e) => e.side === "p").length, nf = show.length - ns, LY = discLay(ns, nf), Wc = LY.Wc, Hc = LY.Hc;
     const pile = PILEPT(), src = srcUid ? where7(srcUid, null, null) : null, sc = srcUid ? (window.FXR ? FXR.c1(srcUid, "#ff9a4d") : "#ff9a4d") : "#ff9a4d";
-    const j = job(DT.LIFT + DT.READ + show.length * gap + DT.BURN + DT.SOUL + 6000);
+    const tRead = DT.LIFT + DT.READ, tLast = tRead + (show.length - 1) * gap;
+    const j = job(tLast + DT.BURN + DT.SOUL + 6000);
     DS.jobs.add(j);
     j.onEnd((fast) => { DS.jobs.delete(j); if (fast) dsFinish(P); });
     if (src) { try { lit7(src, sc, srcUid); } catch (e) {} }
-    /* nhãn đầu nhịp */
+    /* nền tối nhẹ sau hàng lá phóng lớn (tắt dần khi lá cuối cháy) */
+    const dim = j.add(document.createElement("div"));
+    dim.className = "mo-dim";
+    document.body.appendChild(dim);
+    dim.animate([{ opacity: 0 }, { opacity: 1, offset: DT.LIFT / (tLast + DT.BURN) }, { opacity: 1, offset: tLast / (tLast + DT.BURN) }, { opacity: 0 }], { duration: (tLast + DT.BURN) * SPD, fill: "forwards" });
+    /* nhãn đầu nhịp: trên hàng lá trên cùng */
     const sn = srcUid ? nmOf((anyC(srcUid) || {}).id) : "";
-    const mineN = show.filter((e) => e.side === "p").length, rowsY = mineN ? rowY : foeY;
-    const hd = tagEl(j, "actag dch", innerWidth / 2, rowsY - Hc / 2 - 22, 220, 26, "#ff9a4d", `<b><em>VỨT BỎ${n > 1 ? " ×" + n : ""}</em>${sn ? " · " + esc(short(sn, 16)) : ""}</b>`);
-    tl(hd, [{ t: 0, x: innerWidth / 2, y: rowsY - Hc / 2 - 14, s: 0.7, o: 0 }, { t: 200, x: innerWidth / 2, y: rowsY - Hc / 2 - 22, s: 1, o: 1 }, { t: DT.LIFT + DT.READ + show.length * gap + 300, x: innerWidth / 2, y: rowsY - Hc / 2 - 22, s: 1, o: 1 }, { t: DT.LIFT + DT.READ + show.length * gap + 500, x: innerWidth / 2, y: rowsY - Hc / 2 - 30, s: 0.9, o: 0 }], DT.LIFT + DT.READ + show.length * gap + 500);
-    const ns = show.filter((e) => e.side === "p").length, nf = show.length - ns;
+    const topY = Math.min(LY.yOf(nf ? "a" : "p")) - Hc / 2 - 22;
+    const hd = tagEl(j, "actag dch", innerWidth / 2, topY, 220, 26, "#ff9a4d", `<b><em>VỨT BỎ${n > 1 ? " ×" + n : ""}</em>${sn ? " · " + esc(short(sn, 16)) : ""}</b>`);
+    tl(hd, [{ t: 0, x: innerWidth / 2, y: topY + 8, s: 0.7, o: 0 }, { t: 200, x: innerWidth / 2, y: topY, s: 1, o: 1 }, { t: tLast + 300, x: innerWidth / 2, y: topY, s: 1, o: 1 }, { t: tLast + 500, x: innerWidth / 2, y: topY - 8, s: 0.9, o: 0 }], tLast + 500);
     let im = 0, ifo = 0;
     show.forEach((e, i) => {
       const mine = e.side === "p", k = mine ? im++ : ifo++, cnt = mine ? ns : nf;
-      const span = Math.min(innerWidth - Wc - 16, cnt * Wc * 0.92), x = clamp(innerWidth / 2 - span / 2 + (cnt > 1 ? (span * k) / (cnt - 1) : span / 2), Wc / 2 + 6, innerWidth - Wc / 2 - 6);
-      const y = mine ? rowY : foeY, rot = (k - (cnt - 1) / 2) * (cnt > 3 ? 4 : 6);
+      const q = LY.pos(e.side, k, cnt), x = q.x, y = q.y, rot = q.rot;
       const fr = (mine && hMap && hMap.get(e.uid)) || (mine ? zpt("hand") : zpt("avFoe") || zpt("oppSub")) || { x, y: y + 80, w: 46 };
       const g = j.add(ghost({ x, y, w: Wc, h: Hc }, liteId(e.id), "acd"));
       g.style.opacity = "0";
+      g.style.zIndex = String(41 + i);
       const s0 = Math.min(1, (fr.w || 46) / Wc), dx = fr.x - x, dy = fr.y - y;
       const c1 = cols(e.id).c1 || "#ff9a4d", g0 = P.seg.get(e.uid), rx = !!(g0 && g0.rx);
       htap("HX04", { uid: e.uid, id: e.id, side: e.side });
-      tap("disc", { uid: e.uid, id: e.id, side: e.side, rx: rx ? 1 : 0 });
+      tap("disc", { uid: e.uid, id: e.id, side: e.side, rx: rx ? 1 : 0, w: Wc, x: Math.round(x), y: Math.round(y) });
       const go = () => {
         if (j.dead) return;
         g.style.opacity = "";
-        g.animate([{ transform: `translate(${dx}px,${dy}px) scale(${s0})${mine ? "" : " rotateY(90deg)"}`, opacity: 0.6 }, { transform: `translate(0,-6px) scale(1.08) rotate(${rot}deg)`, opacity: 1, offset: 0.72 }, { transform: `rotate(${rot}deg)`, opacity: 1 }], { duration: DT.LIFT, delay: i * 40, easing: "cubic-bezier(.2,.8,.3,1)", fill: "both" });
+        g.animate([{ transform: `translate(${dx}px,${dy}px) scale(${s0})${mine ? "" : " rotateY(90deg)"}`, opacity: 0.6 }, { transform: `translate(0,-8px) scale(1.06) rotate(${rot}deg)`, opacity: 1, offset: 0.7 }, { transform: `rotate(${rot}deg)`, opacity: 1 }], { duration: DT.LIFT * SPD, delay: i * 60 * SPD, easing: "cubic-bezier(.2,.8,.3,1)", fill: "both" });
       };
       requestAnimationFrame(go);
-      const tb = DT.LIFT + DT.READ + i * gap;
+      j.at(DT.LIFT + i * 60 + 90, () => { glow(x, y, c1, Wc * 1.4, 0.4, 0.45); tap("disc:big", { uid: e.uid, w: Math.round(g.getBoundingClientRect().width) }); });
+      const tb = tRead + i * gap;
       /* phản ứng (Khi Bị Vứt Bỏ): ấn phản ứng loé trên lá trước khi cháy */
-      if (rx) j.at(tb - 160, () => { ring(x, y, c1, Wc * 1.3, 0.45, 0.95); glow(x, y, c1, Wc * 2, 0.45, 0.7); const t = tagEl(j, "actag sm", x, y + Hc / 2 + 12, 130, 20, c1, `<b><em>KHI BỊ VỨT BỎ</em></b>`); tl(t, [{ t: 0, x, y: y + Hc / 2 + 16, s: 0.7, o: 0 }, { t: 160, x, y: y + Hc / 2 + 12, s: 1, o: 1 }, { t: 700, x, y: y + Hc / 2 + 12, s: 1, o: 1 }, { t: 860, x, y: y + Hc / 2 + 6, s: 0.9, o: 0 }], 860); });
+      if (rx) j.at(tb - 200, () => { ring(x, y, c1, Wc * 1.25, 0.45, 0.95); glow(x, y, c1, Wc * 1.8, 0.45, 0.7); const t = tagEl(j, "actag sm", x, y + Hc / 2 + 14, 130, 20, c1, `<b><em>KHI BỊ VỨT BỎ</em></b>`); tl(t, [{ t: 0, x, y: y + Hc / 2 + 18, s: 0.7, o: 0 }, { t: 160, x, y: y + Hc / 2 + 14, s: 1, o: 1 }, { t: 700, x, y: y + Hc / 2 + 14, s: 1, o: 1 }, { t: 860, x, y: y + Hc / 2 + 8, s: 0.9, o: 0 }], 860); });
       j.at(tb, () => burnCard(j, g, e, x, y, Wc, Hc, rot, mine, rx ? c1 : null, pile));
       const land = tb + DT.BURN + DT.SOUL;
       P.land.set(e.uid, land);
@@ -849,7 +887,7 @@
         if (g0) rebound(P, j, e, g0, pile);
       });
     });
-    const tEnd = DT.LIFT + DT.READ + show.length * gap + DT.BURN + DT.SOUL + (P.seg.size ? DT.BACK + 500 : 200);
+    const tEnd = tLast + DT.BURN + DT.SOUL + (P.seg.size ? DT.BACK + 500 : 200);
     live(tEnd + 200);
     try { FX_UNTIL = Math.max(FX_UNTIL || 0, performance.now() + (tEnd + 200) * SPD); } catch (e) {}
     j.at(tEnd, () => { dsFinish(P); j.fin(false); });
@@ -862,7 +900,9 @@
     const card = g.firstElementChild, art = g.querySelector("img.art");
     let so = null;
     if (HK && !lite()) {
-      const bmp = HK.cardBmp(card) || HK.frameBmp(e.id, w, h, false);
+      let bmp = HK.cardBmp(card) || HK.frameBmp(e.id, w, h, false);
+      /* gpu71: lá phóng lớn -> cháy trên bitmap nửa độ phân giải (tính theo điểm ảnh mỗi khung: nhẹ hơn 4×, nhìn không khác) */
+      if (bmp && bmp.width > 260) { const c2 = document.createElement("canvas"); c2.width = Math.round(bmp.width / 2); c2.height = Math.round(bmp.height / 2); c2.getContext("2d").drawImage(bmp, 0, 0, c2.width, c2.height); bmp = c2; }
       if (art && art.complete && art.naturalWidth) {
         so = HK.soulFrom(art, rc1 || cols(e.id).c1);
         if (so) { j.add(so.d); so.d.style.opacity = "0"; so.d.animate([{ transform: "none", opacity: 0 }, { transform: "translate(-4px,-22px) rotate(-5deg) scale(1.1)", opacity: 1, offset: 0.5 }, { transform: "translate(-8px,-34px) rotate(-7deg) scale(1.14)", opacity: 1 }], { duration: 300, easing: "cubic-bezier(.2,.8,.3,1)", fill: "both" }); }
@@ -874,7 +914,7 @@
       try { FX.ash(x, y, 10); } catch (x) {}
     }
     glow(x, y, "#ff6a1f", w * 2, 0.8, 0.45);
-    try { SFX.fam("discard", { el: elOf(e.id) }); } catch (er) {}
+    try { if (window.MO) MO.snd("v", e.id, elOf(e.id)); else SFX.fam("discard", { el: elOf(e.id) }); } catch (er) {} /* gpu71: tiếng riêng theo lá bị vứt */
     htap("HX04:burn", { uid: e.uid });
     j.at(jnow(j) + DT.BURN, () => {
       const from = so ? { x: so.x, y: so.y - 34 } : { x, y: y - 20 };
@@ -896,6 +936,8 @@
       j.at(t0 + 120 + k * 90, () => {
         const tq = mineH ? rc(hcOf(u)) || zpt("hand") : rc(mcOf(u));
         if (!tq) { if (mineH) showHand(u, c1); else showBoard(u); return; }
+        /* gpu71: lá từ Mộ ra chiến địa MỌC LÊN tại ô (không bay từ chồng Mộ) */
+        if (!mineH && window.MO && MO.rise) { showBoard(u); MO.rise(u, { from: "grave", src: e.uid }); tap("disc:back", { uid: u, to }); j.at(jnow(j) + MO.RISE * 0.8, () => { landBoard(P, u, c1); tap("disc:land", { uid: u, to }); }); return; }
         const f = face(j, cid, pile.x, pile.y, fw, c1, "reb");
         const s1 = (tq.w || fw) / fw;
         tl(f, [{ t: 0, x: pile.x, y: pile.y, s: 0.25, o: 0 }, { t: 160, x: pile.x, y: pile.y - 40, s: 1.05, o: 1, e: "cubic-bezier(.2,.8,.3,1)" }, { t: 220, x: pile.x, y: pile.y - 44, s: 1 }, ...arc({ x: pile.x, y: pile.y - 44 }, tq, 80, 220, DT.BACK, { s0: 1, s1, r0: -6, r1: 0 }), { t: DT.BACK + 40, x: tq.x, y: tq.y, s: s1, o: 0 }], DT.BACK + 40);
@@ -948,6 +990,7 @@
       const u = r.uid, c = anyC(u), id = c ? c.id : null, c1 = (id && cols(id).c1) || "#b98aff";
       const tq = r.to === "hand" ? rc(hcOf(u)) || zpt("hand") : rc(mcOf(u));
       if (!tq || !id) { if (r.to === "hand") showHand(u); else showBoard(u); return; }
+      if (r.to !== "hand" && window.MO && MO.rise) { showBoard(u); MO.rise(u, { from: "grave", src: r.src, foe: c && c.own !== c.side }); j.at(jnow(j) + MO.RISE * 0.8, () => { landBoard(P, u, c1); tap("disc:land", { uid: u, to: r.to }); }); return; }
       const f = face(j, id, pile.x, pile.y, fw, c1, "reb"), s1 = (tq.w || fw) / fw;
       tl(f, [{ t: 0, x: pile.x, y: pile.y, s: 0.25, o: 0 }, { t: 160, x: pile.x, y: pile.y - 40, s: 1.05, o: 1, e: "cubic-bezier(.2,.8,.3,1)" }, ...arc({ x: pile.x, y: pile.y - 40 }, tq, 80, 200, DT.BACK, { s0: 1, s1 }), { t: DT.BACK + 40, x: tq.x, y: tq.y, s: s1, o: 0 }], DT.BACK + 40);
       trail({ x: pile.x, y: pile.y - 40 }, tq, 80, 200, DT.BACK, [c1, "#ffffff"], 8);

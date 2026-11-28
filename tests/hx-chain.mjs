@@ -47,6 +47,7 @@ await page.addInitScript(() => {
   localStorage.removeItem("ltd_hx_all");
   window.__hx = []; window.__fr = []; window.__bad = [];
   window.HX_TAP = (k, o) => window.__hx.push({ k, t: performance.now(), o: o || {} });
+  window.MO_TAP = (k, o) => window.__hx.push({ k: "MO:" + k, t: performance.now(), o: o || {} }); /* gpu71: tiêu huỷ chung (19-mo.js) thay HX-03 */
   let last = 0;
   const loop = t => {
     const act = !!(window.HXG && (HXG.busy() || document.querySelector(".hxsoul,.hxds,.mc.hxpk,.mc.hx2z,.fxg.hxd,.hxemb,.hxbk,.hxclip,.hxorb,.fxg.hxold")));
@@ -194,7 +195,7 @@ try {
 
   let r;
   r = await scen("HX-03 hủy 1 mục tiêu + HX-02 lật thẻ S5 thứ hai + HX-01 rút", { ab: { bachdich: "kill1" }, foe: [["thachquai", 0]], own: [["thachnhan", 1]], hand: [["bachdich", 0], ["kevocam", 1]], draw: ["linhduoc"] });
-  if (r) { ok(has(r, "HX03") && has(r, "HX03:soul") && has(r, "HX03:frame"), "HX-03: hồn bị giật -> vỡ -> khung vụn"); ok(has(r, "HX02"), "HX-02: thẻ S5 thứ hai lật kiểu Hồn Xuất"); ok(has(r, "RB") && has(r, "RB:land"), "RB-B: rút thẻ Hồn Xuất (ánh lửa ấn, không hồn)"); ok(!has(r, "HX01"), "HX-01 (rút có hồn) đã bỏ");
+  if (r) { ok((has(r, "HX03") && has(r, "HX03:soul") && has(r, "HX03:frame")) || (has(r, "MO:d") && has(r, "MO:d:crack") && has(r, "MO:d:break") && has(r, "MO:d:end")), "HX-03 / tiêu huỷ (19-mo): nứt -> hồn rời + vỡ theo hệ -> hết"); ok(has(r, "HX02"), "HX-02: thẻ S5 thứ hai lật kiểu Hồn Xuất"); ok(has(r, "RB") && has(r, "RB:land"), "RB-B: rút thẻ Hồn Xuất (ánh lửa ấn, không hồn)"); ok(!has(r, "HX01"), "HX-01 (rút có hồn) đã bỏ");
     const a = r.ev.find(e => e.k === "RB"), b = r.ev.find(e => e.k === "RB:land"); if (a && b) { const sp = await SPDg(), d = (b.t - a.t) / sp + 80; console.log(`  RB-B 1 lá: ${d.toFixed(0)} ms gốc (${(d * sp).toFixed(0)} ms thật ở SPD ${sp})`); ok(d < 700, "RB-B 1 lá ≈ 0,6–0,7 s (gốc)"); } }
   r = await scen("đối chứng: thẻ thường cùng kỹ năng hủy + rút thẻ thường", { ab: { [NEG]: "kill1" }, foe: [["thachquai", 0]], hand: [[NEG, 0]], draw: ["thachnhan"] });
   if (r) { ok(!has(r, "HX03") && !has(r, "RB") && !has(r, "HX02"), "không HX nào bật cho thẻ không có ảnh tư thế"); }
@@ -219,7 +220,7 @@ try {
   r = await scen("HX-04 vứt bài (2 phe)", { ab: { hacdichbinh: "disc2" }, hand: [["hacdichbinh", 1], ["thachnhan", null]], foeHand: ["thachquai"] });
   if (r) { ok(cnt(r, "HX04") === 2 && cnt(r, "HX04:burn") === 2 && cnt(r, "HX04:grave") === 2, "HX-04: 2 lá cháy, hồn vào mộ"); }
   r = await scen("HX-03 hủy 2 mục tiêu", { ab: { bachdich: "kill2" }, foe: [["thachquai", 0], ["thachquai", 2]], hand: [["bachdich", 1]], tag: "_2" });
-  if (r) { ok(cnt(r, "HX03") === 2, "HX-03: 2 mục tiêu"); }
+  if (r) { ok(cnt(r, "HX03") === 2 || cnt(r, "MO:d:break") === 2, "HX-03 / tiêu huỷ (19-mo): 2 mục tiêu"); }
   r = await scen("mức Nhẹ: HX-03 về CFX cũ, HX-06 không ló hồn", { tier: "lite", ab: { bachdich: "kill1", chienthan: "up3" }, foe: [["thachquai", 0]], own: [["thachnhan", 2]], hand: [["bachdich", 0], ["chienthan", 2]], tag: "_nhe" });
   if (r) { ok(!has(r, "HX03"), "Nhẹ: không vỡ hồn CPU (CFX.destroy cũ)"); ok(!has(r, "HX06:flex", o => o.peek), "Nhẹ: không ló hồn"); }
   r = await scen("Bỏ qua (FFTURN.skipNow) giữa toả 3 mục tiêu", { ab: { tammanu: "down3" }, foe: F3, hand: [["tammanu", 1]], skip: "HXfan", tag: "_tua" });
