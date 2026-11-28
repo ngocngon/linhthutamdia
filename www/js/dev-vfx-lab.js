@@ -226,7 +226,7 @@
       const mk = (cid, side) => E.mk(G, cid, side);
       const put = (cid, side, li, o) => {
         const c = mk(cid, side); c.rev = true; c.played = true; c.turn = spec.turn - 1; c.et = 0; c.age = 1;
-        if (o && o.cr) c.cr = true; if (o && o.bp != null) c.bp = o.bp; if (o && o.bonus) c.bonus = o.bonus;
+        if (o && o.cr) c.cr = true; if (o && o.bp != null) c.bp = c._bp = o.bp; if (o && o.bonus) c.bonus = c._b = o.bonus;
         G.locs[li].cards[side].push(c); return c;
       };
       for (const [cid, li, o] of spec.foe) put(cid, "a", li, o);

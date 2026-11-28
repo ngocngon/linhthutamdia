@@ -115,6 +115,23 @@ await test("Loạn Tướng: hoàn thành nhiệm vụ -> ghi 'use' kỹ năng L
   play(G, "p", r, 1);
   const u = rows(G, lt, "use"); eq(u.length, 1); eq(u[0].a, "nhennu");
 });
+await test("Bị động sau khi đặt (Nữ Tướng Voi / Thạch Sanh / Xác Bà Đồng): ghi nguồn chính thẻ bị động, không phải thẻ vừa đặt (mục 45)", () => {
+  const G = setup(); const nt = onBoard(G, "p", "thanhkiemnu", 0), ts = onBoard(G, "p", "hapnangthu", 1); const x = inHand(G, "p", "nhennu"); play(G, "p", x, 0);
+  eq(rows(G, nt, "p")[0].src.id, "thanhkiemnu"); eq(rows(G, ts, "p")[0].src.id, "hapnangthu");
+});
+await test("Bọ Chiến: +1 khi bạn vứt bỏ ghi nguồn Bọ Chiến (không phải thẻ gây vứt bỏ)", () => {
+  const G = setup(); const bc = onBoard(G, "p", "trungchien", 0); const h = inHand(G, "p", "da"); LT.discard(G, "p", h);
+  eq(rows(G, bc, "p")[0].src.id, "trungchien");
+});
+await test("Đầu Lượt / khi rút: Cuồng Trí, Thuỷ Linh ghi đúng nguồn", () => {
+  const G = setup(); const ct = onBoard(G, "p", "cuongtri", 0); for (let k = 0; k < 6; k++) inHand(G, "p", "da"); for (let k = 0; k < 3; k++) G.deck.p.push(LT.mk(G, "da", "p"));
+  const tl = onBoard(G, "p", "thuynu", 1); G.phase = "over0"; LT.startTurn(G);
+  eq(rows(G, ct, "p")[0] && rows(G, ct, "p")[0].src.id, "cuongtri"); const dr = G.hand.p[G.hand.p.length - 1]; eq(rows(G, dr, "c")[0].src.id, "thuynu");
+});
+await test("Token bị vứt bỏ (Mảnh Kiếm Quỷ) vẫn ghi đúng tên nguồn", () => {
+  const G = setup(); const mv = onBoard(G, "p", "monghoang", 0); const m = inHand(G, "p", "manhkiemquy"); LT.discard(G, "p", m);
+  const r = rows(G, mv, "p")[0]; ok(r, "có dòng"); eq(r.src.id, "manhkiemquy");
+});
 await test("Không còn dòng thay đổi nào thiếu nguồn trong 120 ván ngẫu nhiên", () => {
   let n = 0, bad = [];
   function mul(a) { return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
