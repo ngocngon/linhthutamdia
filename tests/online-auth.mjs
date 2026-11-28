@@ -4,7 +4,7 @@
 //  (a) kết quả và trạng thái từng khung hình trùng engine cục bộ;
 //  (b) không tin nào gửi cho một bên chứa thông tin ẩn (id/tên thẻ trên tay, bộ bài, thẻ úp của đối thủ chưa từng lộ; thứ tự bộ bài của mình; hạt giống);
 //  (c) kết nối lại / máy chủ dỡ bộ nhớ (dựng lại từ nhật ký) trả đúng bản nhìn + lượt đang nộp dở; đồng hồ lượt + bỏ 3 lượt = thua.
-// Chạy: node tests/online-auth.mjs   (AUTH_GAMES=60 mặc định; AUTH_SEED=<n> chạy lại một ván)
+// Chạy: node tests/online-auth.mjs   (AUTH_GAMES=200 mặc định; AUTH_SEED=<n> chạy lại một ván)
 import { createRequire } from "node:module";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
@@ -20,7 +20,7 @@ function freshEngine() { const m = { exports: {} }; new Function("module", readF
   E.C.__an = { id: "__an", n: "Thẻ ẩn", e: "", c: 0, p: 0, t: "none", h: "PH", x: "", tok: true }; E.LOC.__loc = { n: "?", s: "", x: "" }; return E; }
 const CE = freshEngine();
 
-const N = +process.env.AUTH_GAMES || 60, ONLY = process.env.AUTH_SEED ? +process.env.AUTH_SEED : null;
+const N = +process.env.AUTH_GAMES || 200, ONLY = process.env.AUTH_SEED ? +process.env.AUTH_SEED : null;
 let fails = 0, checks = 0, frameN = 0, msgN = 0, bytes = 0, aiErr = 0, rejected = 0;
 const fail = (m) => { fails++; if (fails <= 25) console.log("  LỖI " + m); };
 const ok = (c, m) => { checks++; if (!c) fail(m); };
@@ -75,6 +75,13 @@ function leakCheck(g, v, V, raw, seen, tag) {
   /* bộ bài của mình: chỉ số lượng, thứ tự theo uid (không lộ thứ tự rút) */
   const dk = myView.deck[v]; ok(dk.length === g.deck[v].length && dk.every((c, i) => c.id === "__an" && (!i || dk[i - 1].uid < c.uid)), `${tag}: bộ bài của mình không bị che / lộ thứ tự`);
   ok(myView.hand[o].length === g.hand[o].length && myView.deck[o].length === g.deck[o].length, `${tag}: sai số lượng tay/bộ bài đối thủ`);
+  /* lệnh dời đang chờ giải của đối thủ (G.pmv, gpu71) chưa lộ tới khi bước dời chạy */
+  ok(!(myView.pmv && myView.pmv[o] && myView.pmv[o].length), `${tag}: lộ lệnh dời đang chờ của đối thủ (pmv)`);
+  /* trường cấp cao của engine phải được authgame.js phân loại (danh sách trắng) — trường mới chưa phân loại bị bỏ khỏi bản nhìn */
+  const unk = AG.unclassifiedKeys(g); ok(!unk.length, `${tag}: trường trạng thái engine chưa phân loại trong authgame.js VIEW_KEYS: ${unk.join(",")}`);
+  for (const k in myView) ok(k in AG.VIEW_KEYS, `${tag}: bản nhìn có trường ngoài danh sách trắng "${k}"`);
+  /* id thẻ ẩn không được nằm ở KHOÁ đối tượng */
+  walk(V, (x) => { for (const k in x) if (REF.C[k] && k !== "__an" && !seen.has(k) && [...secret.values()].includes(k)) fail(`${tag}: khoá đối tượng là id thẻ ẩn "${k}"`); });
   /* chuỗi: id + tên thẻ chưa từng lộ */
   for (const id of new Set(secret.values())) {
     if (seen.has(id)) continue;

@@ -70,7 +70,12 @@ describe("trận do máy chủ giữ trạng thái", () => {
     expect(sb.v.hand.a.every((c) => c.id === HID)).toBe(true);
     expect(sa.v.deck.p.every((c) => c.id === HID)).toBe(true);
     expect(sa.v.rs).toBeUndefined();
-    for (const id of guestDk) if (!hostDk.includes(id)) expect(ra.raws.join("")).not.toContain('"' + id + '"');
+    // id thẻ của khách chỉ được xuất hiện nếu luật cho chủ phòng thấy (vd. Chợ Đen chép thẻ đối thủ vào tay, Chợ Phiên vứt thẻ ra Mộ)
+    const legit = new Set(), addL = (c) => { if (c) { legit.add(c.id); if (c.cpOf) legit.add(c.cpOf); if (typeof c.ab === "string") legit.add(c.ab); } };
+    sa.v.hand.p.forEach(addL);
+    for (const s of ["p", "a"]) for (const z of ["disc", "dead"]) (sa.v[z][s] || []).forEach(addL);
+    for (const L of sa.v.locs) for (const s of ["p", "a"]) for (const c of L.cards[s]) if (s === "p" || c.rev) addL(c);
+    for (const id of guestDk) if (!hostDk.includes(id) && !legit.has(id)) expect(ra.raws.join("")).not.toContain('"' + id + '"');
     // tên bị lọc khỏi presence
     ra.send({ type: "pres", patch: { v: 2, nm: "Chủ", dk: hostDk, seed: 5, acts: [1] } });
     const pp = await rb.wait((m) => m.type === "peers" && m.peers.some((p) => p.presence.nm === "Chủ"));

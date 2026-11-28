@@ -7,7 +7,8 @@
 //  - không gửi hạt giống RNG, danh sách bộ bài đối thủ, bài khởi đầu của đối thủ, hiệu ứng Đầu Ván riêng của đối thủ;
 //  - chuỗi sự kiện (G.evs) được lọc: sự kiện riêng (deckadd priv, top) chỉ phe được phép thấy mới có danh tính thẻ.
 // Lớp lọc thứ hai (phòng sót): mọi chuỗi trong bản gửi đi trùng id thẻ mà bên nhận CHƯA từng được thấy -> "__an",
-// tên thẻ đó trong chữ (nhật ký, ghi chú) -> "Thẻ ẩn".
+// tên thẻ đó trong chữ (nhật ký, ghi chú) -> "Thẻ ẩn"; khoá đối tượng là id thẻ chưa thấy cũng bị đổi.
+// Trường cấp cao của trạng thái đi qua DANH SÁCH TRẮNG VIEW_KEYS: trường engine mới chưa phân loại không được gửi.
 // File này không phụ thuộc Cloudflare: Worker (match.js) và bộ test Node (tests/online-auth.mjs) dùng chung.
 import E from "./engine.gen.js";
 
@@ -82,6 +83,29 @@ function blank(c, extra) {
   return Object.assign({ uid: c.uid, id: HID, side: c.side, own: c.own, cr: false, by: null, bu: 0, bonus: 0, bp: null, cm: 0, rev: false, turn: 0, sum: false, rvv: false, eb: 0, sil: null, act: false, mv: false, age: 0, played: false, et: 0, mask: 1 }, extra || {});
 }
 const PRIV_EV = { deckadd: 1 };
+/* DANH SÁCH TRẮNG trường cấp cao của trạng thái trận (G) được gửi cho client.
+   "pub": công khai (vẫn qua lớp lọc thứ hai: chuỗi / khoá là id thẻ chưa thấy -> "__an");
+   "own": đối tượng {p,a} theo phe — chỉ giữ phần của bên nhận, phần đối thủ thay bằng giá trị rỗng;
+   "fix": có xử lý riêng trong viewFor (che thẻ / lọc sự kiện ...); "drop": không bao giờ gửi.
+   Trường engine MỚI chưa có ở đây bị BỎ khỏi bản nhìn (an toàn mặc định) và tests/online-auth.mjs báo lỗi để phân loại. */
+export const VIEW_KEYS = {
+  hand: "fix", deck: "fix", locs: "fix", q: "fix", s6: "fix", start: "fix", open: "fix", startFx: "fix", evs: "fix",
+  arishem: "fix", uatu: "fix", agatha: "fix", tff: "fix", zgm: "fix",
+  pmv: "own",      /* gpu71 L1: lệnh dời đang chờ giải — của đối thủ là bí mật tới khi bước dời chạy */
+  rs: "drop", idOf: "drop",
+  _fk: "pub", arana: "pub", aranaU: "pub", asId: "pub", bonusNow: "pub", bwN: "pub", cnt: "pub", costCap: "pub", costUp: "pub",
+  cur: "pub", curId: "pub", dead: "pub", depth: "pub", destLoc: "pub", disc: "pub", edep: "pub", endTwice: "pub", energy: "pub",
+  first: "pub", fist: "pub", forge: "pub", fr: "pub", grapple: "pub", hideT: "pub", km: "pub", lastChar: "pub", lastMove: "pub",
+  lastPlay: "pub", lastRev: "pub", ldd: "pub", live: "pub", locMk: "pub", lockjaw: "pub", lsk: "pub", lskId: "pub", ltp: "pub",
+  maxE: "pub", mg: "pub", mode: "pub", mods: "pub", msg: "pub", msgs: "pub", newLoc: "pub", nextBonus: "pub", nico: "pub",
+  noLoc: "pub", omega: "pub", online: "pub", pendingDouble: "pub", ph: "pub", phase: "pub", prevPlay: "pub", pseq: "pub",
+  result: "pub", retreatChecked: "pub", shots: "pub", shuri: "pub", sling: "pub", slingU: "pub", snap: "pub", srcU: "pub",
+  stake: "pub", stones: "pub", swan: "pub", turn: "pub", twoT: "pub", uid: "pub", unspent: "pub", unspentPrev: "pub",
+  usStreak: "pub", vtt: "pub", zero: "pub",
+};
+/* trường cấp cao của G chưa được phân loại (test dùng để bắt trường engine mới) */
+export const unclassifiedKeys = (G) => Object.keys(G).filter((k) => !(k in VIEW_KEYS));
+const emptyLike = (x) => (Array.isArray(x) ? [] : x && typeof x === "object" ? {} : typeof x === "number" ? 0 : typeof x === "boolean" ? false : null);
 const EV_ID_KEYS = ["id", "fid", "oid", "ab", "c0", "p0", "c1", "p1", "as"];
 
 /* G: trạng thái gốc (chủ phòng = "p"); side: bên nhận; know: {ids:Set, locs:Set} (tích luỹ, được cập nhật tại đây) */
@@ -89,7 +113,9 @@ export function viewFor(G, side, know, extra) {
   const o = oth(side);
   const K = know.ids; for (const id of visibleIds(G, side)) K.add(id);
   know.locs = knownLocs(G, side, know.locs);
-  const V = JSON.parse(JSON.stringify(G));
+  const V = {};
+  for (const k in G) { const kind = VIEW_KEYS[k]; if (!kind || kind === "drop" || G[k] === undefined) continue; V[k] = JSON.parse(JSON.stringify(G[k])); }
+  for (const k in V) if (VIEW_KEYS[k] === "own" && V[k] && typeof V[k] === "object" && o in V[k]) V[k][o] = emptyLike(V[k][o]);
   const masked = new Set(), secretIds = new Set();
   const hide = (c, extra2) => { masked.add(c.uid); if (!K.has(c.id)) secretIds.add(c.id); if (typeof c.ab === "string" && !K.has(c.ab)) secretIds.add(c.ab); return blank(c, extra2); };
   V.hand[o] = V.hand[o].map((c) => hide(c));
@@ -104,7 +130,6 @@ export function viewFor(G, side, know, extra) {
   if (Array.isArray(V.startFx)) V.startFx = V.startFx.filter((f) => f && f.s === side);
   for (const k of ["arishem", "uatu", "agatha", "tff"]) if (V[k] && typeof V[k] === "object" && o in V[k]) V[k][o] = false;
   if (V.zgm) V.zgm[o] = [];
-  delete V.rs; delete V.idOf;
   /* chiến địa chưa lộ */
   const hiddenLocNames = [];
   for (const L of V.locs) if (!L.rvl && !know.locs.has(L.id)) { if (LOC[L.id]) hiddenLocNames.push(LOC[L.id].n); L.id = HLOC; }
@@ -131,7 +156,14 @@ export function viewFor(G, side, know, extra) {
   const scrub = (x) => {
     if (typeof x === "string") return scrubStr(x);
     if (Array.isArray(x)) { for (let i = 0; i < x.length; i++) x[i] = scrub(x[i]); return x; }
-    if (x && typeof x === "object") { for (const k in x) x[k] = scrub(x[k]); return x; }
+    if (x && typeof x === "object") {
+      for (const k in x) {
+        const v = scrub(x[k]);
+        /* khoá đối tượng là id thẻ chưa thấy (vd. bộ đếm theo id) -> đổi khoá */
+        if (C[k] && k !== HID && !K.has(k)) { delete x[k]; x[HID] = v; } else x[k] = v;
+      }
+      return x;
+    }
     return x;
   };
   scrub(V);
