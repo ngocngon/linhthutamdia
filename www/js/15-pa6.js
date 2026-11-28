@@ -643,7 +643,29 @@
     y = clamp(y, ch.bh * sF / 2 + 4, innerHeight - ch.bh * sF / 2 - 4);
     return { x, y, s: sF, cx, cy, dx, dy };
   }
+  /* gpu71 (làn C): thẻ S5 KHÔNG bay tới mục tiêu — hồn hiện ra trên khung, thi triển tuyệt kỹ tại chỗ (P6.noFly do 19-mass.js bật;
+     đồ hoạ tuyệt kỹ riêng của thẻ: P6.ultFx), mục tiêu nhận đòn tại chỗ (impact giữ nguyên). */
+  const noFly = (ch) => { try { return !!(P6.noFly && P6.noFly(ch)); } catch (e) { return false; } };
+  function castGo(ch, st, dur) {
+    let cx = 0, cy = 0;
+    for (const q of st.list) { cx += q.tp.x / st.list.length; cy += q.tp.y / st.list.length; }
+    st.p = { x: ch.x, y: ch.y, s: ch.s, cx, cy };
+    const lean = clamp((cx - ch.x) / 30, -6, 6), up = ch.py != null ? ch.py : ch.y;
+    soulAnim(ch, [{ transform: TF(ch, ch.x, ch.y, ch.r, ch.s) }, { transform: TF(ch, ch.x, up - 10, lean, ch.s * 1.06), offset: 0.7 }, { transform: TF(ch, ch.x, up - 8, lean, ch.s * 1.05) }], Math.max(120, dur), "cubic-bezier(.3,.7,.3,1)");
+    setPose(ch, ch.x, up - 8, lean, ch.s * 1.05);
+    converge(ch.x, ch.y, ch.col.L, 16, ch.bw * 0.8, Math.max(0.2, dur / 1000));
+    glow(ch.x, ch.y, ch.col.c1, ch.bw * 1.4, Math.max(0.25, dur / 1000), 0.55);
+    try { if (P6.ultFx) P6.ultFx(ch, st, dur); } catch (e) { console.error(e); }
+    tap("C:cast", { uid: ch.uid, n: st.list.length });
+  }
+  function castJab(ch, st) {
+    const x0 = ch.x, y0 = ch.y, s0 = ch.s, r0 = ch.r;
+    soulAnim(ch, [{ transform: TF(ch, x0, y0, r0, s0) }, { transform: TF(ch, x0, y0 - 4, r0, s0 * 1.12), offset: 0.4 }, { transform: TF(ch, x0, y0, r0, s0) }], T6.JAB + T6.REC, "cubic-bezier(.4,0,.3,1)");
+    after(ch, 0.5, 1.25, 300);
+    for (const q of st.list) beam(x0, y0, q.tp.x, q.tp.y, ch.col.c1, 6, 0.22);
+  }
   function goStop(ch, st, dur) {
+    if (noFly(ch)) return castGo(ch, st, dur);
     if (st.hx && W.HXG && HXG.goStop(ch, st, dur)) return;
     const p = strikePt(ch, st);
     st.p = p;
@@ -655,6 +677,7 @@
     converge(ch.x, ch.y, ch.col.L, 12, ch.bw * 0.7, 0.22);
   }
   function jab(ch, st) {
+    if (noFly(ch)) return castJab(ch, st);
     if (st.hx && W.HXG && HXG.jab(ch, st)) return;
     const p = st.p || strikePt(ch, st);
     const tx = ch.x + (p.cx - ch.x) * 0.38, ty = ch.y + (p.cy - ch.y) * 0.38;
