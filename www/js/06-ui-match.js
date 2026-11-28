@@ -500,7 +500,7 @@ function histLabel(h,me){const f=h.f,by=h.by,sx=by&&C[by]&&by!==f&&by!==me?" ("+
   if(h.w==="nhap")return (cnm(f)||"Một thẻ")+" hợp thể vào thẻ này";
   if(h.w==="lay")return "Lấy sức mạnh của "+(cnm(f)||"một thẻ")+sx;
   if(h.w==="x2")return "Nhân đôi sức mạnh"+(by&&C[by]&&by!==me?" ("+C[by].n+")":" (kỹ năng của thẻ này)");
-  if(h.w==="thuong")return "Thưởng khi hợp thể ("+(cnm(f)||"")+")";
+  if(h.w==="thuong"){/* gộp E+I: "thuong" = cộng từ kỹ năng bị động/thưởng của thẻ f; chỉ gọi "hợp thể" khi kỹ năng f nói hợp thể */if(f&&C[f]&&/hợp thể/i.test(C[f].x||""))return "Thưởng khi hợp thể ("+(cnm(f)||"")+")";const s=srcN(f)+(f===me?" (kỹ năng của thẻ này)":h.s==="a"&&C[f]?" (đối thủ)":"");return s.charAt(0).toUpperCase()+s.slice(1);}
   const s=srcN(by)+(by===me?" (kỹ năng của thẻ này)":srcSide(h));return s.charAt(0).toUpperCase()+s.slice(1);}
 /* gộp các dòng giống nhau (cùng nguồn, cùng loại) để bảng gọn */
 function histRows(inst,k){const out=[],ix={};let sum=0;

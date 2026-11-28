@@ -867,7 +867,7 @@ function track(G) {
     if (c.bp !== bp0) { c.hist = (c.hist || []).filter(h => h.k !== "p" && h.k !== "bp"); if (c.bp != null) c.hist.push({ k: "bp", v: c.bp, by, u, s: ss, t: G.turn }); c._bp = c.bp; b0 = 0; c._b = 0; }
     if (c.bonus !== b0 || c._nb) {
       const H = (c.hist = c.hist || []); let d = c.bonus - b0;
-      if (c._nb) { for (const n of c._nb) { H.push(n.w === "dia" && n.f ? { k: "p", d: n.d, by: n.f, u: 0, s: null, t: G.turn, f: n.f, w: n.w } : { k: "p", d: n.d, by, u, s: ss, t: G.turn, f: n.f, fu: n.fu, w: n.w }); d -= n.d; } c._nb = null; }
+      if (c._nb) { for (const n of c._nb) { H.push(n.w === "dia" && n.f ? { k: "p", d: n.d, by: n.f, u: 0, s: null, t: G.turn, f: n.f, w: n.w } : n.w === "thuong" && n.fu ? { k: "p", d: n.d, by: n.f, u: n.fu, s: (anyInst(G, n.fu) || {}).side || null, t: G.turn, f: n.f, fu: n.fu, w: n.w } : { k: "p", d: n.d, by, u, s: ss, t: G.turn, f: n.f, fu: n.fu, w: n.w }); d -= n.d; } c._nb = null; }
       if (d) H.push({ k: "p", d, by, u, s: ss, t: G.turn }); c._b = c.bonus;
     }
     if (c.cm !== m0) { (c.hist = c.hist || []).push({ k: "c", d: c.cm - m0, by, u, s: ss, t: G.turn }); c._m = c.cm; }
