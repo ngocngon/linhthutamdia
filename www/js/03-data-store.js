@@ -138,9 +138,9 @@ if(!store.bgmV4){store.bgmV4=1;store.battleBgm=false;save();}
 /* gpu29: bật lại nhạc nền trong trận theo mặc định (vẫn tắt được trong Cài đặt) */
 if(!store.bgmV5){store.bgmV5=1;store.battleBgm=true;if(store.bgm===false)store.bgm=true;save();}
 const SPDV={cham:1.3,vua:1.0,nhanh:0.78};let SPD=SPDV[store.spd]||1.0;const fxT=(f,ms,...a)=>setTimeout(f,(+ms||0)*SPD,...a);
-let FXHOLD=0,FX_UNTIL=0;
+let FXHOLD=0,FX_UNTIL=0,FXPEND=0,FXPEND_T=0; /* b44-P: FXPEND>0 = đã hẹn giờ một màn diễn (màn ra mắt) chưa bắt đầu -> sleep chờ thêm (≤4 s) */
 function holdFx(ms){const d=Math.min(4800,Math.max(0,+ms||0));if(d>0)FX_UNTIL=Math.max(FX_UNTIL,performance.now()+d*SPD);}
-const sleep=async ms=>{const h=Math.min(4800,Math.max(0,FXHOLD));FXHOLD=0;if(h>0)FX_UNTIL=Math.max(FX_UNTIL,performance.now()+h*SPD);const minEnd=performance.now()+Math.max(24,(+ms||0)*SPD);while(true){const h2=Math.min(4800,Math.max(0,FXHOLD));FXHOLD=0;if(h2>0)FX_UNTIL=Math.max(FX_UNTIL,performance.now()+h2*SPD);const target=Math.max(minEnd,FX_UNTIL),rem=target-performance.now();if(rem<=8)break;await new Promise(r=>setTimeout(r,Math.min(450,rem)));}if(!reduced&&(+ms||0)>=120)await new Promise(r=>setTimeout(r,35*SPD));};
+const sleep=async ms=>{const h=Math.min(4800,Math.max(0,FXHOLD));FXHOLD=0;if(h>0)FX_UNTIL=Math.max(FX_UNTIL,performance.now()+h*SPD);const minEnd=performance.now()+Math.max(24,(+ms||0)*SPD);while(true){const h2=Math.min(4800,Math.max(0,FXHOLD));FXHOLD=0;if(h2>0)FX_UNTIL=Math.max(FX_UNTIL,performance.now()+h2*SPD);const target=Math.max(minEnd,FX_UNTIL),rem=target-performance.now();if(rem<=8){if(FXPEND>0&&performance.now()-FXPEND_T<4000*SPD){await new Promise(r=>setTimeout(r,16));continue;}break;}await new Promise(r=>setTimeout(r,Math.min(450,rem)));}if(!reduced&&(+ms||0)>=120)await new Promise(r=>setTimeout(r,35*SPD));};
 let reduced=store.fx==="off";document.body.classList.toggle("rm",reduced);
 /* fix55: TURN_BUSY bật suốt lúc diễn một lượt (endTurnUI, 06) — kể cả sau E.startTurn đã đặt phase="play" mà lộ diện/rút bài/băng "LƯỢT n" còn chạy.
    Khi bật, người chơi chưa được thao tác (đặt thẻ, kết thúc lượt, rút lui, cược) và đồng hồ lượt chưa chạy. Không đổi luật engine. */
