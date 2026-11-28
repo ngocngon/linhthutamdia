@@ -1164,7 +1164,7 @@ function fx7(evs,R0,P0){if(reduced||!G)return;const X=evs.x7||{};const R1=rects(
   /* xáo thẻ vào bộ bài */
   for(const s of E.SIDES){const ins=(X.din&&X.din[s])||[];if(!ins.length)continue;const dz=DECKZ(s);if(!dz)continue;const sp=SRC0?L(SRC0,"#9fd8ff"):null;
     ins.slice(0,4).forEach((u,i)=>{const c=anyC(u);if(!c)return;const fh=X.fromHand.has(u),fp=R0.get(u)||(fh?(HAND0.get(u)||HANDZ(s)):null)||sp||zpt(s==="p"?"oppSub":"meSub");
-      const html=fh&&s==="a"?BACK7():liteId(c.id);chip(fp,dz,html,()=>{FX.wave(dz.x,dz.y,"#9fd8ff",44);FX.sparks(dz.x,dz.y,"#9fd8ff",8,160);},(sp?320:0)+i*140);});
+      const html=s==="a"?BACK7():liteId(c.id); /* b44 mục 3: chỉ chủ bộ bài thấy mặt lá được thêm; bộ bài đối thủ -> mặt lưng */chip(fp,dz,html,()=>{FX.wave(dz.x,dz.y,"#9fd8ff",44);FX.sparks(dz.x,dz.y,"#9fd8ff",8,160);},(sp?320:0)+i*140);});
     say(dz.x,dz.y+34,"+"+ins.length+" VÀO BỘ BÀI","#9fd8ff",(sp?320:0)+520);fxT(()=>pulse("#"+(s==="p"?"meSub":"oppSub"),[{transform:"scale(1)"},{transform:"scale(1.35)",offset:.4},{transform:"scale(1)"}],520),(sp?320:0)+520);SFX.fam("deckadd",{delay:((sp?320:0)+380)/1000});}
   /* tác động theo hệ của thẻ nguồn lên các mục tiêu đổi sức mạnh */
   if(SRC0){const e=elU(SRC0);if(e){const P1=powers();let n=0;for(const [u,v] of P1){if(n>=5)break;if(u===SRC0||!P0.has(u)||P0.get(u)===v||S8.has("p"+u))continue;const p=R1.get(u);if(!p)continue;n++;fxT(()=>elFx(e,p.x,p.y,p.w,p.h,true),460+n*60);}

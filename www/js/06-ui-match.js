@@ -46,7 +46,7 @@ function render0(){
   G.locs.forEach((L,li)=>{
     let ok=false,okx=false;
     if(play&&selInst&&E.canPlay(G,"p",selInst,li)){if(selInst.id==="boxit")okx=true;else ok=true;}
-    if(play&&mvF&&mvF.li!==li&&E.space(G,li,"p"))ok=true;
+    if(play&&mvF&&E.moveTargets(G,"p",moveSel).includes(li))ok=true;
     const pa=E.locPower(G,li,"a"),pp=E.locPower(G,li,"p"),ld=E.lead(G,li);
     const dg=v=>{const L=String(v).length;return L>=4?" d4":L===3?" d3":"";}; /* gpu35: số 3–4 chữ số -> nhãn ×/+ lùi ra ngoài lục giác */
     const mxb=(sd,tot)=>{let sum=0;for(const c of L.cards[sd])if(c.rev)sum+=E.power(G,c,li);if(tot===sum)return "";const r=sum>0?tot/sum:0;return `<i class="mx ${sd} ${tot>sum?"up":"down"}${dg(tot)}">${r>1&&Number.isInteger(r)?"×"+r:(tot>sum?"+":"−")+Math.abs(tot-sum)}</i>`;};
@@ -62,7 +62,7 @@ function render0(){
     const offBot=i=>cp<4&&i>=2&&!mine[i]?" off":"";
     const hue=L.rvl?LHUE[L.id]:"#3a376e";
     const lchP=ld==="p"&&prevLd[li]!=null&&prevLd[li]!=="p",lchA=ld==="a"&&prevLd[li]!=null&&prevLd[li]!=="a";prevLd[li]=ld||"";
-    html+=`<section class="lane${ok?" ok":""}${okx?" okx":""}${ld==="p"?" lp":ld==="a"?" la":""}" data-lane="${li}">
+    html+=`<section class="lane${ok?" ok":""}${okx?" okx":""}${mvDrag&&mvDrag.T.includes(li)?" mvok":""}${ld==="p"?" lp":ld==="a"?" la":""}" data-lane="${li}">
       <div class="side opp">${top.map((h,i)=>`<div class="slot${offTop(i)}">${h}</div>`).join("")}</div>
       <div class="${lc}" style="--lc:${hue};--lg:${hue}99">
         <span class="pw a${ld==="a"?" lead":""}${lchA?" lchg":""}${dg(pa)}">${pa}</span>${mxb("a",pa)}
@@ -94,7 +94,7 @@ function render0(){
           if(E.queued(G,"p",f.inst.uid,"act"))acts+=`<button type="button" class="ib alt" data-do="unact">Huỷ kích hoạt</button>`;
           else if(E.canActivate(G,"p",f.inst))acts+=`<button type="button" class="ib" data-do="act">Kích Hoạt</button>`;
           if(E.queued(G,"p",f.inst.uid,"move"))acts+=`<button type="button" class="ib alt" data-do="unmove">Huỷ dời</button>`;
-          else if(E.moveRight(G,"p",f.inst,f.li))acts+=`<button type="button" class="ib mv" data-do="move">Dời thẻ</button>`;
+          else if(E.moveTargets(G,"p",f.inst.uid).length){acts+=`<button type="button" class="ib mv" data-do="move">Dời thẻ</button>`;info+=`<br><small>Kéo thẻ này thả vào chiến địa muốn dời tới (sáng viền xanh).</small>`;}
         }
       }
     }
@@ -462,7 +462,9 @@ function nmFit(id){const hit=NMF[id];if(hit)return hit;const d=C[id];if(!d)retur
   if(NMR)NMF[id]=h;return h;}
 function spk(id){return lvl(id)>=4?`<span class="spk"><i></i><i></i><i></i><i></i></span>`:"";}
 /* aura v8 thay bằng v9 */
-function srcN(by){if(!by||by==="?")return "một hiệu ứng trong trận";if(by==="old")return "các thay đổi trước đó";if(by.slice(0,2)==="L:"){const L=LOC[by.slice(2)];return "chiến địa "+(L?L.n:"");}return C[by]?C[by].n:"một hiệu ứng trong trận";}
+function srcN(by){if(!by||by==="?")return "hiệu ứng không rõ nguồn";if(by==="old")return "các thay đổi trước đó";if(by.slice(0,2)==="L:"){const L=LOC[by.slice(2)];return "chiến địa "+(L?L.n:"");}return C[by]?C[by].n:"hiệu ứng không rõ nguồn";}
+/* i44: tên nguồn + phe (đối thủ) cho 1 dòng nhật ký nguồn gốc */
+function srcSide(h){return h&&h.s==="a"&&h.by&&C[h.by]?" (đối thủ)":"";}
 /* ===== THÔNG TIN THẺ (gpu29): kỹ năng học/chép/cướp + phân tích nguồn cộng/trừ sức mạnh & năng lượng =====
    Chỉ đọc trạng thái + siêu dữ liệu engine (abBy, lostTo, tf, abUse, hist[{k,d,by,f,w}]); phần động (Duy Trì, chiến địa)
    tách bằng cách tạm tắt từng nguồn rồi đo lại; phần không tách chính xác được ghi là "Khác". */
@@ -499,11 +501,11 @@ function histLabel(h,me){const f=h.f,by=h.by,sx=by&&C[by]&&by!==f&&by!==me?" ("+
   if(h.w==="lay")return "Lấy sức mạnh của "+(cnm(f)||"một thẻ")+sx;
   if(h.w==="x2")return "Nhân đôi sức mạnh"+(by&&C[by]&&by!==me?" ("+C[by].n+")":" (kỹ năng của thẻ này)");
   if(h.w==="thuong")return "Thưởng khi hợp thể ("+(cnm(f)||"")+")";
-  const s=srcN(by);return s.charAt(0).toUpperCase()+s.slice(1);}
+  const s=srcN(by)+(by===me?" (kỹ năng của thẻ này)":srcSide(h));return s.charAt(0).toUpperCase()+s.slice(1);}
 /* gộp các dòng giống nhau (cùng nguồn, cùng loại) để bảng gọn */
 function histRows(inst,k){const out=[],ix={};let sum=0;
   for(const h of inst.hist||[]){if(h.k!==k||!h.d)continue;sum+=h.d;const key=(h.by||"")+"|"+(h.f||"")+"|"+(h.w||"")+"|"+(h.d>0?"+":"-");
-    if(ix[key]!=null){const r=out[ix[key]];r.d+=h.d;if(!r.ts.includes(h.t))r.ts.push(h.t);r.n++;}else{ix[key]=out.length;out.push({d:h.d,lb:histLabel(h,inst.id),ts:[h.t],n:1,w:h.w});}}
+    const hts=h.ts||[h.t];if(ix[key]!=null){const r=out[ix[key]];r.d+=h.d;for(const t of hts)if(!r.ts.includes(t))r.ts.push(t);r.n+=h.n||1;}else{ix[key]=out.length;out.push({d:h.d,lb:histLabel(h,inst.id),ts:hts.slice(),n:h.n||1,w:h.w});}}
   return {rows:out.filter(r=>r.d),sum};}
 const sgn=n=>(n>0?"+":"−")+Math.abs(n);
 function bkRow(dv,t,sub,cls){return `<li${cls?` class="${cls}"`:""}><b class="${dv>0?"up":dv<0?"down":""}">${typeof dv==="number"?sgn(dv):dv}</b><span>${esc(t)}${sub?` <small>${esc(sub)}</small>`:""}</span></li>`;}
@@ -525,7 +527,21 @@ function abState(inst){
   const tf=inst.tf;if(tf&&tf.o&&tf.o!==inst.id&&C[tf.o]){const by=tf.by&&tf.by!==tf.o&&tf.by!==inst.id?` (do ${esc(srcN(tf.by))})`:"";
     o.tf=tf.f?`Ban đầu là <b>${esc(cnm(tf.o))}</b>, đã trở thành bản sao của <b>${esc(cnm(tf.f))}</b>${by}.`:`Ban đầu là <b>${esc(cnm(tf.o))}</b>, đã bị biến thành thẻ này${by}.`;}
   if(inst.abUse&&C[inst.abUse.a])o.use=inst.abUse;
+  /* i44: nhật ký nguồn gốc */
+  const H=inst.hist||[];o.uses=H.filter(h=>h.k==="use"&&C[h.a]);
+  const none=H.filter(h=>h.k==="ab").pop();o.none=none&&none.w==="none"&&!a?none:null;
+  if(inst.cr||inst.cpOf){const by=inst.by,bn=by?srcN(by):"";o.born=(inst.cpOf&&C[inst.cpOf]?`Bản sao của <b>${esc(cnm(inst.cpOf))}</b>`+(by&&by!==inst.cpOf?`, tạo bởi <b>${esc(bn)}</b>`:""):`Được tạo ra bởi <b>${esc(by?bn:"hiệu ứng không rõ nguồn")}</b>`)+(inst.cr?"":"")+".";}
   return o;}
+/* i44: các thẻ liên quan của 1 thẻ trong trận: thẻ phụ/token (LINKS) + thẻ trong nhật ký nguồn gốc (chép/dùng/biến/bản sao/tạo ra) */
+function relIds(inst){const id=inst.id,out=[];const add=x=>{if(x&&C[x]&&x!==id&&!out.includes(x))out.push(x);};
+  for(const x of (typeof LINKS!=="undefined"&&LINKS[id])||[])add(x);
+  if(inst.ab&&inst.ab!==id)add(inst.ab);if(inst.abBy)add(inst.abBy.f);if(inst.cpOf)add(inst.cpOf);if(inst.tf){add(inst.tf.o);add(inst.tf.f);}
+  if(inst.cr&&inst.by&&C[inst.by])add(inst.by);
+  for(const h of inst.hist||[]){if(h.k==="use")add(h.a);else if(h.k==="ab"){add(h.a);add(h.f);}}
+  if(inst.abUse)add(inst.abUse.a);
+  return out;}
+function relHTML(inst,cur){const L=relIds(inst);if(!L.length)return "";const all=[inst.id,...L];
+  return `<div class="zrel"><small>${L.length} thẻ liên quan · thẻ phụ</small><div class="zrl">${all.map((x,i)=>{const d=C[x];return `<button type="button" class="zri${(cur||inst.id)===x?" on":""}" data-zalt="${i?x:""}" aria-label="Xem ${esc(d.n)}" aria-pressed="${(cur||inst.id)===x}"><span class="gc mini" style="--hc:${HC[d.h]}">${nbL(x)}${art(x)}<span class="cst">${d.c}</span><span class="pwh">${d.p}</span></span><em>${i?esc(d.n):"Thẻ này"}</em></button>`;}).join("")}</div></div>`;}
 /* khối HTML kỹ năng cho màn chi tiết: thay cho chữ kỹ năng gốc khi kỹ năng đã đổi */
 function abHTML(inst,skTxt,where){const s=abState(inst),kw=kwfx;let h="";
   if(s.tf)h+=`<div class="zab tf"><i>⇄</i><div>${s.tf}</div></div>`;
@@ -534,7 +550,11 @@ function abHTML(inst,skTxt,where){const s=abState(inst),kw=kwfx;let h="";
   else h+=`<div class="zsk">${kw(skTxt)}</div>`;
   if(s.extra.length)h+=`<div class="zab cp"><i>${BOOK}</i><div><div class="zh">${s.dyn?"Đang có":"Có thêm"}:</div>${s.extra.map(([x])=>`<div class="zx"><b>${esc(cnm(x))}:</b> ${kw(skillText(C[x]).replace(/^Duy Trì:\s*/,""))}</div>`).join("")}</div></div>`;
   else if(s.dyn&&where==="board"&&inst.rev)h+=`<div class="zab cp dim"><i>${BOOK}</i><div class="zh">${s.dyn==="sieudihinh"?"Hiện chưa có kỹ năng Duy Trì nào từ thẻ đối thủ.":"Hiện chưa có thẻ Duy Trì ≤3 năng lượng nào của bạn tại đây."}</div></div>`;
-  if(s.use)h+=`<div class="zab cp"><i>${BOOK}</i><div><div class="zh">Đã dùng kỹ năng Lật của <b>${esc(cnm(s.use.f))}</b> <small>lượt ${s.use.t}</small></div><div class="zx">${kw(skillText(C[s.use.a]))}</div></div></div>`;
+  if(s.none){const f=s.none.f,why={row:"thẻ này không ở hàng sau",front:"thẻ này không ở hàng sau",empty:"phía trước không có thẻ",sil:(cnm(f)||"thẻ phía trước")+" đã mất kỹ năng",hid:(cnm(f)||"thẻ phía trước")+" chưa lật",hidden:(cnm(f)||"thẻ phía trước")+" chưa lật",none:(cnm(f)||"thẻ phía trước")+" không có kỹ năng"}[s.none.why]||"";
+    h+=`<div class="zab cp dim"><i>${BOOK}</i><div><div class="zh">Kỹ năng học được: <b>không có</b> <small>lượt ${s.none.t}</small></div>${why?`<div class="zx">${esc(why.charAt(0).toUpperCase()+why.slice(1))}.</div>`:""}</div></div>`;}
+  if(s.uses&&s.uses.length)h+=`<div class="zab cp"><i>${BOOK}</i><div><div class="zh">Đã dùng kỹ năng của ${s.uses.length} thẻ</div>${s.uses.map(u=>{const d=C[u.a];return `<div class="zx zuse"><b>${esc(d.n)}</b> <span class="zst"><i class="c">${d.c}</i><i class="p">${d.p}</i></span> <small>lượt ${u.t}${u.by&&u.by!==inst.id&&C[u.by]?" · do "+esc(cnm(u.by)):""}</small><br>${kw(skillText(d))}</div>`;}).join("")}</div></div>`;
+  else if(s.use)h+=`<div class="zab cp"><i>${BOOK}</i><div><div class="zh">Đã dùng kỹ năng Lật của <b>${esc(cnm(s.use.f))}</b> <small>lượt ${s.use.t}</small></div><div class="zx">${kw(skillText(C[s.use.a]))}</div></div></div>`;
+  if(s.born)h+=`<div class="zab born"><i>✦</i><div><div class="zh">${s.born}</div></div></div>`;
   return h;}
 /* ---- bảng phân tích: sức mạnh gốc + từng nguồn cộng/trừ = số đang hiện ---- */
 function costFlags(inst){const s=inst.side||"p",f=[];
@@ -548,7 +568,7 @@ function brk(inst,li,where){const d=C[inst.id],bp=E.basePow(inst);
   /* sức mạnh */
   const hp=histRows(inst,"p"),bpH=(inst.hist||[]).filter(h=>h.k==="bp").pop();
   let P="",cur=bp+inst.bonus;
-  if(inst.bp!=null&&inst.bp!==d.p)P+=bkRow("="+inst.bp,"Đặt gốc thành "+inst.bp,bpH?srcN(bpH.by)+" · lượt "+bpH.t:"","set");
+  if(inst.bp!=null&&inst.bp!==d.p)P+=bkRow("="+inst.bp,"Đặt gốc thành "+inst.bp,bpH?srcN(bpH.by)+srcSide(bpH)+" · lượt "+bpH.t:"","set");
   for(const r of hp.rows)P+=bkRow(r.d,r.lb,"lượt "+r.ts.join(", ")+(r.n>1?" · ×"+r.n:""));
   if(hp.sum!==inst.bonus)P+=bkRow(inst.bonus-hp.sum,"Khác","cộng/trừ không ghi được nguồn");
   const live=(where==="board"&&inst.rev)||where==="hand";
@@ -568,8 +588,8 @@ function brk(inst,li,where){const d=C[inst.id],bp=E.basePow(inst);
     if(rest)Cc+=bkRow(rest,"Khác","giới hạn tối thiểu/tối đa hoặc hiệu ứng cộng dồn","oth");}
   else if(hc.rows.length){for(const r of hc.rows)Cc+=bkRow(r.d,r.lb,"lượt "+r.ts.join(", "));}
   const cChanged=where==="hand"?(cc!==d.c||hc.rows.length):hc.rows.length;
-  const notes=[];if(inst.cr)notes.push(`✦ Được tạo ra bởi <b>${esc(srcN(inst.by))}</b>.`);
-  if(!pChanged&&!cChanged&&!notes.length)return "";
+  const notes=[];
+  if(!pChanged&&!cChanged)return "";
   const tot=(v,base,good)=>`<b class="${v===base?"":good(v,base)?"up":"down"}">${v}</b>`;
   /* gpu38: gọn — số đang hiện đã có trên thẻ nên không lặp lại; chỉ ghi gốc + từng nguồn cộng/trừ */
   const secP=pChanged&&P?`<div class="bkp"><h5>Sức mạnh ${tot(cur,d.p,(a,b)=>a>b)} <small>gốc ${d.p}${where==="hand"?" · tính theo chiến địa giữa":""}</small></h5><ul>${P}</ul></div>`:"";
@@ -609,7 +629,7 @@ function questProg(c){
 }
 const MARKS=[["surge","⚡","#7fe0ff",c=>`Được ${C.diennu?C.diennu.n:"Lôi Quang Tiên"} truyền điện: khi đặt thẻ này, thẻ trên cùng bộ bài cũng nhận −1 năng lượng, +1 sức mạnh.`],
   ["sil","⊘","#b8c0dc",c=>`Bị ${srcN(c.silBy)} vô hiệu hoá: mất kỹ năng, giữ nguyên sức mạnh hiện có.`],
-  ["cr","✦","#ffd65a",c=>`Thẻ được tạo ra bởi ${srcN(c.by)} (không có sẵn trong bộ bài ban đầu).`],
+  ["cr","✦","#ffd65a",c=>(c.cpOf&&C[c.cpOf]?`Bản sao của ${cnm(c.cpOf)}, tạo bởi ${srcN(c.by)}`:`Thẻ được tạo ra bởi ${srcN(c.by)}`)+" (không có sẵn trong bộ bài ban đầu)."],
   ["ab",BOOK,"#d58cff",c=>{const s=abState(c);return s.cur?s.head.replace(/<[^>]+>/g,"")+": "+skillText(C[s.cur]):"";}],
   ["lostTo","✂","#ff8fb0",c=>c.sil?`Kỹ năng đã bị ${cnm(c.lostTo)} cướp.`:""],
   ["zg","♾","#ff7ac0",()=>"Sẽ biến thành bản sao của "+C.bayxacnuotsao.n+" khi thẻ đó lật."],
@@ -826,8 +846,23 @@ $("board").addEventListener("click",ev=>{
   }
   look=look&&look.kind==="loc"&&look.li===li?null:{kind:"loc",li};render();
 });
-let drag=null,noClick=0;
-function killGhost(){document.querySelectorAll("#ghost").forEach(e=>e.remove());document.body.classList.remove("dragging");document.querySelectorAll(".lane.dhov").forEach(e=>e.classList.remove("dhov"));document.querySelectorAll(".hc.dsrc").forEach(e=>e.classList.remove("dsrc"));}
+let drag=null,noClick=0,mvDrag=null;
+/* ===== i44 (mục 24): KÉO-THẢ DỜI THẺ TRÊN BÀN — thẻ đã lật của bạn có quyền dời (Dạ Hành, Huyền Cơ, Bà Tơ cho thẻ khác, Áo Choàng Tối, Cú Đu Tơ...)
+   kéo tới đúng chiến địa muốn dời. Đích hợp lệ lấy từ E.moveTargets (khớp queueMove + chỗ trống); thẻ dời ngẫu nhiên/bị động vẫn ngẫu nhiên. ===== */
+$("board").addEventListener("pointerdown",ev=>{if(drag)return;const mc=ev.target.closest(".mc[data-mc]:not(.staged):not(.back)");if(!mc||!G||!playing()||(G.online&&OL.sub))return;
+  const uid=+mc.dataset.mc,f=E.find(G,uid);if(!f||f.inst.side!=="p"||!f.inst.rev||E.queued(G,"p",uid,"move"))return;const T=E.moveTargets(G,"p",uid);if(!T.length)return;
+  const r=mc.getBoundingClientRect();drag={mv:true,uid,T,x:ev.clientX,y:ev.clientY,on:false,html:mc.outerHTML,w:r.width,h:r.height,el:mc,pid:ev.pointerId};});
+function mvMove(ev){const d=drag,dx=ev.clientX-d.x,dy=ev.clientY-d.y;
+  if(!d.on){if(dx*dx+dy*dy<64)return;d.on=true;moveSel=null;sel=null;look=null;mvDrag={uid:d.uid,T:d.T};SFX.play("pick");render();
+    const el=document.querySelector(`#board [data-mc="${d.uid}"]`)||d.el;el.classList.add("mvsrc");const g=document.createElement("div");g.id="ghost";g.innerHTML=d.html;g.style.width=d.w+"px";g.style.height=d.h+"px";document.body.appendChild(g);d.g=g;document.body.classList.add("dragging");}
+  d.g.style.transform=`translate3d(${(ev.clientX-d.w/2).toFixed(1)}px,${(ev.clientY-d.h*.6).toFixed(1)}px,0) scale(1.15)`;
+  const el=document.elementFromPoint(ev.clientX,ev.clientY),ln=el&&el.closest("[data-lane]");
+  document.querySelectorAll("#board .lane.dhov").forEach(e=>{if(e!==ln)e.classList.remove("dhov");});if(ln&&ln.classList.contains("mvok"))ln.classList.add("dhov");}
+function mvEnd(ev,cancel){const d=drag;drag=null;const on=d.on;killGhost();mvDrag=null;if(!on)return;noClick=Date.now()+240;
+  const el=cancel||!ev?null:document.elementFromPoint(ev.clientX,ev.clientY),ln=el&&el.closest("[data-lane]"),li=ln?+ln.dataset.lane:-1;
+  if(li>=0&&d.T.includes(li)&&playing()&&E.queueMove(G,"p",d.uid,li))SFX.play("place");
+  sel=null;look=null;render();}
+function killGhost(){document.querySelectorAll("#board .mc.mvsrc").forEach(e=>e.classList.remove("mvsrc"));document.querySelectorAll("#ghost").forEach(e=>e.remove());document.body.classList.remove("dragging");document.querySelectorAll(".lane.dhov").forEach(e=>e.classList.remove("dhov"));document.querySelectorAll(".hc.dsrc").forEach(e=>e.classList.remove("dsrc"));}
 /* ===== (b) HOÀN TÁC THEO NGĂN XẾP: chỉ hành động mới nhất (đặt / dời / kích hoạt) rút lại được; thẻ đặt trước bị khoá ===== */
 function stgHTML(a){const h=mcHTML(a.inst,a.li,true);return E.canUnqueue(G,"p",a.uid,"play")?h.replace('class="mc','class="mc qtop'):h.replace('class="mc','class="mc qlock');}
 function undoName(a){const c=a.t==="play"?a.inst:(E.find(G,a.uid)||{}).inst;return c?C[c.id].n:"";}
@@ -849,7 +884,7 @@ $("board").addEventListener("pointerdown",ev=>{const mc=ev.target.closest(".mc.s
   killGhost();drag={uid,x:ev.clientX,y:ev.clientY,on:false,el:mc,pid:ev.pointerId,fromQ:true};});
 $("btnUndo")&&$("btnUndo").addEventListener("click",ev=>{ev.stopPropagation();undoLastUI();});
 $("hand").addEventListener("pointerdown",ev=>{killGhost();drag=null;const hc=ev.target.closest("[data-hc]");if(!hc||!playing()||hc.classList.contains("no"))return;const r=hc.getBoundingClientRect();drag={uid:+hc.dataset.hc,x:ev.clientX,y:ev.clientY,on:false,html:hc.outerHTML,w:r.width,h:r.height,el:hc,pid:ev.pointerId};});
-document.addEventListener("pointermove",ev=>{if(!drag||(drag.pid!=null&&ev.pointerId!==drag.pid))return;const dx=ev.clientX-drag.x,dy=ev.clientY-drag.y;
+document.addEventListener("pointermove",ev=>{if(!drag||(drag.pid!=null&&ev.pointerId!==drag.pid))return;if(drag.mv)return mvMove(ev);const dx=ev.clientX-drag.x,dy=ev.clientY-drag.y;
   if(!drag.on){if(dx*dx+dy*dy<16)return;
     if(drag.fromQ){const u=drag.uid,el=drag.el;drag=null;if(!playing()||!pendingPlay(u))return;if(!E.canUnqueue(G,"p",u,"play")){undoNudge(u);noClick=Date.now()+240;return;}
       drag={uid:u,x:ev.clientX-dx,y:ev.clientY-dy,on:false,html:hcLikeHTML(u,el),w:el.getBoundingClientRect().width,h:el.getBoundingClientRect().height,el,pid:ev.pointerId};
@@ -860,7 +895,7 @@ document.addEventListener("pointermove",ev=>{if(!drag||(drag.pid!=null&&ev.point
   const el=document.elementFromPoint(ev.clientX,ev.clientY),ln=el&&el.closest("[data-lane]");
   document.querySelectorAll(".lane.dhov").forEach(e=>{if(e!==ln)e.classList.remove("dhov");});
   if(ln&&(ln.classList.contains("ok")||ln.classList.contains("okx")))ln.classList.add("dhov");});
-function endDrag(ev,cancel){if(!drag)return;const d=drag;drag=null;
+function endDrag(ev,cancel){if(!drag)return;if(drag.mv)return mvEnd(ev,cancel);const d=drag;drag=null;
   let ghostRect=null;if(d.on&&d.g&&d.g.isConnected)ghostRect=d.g.getBoundingClientRect();
   killGhost();if(!d.on)return;noClick=Date.now()+240;
   const el=cancel||!ev?null:document.elementFromPoint(ev.clientX,ev.clientY),ln=el&&el.closest("[data-lane]");
@@ -878,7 +913,7 @@ $("hand").addEventListener("pointerdown",ev=>{const hc=ev.target.closest("[data-
   lpT=setTimeout(()=>{if(drag&&drag.on)return;drag=null;hc.classList.remove("press");look={kind:"card",uid};sel=null;noClick=Date.now()+520;SFX.play("tap");render();},380);});
 document.addEventListener("pointerup",()=>clearTimeout(lpT));document.addEventListener("pointercancel",()=>clearTimeout(lpT));
 document.addEventListener("pointermove",ev=>{if(lpT&&(ev.clientX-lpX)**2+(ev.clientY-lpY)**2>25){clearTimeout(lpT);lpT=0;}});
-$("zoom").addEventListener("click",ev=>{const zb=ev.target.closest("[data-zdo]");if(zb&&look){const u=look.uid;look=null;if(zb.dataset.zdo==="pick"){sel=u;SFX.play("pick");}else if(zb.dataset.zdo==="unplay"&&playing()){tryUnqueue(u,"play");}render();return;}const b=ev.target.closest("[data-do]");if(!b){if(ev.target.closest(".zt,.zname,.zmeta,.zhint,.znot,.zq"))return;look=null;render();return;}const t=$("infoAct").querySelector(`[data-do="${b.dataset.do}"]`);if(t)t.click();});
+$("zoom").addEventListener("click",ev=>{const za=ev.target.closest("[data-zalt]");if(za&&look){ev.stopPropagation();look.alt=za.dataset.zalt||null;SFX.play("tap");render();return;}const zb=ev.target.closest("[data-zdo]");if(zb&&look){const u=look.uid;look=null;if(zb.dataset.zdo==="pick"){sel=u;SFX.play("pick");}else if(zb.dataset.zdo==="unplay"&&playing()){tryUnqueue(u,"play");}render();return;}const b=ev.target.closest("[data-do]");if(!b){if(ev.target.closest(".zt,.zname,.zmeta,.zhint,.znot,.zq"))return;look=null;render();return;}const t=$("infoAct").querySelector(`[data-do="${b.dataset.do}"]`);if(t)t.click();});
 document.querySelector(".who.foe").addEventListener("click",ev=>{ev.stopPropagation();foeInfo();});
 document.addEventListener("click",ev=>{const p=$("foeInfo");if(p&&p.classList.contains("on")&&!ev.target.closest("#foeInfo"))p.classList.remove("on");});
 $("hand").addEventListener("pointermove",ev=>{const hc=ev.target.closest(".hc.press");if(!hc)return;const r=hc.getBoundingClientRect(),x=(ev.clientX-r.left)/r.width-.5,y=(ev.clientY-r.top)/r.height-.5;hc.style.setProperty("--ry",(x*26).toFixed(1)+"deg");hc.style.setProperty("--rx",(-y*26).toFixed(1)+"deg");});
@@ -894,6 +929,12 @@ function paintZoom(){const z=$("zoom");let id=null;
   let zb=$("zoomBg");if(!zb){zb=document.createElement("div");zb.id="zoomBg";document.body.appendChild(zb);zb.addEventListener("click",()=>{look=null;render();});}
   if(!id||drag||$("lobby").classList.contains("on")){z.classList.remove("on");z.innerHTML="";zb.classList.remove("on");return;}
   zb.classList.add("on");
+  /* i44 (mục 18): đang xem 1 thẻ liên quan / thẻ phụ của thẻ này -> hiện mặt thẻ đó (chỉ số gốc + kỹ năng), dải thẻ liên quan giữ nguyên để quay lại */
+  {const bi0=G.hand.p.find(c=>c.uid===look.uid)||((G.q.p.find(a=>a.t==="play"&&a.uid===look.uid)||{}).inst)||((E.find(G,look.uid)||{}).inst);
+   if(look.alt&&C[look.alt]&&bi0){const x=look.alt,dx=C[x],kw=kwfx;z.dataset.alt=x;
+    z.innerHTML=`<span class="gc${qCls(x)}" style="--hc:${HC[dx.h]}${qSt(x)};display:block">${nbL(x)}${art(x,1)}<span class="cst">${dx.c}</span><span class="pwh">${dx.p}</span><span class="n">${logo(x)}</span></span>
+  <div class="zt"><div class="zrelh">Thẻ liên quan của <b>${esc(C[bi0.id].n)}</b> · ${esc(HE[dx.h]||"")}${DANG[dx.t]?" · "+esc(DANG[dx.t]):""}</div><div class="zsk">${kw(skillText(dx))}</div>${relHTML(bi0,x)}</div><div class="zact"></div><button type="button" class="zcl" aria-label="Đóng">✕</button>`;z.classList.add("on");return;}
+   z.dataset.alt="0";}
   const d=C[id],f=E.find(G,look.uid);let pw=d.p,br="";
   if(f&&f.inst.rev){pw=E.power(G,f.inst,f.li);const b0=E.basePow(f.inst),bn=f.inst.bonus,og=pw-b0-bn;br=`<div class="zb">Gốc <b>${b0}</b>${bn?` · cộng trừ <b class="${bn>0?"up":"down"}">${bn>0?"+":"−"}${Math.abs(bn)}</b>`:""}${og?` · Duy Trì và chiến địa <b class="${og>0?"up":"down"}">${og>0?"+":"−"}${Math.abs(og)}</b>`:""} = <b>${pw}</b></div>`;}
   const hc=G.hand.p.find(c=>c.uid===look.uid),qd=G.q.p.find(a=>a.t==="play"&&a.uid===look.uid);let cs=d.c;
@@ -908,7 +949,7 @@ function paintZoom(){const z=$("zoom");let id=null;
   let skTxt=skillText(d);
   if(bi){const qp=questProg(bi);if(qp)skTxt=skTxt.replace(/\(\d+\/\d+\)/,qp[2]?"(Hoàn thành ✓)":`(${qp[0]}/${qp[1]})`);}
   z.innerHTML=`<span class="gc${qCls(id)}" style="--hc:${HC[d.h]}${qSt(id)};display:block">${nbL(id)}${art(id,1)}<span class="cst${cs<d.c?" up":cs>d.c?" down":""}">${cs}</span><span class="pwh ${pw>d.p?"up":pw<d.p?"down":""}">${pw}</span>${pw!==d.p?`<span class="zdl p ${pw>d.p?"up":"down"}">${pw>d.p?"+":"−"}${Math.abs(pw-d.p)}</span>`:""}${cs!==d.c?`<span class="zdl c ${cs<d.c?"up":"down"}">${cs>d.c?"+":"−"}${Math.abs(cs-d.c)}</span>`:""}<span class="n">${logo(id)}</span>${bi?markBadges(bi,zWhere):""}</span>
-  <div class="zt">${bi?abHTML(bi,skTxt,zWhere):kw(skTxt)}${mkNotes}${br}</div>${hc?`<div class="zhint">Kéo thẻ hoặc chạm chiến địa để đặt ngay.</div>`:""}<div class="zact">${act}</div><button type="button" class="zcl" aria-label="Đóng">✕</button>`;z.classList.add("on");}
+  <div class="zt">${bi?abHTML(bi,skTxt,zWhere):kw(skTxt)}${mkNotes}${br}${bi?relHTML(bi,null):""}</div>${hc?`<div class="zhint">Kéo thẻ hoặc chạm chiến địa để đặt ngay.</div>`:""}<div class="zact">${act}</div><button type="button" class="zcl" aria-label="Đóng">✕</button>`;z.classList.add("on");}
 $("hand").addEventListener("click",ev=>{
   const hc=ev.target.closest("[data-hc]");if(!hc)return;
   const uid=+hc.dataset.hc;
