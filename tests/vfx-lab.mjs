@@ -204,11 +204,12 @@ try {
       ok(await page.evaluate(() => document.querySelectorAll("#vlCap .kw-t, #vlCap .kw-c, #vlCap .kw-n").length > 0), "chữ kỹ năng có tô từ khoá");
       const lay = await page.evaluate(() => { const b = document.getElementById("board").getBoundingClientRect(), h = document.getElementById("hand").getBoundingClientRect(), t = document.getElementById("vlBar").getBoundingClientRect(), d = document.getElementById("vlDet").getBoundingClientRect(); return { bt: Math.round(b.top), tb: Math.round(t.bottom), hb: Math.round(h.bottom), dt: Math.round(d.top), btn: Math.round(document.querySelector("#vlDet .vd-ctl button").getBoundingClientRect().height) }; });
       ok(lay.bt >= lay.tb - 2 && lay.hb <= lay.dt + 2 && lay.btn >= 40, `bàn + tay không bị thanh trên/dưới che (bàn ${lay.bt} ≥ ${lay.tb}, tay ${lay.hb} ≤ ${lay.dt}; nút ${lay.btn}px)`);
-      await page.evaluate(() => VFXLAB.setMark("aiquoc", "bad"));
+      /* gộp gpu69: đánh Lỗi một thẻ TRONG danh sách đang chạy (trước đây dựa vào cảnh báo giả của Trí Nữ/Đồ Thần trong nhóm audit2) */
+      const mkB = await page.evaluate(() => { const L = VFXLAB.state.list, id = L.find((x) => x !== VFXLAB.state.cur) || "aiquoc"; VFXLAB.setMark(id, "bad"); return id; });
       await page.click("#vlDet [data-a=nextbad]");
       await page.waitForTimeout(600);
       ok(await page.evaluate(() => { const c = VFXLAB.state.cur, r = VFXLAB.rows().find((x) => x.id === c), m = VFXLAB.marks()[c]; return (r && r.verdict !== "ok") || (m && m.m === "bad"); }), "⚠→ nhảy tới thẻ ⚠/✗/bạn đánh Lỗi kế tiếp");
-      await page.evaluate(() => VFXLAB.setMark("aiquoc", null));
+      await page.evaluate((id) => VFXLAB.setMark(id, null), mkB);
       ok(await waitDone(page, 60e3, "nextbad"), "diễn thẻ ⚠→ xong");
       rows = await page.evaluate(() => VFXLAB.rows());
     }
