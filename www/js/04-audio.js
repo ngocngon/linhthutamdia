@@ -341,6 +341,7 @@ const SFX = (() => {
     loadSprite("sfx3", false)
       .then(() => { loadState = 2; })
       .catch(() => { loadState = 3; });
+    loadSprite("ketthuc", true); /* gpu71: giọng xướng Victory!/Defeat!/Draw! + nhạc hiệu kết trận (kt_v_*, kt_s_*); thiếu tệp -> dùng tiếng thắng/thua cũ */
     loadSprite("fx", true); /* gpu51: 10 tiếng tình huống FXR (x_*), một sprite riêng; thiếu tệp -> dùng tiếng họ như cũ */
   }
 
@@ -831,6 +832,22 @@ const SFX = (() => {
     cardIds() { return cardIdx ? Object.keys(cardIdx) : []; },
     famOf(id) { try { return typeof sfxFamOf === "function" && C[id] ? sfxFamOf(C[id]) : "none"; } catch (e) { return "none"; } },
     famKeys() { return Object.keys(FAM); },
+    /* gpu71: kết trận. w = "p" thắng / "a" thua / khác = hoà. Giọng xướng (ElevenLabs) rồi nhạc hiệu ngắn, nhạc nền hạ sâu ~6 s.
+       Trả true nếu đã phát bộ mới; false (chưa tải/tắt tiếng) thì người gọi dùng tiếng thắng/thua cũ. */
+    endCue(w) {
+      const k = w === "p" ? "win" : w === "a" ? "lose" : "draw";
+      if (store.vib !== false && navigator.vibrate) { try { navigator.vibrate(w === "p" ? [35, 50, 35] : w === "a" ? [60] : [20]); } catch (e) {} }
+      if (store.mute) return true;
+      try {
+        if (!ctx()) return false;
+        if (loadState === 0) loadSamples();
+        if (!bufs["kt_v_" + k] || !bufs["kt_s_" + k]) return false;
+        if (typeof BGM !== "undefined" && BGM.duck) BGM.duck(0.9, 6);
+        playSample("kt_v_" + k, 1.2, { delay: 0.12, pri: 1, rate: 1 });
+        playSample("kt_s_" + k, k === "win" ? 0.95 : 0.85, { delay: k === "win" ? 0.6 : 0.5, pri: 1, rate: 1 });
+        return true;
+      } catch (e) { return false; }
+    },
     play(n, vol) { /* vol: hệ số âm lượng riêng cho mẫu này (mặc định 1) */
       if (n === "ult") { launch(5); return; } /* tên cũ: tiếng ra mắt */
       if (store.vib !== false && VIB[n] && navigator.vibrate) {
