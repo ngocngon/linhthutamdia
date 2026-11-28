@@ -3,7 +3,7 @@
 // kiểm bố cục (chữ tràn/bị cắt, nút chồng nhau, phần tử ra ngoài màn), luồng trận (lượt, lộ diện, kết quả).
 // Chạy:  node tests/qa55-play.mjs <W> <H> <số_trận> <tốc_độ: nhanh|vua|cham|ratcham> <tag> [chiến_thuật,...]
 //   chiến thuật mỗi trận xoay vòng: ui (đặt bài bằng chạm), snap (cược ở lượt 2), idle (không đặt gì),
-//   retreat (rút lui lượt 3), skipend (chạm tua màn kết quả), ai (E.aiPlan thay người),
+//   retreat (rút lui lượt 3), skipend (nút Bỏ qua tua màn kết quả), ai (E.aiPlan thay người),
 //   spam (từ lượt 2: vừa đến lượt là bấm Kết thúc lượt ngay, khi lộ diện/rút bài/băng hiệu còn đang diễn)
 //   QA_PERF=1: không chụp ảnh/quét bố cục để đo khung hình sạch hơn
 // Ví dụ: node tests/qa55-play.mjs 390 844 3 nhanh mob ui,snap,idle
@@ -218,7 +218,7 @@ for (let gi = 0; gi < NG; gi++) {
   const tE = Date.now(); let endShot = false, sawSeq = false;
   while (Date.now() - tE < 40000) {
     s = await state();
-    if (s.endSeq) { sawSeq = true; if (!endShot && Date.now() - tE > 900) { endShot = true; G0.shots.push(await shot(`g${gi}_e1_endseq`)); if (strat === "skipend") { for (let i = 0; i < 4; i++) { await page.mouse.click(W / 2, H / 2); await sleep(250); } } } }
+    if (s.endSeq) { sawSeq = true; if (!endShot && Date.now() - tE > 900) { endShot = true; G0.shots.push(await shot(`g${gi}_e1_endseq`)); if (strat === "skipend") { /* gpu71: không còn chạm-để-tua — dùng nút "Bỏ qua" (mốc 60 s hạ về 0 cho test), dự phòng FFTURN.skipNow */ await page.evaluate(() => { FFTURN.after = 0; }); const b = page.locator("#skipBtn.on"); try { await b.waitFor({ timeout: 2500 }); await b.click({ timeout: 2000 }); } catch (e) { await page.evaluate(() => FFTURN.skipNow()); } for (let i = 0; i < 4; i++) { await page.evaluate(() => { if (FFTURN.btnOn) FFTURN.skip(); else FFTURN.skipNow(); }); await sleep(250); } await page.evaluate(() => { FFTURN.after = 60000; }); } } }
     if (s.end && !s.endSeq) break;
     await sleep(150);
   }

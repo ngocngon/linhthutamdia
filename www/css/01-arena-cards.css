@@ -205,7 +205,7 @@ button:disabled{cursor:default}
 #ovEnd .foot{padding:12px 20px 18px}
 @media (max-height:700px){#ovEnd{padding:8px}#ovEnd .res{padding:12px 16px 4px;font-size:clamp(26px,8vw,32px)}.re47-score{margin:2px 0 6px}.re47-score b{font-size:34px}.re47-score>i{line-height:34px;font-size:24px}
   .re47-rr{padding:6px 2px 6px 10px}.re47-rows{margin-bottom:6px}.re47-gem b{font-size:22px}#ovEnd .foot{padding:8px 20px 12px}}
-#endSeq{position:fixed;inset:0;z-index:44;cursor:pointer;touch-action:manipulation;-webkit-user-select:none;user-select:none}
+#endSeq{position:fixed;inset:0;z-index:44;cursor:default;touch-action:manipulation;-webkit-user-select:none;user-select:none}
 #endSeq>*{position:absolute;pointer-events:none}
 .es-veil{inset:0;background:radial-gradient(120% 75% at 50% 42%,rgba(12,10,52,.55),rgba(3,2,14,.86));opacity:0}
 #endSeq.lose .es-veil{background:radial-gradient(120% 75% at 50% 42%,rgba(10,16,38,.66),rgba(2,4,14,.92))}

@@ -153,6 +153,9 @@ let ddPlan=false;
     try { if (typeof topSkipAll === "function") topSkipAll(); } catch (e) { console.error(e); }
     for (const f of REG) { try { f(); } catch (e) { console.error(e); } }
     try { if (typeof DCB !== "undefined" && DCB) DCB.skip(true); } catch (e) {}
+    /* gpu71 int: tuyệt kỹ diện rộng S5 (19-mass) + màn vứt bỏ/tiêu huỷ (19-mo) cũng tua bằng nút */
+    try { if (window.MASS && MASS.skip) MASS.skip(); } catch (e) { console.error(e); }
+    try { if (window.MO && MO.skip) MO.skip(); } catch (e) { console.error(e); }
     /* màn ra mắt đang mở (UC) KHÔNG cắt ngang: chuỗi PA6 tự thu [A] khi tới lượt; sau khi bấm nút, màn ra mắt kế tiếp đi đường ngắn (FFTURN.on) */
     /* chuỗi kết thúc trận (showEnd): bước hiện tại có s.skip -> nút "Bỏ qua" cũng tua (chuỗi nên bọc bằng FFTURN.start/stop để có mốc 60 s) */
     try { if (typeof ES !== "undefined" && ES && ES.skip && ES.g0 === G) ES.skip(); } catch (e) {}
@@ -181,7 +184,10 @@ let ddPlan=false;
     clearInterval(FF.sk); FF.sk = setInterval(skipNow, 250);
     return true;
   }
-  function start() {
+  /* start(true): chuỗi kết thúc trận giữ đồng hồ 60 s (stop() thường của endTurnUI không tắt; chỉ stop(true) khi chuỗi xong / ván mới) */
+  function start(hold) {
+    if (FF.on) { try { SPD = SPDV[store.spd] || 1; } catch (e) { SPD = 1; } }
+    FF.hold = !!hold;
     FF.t0 = performance.now(); FF.on = false; FF.busy = true; clearInterval(FF.iv); clearInterval(FF.sk); FF.sk = 0; showBtn(false);
     let hid = 0, h0 = 0;
     FF.iv = setInterval(() => {
@@ -191,7 +197,9 @@ let ddPlan=false;
       if (!FF.on && performance.now() - FF.t0 - hid > FF.after && !(btn && btn.classList.contains("on"))) showBtn(true);
     }, 200);
   }
-  function stop() {
+  function stop(force) {
+    if (FF.hold && !force) return;
+    FF.hold = false;
     clearInterval(FF.iv); FF.iv = 0; clearInterval(FF.sk); FF.sk = 0; FF.busy = false;
     if (FF.on) { FF.on = false; try { SPD = SPDV[store.spd] || 1; } catch (e) { SPD = 1; } }
     showBtn(false);
@@ -288,7 +296,7 @@ async function endTurnRun(auto){
    Chạm (hoặc Enter/Space/Esc) để tua sang bước kế. Thời lượng theo SPD (mức mặc định 2.0 = thời lượng gốc), FXLV 0: không hạt, body.rm: hiện thẳng bảng tổng kết.
    Hoạt ảnh chỉ đổi transform/scale/opacity (WAAPI). Mọi hẹn giờ kiểm tra g0=G: ván đã đổi thì bỏ, và endSeqKill() được gọi khi vào ván mới. */
 let ES=null;
-function endSeqKill(){const s=ES;ES=null;if(s){s.tm.forEach(clearTimeout);s.tm.length=0;s.an.forEach(a=>{try{a.cancel();}catch(e){}});s.an.length=0;if(s.lay)s.lay.remove();}
+function endSeqKill(){const s=ES;ES=null;if(s){try{FFTURN.stop(true);}catch(e){}s.tm.forEach(clearTimeout);s.tm.length=0;s.an.forEach(a=>{try{a.cancel();}catch(e){}});s.an.length=0;if(s.lay)s.lay.remove();}
   const o=document.getElementById("ovEnd");if(o){o.classList.remove("re-anim");const f=o.querySelector(".foot");if(f)f.style.pointerEvents="";}}
 function showEnd(){
   endSeqKill();
@@ -330,7 +338,9 @@ function showEnd(){
   const lb=$("lobby"),hid=document.hidden||(lb&&lb.classList.contains("on"));
   if(reduced){snd();$("ovEnd").classList.add("on");return;}
   const spd=SPDV[store.spd]||1,K=Math.min(1.5,Math.max(.6,spd/2)),lo=window.FXLV===0,ms=v=>Math.max(1,Math.round(v*K));
-  const s=ES={g0,tm:[],an:[],lay:null,ph:0,skip:null,log:[],K};const LG=b=>s.log.push({b,t:performance.now()});
+  const s=ES={g0,tm:[],an:[],lay:null,ph:0,skip:null,log:[],K};
+  /* gpu71 int: chuỗi kết thúc bọc FFTURN (giữ đồng hồ 60 s) -> nút "Bỏ qua" gọi ES.skip qua FFTURN.skipNow; không chạm-để-tua */
+  try{FFTURN.start(true);}catch(e){}const LG=b=>s.log.push({b,t:performance.now()});
   const T=(f,d)=>{s.tm.push(setTimeout(()=>{if(G!==g0||ES!==s){if(ES===s)endSeqKill();return;}f();},d));}; /* ván đã đổi (vào ván mới/online) -> gỡ lớp cũ, không đè ván mới */
   const A=(el,kf,o)=>{if(!el||!el.animate)return null;const a=el.animate(kf,Object.assign({fill:"both",easing:"cubic-bezier(.2,.9,.3,1)"},o));s.an.push(a);return a;};
   const go=ph=>{s.tm.forEach(clearTimeout);s.tm.length=0;s.ph=ph;PH[ph]();};
@@ -413,7 +423,7 @@ function showEnd(){
       B(e,[{opacity:0,transform:"translateY(8px)"},{opacity:1,transform:"none"}],{duration:ms(400),delay:d});
       if(isRw&&!rwAt){rwAt=d;T(()=>LG("reward"),d);}d+=ms(e.classList.contains("re47-rr")?550:e.classList.contains("re47-score")?700:800);} /* gpu71: từng dòng cách nhau đủ đọc */
     if(rwAt)T(()=>SFX.play("ui_reward",.5),rwAt);
-    const done=()=>{if(ES!==s)return;s.ph=4;s.skip=null;o.classList.remove("re-anim");foot.style.pointerEvents="";for(const a of an){try{a.finish();a.cancel();}catch(e){}}s.guard=performance.now()+350;};
+    const done=()=>{if(ES!==s)return;s.ph=4;s.skip=null;try{FFTURN.stop(true);}catch(e){}o.classList.remove("re-anim");foot.style.pointerEvents="";for(const a of an){try{a.finish();a.cancel();}catch(e){}}s.guard=performance.now()+350;};
     T(()=>{LG("done");done();},d+ms(400));
     s.skip=()=>{s.tm.forEach(clearTimeout);s.tm.length=0;lay.remove();done();};
   };
