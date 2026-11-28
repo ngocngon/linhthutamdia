@@ -145,12 +145,12 @@ let ddPlan=false;
       btn.classList.add("on"); btn.hidden = false;
     } else if (btn) { btn.classList.remove("on"); btn.hidden = true; }
   }
-  /* tua phần đang diễn — đúng thứ tự cũ của các trình nghe chạm: lá hiện (05) -> chuỗi PA6 -> HX vòng 3 -> màn riêng -> hoạt cảnh -> màn ra mắt */
+  /* tua phần đang diễn — đúng thứ tự cũ của các trình nghe chạm: lá hiện (05) -> chuỗi PA6 -> HX vòng 3 -> màn riêng -> hoạt cảnh -> vứt bỏ */
   function skipNow() {
     try { if (typeof topSkipAll === "function") topSkipAll(); } catch (e) { console.error(e); }
     for (const f of REG) { try { f(); } catch (e) { console.error(e); } }
     try { if (typeof DCB !== "undefined" && DCB) DCB.skip(true); } catch (e) {}
-    try { if (typeof UC !== "undefined" && UC && UC.skip) UC.skip(); } catch (e) {}
+    /* màn ra mắt đang mở (UC) KHÔNG cắt ngang: chuỗi PA6 tự thu [A] khi tới lượt; sau khi bấm nút, màn ra mắt kế tiếp đi đường ngắn (FFTURN.on) */
     /* chuỗi kết thúc trận (showEnd): bước hiện tại có s.skip -> nút "Bỏ qua" cũng tua (chuỗi nên bọc bằng FFTURN.start/stop để có mốc 60 s) */
     try { if (typeof ES !== "undefined" && ES && ES.skip && ES.g0 === G) ES.skip(); } catch (e) {}
   }
