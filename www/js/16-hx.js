@@ -66,6 +66,8 @@
     if (reduced) return null;
     cvOn();
     p.t = 0; p.life = p.life || 1; p.delay = p.delay || 0;
+    /* gpu69 (làn A): hạn chót theo đồng hồ thật — máy tải nặng (khung > 50 ms bị kẹp dt) không làm mảnh vỡ/cháy sống mãi (gốc lỗi sót .hxcv) */
+    p.until = performance.now() + (p.life + p.delay) * (SPD || 1) * 1000 + 500;
     CV.L.push(p);
     if (!CV.raf) { CV.last = performance.now(); CV.raf = requestAnimationFrame(cvTick); }
     return p;
@@ -79,6 +81,7 @@
     x.setTransform(1, 0, 0, 1, 0, 0); x.clearRect(0, 0, CV.c.width, CV.c.height); x.setTransform(d, 0, 0, d, 0, 0);
     for (const p of CV.L) {
       if (p.dead) continue;
+      if (now > p.until) { p.dead = 1; continue; }
       if (p.delay > 0) { p.delay -= dt; continue; }
       p.t += dt;
       const u = Math.min(1, p.t / p.life);
@@ -1092,6 +1095,8 @@
     };
   }
   /* bước Cuối Lượt đã loé hồn -> nghỉ ngắn hơn giữa các thẻ (3 thẻ ≤ 1,5 s) */
+  /* gpu69 (làn A): bộ công cụ cho 18-act.js (cháy thẻ, hồn rời thẻ, lớp 2D) */
+  HXG.kit = { cardBmp, frameBmp, dissolve, soulFrom, peek, PK };
   HXG.eotFast = function (evs) { const r = (evs || []).some((e) => e.k === "skill" && e.t === "end" && EOT.has(e.uid)); EOT.clear(); return r; };
 
   /* ================= HX-15 SAO CHÉP KỸ NĂNG ================= */

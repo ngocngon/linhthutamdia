@@ -77,6 +77,8 @@ async function scen(o) {
         const L = [];
         for (const g of document.querySelectorAll(".fxg.t29")) {
           if (g.querySelector(".lcb")) continue; /* mặt sau đang lật */
+          /* gpu69 (mục 2): đổi chỉ số lá trong bộ bài -> chỉ mặt lưng chồng bài (.dkp) */
+          const k = g.querySelector(".dkp"); if (k) { const b = g.getBoundingClientRect(); L.push({ face: 0, back: 1, x0: b.left, y0: b.top, x1: b.right, y1: b.bottom, w: g.offsetWidth, h: g.offsetHeight, op: +getComputedStyle(g).opacity, vw: innerWidth, vh: innerHeight }); continue; }
           const f = g.querySelector(".fxface"); if (!f) { L.push({ face: 0 }); continue; }
           const b = f.getBoundingClientRect(), im = f.querySelector("img.art");
           const op = +getComputedStyle(g).opacity;
@@ -165,11 +167,11 @@ try {
   /* 5. Bạch Thể: lá trên cùng bộ bài hiện đầy đủ */
   {
     const { r, probes } = await scen({ name: "bachdich", turn: 3, own: [["tunguyennu", 2]], hand: [["bachdich", 2]], top: ["dothan"], probe: 1, shotAt: "sig:hit", shotDl: 350 });
-    const vis = probes.filter(p => p.face && p.op > 0.9);
-    ok(probes.length > 0 && probes.every(p => p.face), `bachdich: lá trên cùng là mặt thẻ đầy đủ (${probes.length} mẫu)`);
-    ok(vis.length > 0 && vis.every(p => p.x0 >= -1 && p.y0 >= -1 && p.x1 <= p.vw + 1 && p.y1 <= p.vh + 1), "bachdich: lá nằm trọn trong màn hình");
+    /* gpu69 (mục 2 đợt 44): đổi năng lượng/sức mạnh lá trên cùng -> CHỈ mặt lưng chồng bài, không lộ mặt thẻ */
+    const vis = probes.filter(p => p.back && p.op > 0.9);
+    ok(probes.length > 0 && probes.every(p => p.back && !p.face), `bachdich: lá trên cùng chỉ hiện mặt lưng chồng bài (${probes.length} mẫu)`);
+    ok(vis.length > 0 && vis.every(p => p.x0 >= -1 && p.y0 >= -1 && p.x1 <= p.vw + 1 && p.y1 <= p.vh + 1), "bachdich: chồng bài nằm trọn trong màn hình");
     ok(vis.every(p => p.h / p.w > 1.2 && p.h / p.w < 1.5), `bachdich: đúng tỉ lệ thẻ (${vis.slice(0, 1).map(p => (p.h / p.w).toFixed(2))})`);
-    ok(vis.every(p => p.img && p.cst && p.pwh && p.n), "bachdich: ảnh đã tải, đủ ô năng lượng / sức mạnh / tên");
     ok(!seqViol(r.ev).length, "bachdich: thứ tự [A] -> [B]");
   }
   /* 3. chiến địa: chạm trong lúc lộ diện và sau đó */

@@ -1,0 +1,53 @@
+/* ==================== gpu69 (làn A): HOẠT CẢNH HÀNH ĐỘNG (18-act.js) ====================
+   Chỉ transform/opacity được hoạt ảnh; mọi lớp phủ bị xoá khi diễn xong. */
+.acf, .actag, .acpile, .acvs { position: fixed; pointer-events: none; will-change: transform, opacity; transform-origin: 50% 50%; z-index: 36; }
+/* mặt thẻ đầy đủ (thẻ được mượn kỹ năng, lá từ Mộ bay ra, hồn thẻ phản ứng) */
+.acf { border-radius: 9px; box-shadow: 0 0 0 2px var(--c, #ffd65a), 0 0 16px var(--c, #ffd65a), 0 6px 14px rgba(0, 0, 0, .55); }
+.acf.ghost { filter: saturate(.7) brightness(1.15); box-shadow: 0 0 0 2px var(--c, #ffd65a), 0 0 22px var(--c, #ffd65a); }
+.acf.sm { box-shadow: 0 0 0 1.5px var(--c, #ffd65a), 0 0 10px var(--c, #ffd65a); }
+.sgp.acp.face > img { filter: drop-shadow(0 0 2px #fff) drop-shadow(0 0 8px var(--c, #ffd65a)); }
+.sgp.acp.moon > img { filter: sepia(1) saturate(4) hue-rotate(-12deg) brightness(1.15) drop-shadow(0 0 8px #ffe7a0); }
+.sgp.acp.dial { z-index: 35; }
+/* nhãn gọn (CUỐI LƯỢT · …, KỸ NĂNG n · …, KHI BỊ VỨT BỎ) */
+.actag { display: flex; align-items: center; justify-content: center; }
+.actag > b { font: 800 12px/1.2 var(--f-body, system-ui), sans-serif; white-space: nowrap; padding: 3px 9px 4px; border-radius: 11px; color: #fff8e6;
+  background: linear-gradient(180deg, rgba(34, 22, 54, .95), rgba(14, 10, 28, .95)); box-shadow: 0 0 0 1.5px var(--c, #ffd65a), 0 0 12px color-mix(in srgb, var(--c, #ffd65a) 60%, transparent); text-shadow: 0 1px 0 #000; }
+.actag > b > em { font-style: normal; color: var(--c, #ffd65a); letter-spacing: .04em; }
+.actag.sm > b { font-size: 10px; padding: 2px 7px 3px; }
+/* chồng bài mặt lưng (mục 2) */
+.dkp { position: absolute; inset: 0; display: block; }
+.dkp > i { position: absolute; inset: 0; border-radius: 8px; background: var(--bk, #14205a); background-size: cover !important; background-position: center !important;
+  box-shadow: 0 0 0 1.5px rgba(255, 240, 200, .75), 0 3px 8px rgba(0, 0, 0, .6); }
+.dkp > i:nth-child(1) { transform: translate(-7px, 7px) rotate(-5deg); filter: brightness(.55); }
+.dkp > i:nth-child(2) { transform: translate(-3.5px, 3.5px) rotate(-2.5deg); filter: brightness(.75); }
+.dkp > i:nth-child(4) { transform: translate(-10px, 10px) rotate(-7deg); filter: brightness(.45); z-index: -1; }
+.dkp > i:last-of-type { box-shadow: 0 0 0 2px #ffe7a0, 0 0 14px rgba(255, 231, 160, .7), 0 3px 8px rgba(0, 0, 0, .6); }
+.dkp > b { position: absolute; left: 50%; bottom: 100%; margin-bottom: 8px; transform: translateX(-50%); white-space: nowrap; z-index: 3; padding: 2px 8px; border-radius: 8px;
+  background: rgba(10, 8, 30, .9); box-shadow: 0 0 0 1px rgba(255, 255, 255, .25); font: 800 11px/1.25 system-ui, sans-serif; letter-spacing: .02em; text-shadow: 0 1px 0 #000; color: #fff; }
+.dkp > b:empty { display: none; }
+.acpile { z-index: 36; }
+/* bảng so sánh Chiến Thần (mục 41) */
+.acvs > .acvs-in { position: absolute; inset: 0; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 8px; padding: 10px 12px; border-radius: 16px;
+  background: radial-gradient(120% 140% at 50% 0%, rgba(80, 30, 16, .96), rgba(20, 10, 18, .96)); box-shadow: 0 0 0 2px #ff9a6b, 0 0 24px rgba(255, 106, 58, .55), 0 10px 24px rgba(0, 0, 0, .6); }
+.acvs .col { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.acvs h6 { margin: 0; font: 900 12px/1 var(--f-body, system-ui), sans-serif; letter-spacing: .12em; color: #ffd9b8; }
+.acvs .me h6 { color: #b8ffd8; }
+.acvs .nums { display: flex; flex-direction: column; gap: 5px; }
+.acvs .nums > i { font: italic 900 20px/1 system-ui, sans-serif; color: #8a7a70; width: 54px; height: 30px; display: flex; align-items: center; justify-content: center; border-radius: 8px;
+  background: rgba(255, 255, 255, .06); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .12); }
+.acvs .nums > i.on { color: #fff4dc; background: linear-gradient(180deg, rgba(255, 170, 90, .35), rgba(120, 40, 20, .35)); box-shadow: inset 0 0 0 1.5px #ffb27a, 0 0 10px rgba(255, 150, 80, .45); }
+.acvs .me .nums > i.on { background: linear-gradient(180deg, rgba(90, 255, 170, .28), rgba(20, 90, 60, .35)); box-shadow: inset 0 0 0 1.5px #7dffb0, 0 0 10px rgba(93, 255, 168, .45); }
+.acvs .sum { font: italic 900 30px/1 system-ui, sans-serif; color: #fff; text-shadow: 0 0 10px #ff9a6b, 0 2px 0 #3a1208; min-width: 60px; text-align: center; }
+.acvs .me .sum { text-shadow: 0 0 10px #5dffa8, 0 2px 0 #08301e; }
+.acvs .mid { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.acvs .cmp { font: italic 900 32px/1 system-ui, sans-serif; color: #ffe7a0; text-shadow: 0 0 12px #ff6a3a, 0 2px 0 #3a1208; }
+.acvs .mid small { font: 700 10px/1.2 system-ui, sans-serif; color: #e8c9b0; opacity: .8; white-space: nowrap; }
+.acvs.win .me .sum, .acvs.win .cmp { color: #c8ffe0; }
+.acvs.lose .op .sum { color: #ffd0c0; }
+.acvs.lose .me .sum { opacity: .6; }
+.sgx.acnum > b { font-size: 34px; }
+/* lá bị vứt nhấc khỏi tay / lá bay từ tay lên bàn */
+.fxg.acd { z-index: 33; pointer-events: none; will-change: transform, opacity; }
+.fxg.acgh { z-index: 34; will-change: transform, opacity; }
+body.rm .acf, body.rm .actag, body.rm .acpile, body.rm .acvs, body.rm .acp, body.rm .fxg.acd, body.rm .fxg.acgh { display: none !important; }
+.sga.own > img { object-fit: contain; filter: drop-shadow(0 0 2px #fff) drop-shadow(0 0 9px var(--c, #ffd65a)); }

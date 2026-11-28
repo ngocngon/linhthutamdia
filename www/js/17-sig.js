@@ -70,6 +70,8 @@
       clearTimeout(j.wd);
       for (const f of j.fins) { try { f(!!fast); } catch (e) { console.error(e); } }
       for (const e of j.els) e.remove();
+      /* gpu69: hết màn diễn -> không còn nét mực nào được sống (gốc lỗi sót .sgcv khi máy tải nặng) */
+      if (!ACT.size) CV.L.length = 0;
       cvGC();
     };
     j.wd = setTimeout(() => j.fin(true), (ms + 2500) * SPD);
@@ -113,6 +115,8 @@
     if (reduced) return null;
     cvOn();
     p.t = 0; p.dead = 0;
+    /* gpu69: hạn chót theo đồng hồ thật — máy chậm (khung hình > 50 ms) không làm nét mực sống quá màn diễn */
+    p.until = performance.now() + ((p.life || 1) * (SPD || 1) * 1000) + 400;
     CV.L.push(p);
     if (!CV.raf) { CV.last = performance.now(); CV.raf = requestAnimationFrame(cvTick); }
     return p;
@@ -128,7 +132,7 @@
       p.t += dt;
       const u = Math.min(1, p.t / p.life);
       try { p.draw(x, p, u); } catch (e) { p.dead = 1; }
-      if (u >= 1) p.dead = 1;
+      if (u >= 1 || now > p.until) p.dead = 1;
     }
     CV.L = CV.L.filter((p) => !p.dead);
     if (CV.L.length) CV.raf = requestAnimationFrame(cvTick);
@@ -290,6 +294,7 @@
   function hitOwn(s) {
     if (!s || s._sigHit) return;
     s._sigHit = 1; s._hit = 1; s._ran = 1;
+    if (s.k === "top" || s.k === "ult29") return; /* gpu69: bước lá trên cùng / màn ra mắt do màn diễn riêng tự vẽ */
     try { if (s.k === "loc") locHit(s); else if (s.k === "cost" && s.hc) costHit(s, s._sigSrc); else q8(s, () => hit8(s)); } catch (e) { console.error(e); }
   }
   function locHit(s) {
@@ -298,8 +303,58 @@
     try { SFX.fam("locx", { el: elU(s.src) }); } catch (e) {}
   }
 
+  /* gpu69 (làn A): bảng phụ SG.x — màn diễn riêng của các thẻ khác (Cự Long Cổ, Tiểu Long, Chiến Thần…) và màn diễn chung
+     theo tình huống (match). Không tính vào bảng 12 ấn ký (SG.reg). kind: "rev" | "on" | "end" | "act" | "react". */
+  const XREG = new Map();
+  SG.x = XREG;
+  SG.addX = (id, def) => { XREG.set(id, def); };
+  function mkP(e, inst, li, def, evs, R0, P0) {
+    const { c1, c2, L } = cols(inst.id);
+    const q0 = (R0 && R0.get(e.uid)) || null;
+    return { uid: e.uid, id: inst.id, inst, li, side: inst.side || inst.own, mine: (inst.side || inst.own) === "p", def, evs, R0, P0, c1, c2, L, q0, owned: [], delay: 0, dead: 0, ev: e };
+  }
+  function detectX(evs, R0, P0) {
+    if (!XREG.size) return null;
+    for (const e of evs) {
+      let kind = "";
+      if (e.k === "skill" && /^(rev|end|act|react)$/.test(e.t)) kind = e.t;
+      else if (e.k === "act") kind = "act";
+      else if (e.k === "flip") kind = "on";
+      else continue;
+      let inst = null, li = -1;
+      const f = E.find(G, e.uid);
+      if (f) { inst = f.inst; li = f.li; } else if (kind === "react") { try { inst = anyC(e.uid); } catch (x) {} }
+      if (!inst) continue;
+      if (kind !== "react" && (!inst.rev || inst.sil)) continue;
+      const id = kind === "react" && e.id ? e.id : inst.id, def = XREG.get(id);
+      if (!def || def.match) continue;
+      if (![].concat(def.kind).includes(kind)) continue;
+      const P = mkP(e, inst, li, def, evs, R0, P0);
+      if (def.prep && def.prep(P) === false) continue;
+      timing(P);
+      return P;
+    }
+    for (const [key, def] of XREG) {
+      if (!def.match) continue;
+      let m = null;
+      try { m = def.match(evs, R0, P0); } catch (x) { console.error(x); }
+      if (!m || !m.inst) continue;
+      const P = mkP(m.ev || { uid: m.inst.uid }, m.inst, m.li == null ? -1 : m.li, def, evs, R0, P0);
+      P.key = key; Object.assign(P, m.extra || {});
+      if (def.prep && def.prep(P) === false) continue;
+      timing(P);
+      return P;
+    }
+    return null;
+  }
+
   /* phát hiện thẻ có ấn ký trong bước */
   function detect(evs, R0, P0) {
+    const px = detect0(evs, R0, P0);
+    if (px) return px;
+    return detectX(evs, R0, P0);
+  }
+  function detect0(evs, R0, P0) {
     for (const e of evs) {
       let kind = "";
       if (e.k === "skill" && e.t === "rev") kind = "rev";
@@ -431,6 +486,7 @@
   function launch(P) {
     const def = P.def;
     P.T = P.T || 0;
+    if (def.late) { try { def.late(P); } catch (e) { console.error(e); } }
     /* dur có thể phụ thuộc số lá đổi năng lượng (chỉ biết sau khi bàn vẽ kết quả) */
     if (typeof def.dur === "function") P.dur = def.dur(P);
     const S0 = s0Of(P), st = S0 + (P.delay || 0), total = P.dur;
@@ -561,21 +617,28 @@
       const tg = [];
       for (const u of P.newHand || []) tg.push({ u });
       if (!tg.length) { const z = zpt(P.mine ? "hand" : "avFoe"); if (z) tg.push({ z }, { z }); }
+      /* gpu69 (A-33): mỗi mũi tên bay đúng hình của LOẠI mũi tên được thêm (Thực Cốt Tiễn axit xanh, Câu Liêm Tiễn móc, Như Ý Tiễn xoắn,
+         Trúc Tiễn = mũi tên trúc mặc định), nhãn tên riêng từng mũi */
+      const ARK = { tenaxit: { a: -42, c: "#9dff5a" }, tenmoc: { a: -36, c: "#ffd27a" }, tenthuphong: { a: -52, c: "#7fdcff" }, tenthuong: { c: "#ffe7a0" } };
       tg.slice(0, 2).forEach((g, i) => {
         const t0 = 400 + i * 110, t1 = P.T + i * 110;
         j.at(t0, () => {
           const q = g.u ? rc(hcOf(g.u)) || zpt("hand") : g.z;
           if (!q) return;
+          const aid = g.u ? cardIdOf(g.u) || ((G.hand.p.find((c) => c.uid === g.u) || {}).id) : null, ak = aid && ARK[aid], own = ak && ak.a != null;
+          const asrc = own ? new URL("img/c/" + aid + ".webp", document.baseURI).href : src, aC = (ak && ak.c) || P.c1;
           const b = { x: q.x, y: q.y }, lift = Math.max(70, Math.abs(b.y - a.y) * 0.3), bend = (i ? 1 : -1) * Math.min(90, innerWidth * 0.18);
-          const s1 = 0.62, ar = j.add(el0("sga" + (im ? " pic" : ""), a.x, a.y, aw, ah, P.c1, `<img src="${src}" alt="" draggable="false">`));
-          tl(ar, [{ t: 0, x: a.x, y: a.y, s: 0.9, o: 0, r: -90 }, { t: 40, x: a.x, y: a.y - 4, s: 0.9, o: 1, r: -90 }, ...arc({ x: a.x, y: a.y - 4 }, b, lift, 40, t1 - t0, { face: 1, s0: 0.9, s1: s1, n: 14, bend, ease: (u) => 1 - Math.pow(1 - u, 1.6) }), { t: t1 - t0 + 80, x: b.x, y: b.y, s: 0.25, o: 0 }], t1 - t0 + 80);
-          trail(a, b, lift, 40, t1 - t0, [P.c1, "#ffe7a0", "#ffffff"], 10);
+          const s1 = 0.62, w2 = own ? aw * 0.62 : aw, h2 = own ? aw * 0.62 : ah, f0 = own ? -ak.a : 0;
+          const ar = j.add(el0("sga" + (im || own ? " pic" : "") + (own ? " own" : ""), a.x, a.y, w2, h2, aC, `<img src="${asrc}" alt="" draggable="false">`));
+          tl(ar, [{ t: 0, x: a.x, y: a.y, s: 0.9, o: 0, r: -90 + f0 }, { t: 40, x: a.x, y: a.y - 4, s: 0.9, o: 1, r: -90 + f0 }, ...arc({ x: a.x, y: a.y - 4 }, b, lift, 40, t1 - t0, { face: 1, face0: f0, s0: 0.9, s1: s1, n: 14, bend, ease: (u) => 1 - Math.pow(1 - u, 1.6) }), { t: t1 - t0 + 80, x: b.x, y: b.y, s: 0.25, o: 0 }], t1 - t0 + 80);
+          trail(a, b, lift, 40, t1 - t0, [aC, "#ffe7a0", "#ffffff"], 10);
+          if (aid) j.at(t1, () => fl(b.x, b.y - 50 - i * 22, nm(aid), aC));
           sfx("whoosh");
           j.at(t1, () => {
             if (g.u) revealH(g.u, "#ffd65a"); else ring(b.x, b.y, "#ffd65a", 60, 0.4, 0.9);
             star(b.x, b.y, "#ffffff", 70, 0.25);
-            if (i === 1 || tg.length === 1) fl(b.x, b.y - 50, "+2 Mũi Tên", "#ffe7a0");
-            tap("sig:arrow", { id: P.id, i });
+            if (!aid && (i === 1 || tg.length === 1)) fl(b.x, b.y - 50, "+2 Mũi Tên", "#ffe7a0");
+            tap("sig:arrow", { id: P.id, i, a: aid });
           });
         });
       });
@@ -995,6 +1058,8 @@
     },
   });
 
+  /* gpu69 (làn A): bộ công cụ cho màn diễn ở tệp khác (18-act.js) */
+  SG.kit = { job, el0, prop, medal, tl, arc, trail, stamp, PS, srcPt, miniSoul, appear, home, rc, mcOf, hcOf, revealH, hideH, showH, seals, lanePlate, laneRect, pwOf, cardIdOf, nm, short, fl, sfx, live, soulSrc, propImg, lite, on, ff, hitOwn, tap, cvAdd };
   /* gpu68 (vis): CỔNG LUẬT TRÌNH DIỄN (15-pa6.js, đầu tệp) — lớp ngoài cùng của playFxCore: nhịp kỹ năng không bao giờ bắt đầu khi màn ra mắt [A] còn mở */
   {
     const pcG = playFxCore;
