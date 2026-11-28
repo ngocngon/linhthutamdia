@@ -313,6 +313,19 @@
     const ZN = (z) => ({ q: "đang đặt", L0: "chiến địa 1", L1: "chiến địa 2", L2: "chiến địa 3", hand: "tay", deck: "bộ bài", dead: "mộ", disc: "bài vứt" })[z] || z;
     const NM = (v) => { const p = String(v || "").split("|"); return p[2] ? (C[p[2]] ? C[p[2]].n : p[2]) + (p[1] === "a" ? " (địch)" : "") : ""; };
     const F = ["vùng", "phe", "thẻ", "kỹ năng", "sức mạnh", "năng lượng", "mất kỹ năng"];
+    /* trạng thái S có thỏa thay đổi x (chuỗi do diff tạo) không: "mới xuất hiện (Z)" -> có thẻ ở Z; "biến mất" -> không còn; "trường a→b" -> trường = b */
+    function holds(S, x) {
+      const u = x.u, w = String(x.w);
+      if (!u) { if (/^năng lượng /.test(w)) return w.split("→").pop().trim() === S.g.e; if (/^trạng thái /.test(w)) return (w.split(" → ").pop().trim() === "—" ? "" : w.split(" → ").pop().trim()) === S.g.st; if (/^chiến địa /.test(w)) return w.split("→").pop().trim() === S.g.loc; return true; }
+      const v = S.m.get(u);
+      if (/^biến mất/.test(w)) return !v;
+      if (!v) return false;
+      const pa = v.split("|"), fm = (i) => (i === 0 ? ZN(pa[0]) : i === 2 ? (C[pa[2]] ? C[pa[2]].n : pa[2]) : i === 3 ? (pa[3] ? (C[pa[3]] ? C[pa[3]].n : pa[3]) : "—") : pa[i] || "—");
+      const mm = /^mới xuất hiện \((.*)\)$/.exec(w); if (mm) return fm(0) === mm[1];
+      let ok = true, any = false;
+      for (const part of w.split(", ")) { const i = F.findIndex((f) => part.startsWith(f + " ")); if (i < 0) continue; const nv = part.slice(F[i].length + 1).split("→").pop().trim(); any = true; if (i === 3 ? fm(3) !== nv && pa[3] !== nv : String(fm(i)) !== nv) ok = false; }
+      return any ? ok : true;
+    }
     function diff(A, B, subjUid) {
       const out = [];
       for (const [u, a] of A.m) {
@@ -427,7 +440,7 @@
         err: r && r.err ? r.err : (chk ? "luật Đầu Ván sai: " + chk : ""), tried, notes
       };
     }
-    return { LANE, VAN, H, DECK, TIERS, tierName, typeName, cands, allCands, newG, stage, snap, diff, simTurn, runCand, plan, condOf };
+    return { LANE, VAN, H, DECK, TIERS, tierName, typeName, cands, allCands, newG, stage, snap, diff, holds, simTurn, runCand, plan, condOf };
   })(root.LT || (typeof require === "function" ? require("./01-engine.js") : null));
 
   if (typeof module !== "undefined" && module.exports) { module.exports = PLAN; return; }
@@ -749,9 +762,9 @@
     /* điều kiện có thật sự được đáp ứng TRONG LƯỢT THẬT? -> tác dụng mô phỏng (bật/tắt kỹ năng) phải xuất hiện trong trước→sau của lượt thật */
     if (p.effect && !p.block && !(p.spec && p.spec.endGame)) {
       /* so theo uid (thế cờ thật dựng y hệt mô phỏng nên uid trùng) + loại thay đổi (sức mạnh / vùng / thẻ / kỹ năng / năng lượng / phe) */
-      const kinds = (w) => (String(w).match(/^(vùng|phe|thẻ|kỹ năng|sức mạnh|năng lượng|mất kỹ năng|mới|biến mất|trạng thái|chiến địa)|, (vùng|phe|thẻ|kỹ năng|sức mạnh|năng lượng|mất kỹ năng)/g) || []).map((k) => k.replace(/^, /, ""));
-      const want = (p.dd || []).filter((x) => !/^tổng sức mạnh/.test(x.w));
-      const seen = want.some((x) => realD.some((y) => y.u === x.u && (x.u || y.w.split(" ")[0] === x.w.split(" ")[0]) && kinds(y.w).some((k) => kinds(x.w).includes(k))));
+      /* so TRẠNG THÁI SAU của lượt thật với giá trị "→ mới" của mô phỏng (cùng uid): đúng cả khi tác dụng là giữ nguyên (không bị huỷ, giá Duy Trì…) */
+      const want = (p.dd || []).filter((x) => !/^(tổng sức mạnh|Đầu Ván)/.test(x.w));
+      const seen = want.some((x) => PLAN.holds(after, x));
       p.cond.live = want.length ? seen : null;
       if (want.length && !seen) row.warn.push("lượt thật không thấy tác dụng như mô phỏng (" + p.d[0] + ") — điều kiện có thể chưa đáp ứng khi diễn");
     }
