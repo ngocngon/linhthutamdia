@@ -66,6 +66,9 @@ try {
   await page.evaluate(() => document.getElementById("lbPlay").click());
   await page.waitForFunction(() => typeof G !== "undefined" && G && G.phase === "play" && !TURN_BUSY, null, { timeout: 120000 });
   await page.waitForTimeout(1500);
+  /* gpu71 (làn C): thẻ S5 mặc định không bay (P6.noFly) và Tâm Ma diễn bằng tuyệt kỹ diện rộng (19-mass). Test này kiểm CƠ CHẾ HX
+     (thẻ S4 Hồn Xuất vẫn dùng) trên thẻ mẫu S5 -> tắt noFly và gỡ màn MASS của thẻ mẫu tammanu (mass-s5.mjs kiểm phần MASS). */
+  await page.evaluate(() => { if (window.MASS && MASS.cfg) MASS.cfg.noFly = false; try { SIGK.x.delete("tammanu"); } catch (e) {} });
   /* lượt khởi động (màn mở đầu / lộ diện chiến địa lượt 1) */
   await page.evaluate(() => { G.hand.a = []; document.getElementById("btnEnd").click(); });
   await page.waitForFunction(() => !TURN_BUSY && G.phase === "play", null, { timeout: 120000 });
