@@ -219,6 +219,26 @@ test("Linh Môi Sư (tamlinhtu): Kích Hoạt rồi đặt thẻ -> thẻ đó b
   nextTurn(G2); G2.energy.p = 30; const c3 = inHand(G2, "p", "docnhan"); play(G2, "p", c3, 2);
   ok(LT.locOf(G2, c3) === 2 && pw(G2, t2) === 1, "lượt sau: không còn nuốt (trước đây nuốt nhầm sang lượt sau)");
 });
+test("[gộp] LUẬT thẻ đặt là cố định: xếp 4 thẻ vào chiến địa, kỹ năng lật TRƯỚC thêm thẻ vào đó -> thất bại, cả 4 thẻ được đặt (không về tay, không hoàn năng lượng)", () => {
+  const G = setup(); const nc = inHand(G, "p", "nuchuarung"); const four = [0, 1, 2, 3].map(() => inHand(G, "p", "chanthu"));
+  ok(LT.queuePlay(G, "p", nc.uid, 0)); for (const c of four) ok(LT.queuePlay(G, "p", c.uid, 1), "xếp được thẻ vào chiến địa 2");
+  ok(!LT.canPlay(G, "p", inHand(G, "p", "chanthu"), 1), "ô thứ 5 bị từ chối ngay lúc xếp (ô đã giữ chỗ)"); G.hand.p.pop();
+  const e0 = G.energy.p; for (const st of LT.beginReveal(G)) LT.doStep(G, st);
+  for (const c of four) eq(LT.locOf(G, c), 1, "thẻ đã xếp nằm ở chiến địa 2");
+  ok(!G.hand.p.some(c => four.includes(c)), "không thẻ nào về tay"); eq(G.locs[1].cards.p.length, 4, "chiến địa 2 đúng 4 thẻ (không có thẻ triệu hồi chen vào)");
+  ok(G.locs[0].cards.p.length === 2 && G.locs[2].cards.p.length === 1, "Nữ Chúa Rừng chỉ triệu hồi vào ô còn trống"); eq(G.energy.p, e0, "không hoàn năng lượng"); eq(G.cnt.playedNow.p, 5, "đếm 5 thẻ đã đặt");
+  const G2 = setup(); const gd = inHand(G2, "p", "giacdausi"); const fa = [0, 1, 2, 3].map(() => inHand(G2, "a", "chanthu")); inDeck(G2, "a", "da");
+  ok(LT.queuePlay(G2, "p", gd.uid, 1)); for (const c of fa) ok(LT.queuePlay(G2, "a", c.uid, 1));
+  for (const st of LT.beginReveal(G2)) LT.doStep(G2, st);
+  ok(fa.every(c => LT.locOf(G2, c) === 1) && G2.locs[1].cards.a.length === 4 && G2.deck.a.length === 1, "Giác Đấu Sĩ không kéo được thẻ vào phía đối thủ đã kín 4 ô");
+});
+test("[gộp] nguồn chỉ số: luật chế độ chơi có nguồn riêng (w=mode); chiến địa do Bà Đồng đổi ghi cb", () => {
+  const G = setup(); G.mods = { p: { mvpow: 1 }, a: {}, g: {} }; const c = onBoard(G, "p", "chanthu", 0);
+  LT.moveCard(G, c, 0, 1); LT.doStep(G, { t: "none" }); ok((c.hist || []).some(h => h.k === "p" && h.w === "mode" && h.by === "M:mvpow" && h.d === 1), "dòng nguồn luật chế độ " + JSON.stringify(c.hist));
+  ok(LT.prov(G, c).some(e => e.w === "mode" && e.src.mode === "mvpow"), "prov có nguồn luật chế độ");
+  const G2 = setup(); G2.locs[1].id = "meadow"; const bd = inHand(G2, "p", "hongphuthuy"); play(G2, "p", bd, 1);
+  eq(G2.locs[1].cb, "hongphuthuy", "chiến địa nhớ thẻ đã đổi nó");
+});
 test("[gộp] Lính Đơn Độc (linhdondoc): Kích Hoạt -> thẻ tiếp theo ĐẶT sức mạnh = sức mạnh Lính Đơn Độc (không cộng); Lão Gậy vẫn cộng", () => {
   const G = setup(); G.energy.p = 30; const l = onBoard(G, "p", "linhdondoc", 0, 3); const v = pw(G, l); const c = inHand(G, "p", "cuongnhan");
   ok(LT.queueAct(G, "p", l.uid)); for (const st of LT.beginReveal(G)) LT.doStep(G, st);

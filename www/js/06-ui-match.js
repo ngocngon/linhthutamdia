@@ -462,7 +462,7 @@ function nmFit(id){const hit=NMF[id];if(hit)return hit;const d=C[id];if(!d)retur
   if(NMR)NMF[id]=h;return h;}
 function spk(id){return lvl(id)>=4?`<span class="spk"><i></i><i></i><i></i><i></i></span>`:"";}
 /* aura v8 thay bằng v9 */
-function srcN(by){if(!by||by==="?")return "hiệu ứng không rõ nguồn";if(by==="old")return "các thay đổi trước đó";if(by.slice(0,2)==="L:"){const L=LOC[by.slice(2)];return "chiến địa "+(L?L.n:"");}return C[by]?C[by].n:"hiệu ứng không rõ nguồn";}
+function srcN(by){if(!by||by==="?")return "hiệu ứng không rõ nguồn";if(by==="old")return "các thay đổi trước đó";if(by.slice(0,2)==="M:"){const n=modNm(by);return "luật chế độ chơi"+(n?" "+n:"");}if(by.slice(0,2)==="L:"){const L=LOC[by.slice(2)];return "chiến địa "+(L?L.n:"");}return C[by]?C[by].n:"hiệu ứng không rõ nguồn";}
 /* i44: tên nguồn + phe (đối thủ) cho 1 dòng nhật ký nguồn gốc */
 function srcSide(h){return h&&h.s==="a"&&h.by&&C[h.by]?" (đối thủ)":"";}
 /* ===== THÔNG TIN THẺ (gpu29): kỹ năng học/chép/cướp + phân tích nguồn cộng/trừ sức mạnh & năng lượng =====
@@ -487,24 +487,29 @@ function ablate(fn,self,flags){const out=[];let base;try{base=fn();}catch(e){ret
   try{for(const x of src){let u=null;try{u=x.off();}catch(e){}if(!u)continue;undo.push(u);let v=prev;try{v=fn();}catch(e){}if(v!==prev)out.push([x.t,x.k,prev-v,x.sd]);prev=v;}}
   finally{for(let j=undo.length-1;j>=0;j--)undo[j]();}
   return out;}
-function ablLabel(a){const [t,x,,sd]=a;if(t==="loc")return ["Chiến địa "+(LOC[x]?LOC[x].n:x),"hiệu ứng chiến địa"];if(t==="flag")return [x,"đang có hiệu lực"];
+function ablLabel(a){const [t,x,,sd]=a;if(t==="loc")return ["Chiến địa "+(LOC[x]?LOC[x].n:x)+locCbNow(x),"hiệu ứng chiến địa"];if(t==="flag")return [x,"đang có hiệu lực"];
   const k=x,ab=E.ab(k),own=sd==="p"?"":" (đối thủ)",ty=C[ab].t==="on"?"Duy Trì":"đang có hiệu lực";
   if(t==="self")return ["Kỹ năng của chính thẻ này",ty];
   const mul=MULT_IDS.find(m=>E.is(G,k,m));
   let ex=[];if(k.xab||["nguyetthach","sieudihinh"].includes(ab)){try{ex=E.abs(G,k).filter(z=>z!==ab&&C[z]);}catch(e){}}
   return [C[k.id].n+(ab!==k.id&&C[ab]?" (kỹ năng "+C[ab].n+")":ex.length?" (có kỹ năng "+ex.map(cnm).join(", ")+")":"")+own,mul==="tamtuquai"?"Duy Trì áp dụng thêm 1 lần":ty];}
 /* nhãn một dòng lịch sử cộng/trừ cố định */
+/* gộp gpu69 (duyệt từ làn I): nguồn riêng cho luật chế độ chơi + "(do <thẻ> đổi chiến địa)" khi chiến địa do một thẻ đổi ra gây thay đổi */
+function modNm(f){const k=String(f||"").replace(/^M:/,"");try{for(const r of Object.values(RELIC))if(r&&r.m&&r.m[k])return r.n;}catch(e){}return "";}
+const cbTxt=h=>h&&h.cb&&C[h.cb]?" (do "+C[h.cb].n+" đổi chiến địa)":"";
+function locCbNow(id){try{for(const L of G.locs)if(L.id===id&&L.cb&&C[L.cb])return " (do "+C[L.cb].n+" đổi chiến địa)";}catch(e){}return "";}
 function histLabel(h,me){const f=h.f,by=h.by,sx=by&&C[by]&&by!==f&&by!==me?" ("+C[by].n+")":"";
-  if(h.w==="dia")return "Chiến địa "+(f&&f.slice(0,2)==="L:"&&LOC[f.slice(2)]?LOC[f.slice(2)].n:"");
+  if(h.w==="mode"){const n=modNm(f);return "Luật chế độ chơi"+(n?": "+n:"");}
+  if(h.w==="dia")return "Chiến địa "+(f&&f.slice(0,2)==="L:"&&LOC[f.slice(2)]?LOC[f.slice(2)].n:"")+cbTxt(h);
   if(h.w==="nuot"){const x=(C[by]&&C[by].x)||"",v=/hợp thể/i.test(x)?"Hợp thể":/tiêu huỷ/i.test(x)?"Thôn tính":/vứt bỏ/i.test(x)?"Nuốt":"Hấp thụ";return v+" "+(cnm(f)||"một thẻ")+sx;}
   if(h.w==="nhap")return (cnm(f)||"Một thẻ")+" hợp thể vào thẻ này";
   if(h.w==="lay")return "Lấy sức mạnh của "+(cnm(f)||"một thẻ")+sx;
   if(h.w==="x2")return "Nhân đôi sức mạnh"+(by&&C[by]&&by!==me?" ("+C[by].n+")":" (kỹ năng của thẻ này)");
   if(h.w==="thuong"){/* gộp E+I: "thuong" = cộng từ kỹ năng bị động/thưởng của thẻ f; chỉ gọi "hợp thể" khi kỹ năng f nói hợp thể */if(f&&C[f]&&/hợp thể/i.test(C[f].x||""))return "Thưởng khi hợp thể ("+(cnm(f)||"")+")";const s=srcN(f)+(f===me?" (kỹ năng của thẻ này)":h.s==="a"&&C[f]?" (đối thủ)":"");return s.charAt(0).toUpperCase()+s.slice(1);}
-  const s=srcN(by)+(by===me?" (kỹ năng của thẻ này)":srcSide(h));return s.charAt(0).toUpperCase()+s.slice(1);}
+  const s=srcN(by)+(by===me?" (kỹ năng của thẻ này)":srcSide(h))+cbTxt(h);return s.charAt(0).toUpperCase()+s.slice(1);}
 /* gộp các dòng giống nhau (cùng nguồn, cùng loại) để bảng gọn */
 function histRows(inst,k){const out=[],ix={};let sum=0;
-  for(const h of inst.hist||[]){if(h.k!==k||!h.d)continue;sum+=h.d;const key=(h.by||"")+"|"+(h.f||"")+"|"+(h.w||"")+"|"+(h.d>0?"+":"-");
+  for(const h of inst.hist||[]){if(h.k!==k||!h.d)continue;sum+=h.d;const key=(h.by||"")+"|"+(h.f||"")+"|"+(h.w||"")+"|"+(h.cb||"")+"|"+(h.d>0?"+":"-");
     const hts=h.ts||[h.t];if(ix[key]!=null){const r=out[ix[key]];r.d+=h.d;for(const t of hts)if(!r.ts.includes(t))r.ts.push(t);r.n+=h.n||1;}else{ix[key]=out.length;out.push({d:h.d,lb:histLabel(h,inst.id),ts:hts.slice(),n:h.n||1,w:h.w});}}
   return {rows:out.filter(r=>r.d),sum};}
 const sgn=n=>(n>0?"+":"−")+Math.abs(n);

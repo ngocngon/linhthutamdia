@@ -860,17 +860,17 @@ function via(G, k, fn) { if (!G.evs || !k) return fn(); track(G); const c0 = G.c
 function pvNote(G, c, o) { if (!G.evs || !c) return; const S = curSrc(G); (c.hist = c.hist || []).push(Object.assign({ by: S.by, u: S.u, s: S.s, t: G.turn }, o)); }
 const PV_STAT = { p: 1, c: 1, bp: 1 };
 function track(G) {
-  if (!G.evs) return; const S = curSrc(G), by = S.by, u = S.u, ss = S.s;
+  if (!G.evs) return; const S = curSrc(G), by = S.by, u = S.u, ss = S.s, lcb = by && String(by).slice(0, 2) === "L:" ? locCb(G, by) : null;
   /* chỉ ghi siêu dữ liệu hiển thị (hist/_nb/_b/_m/_bp/silBy/lostTo), không đổi luật */
   const scan = c => {
     let b0 = c._b == null ? 0 : c._b; const m0 = c._m == null ? 0 : c._m, bp0 = c._bp === undefined ? null : c._bp;
     if (c.bp !== bp0) { c.hist = (c.hist || []).filter(h => h.k !== "p" && h.k !== "bp"); if (c.bp != null) c.hist.push({ k: "bp", v: c.bp, by, u, s: ss, t: G.turn }); c._bp = c.bp; b0 = 0; c._b = 0; }
     if (c.bonus !== b0 || c._nb) {
       const H = (c.hist = c.hist || []); let d = c.bonus - b0;
-      if (c._nb) { for (const n of c._nb) { H.push(n.w === "dia" && n.f ? { k: "p", d: n.d, by: n.f, u: 0, s: null, t: G.turn, f: n.f, w: n.w } : n.w === "thuong" && n.fu ? { k: "p", d: n.d, by: n.f, u: n.fu, s: (anyInst(G, n.fu) || {}).side || null, t: G.turn, f: n.f, fu: n.fu, w: n.w } : { k: "p", d: n.d, by, u, s: ss, t: G.turn, f: n.f, fu: n.fu, w: n.w }); d -= n.d; } c._nb = null; }
-      if (d) H.push({ k: "p", d, by, u, s: ss, t: G.turn }); c._b = c.bonus;
+      if (c._nb) { for (const n of c._nb) { H.push(n.w === "mode" ? { k: "p", d: n.d, by: n.f, u: 0, s: null, t: G.turn, f: n.f, w: n.w } : n.w === "dia" && n.f ? Object.assign({ k: "p", d: n.d, by: n.f, u: 0, s: null, t: G.turn, f: n.f, w: n.w }, locCb(G, n.f)) : n.w === "thuong" && n.fu ? { k: "p", d: n.d, by: n.f, u: n.fu, s: (anyInst(G, n.fu) || {}).side || null, t: G.turn, f: n.f, fu: n.fu, w: n.w } : { k: "p", d: n.d, by, u, s: ss, t: G.turn, f: n.f, fu: n.fu, w: n.w }); d -= n.d; } c._nb = null; }
+      if (d) H.push(Object.assign({ k: "p", d, by, u, s: ss, t: G.turn }, lcb)); c._b = c.bonus;
     }
-    if (c.cm !== m0) { (c.hist = c.hist || []).push({ k: "c", d: c.cm - m0, by, u, s: ss, t: G.turn }); c._m = c.cm; }
+    if (c.cm !== m0) { (c.hist = c.hist || []).push(Object.assign({ k: "c", d: c.cm - m0, by, u, s: ss, t: G.turn }, lcb)); c._m = c.cm; }
     if (c.sil && !c.silBy) { c.silBy = by || "?"; G.evs.push({ k: "sil", uid: c.uid, src: G.lsk > 0 ? G.lsk : 0 }); } else if (!c.sil && c.silBy) { c.silBy = null; c.lostTo = null; }
     if (c.hist && c.hist.length > 40) for (const k of ["p", "c"]) { /* i44: gộp các dòng cùng nguồn (giữ nguồn, cộng dồn số, nhớ các lượt) thay vì gộp thành "các thay đổi trước đó" */
       const a = c.hist.filter(h => h.k === k); if (a.length <= 12) continue; const old = a.slice(0, a.length - 8), M = new Map();
@@ -882,6 +882,9 @@ function track(G) {
 }
 /* ghi chú nguồn cộng/trừ cho bảng phân tích sức mạnh (chỉ siêu dữ liệu hiển thị, không ảnh hưởng luật):
    c nhận d điểm từ thẻ src (id hoặc đối tượng thẻ), w = "nuot" (hấp thụ/hợp thể/thôn tính), "lay" (lấy sức mạnh), "x2" (nhân đôi), "nhap" (được hợp thể vào) */
+/* chiến địa "L:<id>" đã bị một thẻ đổi thành (Bà Đồng, Đá Thức, Kiếm Nữ U Minh...) -> { cb: id thẻ, cu: uid } cho dòng nhật ký nguồn */
+function locCb(G, f) { const id = String(f || "").slice(2); for (const L of G.locs) if (L.id === id && L.cb) return { cb: L.cb, cu: L.cu || 0 }; return {}; }
+function locChanged(G, L) { if (!G.evs || !L) return; const S = curSrc(G); if (S.by && String(S.by).slice(0, 2) !== "L:") { L.cb = S.by; L.cu = S.u || 0; } else { L.cb = null; L.cu = 0; } }
 function nb(G, c, d, src, w) { if (!G.evs || !c || !d) return; const f = src && typeof src === "object" ? src.id : src || null; (c._nb = c._nb || []).push({ d, f, fu: src && typeof src === "object" ? src.uid : 0, w }); }
 /* ghi chú kỹ năng học được (siêu dữ liệu hiển thị): i đang mang kỹ năng i.ab lấy từ thẻ src; g = thẻ gây ra (nếu khác i)
    k = "chep" (sao chép) | "cuop" (cướp, src mất kỹ năng -> src.lostTo) | "thay" | "nhiem" | "duocchep" | "ngaunhien" | "tienhoa" */
@@ -1144,7 +1147,7 @@ function discard(G, side, inst) {
   const d = C[inst.id];
   if (!d.tok) G.disc[side].push(inst);
   log(G, (side === "p" ? "Bạn" : "Máy") + " vứt bỏ " + d.n);
-  if (G.mods && MD(G, side).dpow) { const ks = boardCards(G, side).map(e => e[0]); if (ks.length) { const k = pick(G, ks); k.bonus += MD(G, side).dpow; } }
+  if (G.mods && MD(G, side).dpow) { const ks = boardCards(G, side).map(e => e[0]); if (ks.length) { const k = pick(G, ks); k.bonus += MD(G, side).dpow; nb(G, k, MD(G, side).dpow, "M:dpow", "mode"); } }
   for (const [k] of boardCards(G, side)) if (!k.sil) {
     if (is(G, k, "trungchien")) { via(G, k, () => { k.bonus += 1; }); k.free = G.turn + 1; }
     else if (is(G, k, "hackysi") && !k.used) { k.used = true; const sv = G.srcU; setSrc(G, k.uid); const b = mk(G, "hackiem", side); b.bp = pw0(inst); ev(G, "skill", { uid: k.uid, t: "react" }); toHand(G, side, b, true); setSrc(G, sv); }
@@ -1250,7 +1253,7 @@ function moveCard(G, inst, from, to) {
   const arr = G.locs[from].cards[s], ix = arr.indexOf(inst);
   if (ix < 0) return false;
   arr.splice(ix, 1); G.locs[to].cards[s].push(inst);
-  if (G.mods && MD(G, s).mvpow) inst.bonus += MD(G, s).mvpow;
+  if (G.mods && MD(G, s).mvpow) { inst.bonus += MD(G, s).mvpow; nb(G, inst, MD(G, s).mvpow, "M:mvpow", "mode"); }
   G.cnt.moves[s]++; G.cnt.movedTurn[s]++; inst.mt = G.turn; G.lastMove[s] = { u: inst.uid, f: from }; ev(G, "move", { uid: inst.uid });
   const L = G.locs[to];
   if (lon(G, L) && L.id === "ferry") { inst.bonus += 2; nb(G, inst, 2, "L:ferry", "dia"); }
@@ -1350,7 +1353,7 @@ function topPow(G, s) { let me = -1e9, th = -1e9; for (const [c, l] of boardCard
 function topEv(G, s, c, a, c0, p0, x) { if (!G.evs || !c) return; const o = { side: s, uid: c.uid, id: c.id, a, c0, p0, c1: null, p1: null, top: 1 }; const d = G.deck[s]; if (d && d.includes(c)) { o.c1 = cost(G, c, null); o.p1 = basePow(c) + c.bonus; o.top = d[d.length - 1] === c ? 1 : 0; } if (x) Object.assign(o, x); ev(G, "top", o); }
 const topSt = (G, c) => [cost(G, c, null), basePow(c) + c.bonus];
 function surge(G, s, src) { const d = G.deck[s]; if (!d.length) return; const c = d[d.length - 1]; c.cm -= 1; c.bonus += 1; c.surge = true; ev(G, "surge", { side: s, uid: c.uid, src: src || G.srcU || 0 }); }
-function newLoc(G, li) { const L = G.locs[li], used = G.locs.map(x => x.id), id = pick(G, Object.keys(LOC).filter(k => !used.includes(k) && k !== "limbo")); if (!id) return; const o = L.rvl ? L.id : "?"; L.id = id; log(G, "Chiến địa đổi thành " + LOC[id].n); revealLoc(G, li, o); }
+function newLoc(G, li) { const L = G.locs[li], used = G.locs.map(x => x.id), id = pick(G, Object.keys(LOC).filter(k => !used.includes(k) && k !== "limbo")); if (!id) return; const o = L.rvl ? L.id : "?"; L.id = id; locChanged(G, L); log(G, "Chiến địa đổi thành " + LOC[id].n); revealLoc(G, li, o); }
 function jumpTo(G, i, s, l) { unpile(G, i); const h = G.hand[s], hx = h.indexOf(i); if (hx >= 0) h.splice(hx, 1); place(G, i, l, s); }
 const SKILLS = ["daodo", "giaohutmau", "giocothuat", "thoicothuat", "anhcothuat", "chopcothuat", "dichcuongcot", "honxuatkhieu", "hopamdiectai", "cunemthantoc", "cuvocanhhungvi", "giacquannhen", "daonghich", "cuduto", "luahacdiem", "hienthanvangioi", "vuongtrieutailai", "bienhinhthuat", "daibay", "mintuxa", "gangchandong", "nghithuctrieuhoii", "nghithuctrieuhoiii", "nghithuctrieuhoiiii"];
 const INCANT = ["hienthanvangioi", "vuongtrieutailai", "bienhinhthuat"], TOOLS = ["daibay", "mintuxa", "gangchandong"], SHOTN = ["Tâm", "Lực", "Thực", "Hồn", "Không", "Thời"];
@@ -1601,7 +1604,7 @@ const REV = {
   thuynhan(G) { for (const s of SIDES) { const d = G.deck[s]; if (d.length) { const c = d[d.length - 1], [c0, p0] = topSt(G, c); c.cm = 1 - C[c.id].c; topEv(G, s, c, "cost", c0, p0); } } },
   thietthieunien(G, i, li) { const d = G.deck[i.side]; if (!d.length) return; { const c = d[d.length - 1], [c0, p0] = topSt(G, c); topEv(G, i.side, c, "peek", c0, p0); } const a = ab(d[d.length - 1]); if (C[a].t === "none" || a === "thietthieunien") return; i.ab = a; abNote(G, i, d[d.length - 1], "chep"); ev(G, "abcopy", { uid: i.uid, from: d[d.length - 1].uid, deck: 1 }); ev(G, "morph", { uid: i.uid }); log(G, C[i.id].n + " chép kỹ năng của " + C[a].n); if (C[a].t === "rev" && REV[a] && G.depth < 6) { G.depth++; REV[a](G, i, li); } },
   bangvuong(G, i, li) { for (const s of SIDES) for (const c of shown(G, li, s)) if (c !== i && hurt(G, c, li, 1)) i.bonus += 1; },
-  quandoanmotnguoi(G, i, li) { const id = G.locs[li].id; for (const l of [0, 1, 2]) if (l !== li) { const o = G.locs[l].rvl ? G.locs[l].id : "?"; G.locs[l].id = id; G.locs[l].rvl = true; ev(G, "loc", { li: l, old: o }); } log(G, "Mọi chiến địa thành " + LOC[id].n); },
+  quandoanmotnguoi(G, i, li) { const id = G.locs[li].id; for (const l of [0, 1, 2]) if (l !== li) { const o = G.locs[l].rvl ? G.locs[l].id : "?"; G.locs[l].id = id; G.locs[l].rvl = true; locChanged(G, G.locs[l]); ev(G, "loc", { li: l, old: o }); } log(G, "Mọi chiến địa thành " + LOC[id].n); },
   trathan(G, i) { const s = i.side; G.deck[s] = shuffle(G, G.start[other(s)]).map(id => { const c = mk(G, id, s); c.cm = -1; return c; }); },
   cuvocanhhungvi(G, i) { const c = G.hand[i.side][0]; if (!c) return; c.bonus += 3; if (C[c.id].c >= 5) c.cm -= 1; },
   thieutachienthang(G, i) { for (let k = 0; k < 2; k++) toHand(G, i.side, mk(G, pick(G, GUARD), i.side), true); },
@@ -1640,7 +1643,7 @@ const REV = {
   tuyetve(G, i) { toHand(G, i.side, mk(G, "cucquangung", i.side), true); toHand(G, i.side, mk(G, "cucquanggau", i.side), true); },
   cucquangung(G) { G.noLoc = G.turn + 1; log(G, "Kỹ năng chiến địa bị bỏ qua đến hết lượt sau"); },
   cucquanggau(G, i, li) { if (G.locs[li].rvl) revealLoc(G, li); },
-  kiemnuuminh(G, i, li) { if (G.turn > 5) return; const L = G.locs[li], o = L.rvl ? L.id : "?"; L.id = "limbo"; log(G, "Chiến địa đổi thành U Minh: ván này có lượt 7"); revealLoc(G, li, o); },
+  kiemnuuminh(G, i, li) { if (G.turn > 5) return; const L = G.locs[li], o = L.rvl ? L.id : "?"; L.id = "limbo"; locChanged(G, L); log(G, "Chiến địa đổi thành U Minh: ván này có lượt 7"); revealLoc(G, li, o); },
   phongnu(G, i, li) { const f = find(G, G.lastPlay[other(i.side)]); if (f && f.inst.side !== i.side && f.li !== li) moveCard(G, f.inst, f.li, li); },
   matvumuoiba(G, i) { addRand(G, i.side, () => true); },
   dacvutruong(G, i) { addRand(G, i.side, id => C[id].c === 4); addRand(G, i.side, id => C[id].c === 5); },
@@ -1755,7 +1758,7 @@ const REV = {
   nguyetdong(G, i) { const h = G.hand[i.side]; for (const c of h.slice()) if (h.length < HAND_MAX) toHand(G, i.side, clone1(G, c, i.side), true); },
   bienhinh(G, i) { const t = pick(G, G.hand[other(i.side)]); if (t) copyInto(G, i, t); },
   phuthan(G, i, li) { for (const c of shown(G, li, i.side)) if (c !== i && !c.sil && (C[ab(c)].t === "rev" || !!REV[ab(c)]) && !is(G, c, "phuthan")) { const fn = REV[ab(c)]; const cur = locOf(G, c); if (fn && cur >= 0) fn(G, c, cur); } },
-  hongphuthuy(G, i, li) { const L = G.locs[li], used = G.locs.map(x => x.id), id = pick(G, Object.keys(LOC).filter(k => !used.includes(k))); if (!id) return; const o = L.rvl ? L.id : "?"; L.id = id; log(G, "Chiến địa đổi thành " + LOC[id].n); revealLoc(G, li, o); },
+  hongphuthuy(G, i, li) { const L = G.locs[li], used = G.locs.map(x => x.id), id = pick(G, Object.keys(LOC).filter(k => !used.includes(k))); if (!id) return; const o = L.rvl ? L.id : "?"; L.id = id; locChanged(G, L); log(G, "Chiến địa đổi thành " + LOC[id].n); revealLoc(G, li, o); },
   linhgacmay(G, i) { toHand(G, i.side, mk(G, "linhgacmay", i.side), true); },
   quangpho(G, i) { for (const [c] of boardCards(G, i.side)) if (c !== i && C[ab(c)].t === "on") c.bonus += 2; },
   nhennu(G, i, li) { for (const c of shown(G, li, other(i.side))) hurt(G, c, li, 1); },
@@ -2194,7 +2197,12 @@ function beginReveal(G) {
     if ((pass === 1) !== cross) continue;
     const inst = a.inst; inst.turn = G.turn; inst.played = true; inst.ps = (G.pseq = (G.pseq || 0) + 1);
     if (G.locs[a.li].cards[a.row].length < cap(G, a.li)) { inst.side = a.row; G.locs[a.li].cards[a.row].push(inst); a.ok = true; G.ph[s][a.li]++; }
-    else { a.ok = false; inst.side = s; inst.played = false; /* b44: KHÔNG hoàn năng lượng (người dùng duyệt 28/11) — chỉ không tính là đã đặt */ if (G.hand[s].length < HAND_MAX) G.hand[s].push(inst); }
+    else { /* LUẬT (người dùng chốt 28/11): "Thẻ đặt xuống là cố định" — ô của thẻ đặt lượt này được GIỮ từ lúc xếp lệnh (canPlay đếm lệnh đã xếp) và mọi thẻ
+         đặt lượt này vào bàn CÙNG LÚC ở đây, TRƯỚC mọi kỹ năng -> hiệu ứng thêm/triệu hồi/kéo/dời thẻ chạy sau luôn thấy ô đã kín (space) và thất bại.
+         Nhánh này chỉ là phòng hờ (không được xảy ra): ghi lỗi, KHÔNG hoàn năng lượng. Thẻ đã đặt chỉ về tay qua hiệu ứng rõ ràng (chiến địa / kỹ năng). */
+      a.ok = false; inst.side = s; inst.played = false; log(G, "LỖI: " + C[inst.id].n + " không còn chỗ ở chiến địa đã chọn");
+      if (G.evs) try { console.error("[engine] thẻ đặt không vào được chiến địa (ô giữ chỗ bị chiếm) — không được xảy ra:", inst.id, a.li); } catch (e) {}
+      if (G.hand[s].length < HAND_MAX) G.hand[s].push(inst); }
   }
   /* b44 (mục 13/16): chỉ đếm thẻ THỰC SỰ được đặt (lá bị trả về tay vì hết chỗ không tính; năng lượng KHÔNG hoàn) */
   for (const s of SIDES) G.cnt.playedNow[s] = G.q[s].filter(a => a.t === "play" && a.ok).length;
@@ -2222,7 +2230,7 @@ function revealCard(G, inst, li, by, ef) {
   log(G, (by === "p" ? "Bạn" : "Máy") + " lật " + d.n + (ef ? " (được đưa vào chiến địa)" : "")); ev(G, "flip", ef ? { uid: inst.uid, id: inst.id, own: inst.own, eff: 1 } : { uid: inst.uid, id: inst.id, own: inst.own });
   if (pl && G.ldd && G.ldd[s] && !SKILLS.includes(inst.id)) { const q = G.ldd[s]; G.ldd[s] = null; const lc = anyInst(G, q.u); if (lc) via(G, lc, () => { inst.bp = q.v; inst.bonus = 0; }); else { inst.bp = q.v; inst.bonus = 0; } log(G, C.linhdondoc.n + ": " + d.n + " có sức mạnh " + q.v); }
   if (pl && L.bless[s]) { inst.bonus += L.bless[s]; L.bless[s] = 0; }
-  if (G.mods && MD(G, s).firstrev && inst.played && !(G.fr && G.fr[s] === G.turn)) { G.fr = G.fr || {}; G.fr[s] = G.turn; inst.bonus += MD(G, s).firstrev; log(G, "Bánh Chưng: " + d.n + " +" + MD(G, s).firstrev + " sức mạnh"); }
+  if (G.mods && MD(G, s).firstrev && inst.played && !(G.fr && G.fr[s] === G.turn)) { G.fr = G.fr || {}; G.fr[s] = G.turn; inst.bonus += MD(G, s).firstrev; nb(G, inst, MD(G, s).firstrev, "M:firstrev", "mode"); log(G, "Bánh Chưng: " + d.n + " +" + MD(G, s).firstrev + " sức mạnh"); }
   if (inst.ug_ch && !inst.sil) { for (const k of L.cards[s]) if (k !== inst) k.bonus += inst.ug_ch; log(G, d.n + " cổ vũ: +" + inst.ug_ch + " sức mạnh cho các thẻ khác của bạn tại đây"); }
   if (!inst.sil && ef !== 2) {
     if (inst.ug_ds) { const t = L.cards[o].filter(k => k.rev && power(G, k, li) <= 2).sort((a, b) => power(G, a, li) - power(G, b, li))[0]; if (t) { log(G, d.n + " (nâng cấp): tiêu huỷ " + C[t.id].n); destroy(G, t, li); } }
@@ -2863,8 +2871,9 @@ function prov(G, c) {
   if (c.cpOf) out.push({ k: "copy", f: c.cpOf, fu: c.cpU || 0, src: src(c.bu, c.by), t: 0 });
   for (const h of c.hist || []) {
     const S = src(h.u, h.by, h.s), e = { k: h.k, src: S, t: h.t };
-    if (h.d != null) e.d = h.d; if (h.v != null) e.v = h.v; if (h.f !== undefined) e.f = h.f; if (h.fu) e.fu = h.fu; if (h.w) e.w = h.w; if (h.a) e.a = h.a; if (h.o) e.o = h.o; if (h.g) e.g = h.g; if (h.why) e.why = h.why; if (h.n) e.n = h.n;
+    if (h.d != null) e.d = h.d; if (h.v != null) e.v = h.v; if (h.f !== undefined) e.f = h.f; if (h.fu) e.fu = h.fu; if (h.w) e.w = h.w; if (h.cb) e.cb = h.cb; if (h.a) e.a = h.a; if (h.o) e.o = h.o; if (h.g) e.g = h.g; if (h.why) e.why = h.why; if (h.n) e.n = h.n;
     if (h.w === "dia" && h.f && String(h.f).slice(0, 2) === "L:") { e.src = src(0, h.f); delete e.f; }
+    else if (h.w === "mode") { e.src = { u: 0, id: null, loc: null, side: null, mode: String(h.f || "").replace(/^M:/, "") }; delete e.f; }
     else if (h.f && h.fu && (h.w === "lay" || h.w === "nuot" || h.w === "nhap")) e.from = { u: h.fu, id: h.f };
     out.push(e);
   }
