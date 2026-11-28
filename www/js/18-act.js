@@ -628,6 +628,14 @@
       /* vứt bỏ: chờ lá bay vào Mộ (mục 4); tiêu huỷ: chờ nhát huỷ trúng (P.delay do lịch dời) */
       const la = Math.max(0, ...P.rx.map((e) => DS.landIn(e.uid)));
       if (la > 0) P.delay = Math.max(P.delay || 0, la + 80);
+      /* gpu71: tiêu huỷ -> phản ứng chỉ hiện SAU khi lá đã vỡ (màn huỷ 19-mo: nứt -> vỡ) */
+      try {
+        for (const e of P.rx) {
+          if (e.w === "x" || e.z === "disc" || !window.MO) continue;
+          const k = STEPS12.find((s) => s.k === "kill" && s.dst === e.uid);
+          P.delay = Math.max(P.delay || 0, (k ? (k.t0 || 0) + T8.LIFT + T8.FLY : 0) + MO.T.END);
+        }
+      } catch (x) {}
     },
     own: (s, P) => (s.k === "up" || s.k === "down" || s.k === "cost") && !s.ong && P.rx.some((e) => e._tg.has(s.hc || s.dst)),
     run(P, j, total) {
@@ -928,6 +936,8 @@
       j.at(t0 + 120 + k * 90, () => {
         const tq = mineH ? rc(hcOf(u)) || zpt("hand") : rc(mcOf(u));
         if (!tq) { if (mineH) showHand(u, c1); else showBoard(u); return; }
+        /* gpu71: lá từ Mộ ra chiến địa MỌC LÊN tại ô (không bay từ chồng Mộ) */
+        if (!mineH && window.MO && MO.rise) { showBoard(u); MO.rise(u, { from: "grave", src: e.uid }); tap("disc:back", { uid: u, to }); j.at(jnow(j) + MO.RISE * 0.8, () => { landBoard(P, u, c1); tap("disc:land", { uid: u, to }); }); return; }
         const f = face(j, cid, pile.x, pile.y, fw, c1, "reb");
         const s1 = (tq.w || fw) / fw;
         tl(f, [{ t: 0, x: pile.x, y: pile.y, s: 0.25, o: 0 }, { t: 160, x: pile.x, y: pile.y - 40, s: 1.05, o: 1, e: "cubic-bezier(.2,.8,.3,1)" }, { t: 220, x: pile.x, y: pile.y - 44, s: 1 }, ...arc({ x: pile.x, y: pile.y - 44 }, tq, 80, 220, DT.BACK, { s0: 1, s1, r0: -6, r1: 0 }), { t: DT.BACK + 40, x: tq.x, y: tq.y, s: s1, o: 0 }], DT.BACK + 40);
@@ -980,6 +990,7 @@
       const u = r.uid, c = anyC(u), id = c ? c.id : null, c1 = (id && cols(id).c1) || "#b98aff";
       const tq = r.to === "hand" ? rc(hcOf(u)) || zpt("hand") : rc(mcOf(u));
       if (!tq || !id) { if (r.to === "hand") showHand(u); else showBoard(u); return; }
+      if (r.to !== "hand" && window.MO && MO.rise) { showBoard(u); MO.rise(u, { from: "grave", src: r.src, foe: c && c.own !== c.side }); j.at(jnow(j) + MO.RISE * 0.8, () => { landBoard(P, u, c1); tap("disc:land", { uid: u, to: r.to }); }); return; }
       const f = face(j, id, pile.x, pile.y, fw, c1, "reb"), s1 = (tq.w || fw) / fw;
       tl(f, [{ t: 0, x: pile.x, y: pile.y, s: 0.25, o: 0 }, { t: 160, x: pile.x, y: pile.y - 40, s: 1.05, o: 1, e: "cubic-bezier(.2,.8,.3,1)" }, ...arc({ x: pile.x, y: pile.y - 40 }, tq, 80, 200, DT.BACK, { s0: 1, s1 }), { t: DT.BACK + 40, x: tq.x, y: tq.y, s: s1, o: 0 }], DT.BACK + 40);
       trail({ x: pile.x, y: pile.y - 40 }, tq, 80, 200, DT.BACK, [c1, "#ffffff"], 8);

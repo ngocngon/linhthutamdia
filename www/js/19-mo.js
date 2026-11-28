@@ -242,6 +242,12 @@ body.rm .mo-g,body.rm .mo-dim{display:none!important}`;
     try { const c = anyC(uid); if (!c || !c.hist) return 0; for (let i = c.hist.length - 1; i >= 0; i--) { const h = c.hist[i]; if (h.k !== "p" && h.k !== "bp") continue; return h.t === G.turn ? h.u || 0 : 0; } } catch (e) {}
     return 0;
   }
+  /* lá bị huỷ rồi tự hồi sinh trong cùng bước (Phượng Lửa, Linh Miêu…): mọc lên SAU khi màn huỷ của chính nó xong */
+  function rvDelay(uid, steps, evA) {
+    const k = (steps || []).find((s) => s.k === "kill" && s.dst === uid);
+    if (k) return (k.t0 || 0) + flyT(k) + T.END;
+    return (evA || []).some((e) => e.k === "destroy" && e.uid === uid) ? T.END + 100 : 0;
+  }
   MO.gate = function (steps, evA) {
     evA = evA || EVA;
     if (!evA || !steps || !steps.length || (typeof reduced !== "undefined" && reduced)) return 0;
@@ -254,7 +260,7 @@ body.rm .mo-g,body.rm .mo-dim{display:none!important}`;
       /* lá do phần diễn vứt bỏ / từ Mộ (18-act) đưa xuống: mốc đáp do phần diễn đó báo */
       if (owned(e.uid)) { if ((e.k === "summon" || e.k === "revive") && !arr.has(e.uid)) { const t = DS.landIn ? DS.landIn(e.uid) : 0; if (t > 0) arr.set(e.uid, { t, step: null, ds: 1 }); } continue; }
       if (e.k === "summon" || e.k === "clone") { if (!arr.has(e.uid)) arr.set(e.uid, { t: 480, step: null }); }
-      else if (e.k === "revive") { if (!arr.has(e.uid)) arr.set(e.uid, { t: 620, step: null }); }
+      else if (e.k === "revive") { if (!arr.has(e.uid)) arr.set(e.uid, { t: rvDelay(e.uid, steps, evA) + RISE, step: null }); }
     }
     for (const s of steps) {
       if (s.k === "summon" && arr.has(s.dst) && !arr.get(s.dst).ds) arr.get(s.dst).step = s;
@@ -275,8 +281,11 @@ body.rm .mo-g,body.rm .mo-dim{display:none!important}`;
     let D = 0, n = 0;
     const land = new Map();
     for (const [u, a] of arr) if (!a.step) land.set(u, a.t);
+    const kEnd = new Map(); /* lá bị huỷ trong bước -> mốc lá đã vỡ xong (thẻ thay thế của "Khi Bị Tiêu Huỷ" chỉ xuống sau mốc này) */
     for (const s of L) {
       s.t0 = (s.t0 || 0) + D;
+      if (s.k === "kill") kEnd.set(s.dst, s.t0 + flyT(s) + T.BREAK + 120);
+      if (s.k === "summon" && s.src > 0 && kEnd.has(s.src) && s.t0 < kEnd.get(s.src)) { const d = kEnd.get(s.src) - s.t0; D += d; s.t0 += d; n++; }
       if (s.k === "summon" && arr.has(s.dst)) land.set(s.dst, s.t0 + flyT(s));
       else if (s.k === "top" && s.a === "place") { let t = s.t0 + 900; try { t = s.t0 + topHit29(s) + TOPT.PLACE; } catch (e) {} for (const e of s.es || []) if (arr.has(e.uid)) land.set(e.uid, t); }
       const u = dep(s);
@@ -306,6 +315,151 @@ body.rm .mo-g,body.rm .mo-dim{display:none!important}`;
       if (s && s._moDep) tap("run", { step: s.k, uid: s._moDep, dst: s.dst });
       return r0.apply(this, arguments);
     };
+  }
+  /* ================= LÁ XUỐNG SÂN: MỌC LÊN TẠI Ô + NGUỒN RÕ RÀNG (gpu71, yêu cầu bổ sung) =================
+     - Hồi sinh / từ Mộ: KHÔNG bay từ chồng Mộ. Mộ loé + hồn tím toả ngay tại ô ("TỪ MỘ" / "TỪ MỘ ĐỐI THỦ"), cổng ấn dưới chân ô mở ra,
+       lá MỌC LÊN từ mặt đất (phần dưới mặt ô bị cắt, lá trồi lên), bụi + hạt theo hệ.
+     - Từ bộ bài (sự kiện summon from:"deck"): mặt lưng rời đúng cụm bộ bài (của mình hoặc đối thủ), bay vòng cung, lật mặt tại ô, đáp.
+     - Từ tay: 18-act handPlace (lá rời đúng chỗ trên tay).
+     - Từ sân đối thủ (đổi phe, sự kiện morph sw:1): xích sáng móc vào lá ở đúng ô cũ, kéo lá băng qua sang ô mới.
+     Móc kiểm thử: MO_TAP "rise" {uid, from}, "pull" {uid, from, foe}, "drag" {uid}. */
+  const RISE = 640;
+  MO.RISE = RISE;
+  const mcOf = (uid) => document.querySelector(`#board [data-mc="${uid}"]`);
+  const say = (x, y, t, c) => { try { FX.float(x, y, t, c); } catch (e) {} };
+  function rise(uid, o) {
+    o = o || {};
+    const el = mcOf(uid);
+    if (!el || (typeof reduced !== "undefined" && reduced)) return false;
+    const b = el.getBoundingClientRect();
+    if (!b.width) return false;
+    const id = idOfUid(uid), c = (id && cols(id).c1) || "#4dffa6", c2 = (id && cols(id).c2) || "#d8ffe8";
+    const x = b.left + b.width / 2, y = b.top + b.height / 2, w = b.width, h = b.height, gy = b.bottom - 2, dl = o.delay || 0;
+    const grave = o.from === "grave";
+    tap("rise", { uid, from: o.from || "", foe: o.foe ? 1 : 0 });
+    try { holdFx(dl + RISE + 160); } catch (e) {}
+    /* lá ẩn tới lúc mọc (vẽ lại giữa chừng: lá mới cũng chạy lại nhịp mọc) */
+    const kf = [
+      { transform: `translateY(${(h * 0.92).toFixed(1)}px) scale(.96)`, clipPath: `inset(-40% -40% ${(h * 0.92).toFixed(1)}px -40%)`, filter: "brightness(2.4) saturate(.4)", opacity: 1 },
+      { transform: "translateY(-6px) scale(1.04)", clipPath: "inset(-40% -40% 0px -40%)", filter: "brightness(1.5)", opacity: 1, offset: 0.72 },
+      { transform: "none", clipPath: "inset(-40% -40% 0px -40%)", filter: "none", opacity: 1 }
+    ];
+    let a = null;
+    try { a = el.animate(kf, { duration: RISE * SPD, delay: dl * SPD, easing: "cubic-bezier(.25,.7,.3,1)", fill: "backwards" }); } catch (e) {}
+    const go = () => {
+      if (grave) {
+        const pl = PILEPT();
+        try { pulse("#btnPiles", [{ transform: "scale(1)" }, { transform: "scale(1.25)", offset: 0.35 }, { transform: "scale(1)" }], 360); } catch (e) {}
+        glow(pl.x, pl.y, "#9a46ff", 70, 0.45, 0.6);
+        say(x, b.top - 10, o.foe ? "TỪ MỘ ĐỐI THỦ" : "TỪ MỘ", "#e3ccff");
+      } else if (o.lab) say(x, b.top - 10, o.lab, "#c8ff9a");
+      const pc = grave ? "#b98aff" : c;
+      try { FX.sigil(x, gy - 4, pc, w * 1.1, 6, true, 1); } catch (e) {}
+      ring(x, gy - 4, pc, w * 1.5, 0.6, 0.9);
+      glow(x, gy - h * 0.2, pc, w * 1.7, 0.6, 0.55);
+      const L = grave ? ["#b98aff", "#e3ccff", c] : [c, c2, "#ffffff"];
+      for (let i = 0, n = kN(isLite() ? 8 : 20); i < n; i++) E6({ x: x + rnd(-w * 0.55, w * 0.55), y: gy - rnd(0, 6), vx: rnd(-20, 20), vy: rnd(-180, -60), c: L[i % L.length], kind: 0, s0: rnd(5, 10), s1: grave ? 14 : 1, drag: 0.6, dur: rnd(0.4, 0.8), a: grave ? 0.7 : 0.9 });
+      try { SFX.play("summon"); } catch (e) {}
+      try { const sid = o.src ? idOfUid(o.src) : null; if (sid && typeof SFX !== "undefined" && SFX.mo) SFX.mo("r", sid, null, { vol: 0.8 }); } catch (e) {}
+    };
+    fxT(go, dl);
+    fxT(() => { try { FX.dust(x, gy, grave ? "#8a7aa0" : "#d8c8a0"); } catch (e) {} ring(x, y, c, w * 1.15, 0.35, 0.8); tap("rise:land", { uid }); }, dl + RISE * 0.72);
+    return true;
+  }
+  MO.rise = rise;
+  /* hồi sinh (05 cardFx -> CFX.revive): mọc tại ô thay cho hồn trèo khỏi Mộ bay về ô (HX-14) / chùm sáng từ Mộ */
+  const RVS = new Map(); /* uid -> sự kiện revive của bước (do MO vẽ) */
+  let RVE = null;
+  {
+    const rv0 = CFX.revive;
+    CFX.revive = function (el) {
+      const uid = +(el && el.dataset && el.dataset.mc), e = uid && RVS.get(uid);
+      const DS = W.ACT44 && ACT44.DS;
+      if (e && !(DS && DS.owns && DS.owns(uid))) { RVS.delete(uid); try { if (rise(uid, { from: "grave", foe: e.foe, src: e.src, delay: rvDelay(uid, typeof STEPS12 !== "undefined" ? STEPS12 : null, RVE) })) return; } catch (x) { console.error(x); } }
+      return rv0.apply(this, arguments);
+    };
+    try { const or0 = HXG.ownRev; HXG.ownRev = (ev) => (RVS.has(ev.uid) && !(W.ACT44 && ACT44.DS && ACT44.DS.owns(ev.uid))) || or0(ev); } catch (e) {}
+  }
+  /* rút từ bộ bài lên sân: mặt lưng rời cụm bộ bài, bay, lật mặt tại ô */
+  function deckPull(s, e) {
+    const tp = s.tp, c = anyC(s.dst), id = c ? c.id : null;
+    const own = (c && c.own) || e.side, dz = (typeof DECKZ === "function" && DECKZ(own)) || null;
+    if (!tp || !id || !dz) return false;
+    const L = T8.LIFT + T8.FLY, w = tp.w || 52, h = tp.h || 70, foe = own !== e.side;
+    s._ran = 1;
+    tap("pull", { uid: s.dst, from: "deck", foe: foe ? 1 : 0 });
+    const bk = ghost({ x: tp.x, y: tp.y, w, h }, BACK7(), "fxchip"), fc = ghost({ x: tp.x, y: tp.y, w, h }, liteId(id), "fxchip");
+    bk.style.zIndex = fc.style.zIndex = "46";
+    const s0 = Math.max(0.25, (dz.w || 44) / w), dx = dz.x - tp.x, dy = dz.y - tp.y;
+    try {
+      bk.animate([{ transform: `translate(${dx}px,${dy}px) scale(${s0})`, opacity: 0.4 }, { transform: `translate(${dx}px,${dy - 18}px) scale(${s0 * 1.2})`, opacity: 1, offset: 0.2 }, { transform: `translate(${dx * 0.3}px,${dy * 0.3 - 50}px) scale(.9) rotateY(0deg)`, opacity: 1, offset: 0.75 }, { transform: "translate(0,-20px) scale(1) rotateY(90deg)", opacity: 1 }], { duration: L * 0.8 * SPD, easing: "cubic-bezier(.4,0,.3,1)", fill: "both" });
+      fc.animate([{ transform: "translate(0,-20px) rotateY(-90deg)", opacity: 0 }, { transform: "translate(0,-20px) rotateY(-90deg)", opacity: 1, offset: 0.01 }, { transform: "none", opacity: 1 }], { duration: L * 0.35 * SPD, delay: L * 0.8 * SPD, easing: "cubic-bezier(.2,.8,.3,1)", fill: "both" });
+    } catch (x) {}
+    try { pulse("#" + (own === "p" ? "meSub" : "oppSub"), [{ transform: "scale(1)" }, { transform: "scale(1.25)", offset: 0.4 }, { transform: "scale(1)" }], 380); } catch (x) {}
+    glow(dz.x, dz.y, "#ffe08a", 60, 0.4, 0.6);
+    try { trail(dz, tp); } catch (x) {}
+    fxT(() => { bk.remove(); fc.remove(); try { hit8(s); } catch (x) { console.error(x); } try { FX.dust(tp.x, tp.y + h * 0.45, "#d8c8a0"); } catch (x) {} say(tp.x, tp.y - h * 0.62, foe ? "TỪ BỘ BÀI ĐỐI THỦ" : "TỪ BỘ BÀI", "#fff3c4"); tap("pull:land", { uid: s.dst }); }, L * 1.15);
+    fxT(() => { bk.remove(); fc.remove(); }, L * 1.15 + 300);
+    return true;
+  }
+  const trail = (a, b) => { try { FX.trail(a.x, a.y, b.x, b.y, "#ffe08a"); } catch (e) {} };
+  /* đổi phe: xích móc vào lá ở ô cũ, kéo băng qua sang ô mới bên kia */
+  function drag(e, R0, src) {
+    const r0 = R0 && R0.get(e.uid), el = mcOf(e.uid);
+    if (!r0 || !el) return false;
+    const b = el.getBoundingClientRect();
+    if (!b.width) return false;
+    const to = { x: b.left + b.width / 2, y: b.top + b.height / 2, w: b.width, h: b.height };
+    tap("drag", { uid: e.uid });
+    el.style.visibility = "hidden";
+    const g = ghost(r0, r0.html, "fxchip");
+    g.style.zIndex = "46";
+    const sp = src > 0 && src !== e.uid && mcOf(src) ? (() => { const q = mcOf(src).getBoundingClientRect(); return { x: q.left + q.width / 2, y: q.top + q.height / 2 }; })() : null;
+    const c = "#c45cff", D = 300, M = 620;
+    if (sp) { try { FX.trail(sp.x, sp.y, r0.x, r0.y, c); } catch (x) {} }
+    glow(r0.x, r0.y, c, r0.w * 1.4, 0.4, 0.6);
+    ring(r0.x, r0.y, c, r0.w * 1.2, 0.35, 0.9);
+    say(r0.x, r0.y - r0.h * 0.6, "BỊ KÉO SANG PHE KIA", "#e6c2ff");
+    try {
+      g.animate([{ transform: "none" }, { transform: "translateX(-4px) rotate(-4deg)", offset: 0.15 }, { transform: "translateX(4px) rotate(4deg)", offset: 0.3 }, { transform: "none", offset: D / (D + M) },
+        { transform: `translate(${((to.x - r0.x) * 0.5).toFixed(1)}px,${((to.y - r0.y) * 0.5).toFixed(1)}px) rotate(${to.y > r0.y ? 10 : -10}deg) scale(1.08)`, offset: (D + M * 0.5) / (D + M) },
+        { transform: `translate(${(to.x - r0.x).toFixed(1)}px,${(to.y - r0.y).toFixed(1)}px) scale(${(to.w / r0.w).toFixed(3)})` }], { duration: (D + M) * SPD, easing: "cubic-bezier(.45,.05,.4,1)", fill: "both" });
+    } catch (x) {}
+    fxT(() => { try { FX.trail(r0.x, r0.y, to.x, to.y, c); } catch (x) {} }, D);
+    fxT(() => { g.remove(); const n = mcOf(e.uid); if (n) n.style.visibility = ""; ring(to.x, to.y, c, to.w * 1.25, 0.4, 0.9); try { FX.dust(to.x, to.y + to.h * 0.45, "#d8c8a0"); } catch (x) {} tap("drag:land", { uid: e.uid }); }, D + M);
+    fxT(() => { g.remove(); const n = mcOf(e.uid); if (n) n.style.visibility = ""; }, D + M + 600);
+    try { holdFx(D + M + 200); } catch (x) {}
+    return true;
+  }
+  MO.drag = drag;
+  {
+    const p1 = plan8;
+    plan8 = function (evA, R0, R1) {
+      RVS.clear(); RVE = evA;
+      const on = !(typeof reduced !== "undefined" && reduced) && !ff();
+      if (on) for (const e of evA) if (e.k === "revive" && e.uid > 0 && !(HXG.revPA6 && HXG.revPA6(e.uid))) RVS.set(e.uid, e);
+      const T = p1.apply(this, arguments);
+      if (on) for (const e of evA) if (e.k === "morph" && e.sw && R0) { try { if (drag(e, R0, e.src)) S8.add("w" + e.uid); } catch (x) { console.error(x); } }
+      return T;
+    };
+  }
+  {
+    const r1 = run8;
+    run8 = function (s) {
+      try {
+        if (s && s.k === "summon" && !s.sigOwn && !s._ran && !(typeof reduced !== "undefined" && reduced) && !ff()) {
+          const DS = W.ACT44 && ACT44.DS, e = EVL.get(s.dst);
+          if (e && e.from === "deck" && !(DS && DS.owns && DS.owns(s.dst)) && deckPull(s, e)) return;
+        }
+      } catch (x) { console.error(x); }
+      return r1.apply(this, arguments);
+    };
+  }
+  /* sự kiện summon của bước (uid -> ev), để run8 biết nguồn */
+  const EVL = new Map();
+  {
+    const p2 = plan8;
+    plan8 = function (evA) { EVL.clear(); try { for (const e of evA) if (e.k === "summon" && e.uid > 0) EVL.set(e.uid, e); } catch (x) {} return p2.apply(this, arguments); };
   }
   /* ván mới / thoát trận: dọn sạch */
   MO.clean = () => { MO.skip(); };

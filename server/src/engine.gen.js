@@ -1,4 +1,4 @@
-// TỰ SINH bởi scripts/gen-engine.mjs từ www/js/01-engine.js (sha256 72b971a67802f8a2) — đừng sửa tay.
+// TỰ SINH bởi scripts/gen-engine.mjs từ www/js/01-engine.js (sha256 1f018605a8aaf0a3) — đừng sửa tay.
 const module = { exports: {} };
 /* Linh Thú Tam Địa — bộ máy luật (không đụng DOM, chạy được trong Node và trình duyệt) */
 (function (root) {
@@ -1246,7 +1246,7 @@ function revive(G, side, inst, li, prep) {
   const L = G.locs[li];
   if (lon(G, L) && L.id === "shrine") { inst.bonus += 2; nb(G, inst, 2, "L:shrine", "dia"); }
   if (prep) prep(inst);
-  log(G, C[inst.id].n + " được hồi sinh"); sumEv(G, inst, "revive");
+  log(G, C[inst.id].n + " được hồi sinh"); sumEv(G, inst, "revive", { from: "grave", foe: inst.own !== side ? 1 : 0 });
   effReveal(G, inst);
   return inst;
 }
@@ -1307,11 +1307,11 @@ function bounce(G, c, li) {
 function sw(G, c, li) {
   const o = other(c.side); if (!space(G, li, o) || profX(G, li)) return false;
   const a = G.locs[li].cards[c.side], ix = a.indexOf(c); if (ix < 0) return false; a.splice(ix, 1); c.side = o; G.locs[li].cards[o].push(c);
-  log(G, C[c.id].n + " đổi phe"); ev(G, "morph", { uid: c.uid }); return true;
+  log(G, C[c.id].n + " đổi phe"); ev(G, "morph", { uid: c.uid, sw: 1, s0: other(o), li }); return true;
 }
 /* b44 (mục 11): sự kiện đầy đủ cho mọi thẻ được đưa vào chiến địa bằng hiệu ứng: uid/id/side/li/ix/src (+ x bổ sung: deck/hand/pile = lá đến từ đâu) */
-function sumEv(G, c, k, x) { const li = locOf(G, c), a = li >= 0 ? G.locs[li].cards[c.side] : null; ev(G, k || "summon", Object.assign({ uid: c.uid, id: c.id, side: c.side, li, ix: a ? a.indexOf(c) : -1, src: G.srcU || 0 }, x || {})); }
-function place(G, c, li, s) { c.side = s; c.rev = true; c.sum = true; c.turn = G.turn; const a = G.locs[li].cards[s]; a.push(c); ev(G, "summon", { uid: c.uid, id: c.id, side: s, li, ix: a.length - 1, src: G.srcU || 0, deck: 1 }); effReveal(G, c); }
+function sumEv(G, c, k, x) { const li = locOf(G, c), a = li >= 0 ? G.locs[li].cards[c.side] : null; x = x || {}; if (x.from === "handdeck" && G._fk) x = Object.assign({}, x, { from: G._fk }); ev(G, k || "summon", Object.assign({ uid: c.uid, id: c.id, side: c.side, li, ix: a ? a.indexOf(c) : -1, src: G.srcU || 0 }, x)); } /* gpu71: from = deck|hand|grave|… (chỉ hiển thị) */
+function place(G, c, li, s) { c.side = s; c.rev = true; c.sum = true; c.turn = G.turn; const a = G.locs[li].cards[s]; a.push(c); ev(G, "summon", { uid: c.uid, id: c.id, side: s, li, ix: a.length - 1, src: G.srcU || 0, deck: 1, from: "deck", foe: c.own !== s ? 1 : 0 }); effReveal(G, c); }
 function shove(G, c, from, to) { if (c.rev) return moveCard(G, c, from, to); const s = c.side; if (!space(G, to, s) || noMove(G, c, from, to)) return false; const a = G.locs[from].cards[s], ix = a.indexOf(c); if (ix < 0) return false; a.splice(ix, 1); G.locs[to].cards[s].push(c); return true; }
 const pw0 = c => basePow(c) + c.bonus;
 function lowPow(G, arr, charOnly) {
@@ -1371,8 +1371,8 @@ function horde(G, s, n) {
   log(G, "Bầy Xác +" + n);
 }
 function hordePow(G, s) { const f = boardCards(G, s).find(([c]) => c.id === "bayxac"); return f ? power(G, f[0], f[1]) : 0; }
-function fromHandDeck(G, s, pred) { for (const k of ["hand", "deck"]) { const a = G[k][s], ix = a.findIndex(pred); if (ix >= 0) return a.splice(ix, 1)[0]; } return null; }
-function regenX(G, i) { const ban = stardust(G) ? addBan(G) : null; if (ban) { rvNote(G, i, ban, true); return; } const ls = [0, 1, 2].filter(l => space(G, l, i.own) && !profX(G, l)); if (!ls.length) { rvNote(G, i, "không còn chiến địa trống để hồi sinh"); return; } unpile(G, i); i.side = i.own; i.rev = true; i.sum = true; i.turn = G.turn; i.played = false; G.locs[pick(G, ls)].cards[i.own].push(i); G.nextBonus[i.own] += 1; sumEv(G, i, "revive", { self: 1 }); effReveal(G, i); }
+function fromHandDeck(G, s, pred) { for (const k of ["hand", "deck"]) { const a = G[k][s], ix = a.findIndex(pred); if (ix >= 0) { G._fk = k; return a.splice(ix, 1)[0]; } } return null; } /* gpu71: G._fk = nguồn (tay/bộ bài) cho sự kiện hiển thị */
+function regenX(G, i) { const ban = stardust(G) ? addBan(G) : null; if (ban) { rvNote(G, i, ban, true); return; } const ls = [0, 1, 2].filter(l => space(G, l, i.own) && !profX(G, l)); if (!ls.length) { rvNote(G, i, "không còn chiến địa trống để hồi sinh"); return; } unpile(G, i); i.side = i.own; i.rev = true; i.sum = true; i.turn = G.turn; i.played = false; G.locs[pick(G, ls)].cards[i.own].push(i); G.nextBonus[i.own] += 1; sumEv(G, i, "revive", { self: 1, from: "grave" }); effReveal(G, i); }
 function marrow(G, i) { const o = other(i.own); for (let k = 0; k < 7; k++) { const e = pick(G, boardCards(G, o)); if (e) hurt(G, e[0], e[1], 1); } }
 function iuAt(G, s) { return boardCards(G, s).find(([c]) => c.id === "cohoangvocuc"); }
 function khonshu(G, i, li, v) {
@@ -1781,7 +1781,7 @@ function regen(G, i) {
   const ban = stardust(G) ? addBan(G) : null; if (ban) { rvNote(G, i, ban, true); return; }
   const ls = [0, 1, 2].filter(l => space(G, l, i.own) && !profX(G, l)); if (!ls.length) { rvNote(G, i, "không còn chiến địa trống để hồi sinh"); return; }
   unpile(G, i); i.side = i.own; i.bonus += 2; nb(G, i, 2, i, "thuong"); i.rev = true; i.sum = true; i.turn = G.turn; i.played = false;
-  G.locs[pick(G, ls)].cards[i.own].push(i); log(G, C[i.id].n + " tái sinh +2"); sumEv(G, i, "revive", { self: 1 });
+  G.locs[pick(G, ls)].cards[i.own].push(i); log(G, C[i.id].n + " tái sinh +2"); sumEv(G, i, "revive", { self: 1, from: "grave" });
   effReveal(G, i);
 }
 const ACT = {
@@ -2949,5 +2949,5 @@ if (typeof module !== "undefined" && module.exports) module.exports = API; else 
 })(typeof globalThis !== "undefined" ? globalThis : this);
 
 
-export const ENGINE_SHA = "72b971a67802f8a2";
+export const ENGINE_SHA = "1f018605a8aaf0a3";
 export default module.exports;

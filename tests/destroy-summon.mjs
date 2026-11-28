@@ -98,13 +98,25 @@ const SC = [
     } },
   { name: "Trùng Mẹ: bầy trùng con xuống sân", turn: 4, own: [["thachquai", 0]], hand: [["trungmau", 1]],
     chk: (r) => { ok(r.board.filter(id => id === "trungcon").length === 2, "bầy: 2 trùng con trên bàn"); } },
-  { name: "U Minh Hậu hồi sinh Ma Sói từ Mộ: bay ra rồi mới +2", turn: 6, own: [["thachquai", 0], ["thachquai", 1], ["thachquai", 2]], disc: ["soinu"], hand: [["minhhau", 1]],
+  { name: "U Minh Hậu hồi sinh Ma Sói từ Mộ: mọc lên tại ô rồi mới +2", turn: 4, own: [["thachquai", 0], ["thachquai", 1], ["thachquai", 2]], disc: ["soinu"], hand: [["minhhau", 1]],
     chk: (r) => {
       const su = r.discU[0], land = r.t.find(x => x.k === "disc:land" && x.uid === su), runs = r.t.filter(x => x.k === "run" && x.uid === su);
-      ok(!!land, "hồi sinh: Ma Sói bay từ Mộ ra chiến địa");
+      ok(!!land && r.t.some(x => x.k === "rise" && x.uid === su && x.from === "grave"), "hồi sinh: Ma Sói từ Mộ MỌC LÊN tại chiến địa");
       ok(!runs.length || (land && runs.every(x => x.t >= land.t)), `hồi sinh: đòn của Ma Sói sau khi lá đáp (${runs.map(x => Math.round(x.t - (land ? land.t : 0))).join(",")})`);
       sndChk(r, "v", []);
     } },
+  { name: "Phượng Lửa bị huỷ -> tự hồi sinh: MỌC LÊN tại ô (không bay từ Mộ)", turn: 4, own: [["vuotsoi", 1], ["thachquai", 1]], hand: [["huyetdich", 1]],
+    chk: (r, u) => { const rs = r.t.filter(x => x.k === "rise" && x.uid === u.own[0]); ok(rs.length >= 1 && rs[0].from === "grave", `hồi sinh: Phượng Lửa mọc lên tại ô, nguồn Mộ (${JSON.stringify(rs.map(x => x.from))})`); ok(!r.t.some(x => x.k === "HX14"), "hồi sinh: không hồn trèo khỏi Mộ bay về ô (HX-14)"); ok(r.t.some(x => x.k === "rise:land" && x.uid === u.own[0]), "hồi sinh: lá đáp ô"); { const bi = r.t.findIndex(x => x.k === "d:break" && x.uid === u.own[0]), ri = r.t.findIndex(x => x.k === "react" && x.uid === u.own[0]), si = r.t.findIndex(x => x.k === "rise:land" && x.uid === u.own[0]); ok(bi >= 0 && (ri < 0 || ri > bi) && si > bi, "tiêu huỷ -> lá vỡ xong rồi mới phản ứng / mọc lại"); } } },
+  { name: "Tốc Ảnh đưa lá từ Mộ ra sân: mọc lên tại ô", turn: 4, disc: ["kiemsu"], hand: [["matoc", 1]],
+    chk: (r, u) => { ok(r.t.some(x => x.k === "rise" && x.uid === u.disc[0] && x.from === "grave"), "từ Mộ: lá mọc lên tại ô (không bay từ chồng Mộ)"); ok(r.t.some(x => x.k === "disc:land" && x.uid === u.disc[0] && x.to === "board"), "từ Mộ: lá đáp ô"); } },
+  { name: "Nam Tước Mặt Nạ chiêu mộ từ BỘ BÀI ĐỐI THỦ", turn: 4, hand: [["namtuocmatna", 1]],
+    chk: (r) => { const p = r.t.find(x => x.k === "pull"); ok(!!p && p.from === "deck" && p.foe === 1, `từ bộ bài đối thủ: mặt lưng rời cụm bộ bài đối thủ, lật tại ô (${JSON.stringify(p || null)})`); ok(!!p && r.t.some(x => x.k === "pull:land" && x.uid === p.uid), "từ bộ bài: lá đáp ô"); } },
+  { name: "Lữ Khách Trời bị huỷ -> lá 4 năng lượng TỪ TAY", turn: 4, own: [["lukhachtroi", 1]], hand: [["huyetdich", 1]], extraHand: ["thachquai"],
+    chk: (r, u) => { ok(r.t.some(x => x.k === "handPlace" && x.uid === u.extra[0]) && r.t.some(x => x.k === "handPlace:land" && x.uid === u.extra[0]), "từ tay: lá rời đúng chỗ trên tay bay lên ô"); { const bi = r.t.findIndex(x => x.k === "d:break" && x.uid === u.own[0]), hi = r.t.findIndex(x => x.k === "handPlace" && x.uid === u.extra[0]); ok(bi >= 0 && hi > bi, "thẻ thay thế chỉ xuống sau khi lá bị huỷ đã vỡ"); } } },
+  { name: "Thằng Bờm bị huỷ -> lá 1 năng lượng TỪ BỘ BÀI", turn: 4, own: [["linhthuelammom", 1]], hand: [["huyetdich", 1]], deckTop: "soc",
+    chk: (r) => { const p = r.t.find(x => x.k === "pull"); ok(!!p && p.from === "deck" && p.foe === 0, `từ bộ bài mình: mặt lưng rời cụm bộ bài, lật tại ô (${JSON.stringify(p || null)})`); } },
+  { name: "Rắn Lục Nữ: lá bị KÉO sang phe kia từ đúng ô", turn: 4, own: [["thachquai", 1]], hand: [["ranlucnu", 1]],
+    chk: (r, u) => { ok(r.t.some(x => x.k === "drag" && x.uid === u.own[0]) && r.t.some(x => x.k === "drag:land" && x.uid === u.own[0]), "đổi phe: xích móc lá ở ô cũ, kéo sang ô mới"); } },
 ];
 try {
   await page.goto(`http://127.0.0.1:${server.address().port}/index.html`, { waitUntil: "domcontentloaded" });
@@ -149,8 +161,8 @@ try {
     const t0 = Date.now();
     const shot = {};
     while (Date.now() - t0 < 90000) {
-      const st = await page.evaluate(() => ({ b: TURN_BUSY, ph: G.phase, big: window.__t.some(x => x.k === "disc:big"), brk: window.__t.some(x => x.k === "d:break") }));
-      if (process.env.SHOTS) for (const k of ["big", "brk"]) if (st[k] && !shot[k]) { shot[k] = 1; await page.waitForTimeout(k === "brk" ? 150 : 250); await page.screenshot({ path: `${process.env.SHOTS}/ds${n}_${k}.png`, scale: "css", type: "jpeg", quality: 60 }); }
+      const st = await page.evaluate(() => ({ b: TURN_BUSY, ph: G.phase, big: window.__t.some(x => x.k === "disc:big"), brk: window.__t.some(x => x.k === "d:break"), rise: window.__t.some(x => x.k === "rise"), drag: window.__t.some(x => x.k === "drag") }));
+      if (process.env.SHOTS) for (const k of ["big", "brk", "rise", "drag"]) if (st[k] && !shot[k]) { shot[k] = 1; await page.waitForTimeout(k === "brk" ? 150 : k === "rise" ? 420 : k === "drag" ? 600 : 250); await page.screenshot({ path: `${process.env.SHOTS}/ds${n}_${k}.png`, scale: "css", type: "jpeg", quality: 60 }); }
       if (!st.b && st.ph === "play" && Date.now() - t0 > 1500) break;
       await page.waitForTimeout(60);
     }

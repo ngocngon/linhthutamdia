@@ -490,6 +490,7 @@
     }
   };
   HXG.ownRev = (ev) => REV.has(ev.uid) || (typeof R14 !== "undefined" && R14.has(ev.uid));
+  HXG.revPA6 = (uid) => REV.has(uid); /* gpu71: hồi sinh do hồn PA6 toả tới (giữ nhịp PA6); còn lại 19-mo.js cho lá mọc lên tại ô */
   /* HX-09: hồn ở lại cạnh thẻ nguồn (không bay tới mục tiêu), chỉ nghiêng về phía mục tiêu rồi vươn tay */
   HXG.goStop = function (ch, st, dur) {
     if (st.hx !== "arm") return false;

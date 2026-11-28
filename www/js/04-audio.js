@@ -548,6 +548,7 @@ const SFX = (() => {
   function moKey(kind, id, el) {
     if (id && bufs["c_" + id]) return "c_" + id;
     const tw = id && MOTWIN[id]; if (tw && bufs["c_" + tw]) return "c_" + tw;
+    if (kind === "r") return null;
     const k = (kind === "v" ? "v_" : "d_") + (el || "");
     return el && bufs[k] ? k : null;
   }
@@ -808,7 +809,7 @@ const SFX = (() => {
       try { if (window.MO_SND) window.MO_SND(kind, id, key || (kind === "v" ? "discard" : "destroy")); } catch (e) {}
       if (store.mute) return key;
       try {
-        if (!key) { fam(kind === "v" ? "discard" : "destroy", { el, delay: o.delay, vol: o.vol }); return null; }
+        if (!key) { if (kind !== "r") fam(kind === "v" ? "discard" : "destroy", { el, delay: o.delay, vol: o.vol }); return null; } /* "r": chỉ tiếng riêng của thẻ gọi từ Mộ (U Minh Hậu…) */
         if (VIB.destroy && kind === "d" && store.vib !== false && navigator.vibrate) { try { navigator.vibrate(VIB.destroy); } catch (e) {} }
         playSample(key, o.vol == null ? 1 : o.vol, { delay: o.delay, pri: 1 });
       } catch (e) {}
