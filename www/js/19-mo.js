@@ -449,7 +449,10 @@ body.rm .mo-g,body.rm .mo-dim{display:none!important}`;
       try {
         if (s && s.k === "summon" && !s.sigOwn && !s._ran && !(typeof reduced !== "undefined" && reduced) && !ff()) {
           const DS = W.ACT44 && ACT44.DS, e = EVL.get(s.dst);
-          if (e && e.from === "deck" && !(DS && DS.owns && DS.owns(s.dst)) && deckPull(s, e)) return;
+          /* place() (deck:1) cũng dùng cho lá từ tay (Chúa Rồng): lá có trong ảnh chụp tay trước bước -> để 18-act handPlace vẽ */
+          let inHand = false;
+          try { const S = SNX; inHand = !!(S && S.hand && E.SIDES.some((sd) => S.hand[sd] && S.hand[sd].has(s.dst))); } catch (x) {}
+          if (e && (e.from === "deck" || (e.deck && !inHand)) && !inHand && !(DS && DS.owns && DS.owns(s.dst)) && deckPull(s, e)) return;
         }
       } catch (x) { console.error(x); }
       return r1.apply(this, arguments);

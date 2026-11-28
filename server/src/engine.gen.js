@@ -1,4 +1,4 @@
-// TỰ SINH bởi scripts/gen-engine.mjs từ www/js/01-engine.js (sha256 1f018605a8aaf0a3) — đừng sửa tay.
+// TỰ SINH bởi scripts/gen-engine.mjs từ www/js/01-engine.js (sha256 5c5ae330a9de808e) — đừng sửa tay.
 const module = { exports: {} };
 /* Linh Thú Tam Địa — bộ máy luật (không đụng DOM, chạy được trong Node và trình duyệt) */
 (function (root) {
@@ -1311,7 +1311,7 @@ function sw(G, c, li) {
 }
 /* b44 (mục 11): sự kiện đầy đủ cho mọi thẻ được đưa vào chiến địa bằng hiệu ứng: uid/id/side/li/ix/src (+ x bổ sung: deck/hand/pile = lá đến từ đâu) */
 function sumEv(G, c, k, x) { const li = locOf(G, c), a = li >= 0 ? G.locs[li].cards[c.side] : null; x = x || {}; if (x.from === "handdeck" && G._fk) x = Object.assign({}, x, { from: G._fk }); ev(G, k || "summon", Object.assign({ uid: c.uid, id: c.id, side: c.side, li, ix: a ? a.indexOf(c) : -1, src: G.srcU || 0 }, x)); } /* gpu71: from = deck|hand|grave|… (chỉ hiển thị) */
-function place(G, c, li, s) { c.side = s; c.rev = true; c.sum = true; c.turn = G.turn; const a = G.locs[li].cards[s]; a.push(c); ev(G, "summon", { uid: c.uid, id: c.id, side: s, li, ix: a.length - 1, src: G.srcU || 0, deck: 1, from: "deck", foe: c.own !== s ? 1 : 0 }); effReveal(G, c); }
+function place(G, c, li, s) { c.side = s; c.rev = true; c.sum = true; c.turn = G.turn; const a = G.locs[li].cards[s]; a.push(c); ev(G, "summon", { uid: c.uid, id: c.id, side: s, li, ix: a.length - 1, src: G.srcU || 0, deck: 1, foe: c.own !== s ? 1 : 0 }); effReveal(G, c); }
 function shove(G, c, from, to) { if (c.rev) return moveCard(G, c, from, to); const s = c.side; if (!space(G, to, s) || noMove(G, c, from, to)) return false; const a = G.locs[from].cards[s], ix = a.indexOf(c); if (ix < 0) return false; a.splice(ix, 1); G.locs[to].cards[s].push(c); return true; }
 const pw0 = c => basePow(c) + c.bonus;
 function lowPow(G, arr, charOnly) {
@@ -2949,5 +2949,5 @@ if (typeof module !== "undefined" && module.exports) module.exports = API; else 
 })(typeof globalThis !== "undefined" ? globalThis : this);
 
 
-export const ENGINE_SHA = "1f018605a8aaf0a3";
+export const ENGINE_SHA = "5c5ae330a9de808e";
 export default module.exports;
