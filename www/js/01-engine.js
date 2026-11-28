@@ -1095,7 +1095,7 @@ function destroy(G, inst, li) {
   if (inst.ug_de && !inst.sil) { const ks = boardCards(G, inst.side).map(e => e[0]).filter(k => k !== inst); if (ks.length) { const k = pick(G, ks); k.bonus += 2; log(G, d.n + " (nâng cấp): +2 sức mạnh cho " + C[k.id].n); } }
   for (const [k] of boardCards(G, inst.own)) if (k !== inst && !k.sil) {
     if (is(G, k, "vukhix")) { k.wx = (k.wx || 0) + 1; const n = 1 + Math.floor((k.wx - 1) / 3); k.bonus += n; nb(G, k, n, k, "thuong"); ev(G, "pbuff", { uid: k.uid, side: k.side, n, src: k.uid, from: inst.uid, why: "vukhix", cnt: k.wx }); }
-    else if (is(G, k, "xachacdich")) horde(G, inst.own, 3);
+    else if (is(G, k, "xachacdich")) { const sv = G.srcU; G.srcU = k.uid; horde(G, inst.own, 3); G.srcU = sv; }
   }
   for (const [k, kl] of boardCards(G, inst.own)) if (!k.sil) {
     if (is(G, k, "kysituduc") && !k.done) {
@@ -2257,7 +2257,7 @@ function revealCard(G, inst, li, by, ef) {
     if (inst.surge) { inst.surge = false; surge(G, s, inst.uid); }
     for (const sd of SIDES) for (const [k, kl] of boardCards(G, sd)) if (k !== inst && !k.sil) {
       if (sd === s && is(G, k, "hoamavuong") && power(G, inst, li) >= 10) { k.bonus += 2; nb(G, k, 2, k, "thuong"); }
-      else if (sd === s && is(G, k, "xachongphuthuy") && kl === li) horde(G, s, 2);
+      else if (sd === s && is(G, k, "xachongphuthuy") && kl === li) { const sv = G.srcU; G.srcU = k.uid; horde(G, s, 2); G.srcU = sv; }
       else if (sd !== s && is(G, k, "chonvacay") && kl === li) { inst.bonus -= 1; k.bonus += 1; k.stl = true; }
     }
     for (const k of shown(G, li, s)) if (!k.sil && is(G, k, "nuhondoc") && L.cards[s].length >= cap(G, li)) destroy(G, k, li); /* gpu68-audit2: Nụ Hôn Độc bị xoá kỹ năng thì không tự huỷ */
